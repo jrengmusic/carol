@@ -37,16 +37,33 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 
 ### Installation
 
+**One-Line Install (Recommended):**
 ```bash
-# Clone CAROL framework
-git clone https://github.com/jrengmusic/carol.git
-cd carol
+curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/install.sh | bash
+```
 
-# Add to PATH
-./install.sh
+This will:
+- Clone CAROL to `~/.carol`
+- Add `carol` command to your PATH
+- Work on macOS and Linux with bash/zsh
 
-# Reload shell or start new terminal
+Then reload your shell:
+```bash
+source ~/.zshrc   # zsh
+# OR
+source ~/.bashrc  # bash
+```
+
+**Manual Install:**
+```bash
+git clone https://github.com/jrengmusic/carol.git ~/.carol
+~/.carol/install.sh
 source ~/.zshrc  # or ~/.bashrc
+```
+
+**Custom Install Location:**
+```bash
+CAROL_INSTALL_DIR=~/my/custom/path bash <(curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/install.sh)
 ```
 
 ### Initialize in Project
@@ -83,6 +100,26 @@ After `carol init`, activate an agent by reading role definitions:
 Read .carol/CAROL.md. You are assigned as ANALYST, register yourself in .carol/SESSION-LOG.md
 ```
 
+### Uninstall
+
+**One-Line Uninstall:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/uninstall.sh | bash
+```
+
+This will:
+- Remove `~/.carol` directory (with confirmation)
+- Clean up PATH from shell configuration files
+- Create backups of modified files
+- Warn about projects still using CAROL
+
+Then reload your shell:
+```bash
+source ~/.zshrc   # zsh
+# OR
+source ~/.bashrc  # bash
+```
+
 ## Available Roles
 
 | Role | Purpose | When to Use |
@@ -108,6 +145,7 @@ Read .carol/CAROL.md. You are assigned as ANALYST, register yourself in .carol/S
 ```
 ___CAROL___/
 ├── CAROL.md                  # Role definitions (immutable)
+├── AGENTS.md                 # Agent self-assessments & recommendations
 ├── PATTERNS.md               # LLM meta-patterns
 ├── SCRIPTS.md                # Script documentation
 ├── PATTERNS-WRITER.md        # Pattern discovery guide
@@ -127,6 +165,7 @@ ___CAROL___/
 your-project/
 ├── .carol/
 │   ├── CAROL.md → ___CAROL___/CAROL.md (symlink)
+│   ├── AGENTS.md → ___CAROL___/AGENTS.md (symlink)
 │   ├── PATTERNS.md → ___CAROL___/PATTERNS.md (symlink)
 │   ├── SCRIPTS.md → ___CAROL___/SCRIPTS.md (symlink)
 │   ├── PATTERNS-WRITER.md → ___CAROL___/PATTERNS-WRITER.md (symlink)
@@ -169,9 +208,9 @@ CAROL aligns with **LIFE STAR + LOVE** principles:
 - [x] `PATTERNS.md` - LLM meta-patterns for problem-solving
 - [x] `SCRIPTS.md` - Code editing automation (documentation)
 - [x] `PATTERNS-WRITER.md` - Pattern discovery guide
-- [ ] Shell scripts (safe-edit.sh, etc.) - Implementation
+- [x] Shell scripts - safe-edit.sh, safe-insert.sh, generate-error-handler.sh, generate-validation.sh, validate-code.sh, rename-symbol.sh
 - [ ] Slash command integration (`/carol`)
-- [ ] Test suite
+- [ ] Test suite (partial - safe-edit.sh, safe-insert.sh, generate-error-handler.sh, generate-validation.sh have full TDD coverage)
 - [ ] Examples directory
 - [ ] Video tutorials
 
@@ -218,6 +257,7 @@ Created by JRENG to orchestrate free-tier LLM agents without burning budget on f
 ## Documentation
 
 - [CAROL.md](./CAROL.md) - Complete role definitions
+- [AGENTS.md](./AGENTS.md) - Agent self-assessments and assignment recommendations
 - [PATTERNS.md](./PATTERNS.md) - LLM meta-patterns for problem-solving
 - [SCRIPTS.md](./SCRIPTS.md) - Code editing automation catalog
 - [PATTERNS-WRITER.md](./PATTERNS-WRITER.md) - Pattern discovery guide
