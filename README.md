@@ -145,7 +145,7 @@ source ~/.bashrc  # bash
 ```
 ___CAROL___/
 ├── CAROL.md                  # Role definitions (immutable)
-├── INTERVIEW.md                 # Agent self-assessments & recommendations
+├── INTERVIEW.md              # Agent self-assessments & recommendations
 ├── PATTERNS.md               # LLM meta-patterns
 ├── SCRIPTS.md                # Script documentation
 ├── PATTERNS-WRITER.md        # Pattern discovery guide
