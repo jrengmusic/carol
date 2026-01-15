@@ -2,12 +2,20 @@
 
 **C**ognitive **A**mplification **R**ole **O**rchestration with **LLM** agents
 
+a cognitive amplifier where YOU are the intelligence and they're the specialized compute nodes.
+
 Version: 1.0.0
 ## Why
 
 Just like all other softwares, one day inevitably this framework might be obsolete. But as today at its infancy, LLM agents are unreliable assistance for development. Objectively, whatever commercial agentic models available today it always produce deterministic binary results. Either they could populate super fast thousands of lines of codes that might work or it will just give you piles of garbage that will exhaust your tokens, credits, time, patient and eventually your sanity to debug.
 
-## What is CAROL?
+### Solution
+1. You maintain architectural coherence
+No agent can fuck up the big picture because you're the one holding it. You're validating intent at each handoff.
+2. Domain transfer without syntax debt
+Fuck MCP. You are the living experience of Human Context Protocol. You control the flow. You are the architect. The agents translate your architectural intent into the programming language syntax.
+
+## What
 
 CAROL is a role-based agent orchestration framework for collaborative software development. It defines specialized roles with explicit constraints, preventing scope creep and ensuring clear handoffs between agents.
 
@@ -24,6 +32,66 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 - **SURGEON** - Complex fix specialist. Handles bugs, performance issues, and architectural corrections. Reads RESET context, identifies root cause, implements minimal surgical fixes. Does not refactor unless required.
 
 - **JOURNALIST** - Documentation synthesizer. Compiles session summaries from SESSION-[N]-*.md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail.
+
+## How
+
+Document-driven development pipeline where each artifact serves a specific purpose in the workflow.
+
+## Task: Implement commit flow
+
+```
+┌─────────────────────────────────────────────────────┐
+│ FEATURE REQUEST (from you)                          │
+└────────────────┬────────────────────────────────────┘
+                 │
+┌────────────────▼────────────────────────────────────┐
+│ ANALYST: Comprehensive Planning                     │
+├─────────────────────────────────────────────────────┤
+│ Outputs:                                            │
+│ - PLAN.md (overall architecture)                    │
+│ - SPEC.md (design contract, all flows)              │
+│ - SESSION-N-ROLE-TASK.md (atomic tasks)             │
+│                                                     │
+│ Quality: Every agent can execute from this          │
+└────────────────┬────────────────────────────────────┘
+                 │
+       ┌─────────┴─────────┐
+       │                   │
+┌──────▼──────┐    ┌──────▼──────┐
+│ SCAFFOLDER  │    │ CARETAKER   │
+│ implement   │    │ Polish      │
+└──────┬──────┘    └──────┬──────┘
+       │                   │
+       └─────────┬─────────┘
+                 │
+┌────────────────▼───────────────┐
+│ YOU: Test against SPEC.md      │              
+└────────────────┬───────────────┘
+                 │
+           ┌─────┴─────┐
+           │ Pass?     │
+           ├───────────┤
+      [No] │      │[Yes]
+           │      │
+┌──────────▼──┐   │   ┌───────────────────────────────────┐
+│ SURGEON     │   │   │ INSPECTOR: Audit, Refactor, Clean │
+│ Fix         │   │   └────────────────┬──────────────────┘
+└──────┬──────┘   │                    │
+       │          │   ┌────────────────▼──────────────────┐
+       └──────────┘   │ YOU: Approve                      │        
+                      │ ANALYST: write ARCHITECTURE.md    │                  
+                      └────────────────┬──────────────────┘
+                                       │
+                      ┌────────────────▼─────────────────┐
+                      │ JOURNALIST:                      │
+                      │  - update SESSION-LOG.md         │
+                      │  - update ARCHITECTURE.md        │
+                      │  - write inline documentations   │
+                      │  - update SPEC.md == TDD         │
+                      └──────────────────────────────────┘
+
+```
+
 
 ## Key Features
 
