@@ -145,7 +145,7 @@ source ~/.bashrc  # bash
 ```
 ___CAROL___/
 ├── CAROL.md                  # Role definitions (immutable)
-├── AGENTS.md                 # Agent self-assessments & recommendations
+├── INTERVIEW.md                 # Agent self-assessments & recommendations
 ├── PATTERNS.md               # LLM meta-patterns
 ├── SCRIPTS.md                # Script documentation
 ├── PATTERNS-WRITER.md        # Pattern discovery guide
@@ -165,7 +165,7 @@ ___CAROL___/
 your-project/
 ├── .carol/
 │   ├── CAROL.md → ___CAROL___/CAROL.md (symlink)
-│   ├── AGENTS.md → ___CAROL___/AGENTS.md (symlink)
+│   ├── INTERVIEW.md → ___CAROL___/INTERVIEW.md (symlink)
 │   ├── PATTERNS.md → ___CAROL___/PATTERNS.md (symlink)
 │   ├── SCRIPTS.md → ___CAROL___/SCRIPTS.md (symlink)
 │   ├── PATTERNS-WRITER.md → ___CAROL___/PATTERNS-WRITER.md (symlink)
@@ -254,7 +254,7 @@ Rock 'n Roll!
 ## Documentation
 
 - [CAROL.md](./CAROL.md) - Complete role definitions
-- [AGENTS.md](./AGENTS.md) - Agent self-assessments and assignment recommendations
+- [INTERVIEW.md](./INTERVIEW.md) - Agent self-assessments and assignment recommendations
 - [PATTERNS.md](./PATTERNS.md) - LLM meta-patterns for problem-solving
 - [SCRIPTS.md](./SCRIPTS.md) - Code editing automation catalog
 - [PATTERNS-WRITER.md](./PATTERNS-WRITER.md) - Pattern discovery guide
