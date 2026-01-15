@@ -1,4 +1,4 @@
-# CAROL Framework
+# CAROL
 
 **C**ognitive **A**mplification **R**ole **O**rchestration with **LLM** agents
 
