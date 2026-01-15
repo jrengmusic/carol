@@ -56,7 +56,7 @@ Document-driven development pipeline where each artifact serves a specific purpo
        ┌─────────┴─────────┐
        │                   │
 ┌──────▼──────┐    ┌───────▼──────┐
-│ SCAFFOLDER  │    │ CARETAKE R   │
+│ SCAFFOLDER  │    │ CARETAKER    │
 │ implement   │    │ Polish       │
 └──────┬──────┘    └───────┬──────┘
        │                   │
