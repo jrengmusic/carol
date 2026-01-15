@@ -143,7 +143,7 @@ source ~/.bashrc  # bash
 
 **CAROL SSOT (This Repository):**
 ```
-___CAROL___/
+~/.carol
 ├── CAROL.md                  # Role definitions (immutable)
 ├── INTERVIEW.md              # Agent self-assessments & recommendations
 ├── PATTERNS.md               # LLM meta-patterns
