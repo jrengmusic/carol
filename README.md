@@ -47,8 +47,6 @@ Document-driven development pipeline where each artifact serves a specific purpo
 ┌────────────────▼────────────────────────────────────┐
 │ ANALYST: Comprehensive Planning                     │
 ├─────────────────────────────────────────────────────┤
-│ Outputs:                                            │
-│ - PLAN.md (overall architecture)                    │
 │ - SPEC.md (design contract, all flows)              │
 │ - SESSION-N-ROLE-TASK.md (atomic tasks)             │
 │                                                     │
@@ -57,10 +55,10 @@ Document-driven development pipeline where each artifact serves a specific purpo
                  │
        ┌─────────┴─────────┐
        │                   │
-┌──────▼──────┐    ┌──────▼──────┐
-│ SCAFFOLDER  │    │ CARETAKER   │
-│ implement   │    │ Polish      │
-└──────┬──────┘    └──────┬──────┘
+┌──────▼──────┐    ┌───────▼──────┐
+│ SCAFFOLDER  │    │ CARETAKE R   │
+│ implement   │    │ Polish       │
+└──────┬──────┘    └───────┬──────┘
        │                   │
        └─────────┬─────────┘
                  │
@@ -91,7 +89,6 @@ Document-driven development pipeline where each artifact serves a specific purpo
                       └──────────────────────────────────┘
 
 ```
-
 
 ## Key Features
 
