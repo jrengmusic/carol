@@ -1,10 +1,10 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 0.1.0
+# Version: 1.0.0
 
 set -e
 
-VERSION="0.1.0"
+VERSION="1.0.0"
 CAROL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CAROL_REMOTE="${CAROL_REMOTE:-file://$CAROL_ROOT}"  # Default to local repo for testing
 
@@ -102,12 +102,12 @@ cmd_init() {
 
         # Symlink shared resources
         ln -s "$CAROL_ROOT/CAROL.md" .carol/CAROL.md
-        ln -s "$CAROL_ROOT/PATTERNS.md" .carol/PATTERNS.md 2>/dev/null || info "PATTERNS.md not yet created"
-        ln -s "$CAROL_ROOT/SCRIPTS.md" .carol/SCRIPTS.md 2>/dev/null || info "SCRIPTS.md not yet created"
-        ln -s "$CAROL_ROOT/PATTERNS-WRITER.md" .carol/PATTERNS-WRITER.md 2>/dev/null || info "PATTERNS-WRITER.md not yet created"
+        ln -s "$CAROL_ROOT/PATTERNS.md" .carol/PATTERNS.md
+        ln -s "$CAROL_ROOT/SCRIPTS.md" .carol/SCRIPTS.md
+        ln -s "$CAROL_ROOT/PATTERNS-WRITER.md" .carol/PATTERNS-WRITER.md
         ln -s "$CAROL_ROOT/SPEC-WRITER.md" .carol/SPEC-WRITER.md
         ln -s "$CAROL_ROOT/ARCHITECTURE-WRITER.md" .carol/ARCHITECTURE-WRITER.md
-        ln -s "$CAROL_ROOT/scripts" .carol/scripts
+        ln -s "$CAROL_ROOT/scripts" .carol/scripts 2>/dev/null || info "scripts/ directory will be available when scripts are implemented"
 
         # Copy templates (project-specific)
         cp "$CAROL_ROOT/templates/SESSION-LOG.md" .carol/SESSION-LOG.md

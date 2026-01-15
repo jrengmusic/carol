@@ -3,8 +3,8 @@
 
 **Purpose:** Define specialized roles for AI agents in collaborative software development. Each agent reads this document to understand their responsibilities, constraints, and optimal behavior patterns.
 
-**Version:** 0.9  
-**Last Updated:** January 15, 2026
+**Version:** 1.0.0
+**Last Updated:** January 16, 2026
 
 ---
 
@@ -289,6 +289,10 @@ Created MermaidRenderer.h/cpp and MermaidTokenizer.h/cpp with binary resource lo
 
 ### Your Optimal Behavior
 
+**Read PATTERNS.md first:**
+- Use Problem Decomposition Framework
+- Follow Tool Selection Decision Tree
+
 **ALWAYS start by asking questions:**
 ```
 Before I write the plan, let me clarify:
@@ -347,6 +351,11 @@ Write `.carol/SESSION-[N]-ANALYST-PLAN.md` summarizing what specs were created.
 - User says: "Read CAROL, act as SCAFFOLDER"
 
 ### Your Optimal Behavior
+
+**Use SCRIPTS.md for code generation:**
+- Use safe-edit.sh for file modifications
+- Use pattern generators for boilerplate
+- Always check SSOT (existing patterns) first
 
 **Read kickoff document carefully:**
 ```
@@ -412,6 +421,11 @@ Write `SESSION-[N]-SCAFFOLDER-[MODULE].md` summarizing what was scaffolded.
 - User says: "Read CAROL, act as CARETAKER"
 
 ### Your Optimal Behavior
+
+**Read PATTERNS-WRITER.md when discovering patterns:**
+- Document patterns seen 3+ times
+- Use SCRIPTS.md for safe code edits
+- Follow existing patterns in ARCHITECTURE.md
 
 **Read scaffold + ARCHITECTURE.md:**
 ```go
@@ -481,6 +495,10 @@ Write `SESSION-[N]-CARETAKER-[MODULE].md` summarizing what was polished.
 - User says: "Read CAROL, act as INSPECTOR"
 
 ### Your Optimal Behavior
+
+**Use PATTERNS-WRITER.md for pattern validation:**
+- Verify patterns in ARCHITECTURE.md are followed
+- Use SCRIPTS.md validate-code.sh for systematic checks
 
 **Systematic review checklist:**
 ```
@@ -562,6 +580,12 @@ When user activates you, think:
 - User says: "Read CAROL, act as SURGEON"
 
 ### Your Optimal Behavior
+
+**Follow PATTERNS.md debug methodology:**
+1. Check simple bugs first (types, construction order, logic)
+2. Read existing patterns in ARCHITECTURE.md
+3. Use PATTERNS-WRITER.md if discovering new patterns
+4. THEN implement surgical fix
 
 **User gives you RESET context:**
 ```

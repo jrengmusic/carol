@@ -66,6 +66,21 @@
 - ✅ ALWAYS return errors to caller or log + fail fast
 - Better to panic/error early than debug silent failure for hours
 
+**META-PATTERN RULE (CRITICAL)**
+- ❌ NEVER start complex task without reading PATTERNS.md
+- ✅ ALWAYS use Problem Decomposition Framework for multi-step tasks
+- ✅ ALWAYS use Debug Methodology checklist when investigating bugs
+- ✅ ALWAYS run Self-Validation Checklist before responding
+- ✅ Follow role-specific patterns (ANALYST, SCAFFOLDER, SURGEON, CARETAKER, INSPECTOR)
+- Better to pause and read patterns than repeat documented failures
+
+**SCRIPT USAGE RULE**
+- ✅ ALWAYS use scripts from SCRIPTS.md for code editing (when available)
+- ✅ Scripts have dry-run mode - use it before actual edit
+- ✅ Scripts create backups - verify before committing
+- ❌ NEVER use raw sed/awk without safe-edit.sh wrapper (when script available)
+- Scripts prevent common mistakes and enforce safety
+
 **⚠️ NEVER EVER REMOVE THESE RULES**
 - Rules at top of SESSION-LOG.md are immutable
 - If rules need update: ADD new rules, don't erase old ones
