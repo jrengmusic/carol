@@ -2,13 +2,25 @@
 
 **C**ognitive **A**mplification **R**ole **O**rchestration with **LLM** agents
 
-Version: 0.1.0
+Version: 1.0.0
 
 ## What is CAROL?
 
-CAROL is a role-based agent orchestration framework for collaborative software development. It defines specialized roles (ANALYST, SCAFFOLDER, CARETAKER, INSPECTOR, SURGEON, JOURNALIST) with explicit constraints, preventing scope creep and ensuring clear handoffs between agents.
+CAROL is a role-based agent orchestration framework for collaborative software development. It defines specialized roles with explicit constraints, preventing scope creep and ensuring clear handoffs between agents.
 
-**Born from real failures:** CAROL was created to prevent documented LLM failure patterns that cost $120+ in wasted API calls. See [LESSONS_LEARNED.md](#) for the full story.
+### Specialized Roles
+
+- **ANALYST** - Requirements analyst and planning specialist. Asks clarifying questions, gathers requirements, writes specifications in SPEC.md, and creates architecture documentation. Never writes code directly.
+
+- **SCAFFOLDER** - Literal code generator. Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Does not add features, optimize, or make architectural decisions.
+
+- **CARETAKER** - Code polisher and reviewer. Adds error handling, validation, and defensive programming. Improves existing code without changing behavior. Focuses on robustness, not cleverness.
+
+- **INSPECTOR** - Pre-commit auditor. Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints, verifies style compliance. Reports findings, does not fix code.
+
+- **SURGEON** - Complex fix specialist. Handles bugs, performance issues, and architectural corrections. Reads RESET context, identifies root cause, implements minimal surgical fixes. Does not refactor unless required.
+
+- **JOURNALIST** - Documentation synthesizer. Compiles session summaries from SESSION-[N]-*.md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail.
 
 ## Key Features
 
@@ -96,8 +108,9 @@ Read .carol/CAROL.md. You are assigned as ANALYST, register yourself in .carol/S
 ```
 ___CAROL___/
 ├── CAROL.md                  # Role definitions (immutable)
-├── PATTERNS.md               # LLM meta-patterns (coming soon)
-├── SCRIPTS.md                # Script documentation (coming soon)
+├── PATTERNS.md               # LLM meta-patterns
+├── SCRIPTS.md                # Script documentation
+├── PATTERNS-WRITER.md        # Pattern discovery guide
 ├── SPEC-WRITER.md            # Analyst conversation guide
 ├── ARCHITECTURE-WRITER.md    # Architecture documentation guide
 ├── templates/                # Project templates
@@ -114,8 +127,12 @@ ___CAROL___/
 your-project/
 ├── .carol/
 │   ├── CAROL.md → ___CAROL___/CAROL.md (symlink)
-│   ├── PATTERNS.md → ... (symlink)
-│   ├── scripts/ → ... (symlink)
+│   ├── PATTERNS.md → ___CAROL___/PATTERNS.md (symlink)
+│   ├── SCRIPTS.md → ___CAROL___/SCRIPTS.md (symlink)
+│   ├── PATTERNS-WRITER.md → ___CAROL___/PATTERNS-WRITER.md (symlink)
+│   ├── SPEC-WRITER.md → ___CAROL___/SPEC-WRITER.md (symlink)
+│   ├── ARCHITECTURE-WRITER.md → ___CAROL___/ARCHITECTURE-WRITER.md (symlink)
+│   ├── scripts/ → ___CAROL___/scripts/ (symlink)
 │   ├── SESSION-LOG.md (copied, customized)
 │   ├── ARCHITECTURE.md (copied, customized)
 │   ├── SPEC.md (you create)
@@ -149,9 +166,10 @@ CAROL aligns with **LIFE STAR + LOVE** principles:
 - [x] CLI tool (`carol init`, `update`, `version`)
 - [x] Symlink + portable modes
 - [x] Template system
-- [ ] `PATTERNS.md` - LLM meta-patterns for problem-solving
-- [ ] `SCRIPTS.md` - Code editing automation
-- [ ] Shell scripts (safe-edit.sh, etc.)
+- [x] `PATTERNS.md` - LLM meta-patterns for problem-solving
+- [x] `SCRIPTS.md` - Code editing automation (documentation)
+- [x] `PATTERNS-WRITER.md` - Pattern discovery guide
+- [ ] Shell scripts (safe-edit.sh, etc.) - Implementation
 - [ ] Slash command integration (`/carol`)
 - [ ] Test suite
 - [ ] Examples directory
@@ -200,6 +218,9 @@ Created by JRENG to orchestrate free-tier LLM agents without burning budget on f
 ## Documentation
 
 - [CAROL.md](./CAROL.md) - Complete role definitions
+- [PATTERNS.md](./PATTERNS.md) - LLM meta-patterns for problem-solving
+- [SCRIPTS.md](./SCRIPTS.md) - Code editing automation catalog
+- [PATTERNS-WRITER.md](./PATTERNS-WRITER.md) - Pattern discovery guide
 - [SPEC-WRITER.md](./SPEC-WRITER.md) - How ANALYST writes specs
 - [ARCHITECTURE-WRITER.md](./ARCHITECTURE-WRITER.md) - How agents document architecture
 - [SESSION-LOG.md](./templates/SESSION-LOG.md) - Session tracking template
