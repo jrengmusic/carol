@@ -1,0 +1,26 @@
+# CAROL Framework - Git Ignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.bak[0-9]
+*~
+
+# Test artifacts
+/tmp/
+*.test
+
+# Don't ignore templates (they should be tracked)
+!/templates/
+
+# Don't ignore scripts (they should be tracked)
+!/scripts/
