@@ -245,10 +245,6 @@ MIT License - See LICENSE file
 
 ## Author
 
-Created by JRENG to orchestrate LLM agents.
-
-For collaborative software development.
-
 Rock 'n Roll!
 
 **JRENG!** 🎸
