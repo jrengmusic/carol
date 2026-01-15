@@ -102,6 +102,7 @@ cmd_init() {
 
         # Symlink shared resources
         ln -s "$CAROL_ROOT/CAROL.md" .carol/CAROL.md
+        ln -s "$CAROL_ROOT/AGENTS.md" .carol/AGENTS.md
         ln -s "$CAROL_ROOT/PATTERNS.md" .carol/PATTERNS.md
         ln -s "$CAROL_ROOT/SCRIPTS.md" .carol/SCRIPTS.md
         ln -s "$CAROL_ROOT/PATTERNS-WRITER.md" .carol/PATTERNS-WRITER.md
