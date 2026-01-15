@@ -3,6 +3,9 @@
 **C**ognitive **A**mplification **R**ole **O**rchestration with **LLM** agents
 
 Version: 1.0.0
+## Why
+
+Just like all other softwares, one day inevitably this framework might be obsolete. But as today at its infancy, LLM agents are unreliable assistance for development. Objectively, whatever commercial agentic models available today it always produce deterministic binary results. Either they could populate super fast thousands of lines of codes that might work or it will just give you piles of garbage that will exhaust your tokens, credits, time, patient and eventually your sanity to debug.
 
 ## What is CAROL?
 
