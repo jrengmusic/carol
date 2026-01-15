@@ -33,6 +33,55 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 
 - **JOURNALIST** - Documentation synthesizer. Compiles session summaries from SESSION-[N]-*.md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail.
 
+### The cognitive load distribution:
+**Old model (single agent handles everything):**
+```
+Single agent's context:
+├─ Your project architecture (10k tokens)
+├─ All previous decisions (20k tokens)
+├─ Current feature requirements (5k tokens)
+├─ Implementation details (15k tokens)
+├─ All the code it wrote (30k tokens)
+├─ Your feedback on what's wrong (10k tokens)
+└─ Trying to fix while remembering all above (failing)
+
+Total cognitive load: 90k+ tokens
+Result: Single agent makes mistakes, over-engineers, loses track
+```
+
+**CAROL (distributed roles):**
+```
+ANALYST's context:
+└─ Feature requirements + asking clarifying questions
+   (5k tokens, laser-focused on planning)
+
+SCAFFOLDER's context:
+└─ SESSION-N-TASK.md + scaffold these files
+   (3k tokens, literal execution)
+
+CARETAKER's context:
+└─ Scaffolding to working implementation
+   (8k tokens, focused on structural review)
+
+SURGEON's context (when escalated):
+└─ Specific complex problem + what failed + fix this one thing
+   (8k tokens, surgical fix)
+   
+INSPECTOR's context :
+└─ review, refactoring opportunity, audit SPEC.md and ARCHITECTURE.md compliance
+   (5k tokens)
+
+JOURNALIST's context:
+└─ SESSION-LOG.mc + ARCHITECTURE.md + inline docs 
+   (5k tokens, focused on structural review)
+
+Your context:
+└─ SPEC.md + test each flow
+   (Human brain, validating intent)
+
+Total: Each agent has SMALL, FOCUSED context
+Result: Each performs optimally within their specialization
+```
 ## How
 
 Document-driven development pipeline where each artifact serves a specific purpose in the workflow.
