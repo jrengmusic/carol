@@ -92,54 +92,28 @@ Document-driven development pipeline with specialized artifacts:
 
 ### CAROL Workflow
 
-```
-┌─────────────────────────────────────────────┐
-│ FEATURE REQUEST (from you)                  │
-└────────────────┬────────────────────────────┘
-                 │
-┌────────────────▼────────────────────────────┐
-│ ANALYST: Comprehensive Planning             │
-├─────────────────────────────────────────────┤
-│ - SPEC.md (design contract, all flows)      │
-│ - SESSION-N-ROLE-TASK.md (atomic tasks)     │
-│                                             │
-│ Quality: Every agent can execute from this  │
-└────────────────┬────────────────────────────┘
-                 │
-       ┌─────────┴─────────┐
-       │                   │
-┌──────▼──────┐    ┌───────▼──────┐
-│ SCAFFOLDER  │    │ CARETAKER    │
-│ implement   │    │ Polish       │
-└──────┬──────┘    └───────┬──────┘
-       │                   │
-       └─────────┬─────────┘
-                 │
-┌────────────────▼───────────────┐
-│ YOU: Test against SPEC.md      │              
-└────────────────┬───────────────┘
-                 │
-           ┌─────┴─────┐
-           │ Pass?     │
-           ├───────────┤
-      [No] │      │[Yes]
-           │      │
-┌──────────▼──┐   │   ┌───────────────────────────────────┐
-│ SURGEON     │   │   │ INSPECTOR: Audit, Refactor, Clean │
-│ Fix         │   │   └────────────────┬──────────────────┘
-└──────┬──────┘   │                    │
-       │          │   ┌────────────────▼──────────────────┐
-       └──────────┘   │ YOU: Approve                      │        
-                      │ ANALYST: write ARCHITECTURE.md    │                  
-                      └────────────────┬──────────────────┘
-                                       │
-                      ┌────────────────▼─────────────────┐
-                      │ JOURNALIST:                      │
-                      │  - update SESSION-LOG.md         │
-                      │  - update ARCHITECTURE.md        │
-                      │  - write inline documentations   │
-                      │  - update SPEC.md == TDD         │
-                      └──────────────────────────────────┘
+```mermaid
+flowchart TD
+    Start[FEATURE REQUEST from you] --> Analyst
+    
+    Analyst[ANALYST: Comprehensive Planning<br/>- SPEC.md design contract, all flows<br/>- SESSION-N-ROLE-TASK.md atomic tasks<br/>Quality: Every agent can execute from this]
+    
+    Analyst --> Scaffolder[SCAFFOLDER<br/>implement]
+    Analyst --> Caretaker[CARETAKER<br/>Polish]
+    
+    Scaffolder --> Test
+    Caretaker --> Test
+    
+    Test[YOU: Test against SPEC.md]
+    
+    Test -->|Fail| Surgeon[SURGEON<br/>Fix]
+    Surgeon --> Test
+    
+    Test -->|Pass| Inspector[INSPECTOR: Audit, Refactor, Clean]
+    
+    Inspector --> Approve[YOU: Approve<br/>ANALYST: write ARCHITECTURE.md]
+    
+    Approve --> Journalist[JOURNALIST:<br/>- update SESSION-LOG.md<br/>- update ARCHITECTURE.md<br/>- write inline documentations<br/>- update SPEC.md == TDD]
 ```
 
 ## Key Features
