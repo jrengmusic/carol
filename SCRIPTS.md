@@ -547,11 +547,14 @@ fi
 # Check for backup
 ls *.bak
 
-# Restore from backup
-mv file.bak file
-
-# Or use restore script (coming soon)
+# Restore single backup
 ./.carol/scripts/restore-backup.sh file.bak
+
+# Restore all .bak files in directory
+./.carol/scripts/restore-backup.sh --all src/
+
+# Or manual restore
+mv file.bak file
 ```
 
 **If validation fails:**
@@ -561,24 +564,6 @@ mv file.bak file
 # Fix issue manually
 # Re-run script
 ```
-
----
-
-## Script Implementation Status
-
-| Script | Status | Language | Lines | Tests |
-|--------|--------|----------|-------|-------|
-| `safe-edit.sh` | ⏳ Coming Soon | Bash | ~100 | ⏳ |
-| `safe-insert.sh` | ⏳ Coming Soon | Bash | ~80 | ⏳ |
-| `generate-error-handler.sh` | ⏳ Coming Soon | Bash | ~150 | ⏳ |
-| `generate-validation.sh` | ⏳ Coming Soon | Bash | ~120 | ⏳ |
-| `validate-code.sh` | ⏳ Coming Soon | Bash | ~200 | ⏳ |
-| `rename-symbol.sh` | ⏳ Coming Soon | Bash + AST | ~150 | ⏳ |
-
-**Legend:**
-- ✅ Implemented
-- ⏳ Coming Soon
-- ❌ Not Started
 
 ---
 
