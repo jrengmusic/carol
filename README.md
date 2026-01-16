@@ -2,16 +2,21 @@
 **C**ognitive **A**mplification **R**ole **O**rchestration with **LLM** agents
 
 Cognitive (Human thinking)
+
 Amplification (Multiplied output)
+
 Role (Specialized tasks)
+
 Orchestration (Human conductor)
+
 LLM (The tool, not the brain)
 
 Human 1st. LLM Last.
 
 Version: 1.0.0
 
-CAROL never meant to be used for 100% vibing, you could if you want. But it helps agents drifting from the course of development while maintaining human still responsible for every lines of code. 
+CAROL never meant to be used for 100% vibing, you could if you want. But it helps agents drifting from the course of development while maintaining human still responsible for every lines of code.
+
 CAROL also works effectively as a rapid prototyping methodology for experienced architects exploring unfamiliar stacks.
 
 ## Why
@@ -20,6 +25,7 @@ Just like all other softwares, one day inevitably this framework might be obsole
 
 ### Solution
 **1. You maintain architectural coherence:** No agent can fuck up the big picture because you're the one holding it. You're validating intent at each handoff.
+
 **2. Domain transfer without syntax debt:** Fuck MCP. You are the living experience of Human Context Protocol. You control the flow. You are the architect. The agents translate your architectural intent into the programming language syntax.
 
 ## What
