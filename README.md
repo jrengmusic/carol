@@ -22,7 +22,7 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 
 ### Specialized Roles
 
-- **ANALYST** - Requirements analyst and planning specialist. Asks clarifying questions, gathers requirements, writes specifications in SPEC.md, and creates architecture documentation. Never writes code directly.
+- **ANALYST** - Requirements analyst and planning specialist. Asks clarifying questions, gathers requirements, writes specifications in SPEC.md, and creates architecture documentation. Never writes code directly. Hand over SPEC-WRITER.md and ARCHITECTURE-WRITER.md as your instructions, ANALYST will clarify your intent from vague ideas into formalized development documents. 
 
 - **SCAFFOLDER** - Literal code generator. Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Does not add features, optimize, or make architectural decisions.
 
