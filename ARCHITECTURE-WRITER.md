@@ -3,9 +3,13 @@
 
 **Purpose:** Step-by-step protocol for agents (ANALYST, INSPECTOR, CARETAKER, SURGEON) to write or update ARCHITECTURE.md from working codebase.
 
+**File Location:** Create ARCHITECTURE.md at project root (not in .carol/)
+
 **For Agents:** Read this document when assigned architecture documentation tasks.
 
 **Version:** 1.0
+
+**Format Reference:** See `templates/ARCHITECTURE.md` for comprehensive structure and section examples.
 
 ---
 
@@ -64,6 +68,11 @@ If you find mismatch:
 
 **You write INITIAL architecture, not final.**
 
+**Use templates/ARCHITECTURE.md as format guide:**
+- Reference section structure (Module Structure, Layer Separation, etc.)
+- Follow documentation patterns shown in template
+- Adapt template sections to project needs (see Template Adaptation Guide below)
+
 **Your output format:**
 ```markdown
 # [PROJECT] - Architecture (DRAFT)
@@ -87,7 +96,7 @@ If you find mismatch:
 1. Read SPEC.md thoroughly
 2. Identify module boundaries from SPEC flows
 3. Map dependencies between modules
-4. Draft ARCHITECTURE.md sections:
+4. Draft ARCHITECTURE.md sections (see templates/ARCHITECTURE.md for format):
    - Module Structure
    - Layer Separation Rules
    - Interface Contracts
@@ -665,7 +674,7 @@ switch statement sprawl and makes adding new types trivial.
 
 ## Template Adaptation Guide
 
-**This template is universal, but projects differ. Adapt by:**
+**Reference templates/ARCHITECTURE.md for complete structure. Adapt by:**
 
 ### For Small Projects
 - Combine sections (Module Structure + Dependency Graph in one)
