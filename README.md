@@ -92,29 +92,81 @@ Document-driven development pipeline with specialized artifacts:
 
 ### CAROL Workflow
 
-```mermaid
-flowchart TD
-    Start[FEATURE REQUEST from you] --> Analyst
-    
-    Analyst[ANALYST: Comprehensive Planning<br/>- SPEC.md design contract, all flows<br/>- SESSION-N-ROLE-TASK.md atomic tasks<br/>Quality: Every agent can execute from this]
-    
-    Analyst --> Scaffolder[SCAFFOLDER<br/>implement]
-    Analyst --> Caretaker[CARETAKER<br/>Polish]
-    
-    Scaffolder --> Test
-    Caretaker --> Test
-    
-    Test[YOU: Test against SPEC.md]
-    
-    Test -->|Fail| Surgeon[SURGEON<br/>Fix]
-    Surgeon --> Test
-    
-    Test -->|Pass| Inspector[INSPECTOR: Audit, Refactor, Clean]
-    
-    Inspector --> Approve[YOU: Approve<br/>ANALYST: write ARCHITECTURE.md]
-    
-    Approve --> Journalist[JOURNALIST:<br/>- update SESSION-LOG.md<br/>- update ARCHITECTURE.md<br/>- write inline documentations<br/>- update SPEC.md == TDD]
-```
+<!-- CAROL Workflow (SVG, dark mode, deterministic) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1200 900">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5"
+            orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#bbb"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="900" fill="#0e0e0e"/>
+
+  <g fill="#151515" stroke="#bbb" stroke-width="1.5">
+    <rect x="450" y="40"  width="300" height="60"/>
+    <rect x="350" y="140" width="500" height="110"/>
+
+    <rect x="200" y="300" width="300" height="80"/>
+    <rect x="700" y="300" width="300" height="80"/>
+
+    <rect x="450" y="430" width="300" height="60"/>
+
+    <rect x="200" y="560" width="300" height="80"/>
+    <rect x="700" y="560" width="300" height="80"/>
+
+    <rect x="450" y="690" width="300" height="70"/>
+    <rect x="350" y="800" width="500" height="90"/>
+  </g>
+
+  <g font-family="monospace" font-size="14" fill="#e6e6e6" text-anchor="middle">
+    <text x="600" y="75">FEATURE REQUEST from you</text>
+
+    <text x="600" y="165">ANALYST: Comprehensive Planning</text>
+    <text x="600" y="185">- SPEC.md design contract, all flows</text>
+    <text x="600" y="205">- SESSION-N-ROLE-TASK.md atomic tasks</text>
+    <text x="600" y="225">Quality: Every agent can execute from this</text>
+
+    <text x="350" y="335">SCAFFOLDER</text>
+    <text x="350" y="355">implement</text>
+
+    <text x="850" y="335">CARETAKER</text>
+    <text x="850" y="355">Polish</text>
+
+    <text x="600" y="465">YOU: Test against SPEC.md</text>
+
+    <text x="350" y="595">SURGEON</text>
+    <text x="350" y="615">Fix</text>
+
+    <text x="850" y="595">INSPECTOR</text>
+    <text x="850" y="615">Audit, Refactor, Clean</text>
+
+    <text x="600" y="725">YOU: Approve</text>
+    <text x="600" y="745">ANALYST: write ARCHITECTURE.md</text>
+
+    <text x="600" y="830">JOURNALIST</text>
+    <text x="600" y="850">update SESSION-LOG.md</text>
+    <text x="600" y="870">update ARCHITECTURE.md, SPEC.md</text>
+  </g>
+
+  <g stroke="#bbb" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+    <path d="M600 100 V140"/>
+    <path d="M450 250 V280 H350 V300"/>
+    <path d="M750 250 V280 H850 V300"/>
+    <path d="M350 380 V410 H600 V430"/>
+    <path d="M850 380 V410 H600 V430"/>
+    <path d="M600 490 V520 H350 V560"/>
+    <path d="M200 600 H150 V460 H450"/>
+    <path d="M600 490 V520 H850 V560"/>
+    <path d="M850 640 V665 H600 V690"/>
+    <path d="M600 760 V800"/>
+  </g>
+
+  <g font-family="monospace" font-size="12" fill="#bbb">
+    <text x="390" y="515">Fail</text>
+    <text x="780" y="515">Pass</text>
+  </g>
+</svg>
 
 ## Key Features
 
