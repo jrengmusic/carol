@@ -2,16 +2,14 @@
 # carol - CAROL Framework CLI Tool
 # Version: 1.0.0
 
-set -e
-
 VERSION="1.0.0"
 CAROL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CAROL_REMOTE="${CAROL_REMOTE:-file://$CAROL_ROOT}"  # Default to local repo for testing
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Helper functions
@@ -28,6 +26,22 @@ info() {
     echo -e "${YELLOW}→ $1${NC}"
 }
 
+notice() {
+    echo -e "${BLUE}ℹ $1${NC}"
+}
+
+get_remote_version() {
+    local version=""
+    # Try to fetch version from remote
+    version=$(curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/bin/carol 2>/dev/null | grep '^VERSION=' | head -1 | cut -d'"' -f2)
+    echo "$version"
+}
+
+version_greater_than() {
+    # Compare versions: returns 0 if $1 > $2
+    [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" != "$1" ]
+}
+
 customize_templates() {
     local project_path="$1"
     local project_name=$(basename "$project_path")
@@ -35,18 +49,28 @@ customize_templates() {
 
     # Customize SESSION-LOG.md
     if [ -f ".carol/SESSION-LOG.md" ]; then
-        sed -i.bak "s/\[Project Name\]/$project_name/g" .carol/SESSION-LOG.md
-        sed -i.bak "s/\[YYYY-MM-DD\]/$date/g" .carol/SESSION-LOG.md
-        sed -i.bak "s|\[repo-url or local path\]|$project_path|g" .carol/SESSION-LOG.md
-        rm -f .carol/SESSION-LOG.md.bak
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/\[Project Name\]/$project_name/g" .carol/SESSION-LOG.md
+            sed -i '' "s/\[YYYY-MM-DD\]/$date/g" .carol/SESSION-LOG.md
+            sed -i '' "s|\[repo-url or local path\]|$project_path|g" .carol/SESSION-LOG.md
+        else
+            sed -i "s/\[Project Name\]/$project_name/g" .carol/SESSION-LOG.md
+            sed -i "s/\[YYYY-MM-DD\]/$date/g" .carol/SESSION-LOG.md
+            sed -i "s|\[repo-url or local path\]|$project_path|g" .carol/SESSION-LOG.md
+        fi
     fi
 
     # Customize config.yml
     if [ -f ".carol/config.yml" ]; then
-        sed -i.bak "s/\[PROJECT_NAME\]/$project_name/g" .carol/config.yml
-        sed -i.bak "s|\[PROJECT_PATH\]|$project_path|g" .carol/config.yml
-        sed -i.bak "s/\[DATE\]/$date/g" .carol/config.yml
-        rm -f .carol/config.yml.bak
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/\[PROJECT_NAME\]/$project_name/g" .carol/config.yml
+            sed -i '' "s|\[PROJECT_PATH\]|$project_path|g" .carol/config.yml
+            sed -i '' "s/\[DATE\]/$date/g" .carol/config.yml
+        else
+            sed -i "s/\[PROJECT_NAME\]/$project_name/g" .carol/config.yml
+            sed -i "s|\[PROJECT_PATH\]|$project_path|g" .carol/config.yml
+            sed -i "s/\[DATE\]/$date/g" .carol/config.yml
+        fi
     fi
 }
 
@@ -89,26 +113,27 @@ cmd_init() {
     if $portable; then
         # Portable mode: Clone full repository
         info "Initializing CAROL (portable mode)..."
-        git clone "$CAROL_REMOTE" .carol || error "Failed to clone CAROL repository"
-
-        # Remove .git if it's a local file:// clone (for testing)
-        if [[ "$CAROL_REMOTE" == file://* ]]; then
-            rm -rf .carol/.git
-            info "Removed .git (local testing mode)"
+        if ! git clone https://github.com/jrengmusic/carol.git .carol; then
+            error "Failed to clone CAROL repository"
         fi
+        
+        # Clean up git files
+        rm -rf .carol/.git
+        
+        success "CAROL cloned (portable mode)"
     else
         # Symlink mode: Link to SSOT
         info "Initializing CAROL (symlink mode)..."
 
         # Symlink shared resources
         ln -s "$CAROL_ROOT/CAROL.md" .carol/CAROL.md
-        ln -s "$CAROL_ROOT/AGENTS.md" .carol/AGENTS.md
+        ln -s "$CAROL_ROOT/INTERVIEW.md" .carol/INTERVIEW.md
         ln -s "$CAROL_ROOT/PATTERNS.md" .carol/PATTERNS.md
         ln -s "$CAROL_ROOT/SCRIPTS.md" .carol/SCRIPTS.md
         ln -s "$CAROL_ROOT/PATTERNS-WRITER.md" .carol/PATTERNS-WRITER.md
         ln -s "$CAROL_ROOT/SPEC-WRITER.md" .carol/SPEC-WRITER.md
         ln -s "$CAROL_ROOT/ARCHITECTURE-WRITER.md" .carol/ARCHITECTURE-WRITER.md
-        ln -s "$CAROL_ROOT/scripts" .carol/scripts 2>/dev/null || info "scripts/ directory will be available when scripts are implemented"
+        ln -s "$CAROL_ROOT/scripts" .carol/scripts 2>/dev/null || true
 
         # Copy templates (project-specific)
         cp "$CAROL_ROOT/templates/SESSION-LOG.md" .carol/SESSION-LOG.md
@@ -116,8 +141,11 @@ cmd_init() {
         cp "$CAROL_ROOT/templates/config.yml" .carol/config.yml
 
         # Mark as symlink mode in config
-        sed -i.bak 's/mode: "symlink"/mode: "symlink"/' .carol/config.yml
-        rm -f .carol/config.yml.bak
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' 's/mode: "portable"/mode: "symlink"/' .carol/config.yml
+        else
+            sed -i 's/mode: "portable"/mode: "symlink"/' .carol/config.yml
+        fi
     fi
 
     # Customize templates
@@ -158,29 +186,80 @@ cmd_update() {
         error ".carol directory not found. Run 'carol init' first."
     fi
 
-    # Check if symlink or portable mode
+    # Determine mode by checking for git directory
+    local is_portable=false
     if [ -d ".carol/.git" ]; then
-        # Portable mode: git pull
+        is_portable=true
+    fi
+
+    if $is_portable; then
+        # Portable mode: Update the project's .carol copy
         info "Updating CAROL (portable mode)..."
-        cd .carol && git pull origin main || error "Failed to update from remote"
+        
+        cd .carol || error "Cannot access .carol directory"
+        
+        # Check if git remote exists
+        if ! git remote get-url origin &>/dev/null; then
+            # Add remote if missing
+            git remote add origin https://github.com/jrengmusic/carol.git
+        fi
+        
+        info "Fetching latest version..."
+        git fetch origin main || error "Failed to fetch from remote"
+        
+        local current_commit=$(git rev-parse HEAD)
+        local remote_commit=$(git rev-parse origin/main)
+        
+        if [ "$current_commit" = "$remote_commit" ]; then
+            success "Already up to date"
+            cd ..
+            return 0
+        fi
+        
+        info "Updating from $(git rev-parse --short HEAD) to $(git rev-parse --short origin/main)"
+        git reset --hard origin/main || error "Failed to update"
+        
         success "Updated to latest version"
+        cd ..
     else
-        # Symlink mode: Symlinks auto-update, just refresh templates
+        # Symlink mode: Update the SSOT at ~/.carol
         info "Updating CAROL (symlink mode)..."
-
-        # Check if templates were modified
-        local modified=false
-        if [ "templates/SESSION-LOG.md" -nt ".carol/SESSION-LOG.md" ]; then
-            modified=true
+        
+        local old_pwd="$PWD"
+        cd "$CAROL_ROOT" || error "Cannot access CAROL root"
+        
+        # Check current version
+        local current_version="$VERSION"
+        
+        info "Fetching latest version..."
+        git fetch origin main || error "Failed to fetch from remote"
+        
+        local current_commit=$(git rev-parse HEAD)
+        local remote_commit=$(git rev-parse origin/main)
+        
+        if [ "$current_commit" = "$remote_commit" ]; then
+            success "Already up to date (v$current_version)"
+            cd "$old_pwd"
+            return 0
         fi
-
-        if $modified; then
-            echo "Templates have been updated in SSOT."
-            echo "Your customized templates are preserved."
-            echo "Review changes in: $CAROL_ROOT/templates/"
-        else
-            success "Already up to date (symlinks auto-update)"
+        
+        # Get remote version before updating
+        local remote_version=$(get_remote_version)
+        
+        if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$current_version"; then
+            notice "New version available: v$current_version → v$remote_version"
         fi
+        
+        info "Updating CAROL SSOT..."
+        git reset --hard origin/main || error "Failed to update"
+        
+        local new_version=$(grep '^VERSION=' bin/carol | head -1 | cut -d'"' -f2)
+        success "Updated CAROL SSOT: v$current_version → v$new_version"
+        
+        cd "$old_pwd"
+        
+        # Notify about symlinked projects
+        notice "All symlinked projects now use the updated version"
     fi
 }
 
@@ -193,6 +272,14 @@ cmd_version() {
         echo "Current project:"
         grep "name:" .carol/config.yml | head -1 | sed 's/.*: /  /'
         grep "mode:" .carol/config.yml | head -1 | sed 's/.*: /  Mode: /'
+    fi
+    
+    # Check for updates
+    local remote_version=$(get_remote_version)
+    if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$VERSION"; then
+        echo ""
+        notice "New version available: v$VERSION → v$remote_version"
+        echo "  Run 'carol update' to upgrade"
     fi
 }
 
@@ -207,7 +294,7 @@ Commands:
   init [path]           Initialize CAROL in project directory (default: current)
   init --portable       Initialize in portable mode (full copy)
   update                Update CAROL framework from SSOT
-  version               Show CAROL version
+  version               Show CAROL version and check for updates
   help                  Show this help message
 
 Examples:
@@ -227,7 +314,7 @@ Documentation:
     SURGEON       - Complex fix specialist
     JOURNALIST    - Documentation synthesizer
 
-For more information: https://github.com/user/carol
+For more information: https://github.com/jrengmusic/carol
 EOF
 }
 
