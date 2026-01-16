@@ -182,8 +182,45 @@ EOF
 }
 
 cmd_update() {
+    # If no .carol in current directory, update CAROL SSOT itself
     if [ ! -d ".carol" ]; then
-        error ".carol directory not found. Run 'carol init' first."
+        info "No .carol in current directory, updating CAROL SSOT..."
+        
+        local old_pwd="$PWD"
+        cd "$CAROL_ROOT" || error "Cannot access CAROL root"
+        
+        # Check current version
+        local current_version="$VERSION"
+        
+        info "Fetching latest version..."
+        git fetch origin main || error "Failed to fetch from remote"
+        
+        local current_commit=$(git rev-parse HEAD)
+        local remote_commit=$(git rev-parse origin/main)
+        
+        if [ "$current_commit" = "$remote_commit" ]; then
+            success "Already up to date (v$current_version)"
+            cd "$old_pwd"
+            return 0
+        fi
+        
+        # Get remote version before updating
+        local remote_version=$(get_remote_version)
+        
+        if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$current_version"; then
+            notice "New version available: v$current_version → v$remote_version"
+        fi
+        
+        info "Updating CAROL SSOT at $CAROL_ROOT..."
+        git reset --hard origin/main || error "Failed to update"
+        
+        local new_version=$(grep '^VERSION=' bin/carol | head -1 | cut -d'"' -f2)
+        success "Updated CAROL SSOT: v$current_version → v$new_version"
+        
+        cd "$old_pwd"
+        
+        notice "All symlinked projects now use the updated version"
+        return 0
     fi
 
     # Determine mode by checking for git directory
