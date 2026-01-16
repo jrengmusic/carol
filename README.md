@@ -228,6 +228,8 @@ source ~/.bashrc  # bash
 
 ```
 your-project/
+├── SPEC.md                   # ANALYST creates via SPEC-WRITER.md
+├── ARCHITECTURE.md           # Agents create via ARCHITECTURE-WRITER.md
 ├── .carol/
 │   ├── CAROL.md → ~/.carol/CAROL.md (symlink)
 │   ├── INTERVIEW.md → ~/.carol/INTERVIEW.md (symlink)
@@ -238,8 +240,6 @@ your-project/
 │   ├── ARCHITECTURE-WRITER.md → ~/.carol/ARCHITECTURE-WRITER.md (symlink)
 │   ├── scripts/ → ~/.carol/scripts/ (symlink)
 │   ├── SESSION-LOG.md (copied, customized)
-│   ├── ARCHITECTURE.md (copied, customized)
-│   ├── SPEC.md (you create)
 │   └── SESSION-[N]-*.md (temp files)
 ├── src/                      # Your code
 └── .gitignore

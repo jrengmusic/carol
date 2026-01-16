@@ -137,7 +137,6 @@ cmd_init() {
 
         # Copy templates (project-specific)
         cp "$CAROL_ROOT/templates/SESSION-LOG.md" .carol/SESSION-LOG.md
-        cp "$CAROL_ROOT/templates/ARCHITECTURE.md" .carol/ARCHITECTURE.md
         cp "$CAROL_ROOT/templates/config.yml" .carol/config.yml
 
         # Mark as symlink mode in config
