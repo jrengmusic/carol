@@ -3,6 +3,8 @@
 
 Version: 1.0.0
 
+An opionated ritualistic framework than enforces discipline to work with multiple agents simultaneously.
+
 CAROL never meant to be used for 100% vibing, you could if you want. But it helps agents drifting from the course of development while maintaining human still responsible for every lines of code.
 
 CAROL also works effectively as a rapid prototyping methodology for experienced architects exploring unfamiliar stacks.
@@ -90,18 +92,18 @@ Document-driven development pipeline where each artifact serves a specific purpo
 ## Task: Implement commit flow
 
 ```
-┌─────────────────────────────────────────────────────┐
-│ FEATURE REQUEST (from you)                          │
-└────────────────┬────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│ FEATURE REQUEST (from you)                  │
+└────────────────┬────────────────────────────┘
                  │
-┌────────────────▼────────────────────────────────────┐
-│ ANALYST: Comprehensive Planning                     │
-├─────────────────────────────────────────────────────┤
-│ - SPEC.md (design contract, all flows)              │
-│ - SESSION-N-ROLE-TASK.md (atomic tasks)             │
-│                                                     │
-│ Quality: Every agent can execute from this          │
-└────────────────┬────────────────────────────────────┘
+┌────────────────▼────────────────────────────┐
+│ ANALYST: Comprehensive Planning             │
+├─────────────────────────────────────────────┤
+│ - SPEC.md (design contract, all flows)      │
+│ - SESSION-N-ROLE-TASK.md (atomic tasks)     │
+│                                             │
+│ Quality: Every agent can execute from this  │
+└────────────────┬────────────────────────────┘
                  │
        ┌─────────┴─────────┐
        │                   │
@@ -143,7 +145,7 @@ Document-driven development pipeline where each artifact serves a specific purpo
 ## Key Features
 
 - **Role-Based Constraints:** 6 specialized roles with explicit behavioral rules
-- **Agent-Agnostic:** Works with any LLM CLI tool (Claude Code, Amp, Copilot, Gemini, etc.)
+- **Agent-Agnostic:** Works with any LLM CLI tool (Claude Code, Opencode, Amp, Copilot, Gemini, whatever.)
 - **Language-Agnostic:** Supports any programming language/framework
 - **TDD-Friendly:** Built-in testing patterns and scripts
 - **Git-Tracked:** Framework evolution tracked, projects reference SSOT
