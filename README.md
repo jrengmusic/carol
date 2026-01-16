@@ -227,10 +227,13 @@ Read .carol/CAROL.md. You are assigned as ANALYST, register yourself in .carol/S
 
 ### Uninstall
 
-**One-Line Uninstall:**
-
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/uninstall.sh | bash
+# Download and run uninstall script
+curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/uninstall.sh -o /tmp/uninstall.sh
+bash /tmp/uninstall.sh
+
+# OR if CAROL is still installed
+~/.carol/uninstall.sh
 ```
 
 This will:
