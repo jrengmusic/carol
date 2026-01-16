@@ -184,7 +184,7 @@ EOF
 cmd_update() {
     # If no .carol in current directory, update CAROL SSOT itself
     if [ ! -d ".carol" ]; then
-        info "No .carol in current directory, updating CAROL SSOT..."
+        info "Updating CAROL..."
         
         local old_pwd="$PWD"
         cd "$CAROL_ROOT" || error "Cannot access CAROL root"
