@@ -5,8 +5,6 @@
 #   Direct:  ./uninstall.sh
 #   Curl:    curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/uninstall.sh | bash
 
-set -e
-
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -42,7 +40,7 @@ remove_carol_dir() {
 
     info "Found CAROL at: $CAROL_INSTALL_DIR"
     echo -n "Remove this directory? (y/N) "
-    read -r response
+    read -r response || true
 
     if [[ "$response" =~ ^[Yy]$ ]]; then
         rm -rf "$CAROL_INSTALL_DIR"
@@ -65,8 +63,11 @@ remove_from_path() {
             cp "$rc_file" "$rc_file.bak"
 
             # Remove CAROL section (from marker to export line)
-            sed -i.tmp '/# CAROL Framework/,/export PATH.*CAROL/d' "$rc_file"
-            rm -f "$rc_file.tmp"
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' '/# CAROL Framework/,/export PATH.*carol/d' "$rc_file"
+            else
+                sed -i '/# CAROL Framework/,/export PATH.*carol/d' "$rc_file"
+            fi
 
             success "Cleaned $rc_file (backup: $rc_file.bak)"
             ((files_updated++))
@@ -82,8 +83,11 @@ remove_from_path() {
             cp "$rc_file" "$rc_file.bak"
 
             # Remove CAROL section
-            sed -i.tmp '/# CAROL Framework/,/export PATH.*CAROL/d' "$rc_file"
-            rm -f "$rc_file.tmp"
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' '/# CAROL Framework/,/export PATH.*carol/d' "$rc_file"
+            else
+                sed -i '/# CAROL Framework/,/export PATH.*carol/d' "$rc_file"
+            fi
 
             success "Cleaned $rc_file (backup: $rc_file.bak)"
             ((files_updated++))
@@ -123,7 +127,7 @@ main() {
 
     # Confirm uninstall
     echo -n "Proceed with uninstall? (y/N) "
-    read -r response
+    read -r response || true
     echo ""
 
     if [[ ! "$response" =~ ^[Yy]$ ]]; then
