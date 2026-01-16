@@ -3,7 +3,7 @@
 
 Version: 1.0.0
 
-An opionated ritualistic framework than enforces discipline to work with multiple agents simultaneously.
+An opinionated ritualistic framework than enforces discipline to work with multiple agents simultaneously.
 
 CAROL never meant to be used for 100% vibing, you could if you want. But it helps agents drifting from the course of development while maintaining human still responsible for every lines of code.
 
