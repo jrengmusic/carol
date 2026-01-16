@@ -78,15 +78,17 @@ clone_carol() {
 setup_path() {
     local CAROL_BIN="$CAROL_ROOT/bin"
 
-    # Detect shell
+    # Detect shell and RC file
     local SHELL_NAME=$(basename "$SHELL")
     local RC_FILE=""
 
     case "$SHELL_NAME" in
         bash)
-            RC_FILE="$HOME/.bashrc"
-            if [ ! -f "$RC_FILE" ]; then
+            # macOS uses .bash_profile, Linux uses .bashrc
+            if [[ "$OSTYPE" == "darwin"* ]]; then
                 RC_FILE="$HOME/.bash_profile"
+            else
+                RC_FILE="$HOME/.bashrc"
             fi
             ;;
         zsh)
@@ -95,20 +97,23 @@ setup_path() {
         *)
             info "Unsupported shell: $SHELL_NAME"
             info "Please manually add to your PATH:"
-            echo "  export PATH=\"\$PATH:$CAROL_BIN\""
+            echo "  export PATH=\"$CAROL_BIN:\$PATH\""
             return 0
             ;;
     esac
 
+    # Create RC file if it doesn't exist
+    touch "$RC_FILE"
+
     # Check if already in PATH
     if grep -q "CAROL Framework" "$RC_FILE" 2>/dev/null; then
-        success "CAROL already in PATH"
+        success "CAROL already in PATH ($RC_FILE)"
     else
         info "Adding CAROL to PATH in $RC_FILE"
-        cat >> "$RC_FILE" << EOF
+        cat >> "$RC_FILE" << 'EOF'
 
 # CAROL Framework
-export PATH="\$PATH:$CAROL_BIN"
+export PATH="$HOME/.carol/bin:$PATH"
 EOF
         success "Added to $RC_FILE"
     fi
@@ -155,7 +160,8 @@ main() {
     info "To use CAROL, either:"
     echo "  1. Reload your shell:"
     if [ -n "$(command -v bash)" ]; then
-        echo "     source ~/.bashrc  (bash)"
+        echo "     source ~/.bashrc  (bash on Linux)"
+        echo "     source ~/.bash_profile  (bash on macOS)"
     fi
     if [ -n "$(command -v zsh)" ]; then
         echo "     source ~/.zshrc   (zsh)"
