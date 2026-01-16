@@ -141,7 +141,7 @@ verify_install() {
 # Main installation
 main() {
     echo ""
-    info "CAROL Framework Installer"
+    info "Cognitive Amplification Role Orchestration with LLM agents"
     echo ""
 
     detect_install_mode

@@ -1,5 +1,5 @@
 #!/bin/bash
-# uninstall.sh - CAROL Framework Uninstaller
+# uninstall.sh - CAROL Uninstaller
 #
 # Usage:
 #   Direct:  ./uninstall.sh
@@ -39,8 +39,7 @@ remove_carol_dir() {
     fi
 
     info "Found CAROL at: $CAROL_INSTALL_DIR"
-    echo -n "Remove this directory? (y/N) "
-    read -r response || true
+    read -p "Remove this directory? (y/N) " -r response
 
     if [[ "$response" =~ ^[Yy]$ ]]; then
         rm -rf "$CAROL_INSTALL_DIR"
@@ -119,15 +118,14 @@ check_active_projects() {
 # Main uninstall
 main() {
     echo ""
-    info "CAROL Framework Uninstaller"
+    info "CAROL Uninstaller"
     echo ""
 
     # Check for active projects first
     check_active_projects
 
     # Confirm uninstall
-    echo -n "Proceed with uninstall? (y/N) "
-    read -r response || true
+    read -p "Proceed with uninstall? (y/N) " -r response
     echo ""
 
     if [[ ! "$response" =~ ^[Yy]$ ]]; then
