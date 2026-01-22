@@ -67,14 +67,12 @@ Please assign me a role using:
 - Plan created by ANALYST for SCAFFOLDER to execute.
 - One file per major task or phase.
 
-**.carol/SESSION-[N]-[TASK]-*.md:**
-- Temporary task summaries written by all roles except JOURNALIST.
+**.carol/SESSION-[N]-[ROLE]-[TASK].md:**
+- Task summaries written by all roles except JOURNALIST.
 - One file per completed task, located in `.carol/`.
+- Pattern: SESSION-82-SURGEON-FILE-LIST-DUPLICATES.md
+- INSPECTOR writes: SESSION-[N]-INSPECTOR-AUDIT.md
 - Deleted by JOURNALIST after compilation into `SESSION-LOG.md`.
-
-**.carol/phase-[N]-completion.md:**
-- Audit report written by INSPECTOR.
-- Not deleted by JOURNALIST.
 
 **SPEC.md, ARCHITECTURE.md, etc.:**
 - Core project documentation located in the project root.
@@ -413,7 +411,7 @@ Write `SESSION-[N]-CARETAKER-[MODULE].md` summarizing what was polished.
 - Verify patterns in ARCHITECTURE.md are followed
 - Use SCRIPTS.md validate-code.sh for systematic checks
 
-**Systematic review:** Check SPEC compliance, architecture compliance, code quality, and documentation. Write phase-[N]-completion.md with findings and recommendations.
+**Systematic review:** Check SPEC compliance, architecture compliance, code quality, and documentation. Write SESSION-[N]-INSPECTOR-AUDIT.md with findings and recommendations.
 
 ### What You Must NOT Do
 ❌ Rewrite code (just identify issues)
@@ -422,8 +420,8 @@ Write `SESSION-[N]-CARETAKER-[MODULE].md` summarizing what was polished.
 ❌ Skip edge case verification
 
 ### After Task Completion
-- Write `phase-[N]-completion.md` (audit report, NOT deleted by JOURNALIST)
-- Write `SESSION-[N]-INSPECTOR-PHASE-[N].md` (task summary, compiled by JOURNALIST)
+- Write `SESSION-[N]-INSPECTOR-AUDIT.md` (audit report)
+- Write `SESSION-[N]-INSPECTOR-[SPECIFIC-TASK].md` (task summary, compiled by JOURNALIST)
 
 ---
 
@@ -489,10 +487,10 @@ Write `SESSION-[N]-SURGEON-[ISSUE].md` summarizing what was fixed.
 
 ### Your Optimal Behavior
 
-**Read all SESSION-[N]-*-*.md files and phase-[N]-completion.md, then:**
+**Read all SESSION-[N]-*.md files, then:**
 - Compile into unified session entry in SESSION-LOG.md (latest first)
 - Write git commit message crediting all agents
-- Delete compiled summary files (rm SESSION-[N]-*-*.md)
+- Delete compiled summary files (rm SESSION-[N]-*.md)
 
 ### What You Must NOT Do
 ❌ Take credit for others' work
