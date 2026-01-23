@@ -6,6 +6,22 @@
 
 ---
 
+## 📖 Notation Reference
+
+**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+
+**File Naming Convention:**
+- `[N]-[ROLE]-[TASK].md` — Task summary files written by agents
+- `[N]-[PHASE]-kickoff.md` — Phase kickoff plans (ANALYST)
+- `[N]-[PHASE]-audit.md` — Phase audit reports (INSPECTOR)
+
+**Example Filenames:**
+- `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
+- `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
+- `2-audit.md` — INSPECTOR's audit after session 2
+
+---
+
 ## Table of Contents
 
 1. [When to Document Patterns](#when-to-document-patterns)
@@ -165,7 +181,7 @@ Total: 4 instances
 **If pattern violates principles:**
 - Document as **anti-pattern**
 - Propose refactoring
-- Note in SESSION-[N]-*.md
+- Note in [N]-[ROLE]-[TASK].md
 
 ### Step 5: Document Pattern
 
@@ -614,7 +630,7 @@ done
    - Extract pattern
    - Document in ARCHITECTURE.md
    - Apply consistently
-   - Note in SESSION-[N]-CARETAKER-*.md
+   - Note in [N]-CARETAKER-*.md
 
 3. **If creating new pattern:**
    - Document intent (why needed)
@@ -667,7 +683,7 @@ Found 4 instances of null check with exception:
 
 3. **If pattern found:**
    - Document in ARCHITECTURE.md
-   - Note in SESSION-[N]-SURGEON-PATTERN-DISCOVERED.md
+   - Note in [N]-SURGEON-PATTERN-DISCOVERED.md
    - Propose systematic fix to user
 
 **Example Session:**
@@ -724,7 +740,7 @@ Found 12 instances of numeric literals assigned to float:
 **Example Audit Report:**
 
 ```markdown
-# phase-3-patterns-audit.md
+# 3-patterns-audit.md
 
 ## Pattern Compliance Audit
 

@@ -10,6 +10,24 @@ CAROL was never meant to be used for 100% vibing, you could if you want. But it 
 
 CAROL also works effectively as a rapid prototyping methodology for experienced architects exploring unfamiliar stacks.
 
+---
+
+## 📖 Notation Reference
+
+**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+
+**File Naming Convention:**
+- `[N]-[ROLE]-[TASK].md` — Task summary files written by agents
+- `[N]-[PHASE]-kickoff.md` — Phase kickoff plans (ANALYST)
+- `[N]-[PHASE]-audit.md` — Phase audit reports (INSPECTOR)
+
+**Example Filenames:**
+- `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
+- `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
+- `2-audit.md` — INSPECTOR's audit after session 2
+
+---
+
 ## Why
 
 Just like all other software, one day inevitably this framework might be obsolete. But as today at its infancy, LLM agents are unreliable assistance for development. Objectively, whatever commercial agentic models available today it always produces deterministic binary results. Either they could populate super fast thousands of lines of code that might work or it will just give you piles of garbage that will exhaust your tokens, credits, time, patience and eventually your sanity to debug.
@@ -31,7 +49,7 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 * **CARETAKER** - Code polisher and reviewer. Adds error handling, validation, and defensive programming. Improves existing code without changing behavior. Focuses on robustness, not cleverness.
 * **INSPECTOR** - Pre-commit auditor. Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints, verifies style compliance. Audits refactoring opportunities to mitigate technical debt.
 * **SURGEON** - Complex fix specialist. Handles bugs, performance issues, and architectural corrections. Reads RESET context, identifies root cause, implements minimal surgical fixes. Does not refactor unless required.
-* **JOURNALIST** - Documentation synthesizer. Compiles session summaries from SESSION-[N]-\*.md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail.
+* **JOURNALIST** - Documentation synthesizer. Compiles session summaries from [N]-[ROLE]-[TASK].md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail.
 
 ### The cognitive load distribution:
 
@@ -240,7 +258,7 @@ your-project/
 │   ├── ARCHITECTURE-WRITER.md → ~/.carol/ARCHITECTURE-WRITER.md (symlink)
 │   ├── scripts/ → ~/.carol/scripts/ (symlink)
 │   ├── SESSION-LOG.md (copied, customized)
-│   └── SESSION-[N]-*.md (temp files)
+│   └── [N]-[ROLE]-[TASK].md (temp files)
 ├── src/                      # Your code
 └── .gitignore
 ```
