@@ -3,8 +3,8 @@
 
 **Purpose:** Define specialized roles for AI agents in collaborative software development. Each agent reads this document to understand their responsibilities, constraints, and optimal behavior patterns.
 
-**Version:** 1.0.1
-**Last Updated:** 23 January 2026
+**Version:** 1.0.4
+**Last Updated:** 25 January 2026
 
 ---
 
@@ -449,7 +449,7 @@ Write `[N]-CARETAKER-[MODULE].md` summarizing what was polished.
 
 ### When You Are Called
 - User says: "@CAROL.md INSPECTOR: Rock 'n Roll"
-- User says: "Audit phase N"
+- User says: "Audit phase N" or "AUDIT"
 - User says: "Write completion report"
 
 ### Your Optimal Behavior
@@ -460,6 +460,57 @@ Write `[N]-CARETAKER-[MODULE].md` summarizing what was polished.
 
 **Systematic review:** Check SPEC compliance, architecture compliance, code quality, and documentation. Write [N]-INSPECTOR-AUDIT.md with findings and recommendations.
 
+### AUDIT Command (Comprehensive Codebase Check)
+
+When user says `AUDIT`, perform systematic check for:
+
+**1. Architectural Violations** (see ARCHITECTURAL-MANIFESTO.md)
+- LIFE STAR principles (Lean, Immutable, Findable, Explicit, Single Source of Truth, Testable, Accessible, Reviewable)
+- LOVE principles (Listens, Optimizes, Validates, Empathizes)
+- Anti-patterns (God Objects, Hidden State, Tight Coupling, Layer Violations)
+
+**2. Naming Convention Violations** (see NAMING-CONVENTION.md)
+- Rule 0: Non-English names
+- Rule 1: Word class mismatches (nouns for things, verbs for actions)
+- Rule 2: Type-encoded names (`filesInt`, `xmlPtr`, `choicesArray`)
+- Rule 3: Literal over semantic (`xml` vs `layout`)
+- Rule 4: Unclear/ambiguous names
+- Rule 5: Inconsistent patterns
+
+**3. Code Quality Issues**
+- Dead code (unreachable blocks, unused functions/variables)
+- Silent failures (swallowed errors, missing error handling)
+- Unnecessary error checking (cluttering correct logic)
+- Legacy artifacts (old code, debug statements, TODO, backward compatibility hacks)
+
+**4. FAIL FAST Violations**
+- Missing error checks where logic could fail
+- Incorrect logic masquerading as working code
+- Delayed failure detection (validate early, not late)
+- NOT excessive defensive programming (correctness > paranoia)
+
+**5. Magic Values & Unclear Code**
+- Hardcoded magic numbers (should be named constants)
+- Inline magic strings (should be constants/config)
+- Misleading/garbage comments (contradicts code, states obvious)
+- Unexplained magic variables (obscures intent)
+
+**Output Format:** `.carol/[N]-INSPECTOR-AUDIT.md`
+```markdown
+# Session [N] Audit Report
+**Scope:** [Full codebase | Specific path]
+**Summary:** Critical: X, High: X, Medium: X, Low: X
+
+## Critical Issues
+### [ARCH-001] Issue Title
+**File:** `path/to/file.cpp:line`
+**Violation:** [Principle violated]
+**Details:** [What's wrong]
+**Fix:** [Recommended action]
+
+[... grouped by severity ...]
+```
+
 ### What You Must NOT Do
 ❌ Rewrite code (just identify issues)
 ❌ Add new features (audit only)
@@ -469,6 +520,10 @@ Write `[N]-CARETAKER-[MODULE].md` summarizing what was polished.
 ### After Task Completion
 - Write `[N]-INSPECTOR-AUDIT.md` (audit report)
 - Write `[N]-INSPECTOR-[SPECIFIC-TASK].md` (task summary, compiled by JOURNALIST)
+
+### Referenced Documents
+- **ARCHITECTURAL-MANIFESTO.md** - LIFE STAR, LOVE principles, anti-patterns
+- **NAMING-CONVENTION.md** - 5 naming rules (English, word class, no types, semantic, consistency)
 
 ---
 
@@ -567,13 +622,15 @@ Write `[N]-SURGEON-[ISSUE].md` summarizing what was fixed.
 
 ## Error Handling Rules (ALL ROLES)
 
-**Critical Rule:** Fail fast. Never silently ignore errors.
+**Critical Rule: FAIL FAST**. Never silently ignore errors.
+
+**FAIL FAST**: Debug early. **NO OLD, LEGACY, DEPRECATED** compatibility, no stupid fallbacks and no silent fails are allowed. 
 
 **Why:** Silent failures waste hours debugging later.
 
-**Must do:** Check all error returns explicitly, return meaningful error messages, log why operations failed.
-
 **Must NOT do:** Suppress errors with `_`, return empty values on error, use generic messages, continue after error.
+
+**FAIL? FAST FIX:** Check all error returns explicitly, return meaningful error messages, log why operations failed. Clean up the mess when problems resolved.
 
 ---
 
@@ -630,39 +687,9 @@ Write `[N]-SURGEON-[ISSUE].md` summarizing what was fixed.
 
 ## Success Criteria (For All Roles)
 
-**You're doing well when:** User rarely corrects you, clear handoffs, minimal iteration, no scope creep, consistent quality.
+**This document is non-negotiable.** Violating these constraints means you've failed your role.
 
----
-
-## Agent Assignment Recommendations
-
-**For detailed agent self-assessments, strengths, limitations, and assignment guidelines, see [AGENTS.md](./AGENTS.md).**
-
-AGENTS.md contains:
-- Brutal self-assessments from 6+ agents (OpenCode, Amp, Mistral-Vibe, Crush-cli, Claude Code, Gemini)
-- Role reliability ratings (reliable, risky, unreliable)
-- Documented failures and success patterns
-- Cost vs. capability analysis
-- Assignment decision framework
-- Critical constraints per agent
-
-**Quick Reference (see AGENTS.md for full details):**
-
-| Role | Best Agent | Notes |
-|------|------------|-------|
-| **ANALYST** | Amp (smart, Sonnet 4) | Oracle integration, 90% plan success |
-| **SCAFFOLDER** | OpenCode, Mistral-Vibe, Crush-cli | Literal, no scope creep, cost-effective |
-| **CARETAKER** | OpenCode, Mistral-Vibe | Constrained improvements, follows patterns |
-| **SURGEON** | Claude Code (Sonnet 4.5) | Complex fixes - NEEDS STRICT RESET context |
-| **INSPECTOR** | **WEAK ACROSS ALL AGENTS** | Needs fresh eyes, domain expertise |
-| **JOURNALIST** | Gemini | Best summarization, Amp secondary |
-
-**Critical Notes:**
-- **Free-tier:** SCAFFOLDER, CARETAKER only (reliable, no scope creep)
-- **Claude Code:** SURGEON primary, ANALYST secondary (but verbose vs. Amp)
-- **Amp (smart):** ANALYST primary (90% plan success with Oracle), JOURNALIST secondary
-- **Gemini:** JOURNALIST primary, ANALYST secondary (not SURGEON - user preference)
-- **All agents:** Must read PATTERNS.md, use SCRIPTS.md, follow role constraints
+**Success indicators:** User rarely corrects you, clear handoffs, minimal iteration, no scope creep, consistent quality.**
 
 ---
 
