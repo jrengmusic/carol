@@ -13,6 +13,22 @@
 
 ---
 
+## 📖 Notation Reference
+
+**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+
+**File Naming Convention:**
+- `[N]-[ROLE]-[TASK].md` — Task summary files written by agents
+- `[N]-[PHASE]-kickoff.md` — Phase kickoff plans (ANALYST)
+- `[N]-[PHASE]-audit.md` — Phase audit reports (INSPECTOR)
+
+**Example Filenames:**
+- `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
+- `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
+- `2-audit.md` — INSPECTOR's audit after session 2
+
+---
+
 ## Role Responsibilities
 
 ### Who Writes ARCHITECTURE.md?
@@ -124,7 +140,7 @@ If you find mismatch:
 1. Identify the pattern you used (e.g., "Converted 3-branch if/else to map lookup")
 2. Add entry to "Design Patterns in Use" section
 3. Update relevant "Interface Contracts" if error handling changed
-4. Write summary to `SESSION-[N]-CARETAKER-ARCHITECTURE-UPDATE.md`
+4. Write summary to `[N]-CARETAKER-ARCHITECTURE-UPDATE.md`
 
 **Example update:**
 ```markdown
@@ -181,7 +197,7 @@ After implementation phase completes and passes user testing, audit codebase and
 1. **Read these in order:**
    - SPEC.md (design intent)
    - Implemented code (what exists)
-   - phase-[N]-completion.md (your own audit notes)
+   - [N]-completion.md (your own audit notes)
 
 2. **Look for:**
    - Repeated patterns (3+ occurrences)
@@ -303,7 +319,7 @@ events.Subscribe("files_staged", callback);
 **SURGEON action:**
 1. Fix the bug using existing pattern
 2. Document pattern in ARCHITECTURE.md
-3. Write `SESSION-[N]-SURGEON-PATTERN-DISCOVERED.md`
+3. Write `[N]-SURGEON-PATTERN-DISCOVERED.md`
 
 **Architecture update:**
 ```markdown
@@ -478,7 +494,7 @@ Which should I propose in ARCHITECTURE.md?
 ### CARETAKER → INSPECTOR
 **CARETAKER notes patterns used:**
 ```markdown
-# SESSION-[N]-CARETAKER-SUMMARY.md
+# [N]-CARETAKER-SUMMARY.md
 
 ## Patterns Applied
 - Converted 3 switch statements to map lookups (Manifesto compliance)

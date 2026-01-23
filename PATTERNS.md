@@ -6,6 +6,22 @@
 
 ---
 
+## 📖 Notation Reference
+
+**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+
+**File Naming Convention:**
+- `[N]-[ROLE]-[TASK].md` — Task summary files written by agents
+- `[N]-[PHASE]-kickoff.md` — Phase kickoff plans (ANALYST)
+- `[N]-[PHASE]-audit.md` — Phase audit reports (INSPECTOR)
+
+**Example Filenames:**
+- `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
+- `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
+- `2-audit.md` — INSPECTOR's audit after session 2
+
+---
+
 ## Table of Contents
 
 1. [Core Principles](#core-principles)
@@ -62,7 +78,7 @@ CAROL aligns with **LIFE STAR + LOVE** from Architectural Manifesto:
 3. If found existing solution:
    - Reuse pattern (don't reinvent)
    - Extend if needed (don't duplicate)
-   - Document why (SESSION-[N]-*.md)
+   - Document why ([N]-[ROLE]-[TASK].md)
 ```
 
 **Anti-pattern:** Creating new solution without checking if it exists
@@ -227,7 +243,7 @@ Only after checking 1-4:
 3. Check Fail-Fast Checklist (1-4) FIRST
 4. Use minimal reproduction (no full codebase read)
 5. Verify fix with user
-6. Document in SESSION-[N]-SURGEON-*.md
+6. Document in [N]-SURGEON-*.md
 ```
 
 **Never:** Read entire codebase, theorize for 50+ messages, assume complex cause
@@ -475,7 +491,7 @@ Exception: Read-only git commands OK
    - NO architectural changes
 
 4. Document what was created:
-   - SESSION-[N]-SCAFFOLDER-*.md
+   - [N]-SCAFFOLDER-*.md
    - List files created
    - Note any clarifications needed
 ```
@@ -581,7 +597,7 @@ After:
 
 **Pattern: Systematic Audit**
 ```
-1. Read audit phase requirements (phase-[N]-audit.md)
+1. Read audit phase requirements ([N]-audit.md)
 2. Check against SPEC.md:
    - All requirements implemented?
    - No extra features added?
@@ -604,7 +620,7 @@ After:
    - No obvious bugs
 
 6. Write findings report:
-   - phase-[N]-[AREA]-findings.md
+   - [N]-[AREA]-findings.md
    - List violations
    - Reference line numbers (file:line)
    - Severity (critical, major, minor)
@@ -650,7 +666,7 @@ After:
 5. Verify fix:
    - Test reproduction case
    - Verify no regressions
-   - Document in SESSION-[N]-SURGEON-*.md
+   - Document in [N]-SURGEON-*.md
 
 6. If discovering undocumented pattern:
    - Note in ARCHITECTURE.md
@@ -683,7 +699,7 @@ Fix:
 
 **Pattern: Session Synthesis**
 ```
-1. Read all SESSION-[N]-*.md files
+1. Read all [N]-[ROLE]-[TASK].md files
 2. Extract key information:
    - What was accomplished
    - Which roles were involved
@@ -828,10 +844,10 @@ Better: *uses Read tool*
    - Self-Validation (before responding)
 
 5. Agent writes session summary:
-   SESSION-[N]-[ROLE]-[TASK].md
+   [N]-[ROLE]-[TASK].md
 
 6. JOURNALIST compiles:
-   All SESSION-[N]-*.md → SESSION-LOG.md
+   All [N]-[ROLE]-[TASK].md → SESSION-LOG.md
 ```
 
 ### Cross-References
