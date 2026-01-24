@@ -2,7 +2,7 @@
 
 **C**ognitive **A**mplification **R**ole **O**rchestration with **LLM** agents
 
-Version: 1.0.0
+Version: 1.0.5
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -24,7 +24,7 @@ CAROL also works effectively as a rapid prototyping methodology for experienced 
 **Example Filenames:**
 - `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
 - `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
-- `2-audit.md` — INSPECTOR's audit after session 2
+- `2-INSPECTOR-AUDIT.md` — INSPECTOR's audit after session 2
 
 ---
 
@@ -342,12 +342,13 @@ Rock 'n Roll!
 ## Documentation
 
 * [CAROL.md](CAROL.md) - Complete role definitions
-* [INTERVIEW.md](INTERVIEW.md) - Agent self-assessments and assignment recommendations
 * [PATTERNS.md](PATTERNS.md) - LLM meta-patterns for problem-solving
 * [SCRIPTS.md](SCRIPTS.md) - Code editing automation catalog
 * [PATTERNS-WRITER.md](PATTERNS-WRITER.md) - Pattern discovery guide
 * [SPEC-WRITER.md](SPEC-WRITER.md) - How ANALYST writes specs
 * [ARCHITECTURE-WRITER.md](ARCHITECTURE-WRITER.md) - How agents document architecture
+* [ARCHITECTURAL-MANIFESTO.md](ARCHITECTURE-WRITER.md) - How agents should obey architecture
+* [NAMING-CONVENTION.md](ARCHITECTURE-WRITER.md) - set of rules for choosing the character sequence to be used for identifiers of any entities in source code and documentation.
 * [SESSION-LOG.md](templates/SESSION-LOG.md) - Session tracking template
 
 ## Support
