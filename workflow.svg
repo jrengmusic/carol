@@ -30,15 +30,15 @@
   <g font-family="monospace" font-size="14" fill="#e6e6e6" text-anchor="middle">
     <text x="600" y="75">FEATURE REQUEST from you</text>
 
-    <text x="600" y="165">ANALYST: Comprehensive Planning</text>
+    <text x="600" y="165">COUNSELOR: Comprehensive Planning</text>
     <text x="600" y="185">- SPEC.md design contract, all flows</text>
     <text x="600" y="205">- SESSION-N-ROLE-TASK.md atomic tasks</text>
     <text x="600" y="225">Quality: Every agent can execute from this</text>
 
-    <text x="350" y="335">SCAFFOLDER</text>
+    <text x="350" y="335">ENGINEER</text>
     <text x="350" y="355">implement</text>
 
-    <text x="850" y="335">CARETAKER</text>
+    <text x="850" y="335">MACHINIST</text>
     <text x="850" y="355">Polish</text>
 
     <text x="600" y="465">YOU: Test against SPEC.md</text>
@@ -46,11 +46,11 @@
     <text x="350" y="595">SURGEON</text>
     <text x="350" y="615">Fix</text>
 
-    <text x="850" y="595">INSPECTOR</text>
+    <text x="850" y="595">AUDITOR</text>
     <text x="850" y="615">Audit, Refactor, Clean</text>
 
     <text x="600" y="725">YOU: Approve</text>
-    <text x="600" y="745">ANALYST: write ARCHITECTURE.md</text>
+    <text x="600" y="745">COUNSELOR: write ARCHITECTURE.md</text>
 
     <text x="600" y="830">JOURNALIST</text>
     <text x="600" y="850">update SESSION-LOG.md</text>
@@ -59,19 +59,19 @@
 
   <!-- Orthogonal Arrows -->
   <g stroke="#bbb" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
-    <!-- Start -> Analyst -->
+    <!-- Start -> Counselor -->
     <path d="M600 100 V140"/>
 
-    <!-- Analyst -> Scaffolder -->
+    <!-- Counselor -> Engineer -->
     <path d="M450 250 V280 H350 V300"/>
 
-    <!-- Analyst -> Caretaker -->
+    <!-- Counselor -> Machinist -->
     <path d="M750 250 V280 H850 V300"/>
 
-    <!-- Scaffolder -> Test -->
+    <!-- Engineer -> Test -->
     <path d="M350 380 V410 H600 V430"/>
 
-    <!-- Caretaker -> Test -->
+    <!-- Machinist -> Test -->
     <path d="M850 380 V410 H600 V430"/>
 
     <!-- Test -> Surgeon (Fail) -->
@@ -80,10 +80,10 @@
     <!-- Surgeon -> Test (return loop, clean L) -->
     <path d="M200 600 H150 V460 H450"/>
 
-    <!-- Test -> Inspector (Pass) -->
+    <!-- Test -> Auditor (Pass) -->
     <path d="M600 490 V520 H850 V560"/>
 
-    <!-- Inspector -> Approve -->
+    <!-- Auditor -> Approve -->
     <path d="M850 640 V665 H600 V690"/>
 
     <!-- Approve -> Journalist -->

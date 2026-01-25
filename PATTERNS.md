@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0
 **Purpose:** Systematic approaches to prevent cognitive overload, scope creep, and autonomous mistakes
-**Audience:** All CAROL agents (ANALYST, SCAFFOLDER, CARETAKER, INSPECTOR, SURGEON, JOURNALIST)
+**Audience:** All CAROL agents (COUNSELOR, ENGINEER, MACHINIST, AUDITOR, SURGEON, JOURNALIST)
 
 ---
 
@@ -11,14 +11,14 @@
 **[N]** = Session Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
-- `[N]-[ROLE]-[TASK].md` — Task summary files written by agents
-- `[N]-[PHASE]-kickoff.md` — Phase kickoff plans (ANALYST)
-- `[N]-[PHASE]-audit.md` — Phase audit reports (INSPECTOR)
+- `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
+- `[N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md` — Phase kickoff plans (COUNSELOR)
+- `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
-- `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
-- `2-audit.md` — INSPECTOR's audit after session 2
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
+- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 2
+- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
 
 ---
 
@@ -58,7 +58,7 @@ CAROL aligns with **LIFE STAR + LOVE** from Architectural Manifesto:
 
 ## Problem Decomposition Framework
 
-**When to use:** ANALYST planning, SCAFFOLDER breaking down tasks, SURGEON analyzing complex bugs
+**When to use:** COUNSELOR planning, ENGINEER breaking down tasks, SURGEON analyzing complex bugs
 
 ### Step 1: Identify SSOT (Single Source of Truth)
 
@@ -78,7 +78,7 @@ CAROL aligns with **LIFE STAR + LOVE** from Architectural Manifesto:
 3. If found existing solution:
    - Reuse pattern (don't reinvent)
    - Extend if needed (don't duplicate)
-   - Document why ([N]-[ROLE]-[TASK].md)
+   - Document why ([N]-[ROLE]-[OBJECTIVE].md)
 ```
 
 **Anti-pattern:** Creating new solution without checking if it exists
@@ -285,7 +285,7 @@ Task: Need to run command
 
 Task: Need to plan/design
 ├─ Requirements unclear?
-│  └─ YES → Ask user questions (ANALYST role)
+│  └─ YES → Ask user questions (COUNSELOR role)
 ```
 
 ### Tool Usage Patterns
@@ -382,7 +382,7 @@ Example:
     - No guessing at user intent
     - Clarified ambiguities
 
-[ ] For SCAFFOLDER: Am I generating literally?
+[ ] For ENGINEER: Am I generating literally?
     - Following kickoff document exactly
     - Not adding optimizations
     - Not making architectural decisions
@@ -392,7 +392,7 @@ Example:
     - Not refactoring entire module
     - Only touching broken code
 
-[ ] For CARETAKER: Am I preserving behavior?
+[ ] For MACHINIST: Am I preserving behavior?
     - Only adding safety/validation
     - Not changing logic
     - Not optimizing prematurely
@@ -427,7 +427,7 @@ Exception: Read-only git commands OK
 
 ## Role-Specific Patterns
 
-### ANALYST Patterns
+### COUNSELOR Patterns
 
 **Core behavior:** Ask questions, gather requirements, write specs
 
@@ -457,7 +457,7 @@ Exception: Read-only git commands OK
    - Data flow
    - Integration points
 
-5. Create kickoff document for SCAFFOLDER:
+5. Create kickoff document for ENGINEER:
    - Concrete, literal instructions
    - File structure
    - Code examples
@@ -466,7 +466,7 @@ Exception: Read-only git commands OK
 
 **Anti-pattern:** Writing code, making architectural decisions without questions
 
-### SCAFFOLDER Patterns
+### ENGINEER Patterns
 
 **Core behavior:** Generate code exactly as specified
 
@@ -491,7 +491,7 @@ Exception: Read-only git commands OK
    - NO architectural changes
 
 4. Document what was created:
-   - [N]-SCAFFOLDER-*.md
+   - [N]-ENGINEER-*.md
    - List files created
    - Note any clarifications needed
 ```
@@ -524,7 +524,7 @@ Output:
   };
 ```
 
-### CARETAKER Patterns
+### MACHINIST Patterns
 
 **Core behavior:** Add robustness without changing behavior
 
@@ -591,13 +591,13 @@ After:
   }
 ```
 
-### INSPECTOR Patterns
+### AUDITOR Patterns
 
 **Core behavior:** Audit code, report findings
 
 **Pattern: Systematic Audit**
 ```
-1. Read audit phase requirements ([N]-audit.md)
+1. Read audit phase requirements ([N]-AUDITOR-[TASK].md)
 2. Check against SPEC.md:
    - All requirements implemented?
    - No extra features added?
@@ -629,7 +629,7 @@ After:
 7. If critical issues found:
    - Block commit
    - Notify user
-   - Suggest which role should fix (SURGEON, CARETAKER)
+   - Suggest which role should fix (SURGEON, MACHINIST)
 ```
 
 **Anti-pattern:** Fixing code, making changes, implementing features
@@ -699,7 +699,7 @@ Fix:
 
 **Pattern: Session Synthesis**
 ```
-1. Read all [N]-[ROLE]-[TASK].md files
+1. Read all [N]-[ROLE]-[OBJECTIVE].md files
 2. Extract key information:
    - What was accomplished
    - Which roles were involved
@@ -825,15 +825,15 @@ Better: *uses Read tool*
 
 ```
 1. User assigns role:
-   "Read .carol/CAROL.md. You are ANALYST, register in SESSION-LOG.md"
+   "Read .carol/CAROL.md. You are COUNSELOR, register in SESSION-LOG.md"
 
 2. Agent reads role definition + PATTERNS.md
 
 3. Agent follows role-specific patterns:
-   - ANALYST: Systematic Questioning
-   - SCAFFOLDER: Literal Implementation
-   - CARETAKER: Defensive Programming
-   - INSPECTOR: Systematic Audit
+   - COUNSELOR: Systematic Questioning
+   - ENGINEER: Literal Implementation
+   - MACHINIST: Defensive Programming
+   - AUDITOR: Systematic Audit
    - SURGEON: Surgical Fix
    - JOURNALIST: Session Synthesis
 
@@ -844,16 +844,16 @@ Better: *uses Read tool*
    - Self-Validation (before responding)
 
 5. Agent writes session summary:
-   [N]-[ROLE]-[TASK].md
+   [N]-[ROLE]-[OBJECTIVE].md
 
 6. JOURNALIST compiles:
-   All [N]-[ROLE]-[TASK].md → SESSION-LOG.md
+   All [N]-[ROLE]-[OBJECTIVE].md → SESSION-LOG.md
 ```
 
 ### Cross-References
 
 - **CAROL.md:** Role definitions and constraints
-- **SPEC-WRITER.md:** ANALYST conversation guide
+- **SPEC-WRITER.md:** COUNSELOR conversation guide
 - **ARCHITECTURE-WRITER.md:** Multi-role architecture documentation
 - **SCRIPTS.md:** Code editing automation (coming soon)
 - **PATTERNS-WRITER.md:** Pattern discovery guide (coming soon)

@@ -9,6 +9,7 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Default installation location
@@ -25,6 +26,10 @@ success() {
 
 info() {
     echo -e "${YELLOW}→ $1${NC}"
+}
+
+notice() {
+    echo -e "${BLUE}ℹ $1${NC}"
 }
 
 warning() {
@@ -103,14 +108,18 @@ check_active_projects() {
     info "Checking for projects using CAROL..."
 
     # Find .carol directories (excluding the CAROL installation itself)
-    local carol_projects=$(find ~ -name ".carol" -type d 2>/dev/null | grep -v "^$CAROL_INSTALL_DIR" | head -5)
+    local carol_projects=$(find ~ -maxdepth 4 -name ".carol" -type d 2>/dev/null | grep -v "^$CAROL_INSTALL_DIR" | head -5)
 
     if [ -n "$carol_projects" ]; then
         warning "Found projects using CAROL:"
         echo "$carol_projects"
         echo ""
         warning "After uninstall, these projects will still have .carol/ directories"
-        warning "They will have broken symlinks if using symlink mode"
+        warning "Symlink mode projects will have broken symlinks in:"
+        echo "  - .carol/ (documentation symlinks)"
+        echo "  - .opencode/agents/ (role definition symlinks)"
+        echo ""
+        notice "Portable mode projects will continue to work independently"
         echo ""
     fi
 }
@@ -147,6 +156,10 @@ main() {
     echo "     source ~/.bashrc  (bash)"
     echo "     source ~/.zshrc   (zsh)"
     echo "  2. Or open a new terminal"
+    echo ""
+    notice "To clean up project integrations manually:"
+    echo "  rm -rf /path/to/project/.carol"
+    echo "  rm -rf /path/to/project/.opencode/agents"
     echo ""
     info "To reinstall later:"
     echo "  curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/install.sh | bash"

@@ -14,6 +14,7 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Default installation location
@@ -31,6 +32,10 @@ success() {
 
 info() {
     echo -e "${YELLOW}→ $1${NC}"
+}
+
+notice() {
+    echo -e "${BLUE}ℹ $1${NC}"
 }
 
 # Detect if running from cloned repo or curl-piped
@@ -130,6 +135,15 @@ verify_install() {
         error "Installation failed: carol command not found"
     fi
 
+    # Verify required directories exist
+    if [ ! -d "$CAROL_ROOT/roles" ]; then
+        error "Installation failed: roles directory not found"
+    fi
+
+    if [ ! -d "$CAROL_ROOT/templates" ]; then
+        error "Installation failed: templates directory not found"
+    fi
+
     # Test carol command
     if "$CAROL_BIN/carol" version > /dev/null 2>&1; then
         success "Installation verified"
@@ -170,7 +184,10 @@ main() {
     echo ""
     info "Then run:"
     echo "  carol version"
-    echo "  carol init        # in your project directory"
+    echo "  carol init              # symlink mode (default)"
+    echo "  carol init --portable   # portable mode (full copy)"
+    echo ""
+    notice "OpenCode integration: carol init creates .opencode/agents/ with role definitions"
     echo ""
 }
 

@@ -317,7 +317,7 @@ project-root/
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 0.1 | YYYY-MM-DD | ANALYST | Initial architecture sketch |
+| 0.1 | YYYY-MM-DD | COUNSELOR | Initial architecture sketch |
 
 ---
 

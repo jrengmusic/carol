@@ -17,14 +17,14 @@ CAROL also works effectively as a rapid prototyping methodology for experienced 
 **[N]** = Session Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
-- `[N]-[ROLE]-[TASK].md` — Task summary files written by agents
-- `[N]-[PHASE]-kickoff.md` — Phase kickoff plans (ANALYST)
-- `[N]-[PHASE]-audit.md` — Phase audit reports (INSPECTOR)
+- `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
+- `[N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md` — Phase kickoff plans (COUNSELOR)
+- `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
-- `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
-- `2-INSPECTOR-AUDIT.md` — INSPECTOR's audit after session 2
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
+- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 2
+- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
 
 ---
 
@@ -44,12 +44,12 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 
 ### Specialized Roles
 
-* **ANALYST** - Requirements analyst and planning specialist. Asks clarifying questions, gathers requirements, writes specifications in SPEC.md, and creates architecture documentation. Never writes code directly. Handover SPEC-WRITER.md and ARCHITECTURE-WRITER.md as your instructions, ANALYST will clarify your intent from vague ideas into formalized development documents.
-* **SCAFFOLDER** - Literal code generator. Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Does not add features, optimize, or make architectural decisions.
-* **CARETAKER** - Code polisher and reviewer. Adds error handling, validation, and defensive programming. Improves existing code without changing behavior. Focuses on robustness, not cleverness.
-* **INSPECTOR** - Pre-commit auditor. Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints, verifies style compliance. Audits refactoring opportunities to mitigate technical debt.
+* **COUNSELOR** - Requirements counselor and planning specialist. Asks clarifying questions, gathers requirements, writes specifications in SPEC.md, and creates architecture documentation. Never writes code directly. Handover SPEC-WRITER.md and ARCHITECTURE-WRITER.md as your instructions, COUNSELOR will clarify your intent from vague ideas into formalized development documents.
+* **ENGINEER** - Literal code generator. Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Does not add features, optimize, or make architectural decisions.
+* **MACHINIST** - Code polisher and reviewer. Adds error handling, validation, and defensive programming. Improves existing code without changing behavior. Focuses on robustness, not cleverness.
+* **AUDITOR** - Pre-commit auditor. Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints, verifies style compliance. Audits refactoring opportunities to mitigate technical debt.
 * **SURGEON** - Complex fix specialist. Handles bugs, performance issues, and architectural corrections. Reads RESET context, identifies root cause, implements minimal surgical fixes. Does not refactor unless required.
-* **JOURNALIST** - Documentation synthesizer. Compiles session summaries from [N]-[ROLE]-[TASK].md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail.
+* **JOURNALIST** - Documentation synthesizer. Compiles session summaries from [N]-[ROLE]-[OBJECTIVE].md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail.
 
 ### The cognitive load distribution:
 
@@ -72,15 +72,15 @@ Result: Single agent makes mistakes, over-engineers, loses track
 **CAROL (distributed roles):**
 
 ```
-ANALYST's context:
+COUNSELOR's context:
 └─ Feature requirements + asking clarifying questions
    (5k tokens, laser-focused on planning)
 
-SCAFFOLDER's context:
+ENGINEER's context:
 └─ SESSION-N-TASK.md + scaffold these files
    (3k tokens, literal execution)
 
-CARETAKER's context:
+MACHINIST's context:
 └─ Scaffolding to working implementation
    (8k tokens, focused on structural review)
 
@@ -88,7 +88,7 @@ SURGEON's context (when escalated):
 └─ Specific complex problem + what failed + fix this one thing
    (8k tokens, surgical fix)
    
-INSPECTOR's context:
+AUDITOR's context:
 └─ review, refactoring opportunity, audit SPEC.md and ARCHITECTURE.md compliance
    (5k tokens)
 
@@ -191,7 +191,7 @@ carol update
 After `carol init`, activate an agent by reading role definitions:
 
 ```
-Read .carol/CAROL.md. You are assigned as ANALYST, register yourself in .carol/SESSION-LOG.md
+Read .carol/CAROL.md. You are assigned as COUNSELOR, register yourself in .carol/SESSION-LOG.md
 ```
 
 ### Uninstall
@@ -231,7 +231,7 @@ source ~/.bashrc  # bash
 ├── PATTERNS.md               # LLM meta-patterns
 ├── SCRIPTS.md                # Script documentation
 ├── PATTERNS-WRITER.md        # Pattern discovery guide
-├── SPEC-WRITER.md            # Analyst conversation guide
+├── SPEC-WRITER.md            # Counselor conversation guide
 ├── ARCHITECTURE-WRITER.md    # Architecture documentation guide
 ├── templates/                # Project templates
 │   ├── SESSION-LOG.md
@@ -246,7 +246,7 @@ source ~/.bashrc  # bash
 
 ```
 your-project/
-├── SPEC.md                   # ANALYST creates via SPEC-WRITER.md
+├── SPEC.md                   # COUNSELOR creates via SPEC-WRITER.md
 ├── ARCHITECTURE.md           # Agents create via ARCHITECTURE-WRITER.md
 ├── .carol/
 │   ├── CAROL.md → ~/.carol/CAROL.md (symlink)
@@ -258,7 +258,7 @@ your-project/
 │   ├── ARCHITECTURE-WRITER.md → ~/.carol/ARCHITECTURE-WRITER.md (symlink)
 │   ├── scripts/ → ~/.carol/scripts/ (symlink)
 │   ├── SESSION-LOG.md (copied, customized)
-│   └── [N]-[ROLE]-[TASK].md (temp files)
+│   └── [N]-[ROLE]-[OBJECTIVE].md (temp files)
 ├── src/                      # Your code
 └── .gitignore
 ```
@@ -312,7 +312,7 @@ LLMs suffer from:
 
 CAROL provides:
 
-* **Role constraints:** Can't add features if you're SCAFFOLDER
+* **Role constraints:** Can't add features if you're ENGINEER
 * **Context isolation:** Each role reads only what they need
 * **Registration guardrail:** Must check role before acting
 * **Systematic patterns:** Problem decomposition, debug methodology, self-validation
@@ -345,7 +345,7 @@ Rock 'n Roll!
 * [PATTERNS.md](PATTERNS.md) - LLM meta-patterns for problem-solving
 * [SCRIPTS.md](SCRIPTS.md) - Code editing automation catalog
 * [PATTERNS-WRITER.md](PATTERNS-WRITER.md) - Pattern discovery guide
-* [SPEC-WRITER.md](SPEC-WRITER.md) - How ANALYST writes specs
+* [SPEC-WRITER.md](SPEC-WRITER.md) - How COUNSELOR writes specs
 * [ARCHITECTURE-WRITER.md](ARCHITECTURE-WRITER.md) - How agents document architecture
 * [ARCHITECTURAL-MANIFESTO.md](ARCHITECTURE-WRITER.md) - How agents should obey architecture
 * [NAMING-CONVENTION.md](ARCHITECTURE-WRITER.md) - set of rules for choosing the character sequence to be used for identifiers of any entities in source code and documentation.
