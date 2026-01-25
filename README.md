@@ -2,7 +2,7 @@
 
 **C**ognitive **A**mplification **R**ole **O**rchestration with **LLM** agents
 
-Version: 1.0.5
+Version: 1.1.0
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -44,12 +44,23 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 
 ### Specialized Roles
 
-* **COUNSELOR** - Requirements counselor and planning specialist. Asks clarifying questions, gathers requirements, writes specifications in SPEC.md, and creates architecture documentation. Never writes code directly. Handover SPEC-WRITER.md and ARCHITECTURE-WRITER.md as your instructions, COUNSELOR will clarify your intent from vague ideas into formalized development documents.
-* **ENGINEER** - Literal code generator. Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Does not add features, optimize, or make architectural decisions.
-* **MACHINIST** - Code polisher and reviewer. Adds error handling, validation, and defensive programming. Improves existing code without changing behavior. Focuses on robustness, not cleverness.
-* **AUDITOR** - Pre-commit auditor. Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints, verifies style compliance. Audits refactoring opportunities to mitigate technical debt.
-* **SURGEON** - Complex fix specialist. Handles bugs, performance issues, and architectural corrections. Reads RESET context, identifies root cause, implements minimal surgical fixes. Does not refactor unless required.
-* **JOURNALIST** - Documentation synthesizer. Compiles session summaries from [N]-[ROLE]-[OBJECTIVE].md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail.
+**COUNSELOR** - Requirements Counselor & Planning Specialist
+   Transforms conceptual intent into formal specifications. Asks clarifying questions, explores edge cases and constraints, writes comprehensive SPEC.md and ARCHITECTURE.md. Never writes code directly. Uses SPEC-WRITER.md and ARCHITECTURE-WRITER.md as guides to clarify user's architectural vision into formalized development documents.
+
+**ENGINEER** - Literal Code Generator
+   Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Follows specifications literally without adding features, optimizations, or making architectural decisions. Uses exact names, types, and signatures from SPEC.md as referenced in kickoff plans.
+
+**MACHINIST** - Code Polisher & Defensive Programming Specialist
+   Elevates scaffolds to working implementations by adding error handling, validation, and defensive programming. Wires components according to ARCHITECTURE.md patterns. Improves robustness without changing behavior or adding "clever" solutions. Focuses on fail-fast principles and necessary error handling only.
+
+**AUDITOR** - Pre-Commit Auditor
+   Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints (LIFE STAR + LOVE principles), verifies style compliance, and identifies refactoring opportunities to mitigate technical debt. Writes comprehensive audit reports with severity classifications and recommendations.
+
+**SURGEON** - Complex Fix Specialist
+   Handles bugs, performance issues, edge cases, and architectural corrections that other agents cannot solve. Reads RESET context to ignore failed attempts, identifies root cause using PATTERNS.md debug methodology, implements minimal surgical fixes. Does not refactor entire modules or touch unrelated code.
+
+**JOURNALIST** - Documentation Synthesizer
+   Compiles session summaries from [N]-[ROLE]-[OBJECTIVE].md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail, and generates git commit messages crediting all agents. Writes production-ready inline documentation (e.g., Doxygen, Godoc) when requested.
 
 ### The cognitive load distribution:
 
@@ -77,12 +88,12 @@ COUNSELOR's context:
    (5k tokens, laser-focused on planning)
 
 ENGINEER's context:
-└─ SESSION-N-TASK.md + scaffold these files
-   (3k tokens, literal execution)
+ └─ [N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md + scaffold these files
+    (3k tokens, literal execution)
 
 MACHINIST's context:
-└─ Scaffolding to working implementation
-   (8k tokens, focused on structural review)
+ └─ Scaffolding to working implementation
+    (8k tokens, focused on error handling and defensive programming)
 
 SURGEON's context (when escalated):
 └─ Specific complex problem + what failed + fix this one thing
@@ -115,12 +126,13 @@ Document-driven development pipeline with specialized artifacts:
 
 * **Role-Based Constraints:** 6 specialized roles with explicit behavioral rules
 * **Agent-Agnostic:** Works with any LLM CLI tool (Claude Code, Opencode, Amp, Copilot, Gemini, whatever.)
+* **Opencode Integration:** Native support for Opencode CLI tool with enhanced workflow patterns
 * **Language-Agnostic:** Supports any programming language/framework
 * **TDD-Friendly:** Built-in testing patterns and scripts
 * **Git-Tracked:** Framework evolution tracked, projects reference SSOT
 * **Flexible Distribution:**
-  + **Symlink mode (default):** Update SSOT once → all projects update
-  + **Portable mode:** Full copy, works offline, project self-contained
+   + **Symlink mode (default):** Update SSOT once → all projects update
+   + **Portable mode:** Full copy, works offline, project self-contained
 
 ## Quick Start
 
@@ -227,6 +239,13 @@ source ~/.bashrc  # bash
 ```
 ~/.carol
 ├── CAROL.md                  # Role definitions (immutable)
+├── roles/                   # Role-specific behavior definitions
+│   ├── counselor.md           # Requirements counselor
+│   ├── engineer.md            # Literal code generator
+│   ├── machinist.md           # Code polisher & defensive programming
+│   ├── auditor.md             # Pre-commit auditor
+│   ├── surgeon.md             # Complex fix specialist
+│   └── journalist.md          # Documentation synthesizer
 ├── INTERVIEW.md              # Agent self-assessments & recommendations
 ├── PATTERNS.md               # LLM meta-patterns
 ├── SCRIPTS.md                # Script documentation
@@ -250,6 +269,13 @@ your-project/
 ├── ARCHITECTURE.md           # Agents create via ARCHITECTURE-WRITER.md
 ├── .carol/
 │   ├── CAROL.md → ~/.carol/CAROL.md (symlink)
+│   ├── roles/ → ~/.carol/roles/ (symlink)
+│   │   ├── counselor.md       # Requirements counselor
+│   │   ├── engineer.md        # Literal code generator
+│   │   ├── machinist.md       # Code polisher & defensive programming
+│   │   ├── auditor.md         # Pre-commit auditor
+│   │   ├── surgeon.md         # Complex fix specialist
+│   │   └── journalist.md      # Documentation synthesizer
 │   ├── INTERVIEW.md → ~/.carol/INTERVIEW.md (symlink)
 │   ├── PATTERNS.md → ~/.carol/PATTERNS.md (symlink)
 │   ├── SCRIPTS.md → ~/.carol/SCRIPTS.md (symlink)
