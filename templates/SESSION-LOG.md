@@ -13,14 +13,14 @@
 **[N]** = Session Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
-- `[N]-[ROLE]-[TASK].md` — Task summary files written by agents
-- `[N]-[PHASE]-kickoff.md` — Phase kickoff plans (ANALYST)
-- `[N]-[PHASE]-audit.md` — Phase audit reports (INSPECTOR)
+- `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
+- `[N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md` — Phase kickoff plans (COUNSELOR)
+- `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
-- `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
-- `2-audit.md` — INSPECTOR's audit after session 2
+- `1-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
+- `1-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 1
+- `2-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
 
 ---
 
@@ -43,7 +43,7 @@
 **LOG MAINTENANCE RULE**
 - **All session logs must be written from latest to earliest (top to bottom), BELOW this rules section**
 - **Only the last 5 sessions are kept in active log**
-- **All agent roles except JOURNALIST write [N]-[ROLE]-[TASK].md for each completed task**
+- **All agent roles except JOURNALIST write [N]-[ROLE]-[OBJECTIVE].md for each completed task**
 - **JOURNALIST compiles all task summaries with same session number, updates SESSION-LOG.md as new entry**
 - **Only JOURNALIST can add new session entry to SESSION HISTORY**
 - **Sessions can be executed in parallel with multiple agents**
@@ -87,7 +87,7 @@
 - ✅ ALWAYS use Problem Decomposition Framework for multi-step tasks
 - ✅ ALWAYS use Debug Methodology checklist when investigating bugs
 - ✅ ALWAYS run Self-Validation Checklist before responding
-- ✅ Follow role-specific patterns (ANALYST, SCAFFOLDER, SURGEON, CARETAKER, INSPECTOR)
+- ✅ Follow role-specific patterns (COUNSELOR, ENGINEER, SURGEON, MACHINIST, AUDITOR)
 - Better to pause and read patterns than repeat documented failures
 
 **SCRIPT USAGE RULE**
@@ -139,11 +139,11 @@
 
 ## ROLE ASSIGNMENT REGISTRATION
 
-ANALYST: [Agent (Model)] or [Not Assigned]  
-SCAFFOLDER: [Agent (Model)] or [Not Assigned]  
+COUNSELOR: [Agent (Model)] or [Not Assigned]  
+ENGINEER: [Agent (Model)] or [Not Assigned]  
 SURGEON: [Agent (Model)] or [Not Assigned]  
-INSPECTOR: [Agent (Model)] or [Not Assigned]  
-TROUBLESHOOTER: [Agent (Model)] or [Not Assigned]  
+AUDITOR: [Agent (Model)] or [Not Assigned]  
+MACHINIST: [Agent (Model)] or [Not Assigned]  
 JOURNALIST: [Agent (Model)] or [Not Assigned]
 
 ---
@@ -168,15 +168,15 @@ JOURNALIST: [Agent (Model)] or [Not Assigned]
 - Scaffold initial codebase
 
 ### Agents Participated
-- ANALYST: Copilot (Haiku) — Wrote SPEC.md and 1-kickoff.md
-- SCAFFOLDER: Mistral-Vibe (devstral-2) — Created project structure and core files
-- INSPECTOR: Amp (Sonnet 3.5) — Verified spec compliance
+- COUNSELOR: Copilot (Haiku) — Wrote SPEC.md and [N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md
+- ENGINEER: Mistral-Vibe (devstral-2) — Created project structure and core files
+- AUDITOR: Amp (Sonnet 3.5) — Verified spec compliance
 - Tested by: User
 
 ### Files Modified (8 total)
 - `SPEC.md` — Complete feature specification with all flows
 - `ARCHITECTURE.md` — Initial architecture patterns documented
-- `1-kickoff.md` — Task breakdown for SCAFFOLDER
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — Task breakdown for ENGINEER
 - `src/core/module.cpp` — Core module scaffolding
 - `src/core/module.h` — Core module header
 - `tests/core_test.cpp` — Test scaffolding
@@ -187,7 +187,7 @@ JOURNALIST: [Agent (Model)] or [Not Assigned]
 - None (initial setup)
 
 ### Summary
-Successfully established project foundation. ANALYST created comprehensive specs covering all edge cases. SCAFFOLDER generated clean scaffolds following ARCHITECTURE.md patterns. INSPECTOR verified all files compile and match spec. Ready for SURGEON to add error handling in session 2.
+Successfully established project foundation. COUNSELOR created comprehensive specs covering all edge cases. ENGINEER generated clean scaffolds following ARCHITECTURE.md patterns. AUDITOR verified all files compile and match spec. Ready for SURGEON to add error handling in session 2.
 
 **Status:** ✅ APPROVED - All files compile, tests scaffold in place
 
@@ -197,13 +197,13 @@ Successfully established project foundation. ANALYST created comprehensive specs
 
 ---
 
-## [N]-[ROLE]-[TASK].md Format Reference
+## [N]-[ROLE]-[OBJECTIVE].md Format Reference
 
-**File naming:** `[N]-[ROLE]-[TASK].md`  
+**File naming:** `[N]-[ROLE]-[OBJECTIVE].md`  
 **Examples:**
-- `2-SCAFFOLDER-MERMAID-MODULE.md`
-- `2-SURGEON-ERROR-HANDLING.md`
-- `2-TROUBLESHOOTER-COMPILE-FIX.md`
+- `[N]-ENGINEER-MERMAID-MODULE.md`
+- `[N]-MACHINIST-ERROR-HANDLING.md`
+- `[N]-SURGEON-COMPILE-FIX.md`
 
 **Content format:**
 ```markdown
@@ -229,9 +229,9 @@ Successfully established project foundation. ANALYST created comprehensive specs
 
 **Lifecycle:**
 1. Agent completes task
-2. Agent writes [N]-[ROLE]-[TASK].md
-3. JOURNALIST compiles all [N]-[ROLE]-[TASK].md files into SESSION-LOG.md entry
-4. JOURNALIST deletes all [N]-[ROLE]-[TASK].md files after compilation
+2. Agent writes [N]-[ROLE]-[OBJECTIVE].md
+3. JOURNALIST compiles all [N]-[ROLE]-[OBJECTIVE].md files into SESSION-LOG.md entry
+4. JOURNALIST deletes all [N]-[ROLE]-[OBJECTIVE].md files after compilation
 
 ---
 

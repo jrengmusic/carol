@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0
 **Purpose:** How agents discover, validate, and document patterns in codebases
-**Audience:** CARETAKER, SURGEON (pattern discovery during work), JOURNALIST (compilation)
+**Audience:** MACHINIST, SURGEON (pattern discovery during work), JOURNALIST (compilation)
 
 ---
 
@@ -11,14 +11,14 @@
 **[N]** = Session Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
-- `[N]-[ROLE]-[TASK].md` — Task summary files written by agents
-- `[N]-[PHASE]-kickoff.md` — Phase kickoff plans (ANALYST)
-- `[N]-[PHASE]-audit.md` — Phase audit reports (INSPECTOR)
+- `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
+- `[N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md` — Phase kickoff plans (COUNSELOR)
+- `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
-- `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
-- `2-audit.md` — INSPECTOR's audit after session 2
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
+- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 2
+- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
 
 ---
 
@@ -100,10 +100,10 @@ class AudioProcessor {
 - Repeated error handling
 - Common data flow
 
-**CARETAKER:** Notice while adding error handling
+**MACHINIST:** Notice while adding error handling
 **SURGEON:** Notice while fixing bugs
-**SCAFFOLDER:** Notice while generating code
-**INSPECTOR:** Notice during audits
+**ENGINEER:** Notice while generating code
+**AUDITOR:** Notice during audits
 
 ### Step 2: Search for All Occurrences
 
@@ -181,7 +181,7 @@ Total: 4 instances
 **If pattern violates principles:**
 - Document as **anti-pattern**
 - Propose refactoring
-- Note in [N]-[ROLE]-[TASK].md
+- Note in [N]-[ROLE]-[OBJECTIVE].md
 
 ### Step 5: Document Pattern
 
@@ -616,7 +616,7 @@ done
 
 ## Role-Specific Guidelines
 
-### CARETAKER: Pattern Discovery While Polishing
+### MACHINIST: Pattern Discovery While Polishing
 
 **When adding error handling, validation, safety checks:**
 
@@ -630,7 +630,7 @@ done
    - Extract pattern
    - Document in ARCHITECTURE.md
    - Apply consistently
-   - Note in [N]-CARETAKER-*.md
+   - Note in [N]-MACHINIST-*.md
 
 3. **If creating new pattern:**
    - Document intent (why needed)
@@ -640,7 +640,7 @@ done
 **Example Session:**
 
 ```markdown
-# SESSION-15-CARETAKER-NULL-CHECKS.md
+# SESSION-15-MACHINIST-NULL-CHECKS.md
 
 ## Task
 Add null checks to handler functions
@@ -718,7 +718,7 @@ Found 12 instances of numeric literals assigned to float:
 
 ---
 
-### INSPECTOR: Pattern Validation During Audit
+### AUDITOR: Pattern Validation During Audit
 
 **When auditing code:**
 
@@ -734,13 +734,13 @@ Found 12 instances of numeric literals assigned to float:
    - Severity (critical, major, minor)
 
 3. **Suggest fixes:**
-   - Which role should fix (CARETAKER, SURGEON)
+   - Which role should fix (MACHINIST, SURGEON)
    - Priority (immediate, next session)
 
 **Example Audit Report:**
 
 ```markdown
-# 3-patterns-audit.md
+# 3-AUDITOR-PATTERNS.md
 
 ## Pattern Compliance Audit
 
@@ -752,7 +752,7 @@ Found 12 instances of numeric literals assigned to float:
 - `src/exporter.cpp:78` - Silent return instead of exception (Major)
 
 **Recommendation:**
-- Assign CARETAKER to add missing checks
+- Assign MACHINIST to add missing checks
 - Priority: Before next commit
 
 ### Trivially Copyable DSP
@@ -790,9 +790,9 @@ Found 12 instances of numeric literals assigned to float:
 3. **Create pattern index:**
    ```markdown
    ## Pattern Index
-   - Null Check Pattern (Session 15, CARETAKER)
+   - Null Check Pattern (Session 15, MACHINIST)
    - Numeric Precision Pattern (Session 22, SURGEON)
-   - Trivially Copyable DSP (Session 8, ANALYST)
+   - Trivially Copyable DSP (Session 8, COUNSELOR)
    ```
 
 ---

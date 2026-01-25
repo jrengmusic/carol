@@ -1,7 +1,7 @@
 # ARCHITECTURE-WRITER.md
 ## Instructions for Agents: How to Analyze and Document Architecture
 
-**Purpose:** Step-by-step protocol for agents (ANALYST, INSPECTOR, CARETAKER, SURGEON) to write or update ARCHITECTURE.md from working codebase.
+**Purpose:** Step-by-step protocol for agents (COUNSELOR, AUDITOR, MACHINIST, SURGEON) to write or update ARCHITECTURE.md from working codebase.
 
 **File Location:** Create ARCHITECTURE.md at project root (not in .carol/)
 
@@ -18,14 +18,14 @@
 **[N]** = Session Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
-- `[N]-[ROLE]-[TASK].md` — Task summary files written by agents
-- `[N]-[PHASE]-kickoff.md` — Phase kickoff plans (ANALYST)
-- `[N]-[PHASE]-audit.md` — Phase audit reports (INSPECTOR)
+- `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
+- `[N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md` — Phase kickoff plans (COUNSELOR)
+- `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `1-ANALYST-KICKOFF.md` — ANALYST's plan for session 1
-- `2-SCAFFOLDER-MODULE-SCAFFOLD.md` — SCAFFOLDER's task in session 2
-- `2-audit.md` — INSPECTOR's audit after session 2
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
+- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 2
+- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
 
 ---
 
@@ -33,17 +33,17 @@
 
 ### Who Writes ARCHITECTURE.md?
 
-**ANALYST:**
+**COUNSELOR:**
 - Writes initial architecture sketch after SPEC is concrete
 - Updates when SPEC changes significantly
 - Documents new patterns after human approval
 
-**INSPECTOR:**
+**AUDITOR:**
 - Updates after audit discovers new patterns
 - Documents refactoring opportunities (human decides)
 - Validates architecture matches codebase
 
-**CARETAKER:**
+**MACHINIST:**
 - Updates when polishing introduces new patterns
 - Documents wiring decisions made during implementation
 
@@ -72,7 +72,7 @@ If you find mismatch:
 
 ## Role-Specific Instructions
 
-### For ANALYST
+### For COUNSELOR
 
 **When you write ARCHITECTURE.md:**
 1. Read SPEC.md completely
@@ -107,7 +107,7 @@ If you find mismatch:
 **Status:** AWAITING HUMAN APPROVAL
 ```
 
-### ANALYST Writing Process
+### COUNSELOR Writing Process
 
 1. Read SPEC.md thoroughly
 2. Identify module boundaries from SPEC flows
@@ -124,7 +124,7 @@ If you find mismatch:
 
 ---
 
-## CARETAKER Instructions
+## MACHINIST Instructions
 
 **When you update ARCHITECTURE.md:**
 - You've just added error handling to scaffolded code
@@ -140,7 +140,7 @@ If you find mismatch:
 1. Identify the pattern you used (e.g., "Converted 3-branch if/else to map lookup")
 2. Add entry to "Design Patterns in Use" section
 3. Update relevant "Interface Contracts" if error handling changed
-4. Write summary to `[N]-CARETAKER-ARCHITECTURE-UPDATE.md`
+4. Write summary to `[N]-MACHINIST-ARCHITECTURE-UPDATE.md`
 
 **Example update:**
 ```markdown
@@ -165,7 +165,7 @@ process(input);  // Guaranteed valid
 
 ---
 
-## INSPECTOR: Architecture Documentation
+## AUDITOR: Architecture Documentation
 
 ### Your Responsibility
 After implementation phase completes and passes user testing, audit codebase and update ARCHITECTURE.md.
@@ -179,7 +179,7 @@ After implementation phase completes and passes user testing, audit codebase and
 
 **Patterns Discovered:**
 - If you see same pattern used 3+ times, document it
-- If CARETAKER converted conditionals to maps, document the pattern
+- If MACHINIST converted conditionals to maps, document the pattern
 - If new interface contract established, document it
 
 **Layer Contracts:**
@@ -358,9 +358,9 @@ When compiling session logs, note any ARCHITECTURE.md updates.
 **In session summary:**
 ```markdown
 ### Architecture Updates
-- INSPECTOR documented Type-Erased Factory pattern
+- AUDITOR documented Type-Erased Factory pattern
 - SURGEON discovered Event Subscription pattern (undocumented)
-- CARETAKER converted 5 switch statements to map lookups (follows Manifesto)
+- MACHINIST converted 5 switch statements to map lookups (follows Manifesto)
 ```
 
 **In git commit:**
@@ -368,8 +368,8 @@ When compiling session logs, note any ARCHITECTURE.md updates.
 Session [N] complete: [Feature name]
 
 Agents:
-- Implemented: SCAFFOLDER, CARETAKER
-- Inspected: INSPECTOR (updated ARCHITECTURE.md)
+- Implemented: ENGINEER, MACHINIST
+- Inspected: AUDITOR (updated ARCHITECTURE.md)
 
 Architecture changes:
 - Documented Type-Erased Factory pattern
@@ -379,7 +379,7 @@ Architecture changes:
 
 ---
 
-## ANALYST: Initial Architecture Sketch
+## COUNSELOR: Initial Architecture Sketch
 
 ### Your Responsibility
 After user approves SPEC.md, create initial ARCHITECTURE.md skeleton.
@@ -467,34 +467,34 @@ Which should I propose in ARCHITECTURE.md?
 
 ## Cross-Role Coordination
 
-### ANALYST → SCAFFOLDER
-**ANALYST provides:**
+### COUNSELOR → ENGINEER
+**COUNSELOR provides:**
 - Module boundaries (don't cross these)
 - Dependency rules (only call downward)
 - Interface signatures (use these exact types)
 
-**SCAFFOLDER uses:**
+**ENGINEER uses:**
 - Module Structure to organize files
 - Layer Rules to know what can call what
 - Dependency Graph to avoid circular refs
 
-### SCAFFOLDER → CARETAKER
-**SCAFFOLDER leaves TODOs:**
+### ENGINEER → MACHINIST
+**ENGINEER leaves TODOs:**
 ```cpp
-// TODO: Add error handling (CARETAKER)
-// TODO: Validate input range (CARETAKER)
-// TODO: Wire to event bus per ARCHITECTURE.md (CARETAKER)
+// TODO: Add error handling (MACHINIST)
+// TODO: Validate input range (MACHINIST)
+// TODO: Wire to event bus per ARCHITECTURE.md (MACHINIST)
 ```
 
-**CARETAKER checks ARCHITECTURE.md:**
+**MACHINIST checks ARCHITECTURE.md:**
 - "What error handling pattern do we use?"
 - "How do components communicate in this layer?"
 - "What validation strategy is documented?"
 
-### CARETAKER → INSPECTOR
-**CARETAKER notes patterns used:**
+### MACHINIST → AUDITOR
+**MACHINIST notes patterns used:**
 ```markdown
-# [N]-CARETAKER-SUMMARY.md
+# [N]-MACHINIST-SUMMARY.md
 
 ## Patterns Applied
 - Converted 3 switch statements to map lookups (Manifesto compliance)
@@ -502,13 +502,13 @@ Which should I propose in ARCHITECTURE.md?
 - Added fail-fast validation at module boundary
 ```
 
-**INSPECTOR documents:**
+**AUDITOR documents:**
 - If pattern used 3+ times → Add to ARCHITECTURE.md
 - If new pattern introduced → Document with rationale
 - If existing pattern → Verify consistency
 
-### INSPECTOR → SURGEON
-**INSPECTOR documents constraints:**
+### AUDITOR → SURGEON
+**AUDITOR documents constraints:**
 ```markdown
 ## Threading Model
 
@@ -560,14 +560,14 @@ Which should I propose in ARCHITECTURE.md?
 
 **ARCHITECTURE.md should be updated when:**
 
-1. **New module added** (ANALYST or INSPECTOR)
-2. **Pattern emerges** (3+ uses of same approach) (INSPECTOR)
-3. **Interface contract established** (CARETAKER or INSPECTOR)
-4. **Design decision made** (Human architect, documented by ANALYST)
-5. **Anti-pattern avoided** (INSPECTOR after catching mistake)
-6. **Threading rules change** (Human architect, documented by ANALYST)
+1. **New module added** (COUNSELOR or AUDITOR)
+2. **Pattern emerges** (3+ uses of same approach) (AUDITOR)
+3. **Interface contract established** (MACHINIST or AUDITOR)
+4. **Design decision made** (Human architect, documented by COUNSELOR)
+5. **Anti-pattern avoided** (AUDITOR after catching mistake)
+6. **Threading rules change** (Human architect, documented by COUNSELOR)
 7. **Pattern discovered during fix** (SURGEON)
-8. **SPEC changes** (ANALYST updates affected sections)
+8. **SPEC changes** (COUNSELOR updates affected sections)
 
 ---
 
@@ -610,7 +610,7 @@ ARCHITECTURE DECISION NEEDED
 
 1. **New agents onboard faster** - Read doc, understand system in <30 min
 2. **Fewer pattern violations** - Agents follow established patterns
-3. **Clearer code reviews** - INSPECTOR can reference documented patterns
+3. **Clearer code reviews** - AUDITOR can reference documented patterns
 4. **Reduced rework** - Agents build correctly first time
 5. **Better fixes** - SURGEON understands contracts before making changes
 

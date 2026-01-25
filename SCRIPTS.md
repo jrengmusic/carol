@@ -438,7 +438,7 @@ Total: 4 occurrences in 3 files
 
 ### Common Workflows
 
-#### Workflow 1: Safe Refactoring (CARETAKER)
+#### Workflow 1: Safe Refactoring (MACHINIST)
 
 ```bash
 # 1. Add null check to function
@@ -475,7 +475,7 @@ git commit -m "Add null check to processor"
 ./.carol/scripts/validate-code.sh --strict src/
 ```
 
-#### Workflow 3: Scaffolding (SCAFFOLDER)
+#### Workflow 3: Scaffolding (ENGINEER)
 
 ```bash
 # 1. Generate error handler
@@ -488,7 +488,7 @@ git commit -m "Add null check to processor"
 ./.carol/scripts/validate-code.sh src/handler.cpp
 ```
 
-#### Workflow 4: Pre-Commit Audit (INSPECTOR)
+#### Workflow 4: Pre-Commit Audit (AUDITOR)
 
 ```bash
 # 1. Validate all modified files
@@ -571,21 +571,21 @@ mv file.bak file
 
 ### Role-Specific Script Usage
 
-**ANALYST:**
+**COUNSELOR:**
 - No script usage (planning only)
 - May reference scripts in kickoff documents
 
-**SCAFFOLDER:**
+**ENGINEER:**
 - `generate-error-handler.sh` for boilerplate
 - `generate-validation.sh` for input checks
 - `safe-insert.sh` for adding generated code
 
-**CARETAKER:**
+**MACHINIST:**
 - `safe-edit.sh` for defensive edits
 - `safe-insert.sh` for adding checks
 - `generate-error-handler.sh` for safety
 
-**INSPECTOR:**
+**AUDITOR:**
 - `validate-code.sh` for pre-commit audit
 - Must validate ALL scripts used by other roles
 
