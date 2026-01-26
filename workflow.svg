@@ -32,7 +32,7 @@
 
     <text x="600" y="165">COUNSELOR: Comprehensive Planning</text>
     <text x="600" y="185">- SPEC.md design contract, all flows</text>
-    <text x="600" y="205">- SESSION-N-ROLE-TASK.md atomic tasks</text>
+    <text x="600" y="205">- SPRINT-N-ROLE-TASK.md atomic tasks</text>
     <text x="600" y="225">Quality: Every agent can execute from this</text>
 
     <text x="350" y="335">ENGINEER</text>
@@ -53,7 +53,7 @@
     <text x="600" y="745">COUNSELOR: write ARCHITECTURE.md</text>
 
     <text x="600" y="830">JOURNALIST</text>
-    <text x="600" y="850">update SESSION-LOG.md</text>
+    <text x="600" y="850">update SPRINT-LOG.md</text>
     <text x="600" y="870">update ARCHITECTURE.md, SPEC.md</text>
   </g>
 

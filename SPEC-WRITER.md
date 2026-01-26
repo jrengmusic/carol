@@ -527,7 +527,7 @@ Vision questions:
 4. Any integrations (notifications, task lists)?
 
 Workflow questions:
-1. How do you start a session?
+1. How do you start a sprint?
 2. Can you pause/skip?
 3. What do you see while timer is running?
 4. What happens when it completes?

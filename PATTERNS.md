@@ -8,7 +8,7 @@
 
 ## 📖 Notation Reference
 
-**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+**[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
 - `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
@@ -16,9 +16,9 @@
 - `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
-- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 2
-- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for sprint 1
+- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in sprint 2
+- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after sprint 2
 
 ---
 
@@ -68,7 +68,7 @@ CAROL aligns with **LIFE STAR + LOVE** from Architectural Manifesto:
 1. Check project documentation:
    - Read SPEC.md (requirements)
    - Read ARCHITECTURE.md (existing patterns)
-   - Read SESSION-LOG.md (previous decisions)
+   - Read SPRINT-LOG.md (previous decisions)
 
 2. Search codebase for similar functionality:
    - Use Grep to find similar class names
@@ -95,7 +95,7 @@ Good (atomic):
   1. Add User model with credentials
   2. Add password hashing function
   3. Add login validation logic
-  4. Add session management
+  4. Add sprint management
   5. Add logout handler
 ```
 
@@ -456,7 +456,7 @@ This is HOW validation should be added, NOT WHO adds it or WHEN.
 
 ## Self-Validation Checklist
 
-**Purpose:** Prevent autonomous mistakes (documented failure: SESSION-32 git disasters)
+**Purpose:** Prevent autonomous mistakes (documented failure: SPRINT-32 git disasters)
 
 **MANDATORY: Run before responding to user**
 
@@ -464,7 +464,7 @@ This is HOW validation should be added, NOT WHO adds it or WHEN.
 
 ```
 [ ] Did I check SSOT for existing solution?
-    - Read SPEC.md, ARCHITECTURE.md, SESSION-LOG.md
+    - Read SPEC.md, ARCHITECTURE.md, SPRINT-LOG.md
     - Searched codebase with Grep/Glob
     - Not reinventing existing pattern
 
@@ -532,7 +532,7 @@ Exception: Read-only git commands OK
   - git show
 ```
 
-**Documented failure:** SESSION-32 - ran `git merge --abort` without asking, destroyed work
+**Documented failure:** SPRINT-32 - ran `git merge --abort` without asking, destroyed work
 
 ---
 
@@ -545,7 +545,7 @@ Exception: Read-only git commands OK
 **Pattern: Systematic Questioning**
 ```
 1. Read existing documentation first:
-   - SESSION-LOG.md (previous decisions)
+   - SPRINT-LOG.md (previous decisions)
    - ARCHITECTURE.md (existing patterns)
    - SPEC.md (current requirements)
 
@@ -806,9 +806,9 @@ Fix:
 
 ### JOURNALIST Patterns
 
-**Core behavior:** Compile session history
+**Core behavior:** Compile sprint history
 
-**Pattern: Session Synthesis**
+**Pattern: Sprint Synthesis**
 ```
 1. Read all [N]-[ROLE]-[OBJECTIVE].md files
 2. Extract key information:
@@ -818,7 +818,7 @@ Fix:
    - Issues encountered
    - Files modified
 
-3. Update SESSION-LOG.md:
+3. Update SPRINT-LOG.md:
    - Append to timeline
    - Link to detailed reports
    - Note agent assignments
@@ -830,7 +830,7 @@ Fix:
    - Why (reference issues/specs)
 
 5. Create summary:
-   - Concise (1-2 paragraphs per session)
+   - Concise (1-2 paragraphs per sprint)
    - Focus on outcomes, not process
    - Link to detailed docs
 ```
@@ -936,7 +936,7 @@ Better: *uses Read tool*
 
 ```
 1. User assigns role:
-   "Read .carol/CAROL.md. You are COUNSELOR, register in SESSION-LOG.md"
+   "Read .carol/CAROL.md. You are COUNSELOR, register in SPRINT-LOG.md"
 
 2. Agent reads role definition + PATTERNS.md
 
@@ -946,7 +946,7 @@ Better: *uses Read tool*
    - MACHINIST: Defensive Programming
    - AUDITOR: Systematic Audit
    - SURGEON: Surgical Fix
-   - JOURNALIST: Session Synthesis
+   - JOURNALIST: Sprint Synthesis
 
 4. Agent uses meta-patterns:
    - Problem Decomposition (planning)
@@ -954,11 +954,11 @@ Better: *uses Read tool*
    - Tool Selection (efficiency)
    - Self-Validation (before responding)
 
-5. Agent writes session summary:
+5. Agent writes sprint summary:
    [N]-[ROLE]-[OBJECTIVE].md
 
 6. JOURNALIST compiles:
-   All [N]-[ROLE]-[OBJECTIVE].md → SESSION-LOG.md
+   All [N]-[ROLE]-[OBJECTIVE].md → SPRINT-LOG.md
 ```
 
 ### Cross-References

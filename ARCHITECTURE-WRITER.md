@@ -15,7 +15,7 @@
 
 ## 📖 Notation Reference
 
-**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+**[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
 - `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
@@ -23,9 +23,9 @@
 - `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
-- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 2
-- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for sprint 1
+- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in sprint 2
+- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after sprint 2
 
 ---
 
@@ -64,7 +64,7 @@
 If you find mismatch:
 1. Verify codebase is correct (check SPEC.md)
 2. Update ARCHITECTURE.md to match codebase
-3. Note discrepancy in session summary
+3. Note discrepancy in sprint summary
 
 **Never modify code to match documentation.**
 
@@ -348,14 +348,14 @@ events.Emit("event_name", data);
 
 ---
 
-## JOURNALIST: Architecture in Session Logs
+## JOURNALIST: Architecture in Sprint Logs
 
 ### Your Responsibility
-When compiling session logs, note any ARCHITECTURE.md updates.
+When compiling sprint logs, note any ARCHITECTURE.md updates.
 
 ### What to Include
 
-**In session summary:**
+**In sprint summary:**
 ```markdown
 ### Architecture Updates
 - AUDITOR documented Type-Erased Factory pattern
@@ -365,7 +365,7 @@ When compiling session logs, note any ARCHITECTURE.md updates.
 
 **In git commit:**
 ```
-Session [N] complete: [Feature name]
+Sprint [N] complete: [Feature name]
 
 Agents:
 - Implemented: ENGINEER, MACHINIST
@@ -625,7 +625,7 @@ ARCHITECTURE DECISION NEEDED
 ## Maintenance Rules
 
 ### Continuous Updates
-- Update ARCHITECTURE.md in same session as code changes
+- Update ARCHITECTURE.md in same sprint as code changes
 - Don't defer documentation to "later" (it never happens)
 - Small, incremental updates better than big rewrites
 

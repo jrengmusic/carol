@@ -1,16 +1,16 @@
-# SESSION-LOG.md Template
+# SPRINT-LOG.md Template
 
 **Project:** [Project Name]  
 **Repository:** [repo-url or local path]  
 **Started:** [YYYY-MM-DD]
 
-**Purpose:** Track agent registrations, session work, and completion reports. This file is mutable and rotates old entries (keeps last 5 sessions).
+**Purpose:** Track agent registrations, sprint work, and completion reports. This file is mutable and rotates old entries (keeps last 5 sprints).
 
 ---
 
 ## 📖 Notation Reference
 
-**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+**[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
 - `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
@@ -18,9 +18,9 @@
 - `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `1-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
-- `1-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 1
-- `2-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
+- `1-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for sprint 1
+- `1-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in sprint 1
+- `2-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after sprint 2
 
 ---
 
@@ -41,16 +41,16 @@
   - This ensures complete commits with nothing accidentally left unstaged
 
 **LOG MAINTENANCE RULE**
-- **All session logs must be written from latest to earliest (top to bottom), BELOW this rules section**
-- **Only the last 5 sessions are kept in active log**
+- **All sprint logs must be written from latest to earliest (top to bottom), BELOW this rules section**
+- **Only the last 5 sprints are kept in active log**
 - **All agent roles except JOURNALIST write [N]-[ROLE]-[OBJECTIVE].md for each completed task**
-- **JOURNALIST compiles all task summaries with same session number, updates SESSION-LOG.md as new entry**
-- **Only JOURNALIST can add new session entry to SESSION HISTORY**
-- **Sessions can be executed in parallel with multiple agents**
-- Remove older sessions from active log (git history serves as permanent archive)
+- **JOURNALIST compiles all task summaries with same sprint number, updates SPRINT-LOG.md as new entry**
+- **Only JOURNALIST can add new sprint entry to SPRINT HISTORY**
+- **Sprints can be executed in parallel with multiple agents**
+- Remove older sprints from active log (git history serves as permanent archive)
 - This keeps log focused on recent work
 - **JOURNALIST NEVER updates log without explicit user request**
-- **During active sessions, only user decides whether to log**
+- **During active sprints, only user decides whether to log**
 - **All changes must be tested/verified by user, or marked UNTESTED**
 - If rule not in this section, agent must ADD it (don't erase old rules)
 
@@ -82,23 +82,8 @@
 - ✅ ALWAYS return errors to caller or log + fail fast
 - Better to panic/error early than debug silent failure for hours
 
-**META-PATTERN RULE (CRITICAL)**
-- ❌ NEVER start complex task without reading PATTERNS.md
-- ✅ ALWAYS use Problem Decomposition Framework for multi-step tasks
-- ✅ ALWAYS use Debug Methodology checklist when investigating bugs
-- ✅ ALWAYS run Self-Validation Checklist before responding
-- ✅ Follow role-specific patterns (COUNSELOR, ENGINEER, SURGEON, MACHINIST, AUDITOR)
-- Better to pause and read patterns than repeat documented failures
-
-**SCRIPT USAGE RULE**
-- ✅ ALWAYS use scripts from SCRIPTS.md for code editing (when available)
-- ✅ Scripts have dry-run mode - use it before actual edit
-- ✅ Scripts create backups - verify before committing
-- ❌ NEVER use raw sed/awk without safe-edit.sh wrapper (when script available)
-- Scripts prevent common mistakes and enforce safety
-
 **⚠️ NEVER EVER REMOVE THESE RULES**
-- Rules at top of SESSION-LOG.md are immutable
+- Rules at top of SPRINT-LOG.md are immutable
 - If rules need update: ADD new rules, don't erase old ones
 - Any agent that removes or modifies these rules has failed
 - Rules protect the integrity of the development log
@@ -107,17 +92,17 @@
 
 ## Quick Reference
 
-### For Agents Starting New Session
+### For Agents Starting New Sprint
 
 1. **Check:** Do I see my registration in ROLE ASSIGNMENT REGISTRATION?
 2. **If YES:** Proceed with role constraints, include `[Acting as: ROLE]` in responses
-3. **If NO:** STOP and ask: "What is my role in this session?"
+3. **If NO:** STOP and ask: "What is my role in this sprint?"
 
 ### For Human Orchestrator
 
 **Register agent:**
 ```
-"Read CAROL.md. You are assigned as [ROLE], register yourself in SESSION-LOG.md"
+"Read CAROL.md. You are assigned as [ROLE], register yourself in SPRINT-LOG.md"
 ```
 
 **Verify registration:**
@@ -127,12 +112,12 @@
 
 **Reassign role:**
 ```
-"You are now reassigned as [NEW_ROLE], register yourself in SESSION-LOG.md"
+"You are now reassigned as [NEW_ROLE], register yourself in SPRINT-LOG.md"
 ```
 
-**Complete session (call JOURNALIST):**
+**Complete sprint (call JOURNALIST):**
 ```
-"Read CAROL, act as JOURNALIST. Log session [N] to SESSION-LOG.md"
+"Read CAROL, act as JOURNALIST. Log sprint [N] to SPRINT-LOG.md"
 ```
 
 ---
@@ -148,16 +133,16 @@ JOURNALIST: [Agent (Model)] or [Not Assigned]
 
 ---
 
-<!-- SESSION HISTORY STARTS BELOW -->
+<!-- SPRINT HISTORY STARTS BELOW -->
 <!-- Only JOURNALIST writes entries here -->
-<!-- Latest session at top, oldest at bottom -->
-<!-- Keep last 5 sessions, rotate older to git history -->
+<!-- Latest sprint at top, oldest at bottom -->
+<!-- Keep last 5 sprints, rotate older to git history -->
 
-## SESSION HISTORY
+## SPRINT HISTORY
 
-<!-- Example session entry (delete this after first real session) -->
+<!-- Example sprint entry (delete this after first real sprint) -->
 
-## Session 1: Project Setup and Initial Planning ✅
+## Sprint 1: Project Setup and Initial Planning ✅
 
 **Date:** 2026-01-11  
 **Duration:** 14:00 - 16:30 (2.5 hours)
@@ -187,13 +172,13 @@ JOURNALIST: [Agent (Model)] or [Not Assigned]
 - None (initial setup)
 
 ### Summary
-Successfully established project foundation. COUNSELOR created comprehensive specs covering all edge cases. ENGINEER generated clean scaffolds following ARCHITECTURE.md patterns. AUDITOR verified all files compile and match spec. Ready for SURGEON to add error handling in session 2.
+Successfully established project foundation. COUNSELOR created comprehensive specs covering all edge cases. ENGINEER generated clean scaffolds following ARCHITECTURE.md patterns. AUDITOR verified all files compile and match spec. Ready for SURGEON to add error handling in sprint 2.
 
 **Status:** ✅ APPROVED - All files compile, tests scaffold in place
 
 ---
 
-<!-- Actual session entries go here, written by JOURNALIST -->
+<!-- Actual sprint entries go here, written by JOURNALIST -->
 
 ---
 
@@ -207,7 +192,7 @@ Successfully established project foundation. COUNSELOR created comprehensive spe
 
 **Content format:**
 ```markdown
-# Session [N] Task Summary
+# Sprint [N] Task Summary
 
 **Role:** [ROLE NAME]
 **Agent:** [CLI Tool (Model)]
@@ -230,14 +215,14 @@ Successfully established project foundation. COUNSELOR created comprehensive spe
 **Lifecycle:**
 1. Agent completes task
 2. Agent writes [N]-[ROLE]-[OBJECTIVE].md
-3. JOURNALIST compiles all [N]-[ROLE]-[OBJECTIVE].md files into SESSION-LOG.md entry
+3. JOURNALIST compiles all [N]-[ROLE]-[OBJECTIVE].md files into SPRINT-LOG.md entry
 4. JOURNALIST deletes all [N]-[ROLE]-[OBJECTIVE].md files after compilation
 
 ---
 
-**End of SESSION-LOG.md Template**
+**End of SPRINT-LOG.md Template**
 
-Copy this template to your project root as `SESSION-LOG.md` and customize:
+Copy this template to your project root as `SPRINT-LOG.md` and customize:
 - Project name
 - Repository URL/path
 - Starting date
