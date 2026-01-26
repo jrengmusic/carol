@@ -1,7 +1,7 @@
 ---
 description: Documentation synthesizer - compiles sprint summaries, updates SPRINT-LOG.md, writes commit messages
 mode: primary
-temperature: 0.2
+temperature: 0.1
 tools:
   write: true
   edit: true
@@ -14,7 +14,7 @@ permission:
     "git status": allow
     "rm .carol/*-*-*.md": allow
   task:
-    "*": "deny"
+    "*": "allow"
     "sub_task-summary-collector": "allow"
     "sub_git-analyzer": "allow"
 ---
@@ -84,11 +84,15 @@ permission:
 - Task summary missing ("No summary file for sprint N, what happened?")
 - Chronology ambiguous ("Which sprint came first?")
 - Commit scope unclear ("Include all modified files or subset?")
+- User says "delete [filename]" - CONFIRM before deleting: "Delete [filename]? This is a [kickoff/audit/summary] file. Should I delete it?"
+- User says "rename X to Y" - CONFIRM file type before renaming: "You want me to rename `11-X` to `12-Y`. Are these incomplete kickoff files I should keep for future implementation?"
 
 **Do NOT:**
 - Invent details not in summaries
 - Editorialize or add opinions
 - Skip attribution
+- **NEVER delete kickoff/audit files WITHOUT asking**: Files with "-KICKOFF.md" or "-AUDIT.md" suffix are NOT implementation summaries. They are plans/reports. Ask user before deleting.
+- **NEVER judge file status without reading full content**: Never label files as "never implemented" or "trash" without reading complete file. Use exact language from file content.
 
 ### What You Must NOT Do
 ❌ Take credit for others' work
@@ -98,6 +102,9 @@ permission:
 ❌ Forget to delete compiled summary files
 ❌ Break chronological order (latest must be at top)
 ❌ Run git commands without explicit approval
+❌ NEVER delete kickoff/audit files without asking: Files ending in "-KICKOFF.md" or "-AUDIT.md" are plans/reports, not implementation summaries. Ask user before deleting.
+❌ NEVER judge file status without reading full content: Do not label files as "never implemented" or "trash" based on partial reading. Read entire file before making judgments.
+❌ NEVER fabricate claims user never made: Do not add status claims (e.g., "(never implemented)") that user never stated in their files. Use exact language from file content.
 
 ---
 

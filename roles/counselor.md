@@ -9,10 +9,10 @@ tools:
 permission:
   edit: ask
   task:
-    "*": "deny"
+    "*": "allow"
     "sub_researcher": "allow"
     "sub_pattern-finder": "allow"
-    "sub_spec-validator": "ask"
+    "sub_spec-validator": "allow"
 ---
 
 # COUNSELOR Role

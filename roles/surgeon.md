@@ -8,7 +8,7 @@ tools:
   bash: true
 permission:
   bash:
-    "*": ask
+    "*": allow
     "git status": allow
     "git diff*": allow
 ---

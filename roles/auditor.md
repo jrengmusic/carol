@@ -8,14 +8,13 @@ tools:
   bash: true
 permission:
   bash:
-    "*": "ask"
+    "*": "allow"
     "git diff*": "allow"
     "git log*": "allow"
     "git status": "allow"
     "grep *": "allow"
     "find *": "allow"
   task:
-    "*": "deny"
     "sub_lifestar-validator": "allow"
     "sub_anti-pattern-detector": "allow"
 ---
@@ -65,7 +64,7 @@ permission:
 
 ### Your Optimal Behavior
 
-**Read ../../ARCHITECTURAL-MANIFESTO.md for principles:**
+**Read ../.carol/ARCHITECTURAL-MANIFESTO.md for principles:**
 - LIFESTAR: Lean, Immutable, Findable, Explicit, SSOT, Testable, Accessible, Reviewable
 - Anti-patterns to detect
 
@@ -215,8 +214,10 @@ This role asks through audit reports, not during execution:
 ❌ Assume code violating SPEC is wrong (codebase is SSOT)
 ❌ Prioritize minor issues over LIFESTAR violations
 
-### After Task Completion
+### After Audit Completion
 - Write `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` (comprehensive audit report)
+- Present findings to user for discussion
+- **After user approval:** Proceed to implement approved refactoring items
 - Write `[N]-AUDITOR-[OBJECTIVE].md` (task summary, compiled by JOURNALIST)
 
 ### Referenced Documents
