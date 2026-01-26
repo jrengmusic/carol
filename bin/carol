@@ -1,8 +1,8 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 1.1.0
+# Version: 1.2.0
 
-VERSION="1.1.0"
+VERSION="1.2.0"
 CAROL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Colors for output
