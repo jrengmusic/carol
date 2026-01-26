@@ -14,7 +14,7 @@ CAROL also works effectively as a rapid prototyping methodology for experienced 
 
 ## 📖 Notation Reference
 
-**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+**[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
 - `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
@@ -22,9 +22,9 @@ CAROL also works effectively as a rapid prototyping methodology for experienced 
 - `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
-- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 2
-- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for sprint 1
+- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in sprint 2
+- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after sprint 2
 
 ---
 
@@ -60,7 +60,7 @@ CAROL is a role-based agent orchestration framework for collaborative software d
    Handles bugs, performance issues, edge cases, and architectural corrections that other agents cannot solve. Reads RESET context to ignore failed attempts, identifies root cause using PATTERNS.md debug methodology, implements minimal surgical fixes. Does not refactor entire modules or touch unrelated code.
 
 **JOURNALIST** - Documentation Synthesizer
-   Compiles session summaries from [N]-[ROLE]-[OBJECTIVE].md files into SESSION-LOG.md. Maintains project timeline, tracks decisions, creates audit trail, and generates git commit messages crediting all agents. Writes production-ready inline documentation (e.g., Doxygen, Godoc) when requested.
+   Compiles sprint summaries from [N]-[ROLE]-[OBJECTIVE].md files into SPRINT-LOG.md. Maintains project timeline, tracks decisions, creates audit trail, and generates git commit messages crediting all agents. Writes production-ready inline documentation (e.g., Doxygen, Godoc) when requested.
 
 ### The cognitive load distribution:
 
@@ -104,7 +104,7 @@ AUDITOR's context:
    (5k tokens)
 
 JOURNALIST's context:
-└─ SESSION-LOG.md + ARCHITECTURE.md + inline docs 
+└─ SPRINT-LOG.md + ARCHITECTURE.md + inline docs 
    (5k tokens, focused on documentation)
 
 Your context:
@@ -203,7 +203,7 @@ carol update
 After `carol init`, activate an agent by reading role definitions:
 
 ```
-Read .carol/CAROL.md. You are assigned as COUNSELOR, register yourself in .carol/SESSION-LOG.md
+Read .carol/CAROL.md. You are assigned as COUNSELOR, register yourself in .carol/SPRINT-LOG.md
 ```
 
 ### Uninstall
@@ -253,7 +253,7 @@ source ~/.bashrc  # bash
 ├── SPEC-WRITER.md            # Counselor conversation guide
 ├── ARCHITECTURE-WRITER.md    # Architecture documentation guide
 ├── templates/                # Project templates
-│   ├── SESSION-LOG.md
+│   ├── SPRINT-LOG.md
 │   ├── ARCHITECTURE.md
 │   └── config.yml
 ├── scripts/                  # Code editing scripts (coming soon)
@@ -283,7 +283,7 @@ your-project/
 │   ├── SPEC-WRITER.md → ~/.carol/SPEC-WRITER.md (symlink)
 │   ├── ARCHITECTURE-WRITER.md → ~/.carol/ARCHITECTURE-WRITER.md (symlink)
 │   ├── scripts/ → ~/.carol/scripts/ (symlink)
-│   ├── SESSION-LOG.md (copied, customized)
+│   ├── SPRINT-LOG.md (copied, customized)
 │   └── [N]-[ROLE]-[OBJECTIVE].md (temp files)
 ├── src/                      # Your code
 └── .gitignore
@@ -330,7 +330,7 @@ CAROL aligns with **LIFE STAR + LOVE** principles:
 LLMs suffer from:
 
 * **Scope creep:** Adding features not requested
-* **Cognitive overload:** Reading entire codebase, hitting session limits
+* **Cognitive overload:** Reading entire codebase, hitting sprint limits
 * **Autonomous mistakes:** Making changes without asking
 * **Inconsistent patterns:** Each agent invents new approaches
 
@@ -375,7 +375,7 @@ Rock 'n Roll!
 * [ARCHITECTURE-WRITER.md](ARCHITECTURE-WRITER.md) - How agents document architecture
 * [ARCHITECTURAL-MANIFESTO.md](ARCHITECTURE-WRITER.md) - How agents should obey architecture
 * [NAMING-CONVENTION.md](ARCHITECTURE-WRITER.md) - set of rules for choosing the character sequence to be used for identifiers of any entities in source code and documentation.
-* [SESSION-LOG.md](templates/SESSION-LOG.md) - Session tracking template
+* [SPRINT-LOG.md](templates/SPRINT-LOG.md) - Sprint tracking template
 
 ## Support
 

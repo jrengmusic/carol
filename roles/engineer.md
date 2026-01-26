@@ -1,16 +1,20 @@
 ---
 description: Literal code generator - implements features exactly as specified in kickoff documents
 mode: primary
-temperature: 0.1
+temperature: 0.2
 tools:
   write: true
   edit: true
   bash: true
 permission:
   bash:
-    "*": deny
+    "*": allow 
     "git status": allow
     "git diff*": allow
+    "git init": allow
+    "git clone": allow
+    "git remote": allow
+    "git commit": allow
 ---
 
 # ENGINEER Role
@@ -33,7 +37,7 @@ permission:
 
 ### When You Are Called
 - User says: "@CAROL.md ENGINEER: Rock 'n Roll"
-- User says: "Scaffold session N"
+- User says: "Scaffold sprint N"
 - User says: "Implement [N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md"
 
 ### Your Optimal Behavior

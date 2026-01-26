@@ -74,15 +74,15 @@ customize_templates() {
     local project_name=$(basename "$project_path")
     local date=$(date +"%Y-%m-%d")
 
-    if [ -f ".carol/SESSION-LOG.md" ]; then
+    if [ -f ".carol/SPRINT-LOG.md" ]; then
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s/\[Project Name\]/$project_name/g" .carol/SESSION-LOG.md
-            sed -i '' "s/\[YYYY-MM-DD\]/$date/g" .carol/SESSION-LOG.md
-            sed -i '' "s|\[repo-url or local path\]|$project_path|g" .carol/SESSION-LOG.md
+            sed -i '' "s/\[Project Name\]/$project_name/g" .carol/SPRINT-LOG.md
+            sed -i '' "s/\[YYYY-MM-DD\]/$date/g" .carol/SPRINT-LOG.md
+            sed -i '' "s|\[repo-url or local path\]|$project_path|g" .carol/SPRINT-LOG.md
         else
-            sed -i "s/\[Project Name\]/$project_name/g" .carol/SESSION-LOG.md
-            sed -i "s/\[YYYY-MM-DD\]/$date/g" .carol/SESSION-LOG.md
-            sed -i "s|\[repo-url or local path\]|$project_path|g" .carol/SESSION-LOG.md
+            sed -i "s/\[Project Name\]/$project_name/g" .carol/SPRINT-LOG.md
+            sed -i "s/\[YYYY-MM-DD\]/$date/g" .carol/SPRINT-LOG.md
+            sed -i "s|\[repo-url or local path\]|$project_path|g" .carol/SPRINT-LOG.md
         fi
     fi
 
@@ -155,10 +155,13 @@ cmd_init() {
         ln -s "$CAROL_ROOT/PATTERNS-WRITER.md" .carol/PATTERNS-WRITER.md
         ln -s "$CAROL_ROOT/SPEC-WRITER.md" .carol/SPEC-WRITER.md
         ln -s "$CAROL_ROOT/ARCHITECTURE-WRITER.md" .carol/ARCHITECTURE-WRITER.md
+        [ -f "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" ] && ln -s "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" .carol/ARCHITECTURAL-MANIFESTO.md
+        [ -f "$CAROL_ROOT/NAMING-CONVENTION.md" ] && ln -s "$CAROL_ROOT/NAMING-CONVENTION.md" .carol/NAMING-CONVENTION.md
         
         [ -d "$CAROL_ROOT/scripts" ] && ln -s "$CAROL_ROOT/scripts" .carol/scripts
+        [ -d "$CAROL_ROOT/roles" ] && ln -s "$CAROL_ROOT/roles" .carol/roles
 
-        [ -f "$CAROL_ROOT/templates/SESSION-LOG.md" ] && cp "$CAROL_ROOT/templates/SESSION-LOG.md" .carol/SESSION-LOG.md
+        [ -f "$CAROL_ROOT/templates/SPRINT-LOG.md" ] && cp "$CAROL_ROOT/templates/SPRINT-LOG.md" .carol/SPRINT-LOG.md
 
         if [ -f "$CAROL_ROOT/templates/config.yml" ]; then
             cp "$CAROL_ROOT/templates/config.yml" .carol/config.yml
@@ -182,7 +185,7 @@ cmd_init() {
     cat > .carol/.gitignore << 'EOF'
 # CAROL Framework - Git Ignore
 
-# Temp session files
+# Temp sprint files
 [0-9]*-*-*.md
 
 # Backup files
@@ -212,6 +215,8 @@ EOF
 }
 
 cmd_update() {
+    show_banner
+    
     if [ ! -d ".carol" ]; then
         info "Updating CAROL..."
         

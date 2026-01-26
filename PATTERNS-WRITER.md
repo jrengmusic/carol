@@ -8,7 +8,7 @@
 
 ## 📖 Notation Reference
 
-**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+**[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
 - `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
@@ -16,9 +16,9 @@
 - `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
-- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 2
-- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for sprint 1
+- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in sprint 2
+- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after sprint 2
 
 ---
 
@@ -588,7 +588,7 @@ done
 
 **Link patterns to:**
 - **SPEC.md:** Requirements that necessitate pattern
-- **SESSION-LOG.md:** Decisions about pattern adoption
+- **SPRINT-LOG.md:** Decisions about pattern adoption
 - **PATTERNS.md:** Meta-patterns (debugging, validation)
 - **Other patterns:** Related or conflicting patterns
 
@@ -602,7 +602,7 @@ done
 - See `SPEC.md` Section 3.2 (Error Handling Requirements)
 
 **History:**
-- See `SESSION-LOG.md` Session 5 (Decision to use exceptions over error codes)
+- See `SPRINT-LOG.md` Sprint 5 (Decision to use exceptions over error codes)
 
 **Related Patterns:**
 - Bounds Check Pattern (similar validation approach)
@@ -637,10 +637,10 @@ done
    - Add validation (how to verify)
    - Propose to user for approval
 
-**Example Session:**
+**Example Sprint:**
 
 ```markdown
-# SESSION-15-MACHINIST-NULL-CHECKS.md
+# SPRINT-15-MACHINIST-NULL-CHECKS.md
 
 ## Task
 Add null checks to handler functions
@@ -686,10 +686,10 @@ Found 4 instances of null check with exception:
    - Note in [N]-SURGEON-PATTERN-DISCOVERED.md
    - Propose systematic fix to user
 
-**Example Session:**
+**Example Sprint:**
 
 ```markdown
-# SESSION-22-SURGEON-PATTERN-DISCOVERED.md
+# SPRINT-22-SURGEON-PATTERN-DISCOVERED.md
 
 ## Bug Fixed
 Float/double precision loss in smoothing factor
@@ -735,7 +735,7 @@ Found 12 instances of numeric literals assigned to float:
 
 3. **Suggest fixes:**
    - Which role should fix (MACHINIST, SURGEON)
-   - Priority (immediate, next session)
+   - Priority (immediate, next sprint)
 
 **Example Audit Report:**
 
@@ -772,16 +772,16 @@ Found 12 instances of numeric literals assigned to float:
 
 ### JOURNALIST: Pattern Compilation
 
-**When compiling session summaries:**
+**When compiling sprint summaries:**
 
 1. **Track pattern evolution:**
-   - When pattern discovered (session)
+   - When pattern discovered (sprint)
    - Who documented (role)
    - Files affected
 
-2. **Update SESSION-LOG.md:**
+2. **Update SPRINT-LOG.md:**
    ```markdown
-   ## Session 22 - SURGEON
+   ## Sprint 22 - SURGEON
    **Pattern Discovered:** Numeric Precision Pattern
    **Documented in:** ARCHITECTURE.md
    **Impact:** 12 potential bugs identified
@@ -790,9 +790,9 @@ Found 12 instances of numeric literals assigned to float:
 3. **Create pattern index:**
    ```markdown
    ## Pattern Index
-   - Null Check Pattern (Session 15, MACHINIST)
-   - Numeric Precision Pattern (Session 22, SURGEON)
-   - Trivially Copyable DSP (Session 8, COUNSELOR)
+   - Null Check Pattern (Sprint 15, MACHINIST)
+   - Numeric Precision Pattern (Sprint 22, SURGEON)
+   - Trivially Copyable DSP (Sprint 8, COUNSELOR)
    ```
 
 ---

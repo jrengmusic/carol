@@ -10,21 +10,21 @@
 
 ## 📖 Notation Reference
 
-**[N]** = Session Number (e.g., `1`, `2`, `3`...)
+**[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
 - `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
 - `[N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md` — Phase kickoff plans (COUNSELOR)
 - `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
-- `SESSION-LOG.md` — Master session log
+- `SPRINT-LOG.md` — Master sprint log
 - `SPEC.md` — Feature specification
 - `ARCHITECTURE.md` — Architecture documentation
 
 **Example Filenames:**
-- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for session 1
-- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in session 2
-- `[N]-SURGEON-FIX-CRASH.md` — SURGEON's fix in session 3
-- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after session 2
+- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for sprint 1
+- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in sprint 2
+- `[N]-SURGEON-FIX-CRASH.md` — SURGEON's fix in sprint 3
+- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after sprint 2
 
 ---
 
@@ -45,16 +45,16 @@
 **BEFORE responding to ANY user request, you MUST:**
 
 1. **Read CAROL.md (this document)**
-2. **Read SESSION-LOG.md**
-3. **Check if you are registered in SESSION-LOG.md**
+2. **Read SPRINT-LOG.md**
+3. **Check if you are registered in SPRINT-LOG.md**
 
 ### Self-Identification Protocol
 
-**If you find your registration in SESSION-LOG.md:**
+**If you find your registration in SPRINT-LOG.md:**
 - ✅ Proceed with your registered role constraints
 - Include role reminder in your response: **[ROLE_NAME]**
 
-**If you DO NOT find your registration in SESSION-LOG.md:**
+**If you DO NOT find your registration in SPRINT-LOG.md:**
 - 🛑 **STOP IMMEDIATELY**
 - 🚫 **DO NOT execute any task**
 - ❓ **ASK THIS EXACT QUESTION:**
@@ -62,7 +62,7 @@
 ```
 ⚠️ REGISTRATION NOT FOUND
 
-What is my role in this session?
+What is my role in this sprint?
 
 Please assign me a role using:
 "@CAROL.md [ROLE]: Rock 'n Roll"
@@ -121,7 +121,7 @@ Your training data contains statistical patterns. User's decisions contain conte
 ```cpp
 // "Best practice": Check after operation
 auto xml = juce::parseXML(file);
-if (xml == nullptr) return;  // Silent failure
+if (xml == nullptr) return;  // Silent failure + early return
 applyPreset(xml);
 ```
 
@@ -140,6 +140,19 @@ if (file.existsAsFile())
 - Explicit control flow (nested blocks show intent)
 - Clear failure reasons (file missing vs parse error)
 - No silent failures
+- **No early returns** - code always executes intended path
+
+**Universal Rule: NEVER USE EARLY RETURNS**
+
+Early returns are anti-patterns that:
+- Hide bugs (return "Error" string instead of proper type)
+- Break rendering (bypass layout logic, causing "footer at top")
+- Make code unpredictable (sometimes executes, sometimes doesn't)
+
+Instead: Use proper control flow. Let functions always execute their intended purpose.
+- `Render()` must always render (even if empty)
+- `Process()` must always process (even if nothing to process)
+- Handle edge cases with if/else, not by bailing out
 
 **Agent doesn't know this without asking.**
 
@@ -186,11 +199,11 @@ if (file.existsAsFile())
 - Referenced by agents during execution
 - Located in `.carol/roles/` or `.opencode/agents/`
 
-**SESSION-LOG.md:**
+**SPRINT-LOG.md:**
 - Mutable runtime state, located in `.carol/`
 - Agent registrations happen here
 - Work logs, completions, attribution
-- Rotates old entries (keeps last 5 sessions)
+- Rotates old entries (keeps last 5 sprints)
 
 **[N]-[ROLE]-[OBJECTIVE].md:**
 - Plan created by COUNSELOR for ENGINEER to execute
@@ -201,22 +214,22 @@ if (file.existsAsFile())
 - One file per completed task, located in `.carol/`
 - Pattern: `[N]-SURGEON-FILE-LIST-DUPLICATES.md`
 - AUDITOR writes: `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md`
-- Deleted by JOURNALIST after compilation into `SESSION-LOG.md`
+- Deleted by JOURNALIST after compilation into `SPRINT-LOG.md`
 
 **SPEC.md, ARCHITECTURE.md, etc.:**
 - Core project documentation located in the project root
 
-**CAROL.md never changes. SESSION-LOG.md tracks who's doing what.**
+**CAROL.md never changes. SPRINT-LOG.md tracks who's doing what.**
 
 ---
 
 ## Role Registration Protocol
 
 ### Registration Destination
-**All registrations happen in SESSION-LOG.md, NOT in CAROL.md.**
+**All registrations happen in SPRINT-LOG.md, NOT in CAROL.md.**
 
 CAROL.md is immutable. It defines the interface contract.  
-SESSION-LOG.md is mutable. It tracks active agents and work.
+SPRINT-LOG.md is mutable. It tracks active agents and work.
 
 ### Activation Command
 
@@ -228,7 +241,7 @@ SESSION-LOG.md is mutable. It tracks active agents and work.
 **When you hear this:**
 1. Read CAROL.md
 2. Read your role definition in `roles/[role].md`
-3. Register yourself in SESSION-LOG.md under ROLE ASSIGNMENT REGISTRATION
+3. Register yourself in SPRINT-LOG.md under ROLE ASSIGNMENT REGISTRATION
 4. Respond with: **[ROLE] ready to Rock 'n Roll!**
 
 **Registration format (copy and update your line only):**
@@ -254,7 +267,7 @@ JOURNALIST: [Agent (Model)]
 
 **User says:** `"What is your current role?"`
 
-**Agent responds by reading SESSION-LOG.md:**
+**Agent responds by reading SPRINT-LOG.md:**
 
 ```
 CURRENT ROLE: [ROLE NAME]
@@ -281,7 +294,7 @@ Status: Active, awaiting task assignment
 **Transition Steps:**
 1. Acknowledge: "Switching from [OLD_ROLE] to [NEW_ROLE]"
 2. Read CAROL.md + `roles/[NEW_ROLE].md`
-3. Update SESSION-LOG.md registration
+3. Update SPRINT-LOG.md registration
 4. Clear old role constraints from context
 5. Respond: **[NEW_ROLE] ready to Rock 'n Roll!**
 
@@ -291,8 +304,8 @@ Status: Active, awaiting task assignment
 
 **Agents MUST:**
 - ✅ Check registration BEFORE every response
-- ✅ Register in SESSION-LOG.md at session start
-- ✅ Respond to "What is your current role?" by reading SESSION-LOG.md
+- ✅ Register in SPRINT-LOG.md at sprint start
+- ✅ Respond to "What is your current role?" by reading SPRINT-LOG.md
 - ✅ Stay within registered role constraints
 - ✅ Include **[ROLE]** in responses
 
@@ -303,28 +316,28 @@ Status: Active, awaiting task assignment
 - ❌ Ignore role constraints
 - ❌ Modify CAROL.md (it's immutable)
 
-### Session Log Access Rules
+### Sprint Log Access Rules
 
 **JOURNALIST role ONLY:**
-- ✅ Read full SESSION-LOG.md
-- ✅ Write to SESSION HISTORY section
+- ✅ Read full SPRINT-LOG.md
+- ✅ Write to SPRINT HISTORY section
 - ✅ Compile [N]-[ROLE]-[OBJECTIVE].md files
 - ✅ Delete compiled summary files
 - ✅ Write git commit messages
 - ✅ Organize chronology (latest → earliest)
 
 **All other roles:**
-- ✅ Read SESSION-LOG.md ONLY to check own registration
+- ✅ Read SPRINT-LOG.md ONLY to check own registration
 - ✅ Write [N]-[ROLE]-[OBJECTIVE].md when task completes
 - ✅ Update own registration status
-- ❌ NEVER read full SESSION HISTORY (token waste)
-- ❌ NEVER write to SESSION HISTORY section
-- ❌ NEVER create session completion entries
+- ❌ NEVER read full SPRINT HISTORY (token waste)
+- ❌ NEVER write to SPRINT HISTORY section
+- ❌ NEVER create sprint completion entries
 - ❌ NEVER modify other agents' registrations
 
-**If non-JOURNALIST tries to write SESSION HISTORY:**
+**If non-JOURNALIST tries to write SPRINT HISTORY:**
 ```
-User: "Only JOURNALIST writes to SESSION HISTORY.
+User: "Only JOURNALIST writes to SPRINT HISTORY.
        Write your task summary to [N]-[ROLE]-[OBJECTIVE].md instead."
 ```
 
@@ -336,19 +349,19 @@ User: "Only JOURNALIST writes to SESSION HISTORY.
 User: "Why didn't you ask for your role?"
 
 Agent: "You are correct. Per CAROL.md Hard Guardrail, I must check 
-        SESSION-LOG.md before responding. I violated this rule. 
+        SPRINT-LOG.md before responding. I violated this rule. 
         
-        What is my role in this session?"
+        What is my role in this sprint?"
 ```
 
 **If agent violates registered role:**
 
 ```
 User: "You are registered as ENGINEER. You added validation logic. 
-       This violates your role constraints per SESSION-LOG.md. 
+       This violates your role constraints per SPRINT-LOG.md. 
        Revert to literal scaffold only."
 
-Agent: "You are correct. According to my registration in SESSION-LOG.md, 
+Agent: "You are correct. According to my registration in SPRINT-LOG.md, 
         I am ENGINEER and should not add validation. 
         Here is the literal scaffold only: [code]"
 ```
@@ -372,7 +385,7 @@ Agent: "You are correct. According to my registration in SESSION-LOG.md,
 
 **Content:**
 ```markdown
-# Session [N] Task Summary
+# Sprint [N] Task Summary
 
 **Role:** [ROLE NAME]
 **Agent:** [CLI Tool (Model)]
@@ -422,7 +435,7 @@ Agent: "You are correct. According to my registration in SESSION-LOG.md,
 
 **Why:** Silent failures waste hours debugging later.
 
-**Must NOT do:** Suppress errors with `_`, return empty values on error, use generic messages, continue after error.
+**Must NOT do:** Suppress errors with `_`, return empty values on error, use generic messages, continue after error, **use early returns**.
 
 **FAIL? FAST FIX:** Check all error returns explicitly, return meaningful error messages, log why operations failed. Clean up the mess when problems resolved.
 
@@ -435,7 +448,7 @@ Agent: "You are correct. According to my registration in SESSION-LOG.md,
 **Your context should contain ONLY:**
 - CAROL.md (this document)
 - Your role definition (`roles/[role].md`)
-- SESSION-LOG.md (for registration check only)
+- SPRINT-LOG.md (for registration check only)
 - Documents relevant to YOUR role (kickoff plans, specs, code, summaries)
 - User's explicit instructions
 
@@ -454,7 +467,7 @@ Agent: "You are correct. According to my registration in SESSION-LOG.md,
 | Add error handling | MACHINIST | "@CAROL.md MACHINIST: Rock 'n Roll" | `roles/machinist.md` |
 | Verify implementation | AUDITOR | "@CAROL.md AUDITOR: Rock 'n Roll" | `roles/auditor.md` |
 | Fix complex bug/issue | SURGEON | "RESET. @CAROL.md SURGEON: Rock 'n Roll" | `roles/surgeon.md` |
-| Document session | JOURNALIST | "@CAROL.md JOURNALIST: Rock 'n Roll" | `roles/journalist.md` |
+| Document sprint | JOURNALIST | "@CAROL.md JOURNALIST: Rock 'n Roll" | `roles/journalist.md` |
 
 **Note:** Agents are interchangeable within role capabilities. Human orchestrator assigns dynamically based on agent availability, task complexity, cost constraints, and urgency.
 
@@ -478,7 +491,7 @@ Agent: "You are correct. According to my registration in SESSION-LOG.md,
 - User says "I didn't ask for that"
 - User says "why did you change X?"
 - User repeats same instruction
-- User uses RESET (means you derailed the session)
+- User uses RESET (means you derailed the sprint)
 - You made decisions user should make
 - You added "helpful" features not requested
 - You assumed instead of asking
