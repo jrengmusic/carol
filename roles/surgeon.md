@@ -1,7 +1,7 @@
 ---
 description: Complex fix specialist - handles bugs, performance issues, minimal surgical fixes
 mode: primary
-temperature: 0.2
+temperature: 0.25
 tools:
   write: true
   edit: true
