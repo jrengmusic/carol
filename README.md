@@ -234,7 +234,7 @@ source ~/.bashrc  # bash
 
 ## Architecture
 
-**CAROL SSOT (This Repository):**
+**CAROL (This Repository):**
 
 ```
 ~/.carol
