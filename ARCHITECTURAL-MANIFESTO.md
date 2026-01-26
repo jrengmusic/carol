@@ -1,11 +1,7 @@
 # ARCHITECTURAL MANIFESTO
 ## The North Star for Technical Design & Problem Solving
 
-**Document Purpose:** Core architectural principles aligned with LIFE STAR and LOVE
-
-**For implementation patterns:** See **[`README.md`](../README.md)** (MASTER REFERENCE)
-
-**For DSP class design:** See **[`How to write a DSP.md`](How%20to%20write%20a%20DSP.md)** (MANDATORY FOR DSP - TETRIS principles)
+**Document Purpose:** Core architectural principles aligned with LIFESTAR and LOVE
 
 ---
 
@@ -32,13 +28,13 @@ All code must follow the **Infinites Coding Standards** (see attached document).
 
 **All code generation must adhere to Infinites Coding Standards before considering any other architectural principle.**
 
-This aligns with **LIFE STAR's "Reviewable"** principle—code must be easy to review, understand, and validate.
+This aligns with **LIFESTAR's "Reviewable"** principle—code must be easy to review, understand, and validate.
 
 ---
 
-## LIFE STAR: Documentation Excellence
+## LIFESTAR: Documentation Excellence
 
-Our architectural foundation follows **LIFE STAR** principles for documentation and code excellence:
+Our architectural foundation follows **LIFESTAR** principles for documentation and code excellence:
 
 ```
 L - Lean
@@ -52,7 +48,7 @@ A - Accessible
 R - Reviewable
 ```
 
-### L: Lean (Keep It Simple)
+### L: Lean (Keep It Simple Stupid)
 **Favor simple, obvious solutions over clever ones.**
 
 Each component should have a clear, focused responsibility. Complexity should only be introduced when it solves a real, measured problem—not a hypothetical future one.
@@ -70,8 +66,6 @@ Each component should have a clear, focused responsibility. Complexity should on
 - [ ] Can this be broken into smaller, focused components?
 - [ ] Am I solving a problem that doesn't exist yet?
 - [ ] Would someone unfamiliar with the code understand it quickly?
-
-**Maps to:** KISS (Keep It Simple Stupid) principle
 
 ---
 
@@ -102,8 +96,6 @@ Eliminate hidden randomness and non-deterministic behavior. Systems must be dete
 - [ ] Are edge cases documented?
 - [ ] Are there silent fallbacks that should be explicit?
 - [ ] Is internal state managed predictably?
-
-**Maps to:** Predictability principle
 
 ---
 
@@ -145,8 +137,6 @@ This principle has two aspects:
 - [ ] Are there debug modes or verbose options available?
 - [ ] Is this code easy to locate in the codebase?
 
-**Maps to:** Visibility principle + Documentation Navigation
-
 ---
 
 ### E: Explicit (Dependencies Visible)
@@ -164,8 +154,9 @@ Dependencies must be visible and traceable. Hidden global state makes systems un
 
 **Examples:**
 ```cpp
-// âŒ WRONG: Hidden dependency
-class Processor {
+// WRONG: Hidden dependency
+class Processor 
+{
     void process()
     {
         auto& config = GlobalConfig::get();  // Hidden!
@@ -173,7 +164,8 @@ class Processor {
 };
 
 // âœ… CORRECT: Explicit dependency
-class Processor {
+class Processor 
+{
     void process(const Config& config)
     {  // Visible!
         // Use config
@@ -187,14 +179,12 @@ class Processor {
 - [ ] Is ownership and lifecycle clear?
 - [ ] Can this be tested in isolation?
 
-**Maps to:** Context Over Singleton principle
-
 ---
 
 ### S: Single Source of Truth
 **One source of truth: declare once, reference everywhere.**
 
-Every concept, piece of logic, or data structure must be defined in exactly one place. All other parts of the system reference that single definition. Duplication is not just inefficient—it creates maintenance burden and introduces opportunities for inconsistency.
+DRY: Don't Repeat Yourself. Every concept, piece of logic, or data structure must be defined in exactly one place. All other parts of the system reference that single definition. Duplication is not just inefficient—it creates maintenance burden and introduces opportunities for inconsistency.
 
 **When to apply:**
 - Check if functionality already exists before creating new implementations
@@ -215,8 +205,6 @@ CustomStyleSheet.xml   → Single source for styling
 - [ ] Can this be extracted into a reusable component?
 - [ ] Are there hardcoded values that should be constants or configuration?
 - [ ] Can multiple implementations be unified under a single abstraction?
-
-**Maps to:** DRY (Don't Repeat Yourself) principle
 
 ---
 
@@ -266,8 +254,6 @@ TEST_CASE("Filter deterministic")
 - [ ] Is determinism verified?
 - [ ] Are real-time constraints testable?
 
-**Maps to:** Testability principle (Principle 10 in Audio Extensions)
-
 ---
 
 ### A: Accessible (Controllable)
@@ -299,12 +285,10 @@ Never make decisions the user should control. Every meaningful parameter that af
 - [ ] Do sensible defaults exist for quick starts?
 - [ ] Can junior developers understand and modify this?
 
-**Maps to:** Controllability principle + Developer Accessibility
-
 ---
 
 ### R: Reviewable
-**Code must be clear, consistent, and easy to review.**
+**Code must be clear, consistent, easy to read, understand and review.**
 
 This is our **Supreme Principle** restated. Code that cannot be easily reviewed cannot be trusted, maintained, or evolved safely.
 
@@ -322,8 +306,6 @@ This is our **Supreme Principle** restated. Code that cannot be easily reviewed 
 - [ ] Can a reviewer understand intent without explanation?
 - [ ] Are complex sections commented with "why"?
 - [ ] Would this pass code review on first submission?
-
-**Maps to:** Code Readability (Supreme Principle)
 
 ---
 
@@ -374,8 +356,6 @@ void setSampleRate(double rate)
 - [ ] Can invalid states be prevented by design?
 - [ ] Are edge cases handled explicitly?
 
-**Maps to:** Fail Fast principle (Principle 4) + User-Centered Design
-
 ---
 
 ### O: Optimizes (Performance Matters)
@@ -409,8 +389,6 @@ Smooth::setValue(smoother.hiFrequency, setHiFrequency);
 - [ ] Trade-offs documented?
 - [ ] Verified improvement?
 - [ ] Tests still pass?
-
-**Maps to:** Real-Time Performance (Principle 8 in Audio Extensions)
 
 ---
 
@@ -447,8 +425,6 @@ void parameterChanged(const juce::String& id, double val)
 - [ ] Are edge cases tested?
 - [ ] Is error handling comprehensive?
 
-**Maps to:** Fail Fast principle (Principle 4)
-
 ---
 
 ### E: Empathizes (User-Centered Design)
@@ -477,31 +453,29 @@ Every design decision must consider the human who will use or maintain the syste
 - [ ] Are error messages helpful?
 - [ ] Is documentation clear?
 
-**Maps to:** User Empowerment Principles (5: Visibility, 6: Controllability, 7: Predictability)
-
 ---
 
 ## Audio-Specific Extensions
 
-For real-time audio software, we extend LIFE STAR and LOVE with four additional principles:
+For real-time audio software, we extend LIFESTAR and LOVE with four additional principles:
 
 **8. Real-Time Performance** (extends LOVE: Optimizes)
 - Hard real-time deadlines (<1ms per audio block)
 - Profile-driven optimization
 - Template-based processing for compile-time optimization
 
-**9. Thread Safety** (extends LIFE STAR: Explicit)
+**9. Thread Safety** (extends LIFESTAR: Explicit)
 - Explicit thread context documentation
 - Lock-free atomics for simple shared state
 - Minimal lock duration when locks necessary
 - Never block audio thread
 
-**10. Testability** (extends LIFE STAR: Testable)
+**10. Testability** (extends LIFESTAR: Testable)
 - Deterministic audio processing (bit-identical output)
 - Isolated DSP components
 - Measurable, verifiable behavior
 
-**11. Evolution** (extends LIFE STAR: Immutable)
+**11. Evolution** (extends LIFESTAR: Immutable)
 - Versioned preset data with migration paths
 - User data preservation over code purity
 - Backward compatibility where possible
@@ -514,27 +488,27 @@ For real-time audio software, we extend LIFE STAR and LOVE with four additional 
 
 ### âœ… Encouraged Patterns
 
-1. **Dependency Injection**: Pass dependencies explicitly (LIFE STAR: Explicit)
-2. **Pure Functions**: Functions without side effects when possible (LIFE STAR: Testable, Immutable)
-3. **Immutability**: Prefer immutable data structures (LIFE STAR: Immutable)
-4. **Composition**: Build complex behavior from simple pieces (LIFE STAR: Lean)
-5. **Interface Segregation**: Small, focused interfaces (LIFE STAR: Lean, Accessible)
-6. **Configuration Objects**: Group related parameters (LIFE STAR: Single Source of Truth)
-7. **Builder Pattern**: For complex object construction (LIFE STAR: Explicit)
-8. **Strategy Pattern**: For swappable algorithms (LIFE STAR: Accessible)
-9. **Factory Pattern**: For object creation with dependencies (LIFE STAR: Explicit)
+1. **Dependency Injection**: Pass dependencies explicitly (LIFESTAR: Explicit)
+2. **Pure Functions**: Functions without side effects when possible (LIFESTAR: Testable, Immutable)
+3. **Immutability**: Prefer immutable data structures (LIFESTAR: Immutable)
+4. **Composition**: Build complex behavior from simple pieces (LIFESTAR: Lean)
+5. **Interface Segregation**: Small, focused interfaces (LIFESTAR: Lean, Accessible)
+6. **Configuration Objects**: Group related parameters (LIFESTAR: Single Source of Truth)
+7. **Builder Pattern**: For complex object construction (LIFESTAR: Explicit)
+8. **Strategy Pattern**: For swappable algorithms (LIFESTAR: Accessible)
+9. **Factory Pattern**: For object creation with dependencies (LIFESTAR: Explicit)
 
-### âŒ Discouraged Anti-Patterns
+### Discouraged Anti-Patterns
 
-1. **God Objects**: Classes that do too much (violates LIFE STAR: Lean)
-2. **Hidden State**: Globals without explicit context (violates LIFE STAR: Explicit)
-3. **Magic Numbers**: Hardcoded values without names (violates LIFE STAR: Single Source of Truth)
-4. **Tight Coupling**: Components that can't exist independently (violates LIFE STAR: Testable)
-5. **Layer Violations**: Components "poking" into other layers (violates LIFE STAR: Explicit)
+1. **God Objects**: Classes that do too much (violates LIFESTAR: Lean)
+2. **Hidden State**: Globals without explicit context (violates LIFESTAR: Explicit)
+3. **Magic Numbers**: Hardcoded values without names (violates LIFESTAR: Single Source of Truth)
+4. **Tight Coupling**: Components that can't exist independently (violates LIFESTAR: Testable)
+5. **Layer Violations**: Components "poking" into other layers (violates LIFESTAR: Explicit)
 6. **Premature Optimization**: Complexity without measured need (violates LOVE: Optimizes)
 7. **Silent Failures**: Errors that don't fail fast (violates LOVE: Validates)
-8. **Implicit Behavior**: Side effects or defaults that aren't obvious (violates LIFE STAR: Explicit)
-9. **Copy-Paste Programming**: Duplicated code instead of abstraction (violates LIFE STAR: Single Source of Truth)
+8. **Implicit Behavior**: Side effects or defaults that aren't obvious (violates LIFESTAR: Explicit)
+9. **Copy-Paste Programming**: Duplicated code instead of abstraction (violates LIFESTAR: Single Source of Truth)
 
 #### Anti-Pattern #4: Tight Coupling (Expanded)
 
@@ -546,12 +520,13 @@ For real-time audio software, we extend LIFE STAR and LOVE with four additional 
 - Components directly reference each other's internals
 - Circular dependencies between modules
 
-**Violates:** LIFE STAR: Testable, Explicit
+**Violates:** LIFESTAR: Testable, Explicit
 
 **Example - âŒ WRONG:**
 ```cpp
-class DataProcessor {
-    // âŒ Direct dependency on UI
+class DataProcessor 
+{
+    // Direct dependency on UI
     void process()
     {
         calculateResult();
@@ -563,8 +538,9 @@ class DataProcessor {
 
 **Example - âœ… CORRECT:**
 ```cpp
-class DataProcessor {
-    // âœ… Indirect communication via callback
+class DataProcessor 
+{
+    // Indirect communication via callback
     void process()
     {
         calculateResult();
@@ -581,7 +557,7 @@ class DataProcessor {
 
 **The Problem:** Layers directly accessing each other create hidden dependencies, violate thread boundaries, and make code untestable.
 
-**Violates:** LIFE STAR: Explicit, Testable + Audio Extension: Thread Safety
+**Violates:** LIFESTAR: Explicit, Testable + Audio Extension: Thread Safety
 
 **Common Violations:**
 - Business logic accessing UI components directly
@@ -592,7 +568,8 @@ class DataProcessor {
 **Example - âŒ WRONG (Audio Plugin):**
 ```cpp
 // Processor layer poking into Editor layer
-class AudioProcessor {
+class AudioProcessor 
+{
     void processBlock(AudioBuffer& buffer)
     {
         // âŒ LAYER VIOLATION: Audio thread â†' UI component
@@ -602,7 +579,8 @@ class AudioProcessor {
 };
 
 // Chain layer knowing about specific UI components
-class ProcessorChain {
+class ProcessorChain 
+{
     DynamicVisualizer* visualizer;  // âŒ LAYER VIOLATION: DSP knows UI
     
     void process() {
@@ -616,13 +594,15 @@ class ProcessorChain {
 **Example - âœ… CORRECT (Proper Layer Separation):**
 ```cpp
 // Processor provides API, doesn't know about Editor
-class AudioProcessor {
-    void processBlock(AudioBuffer& buffer) {
+class AudioProcessor 
+{
+    void processBlock(AudioBuffer& buffer) 
+    {
         chain.process(buffer);  // âœ… Stays in own layer
         // Editor pulls data via getters (NOT pushed from here!)
     }
     
-    // âœ… Explicit API for access
+    // Explicit API for access
     ProcessorChain& getProcessorChain()
     {
         return chain;
@@ -630,7 +610,8 @@ class AudioProcessor {
 };
 
 // Chain exposes data, doesn't push to UI
-class ProcessorChain {
+class ProcessorChain 
+{
 public:
     // âœ… Provides thread-safe API for UI to pull data
     Function::Map<String, void> getters;
@@ -647,10 +628,11 @@ private:
 };
 
 // Editor pulls data, doesn't get pushed to
-class Editor : private Timer {
+class Editor : private Timer 
+{
     void timerCallback()  // UI THREAD
     {
-        // âœ… PULL model: UI requests data via API
+        // PULL model: UI requests data via API
         dataMap->get("LEVELS", levelsBuffer);
         repaint();
     }
@@ -677,14 +659,14 @@ class Editor : private Timer {
 
 ## Decision Framework
 
-When making architectural decisions, follow this framework aligned with LIFE STAR and LOVE:
+When helping user making architectural decisions, follow this framework aligned with LIFESTAR and LOVE:
 
 ### 1. Understand the Problem (LOVE: Listens)
 - What is the actual requirement?
 - What are the constraints?
 - What are the edge cases?
 
-### 2. Consider Simplicity First (LIFE STAR: Lean)
+### 2. Consider Simplicity First (LIFESTAR: Lean)
 - What's the simplest solution that works?
 - Can this be solved with existing tools/patterns?
 - Am I adding unnecessary complexity?
@@ -695,17 +677,17 @@ When making architectural decisions, follow this framework aligned with LIFE STA
 - Generality vs. Specificity
 - What does the user need to control?
 
-### 4. Design for Visibility (LIFE STAR: Findable)
+### 4. Design for Visibility (LIFESTAR: Findable)
 - How will users know what's happening?
 - What should be logged or surfaced?
 - Can behavior be inspected and debugged?
 
-### 5. Ensure Predictability (LIFE STAR: Immutable)
+### 5. Ensure Predictability (LIFESTAR: Immutable)
 - Is the behavior deterministic?
 - Are edge cases handled?
 - Is the API intuitive and consistent?
 
-### 6. Make It Explicit (LIFE STAR: Explicit)
+### 6. Make It Explicit (LIFESTAR: Explicit)
 - Are dependencies visible?
 - Is ownership clear?
 - Are assumptions documented?
@@ -715,7 +697,7 @@ When making architectural decisions, follow this framework aligned with LIFE STA
 - Are invariants enforced?
 - Does it fail fast on errors?
 
-### 8. Document Decisions (LIFE STAR: Reviewable, Findable)
+### 8. Document Decisions (LIFESTAR: Reviewable, Findable)
 - Why was this approach chosen?
 - What trade-offs were made?
 - What are the limitations?
@@ -724,15 +706,15 @@ When making architectural decisions, follow this framework aligned with LIFE STA
 
 ## Metrics for Quality
 
-A well-designed system following LIFE STAR and LOVE should exhibit:
+A well-designed system following LIFESTAR and LOVE should exhibit:
 
-- **Low Coupling**: Components can be changed independently (LIFE STAR: Testable, Explicit)
-- **High Cohesion**: Related functionality is grouped together (LIFE STAR: Lean)
-- **Clear Contracts**: Interfaces are explicit and well-documented (LIFE STAR: Explicit, Reviewable)
-- **Easy Testing**: Components can be tested in isolation (LIFE STAR: Testable)
-- **Debuggability**: Problems can be traced to their source (LIFE STAR: Findable)
-- **Discoverability**: Users can find and understand controls (LIFE STAR: Findable, Accessible)
-- **Consistency**: Similar problems are solved in similar ways (LIFE STAR: Single Source of Truth)
+- **Low Coupling**: Components can be changed independently (LIFESTAR: Testable, Explicit)
+- **High Cohesion**: Related functionality is grouped together (LIFESTAR: Lean)
+- **Clear Contracts**: Interfaces are explicit and well-documented (LIFESTAR: Explicit, Reviewable)
+- **Easy Testing**: Components can be tested in isolation (LIFESTAR: Testable)
+- **Debuggability**: Problems can be traced to their source (LIFESTAR: Findable)
+- **Discoverability**: Users can find and understand controls (LIFESTAR: Findable, Accessible)
+- **Consistency**: Similar problems are solved in similar ways (LIFESTAR: Single Source of Truth)
 - **Performance**: Meets documented requirements (LOVE: Optimizes)
 - **Reliability**: Validates inputs and fails gracefully (LOVE: Validates)
 - **Usability**: Empathizes with user needs (LOVE: Empathizes)
@@ -742,16 +724,14 @@ A well-designed system following LIFE STAR and LOVE should exhibit:
 ## Summary: The Integrated Model
 
 ```
-LIFE STAR (Documentation & Code Excellence)
+LIFESTAR (Documentation & Code Excellence)
     +
 LOVE (Developer Experience Excellence)
-    +
-Audio Extensions (Real-Time Domain Constraints)
     =
 Complete Technical North Star
 ```
 
-### LIFE STAR Principles
+### LIFESTAR Principles
 1. **Lean** - Keep it simple
 2. **Immutable** - Predictable behavior
 3. **Findable** - Discoverable & visible
@@ -773,33 +753,14 @@ Complete Technical North Star
 3. **Testability** (Principle 10)
 4. **Evolution** (Principle 11)
 
-This manifesto is not a rigid rule book, but a north star. When in doubt, return to LIFE STAR and LOVE and ask: "Does this solution empower users and future maintainers, or does it hide complexity and create confusion?"
+This manifesto is not a rigid rule book, but a north star. When in doubt, return to LIFESTAR and LOVE and ask: "Does this solution empower users and future maintainers, or does it hide complexity and create confusion?"
 
 **JRENG!**
 
 ---
 
-*This document is the contract. All code, designs, and solutions must be evaluated against these principles, with Infinites Coding Standards as the supreme authority on code form and structure.*
+*This document is the contract. All code, designs, and solutions must be evaluated against these principles on code form and structure.*
 
 ---
 
-## Reference Documents
-
-This manifesto is part of the JRENG Architectural Documentation Suite:
-
-- **Docs Guide** (guide/Docs Guide.md) - Navigation hub and learning paths
-- **Infinites Coding Standards** (docs/Infinites%20Coding%20Standards.md) - Complete C++ style guide (HOW to write)
-- **Audio Extensions** (docs/Audio Extensions to Architectural Manifesto.md) - Audio-specific principles 8-11 (WHEN/WHERE for audio)
-- **LLM Quick Reference** (guide/LLM Quick Reference.md) - Quick decision tree for LLMs
-- **CLAUDE.md** - Codebase-specific patterns and architecture
-
-**Document Hierarchy:**
-- **This document** defines **WHAT** to build and **WHY** (LIFE STAR + LOVE)
-- **Infinites Coding Standards** defines **HOW** to write it (formatting, naming, style)
-- **Audio Extensions** adds **WHEN/WHERE** for audio (real-time constraints)
-- **LLM Quick Reference** provides **QUICK** decisions (decision tree, checklists)
-- **CLAUDE.md** shows **ACTUAL** patterns (codebase-specific)
-
----
-
-*Version 2.0 (LIFE STAR Edition) - November 24, 2025*
+*Version 2.0  - November 24, 2025*

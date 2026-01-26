@@ -3,7 +3,7 @@
 
 **Purpose:** Define cross-role protocol and rules for ALL agents in collaborative software development.
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Last Updated:** 25 January 2026
 
 ---

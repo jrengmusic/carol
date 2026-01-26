@@ -2,7 +2,7 @@
 
 **C**ognitive **A**mplification **R**ole **O**rchestration with **LLM** agents
 
-Version: 1.1.0
+Version: 1.2.0
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -373,8 +373,8 @@ Rock 'n Roll!
 * [PATTERNS-WRITER.md](PATTERNS-WRITER.md) - Pattern discovery guide
 * [SPEC-WRITER.md](SPEC-WRITER.md) - How COUNSELOR writes specs
 * [ARCHITECTURE-WRITER.md](ARCHITECTURE-WRITER.md) - How agents document architecture
-* [ARCHITECTURAL-MANIFESTO.md](ARCHITECTURE-WRITER.md) - How agents should obey architecture
-* [NAMING-CONVENTION.md](ARCHITECTURE-WRITER.md) - set of rules for choosing the character sequence to be used for identifiers of any entities in source code and documentation.
+* [ARCHITECTURAL-MANIFESTO.md](ARCHITECTURAL-MANIFESTO.md) - LIFESTAR + LOVE principles for agents
+* [NAMING-CONVENTION.md](NAMING-CONVENTION.md) - Identifier naming rules for source code and documentation
 * [SPRINT-LOG.md](templates/SPRINT-LOG.md) - Sprint tracking template
 
 ## Support
