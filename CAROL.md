@@ -30,13 +30,15 @@
 
 ## Role-Specific Documentation
 
-**For detailed role behavior, read:**
+**Core roles (every sprint):**
 - `roles/counselor.md` — Requirements counselor and planning specialist
 - `roles/engineer.md` — Literal code generator
-- `roles/machinist.md` — Code polisher and reviewer
-- `roles/auditor.md` — Pre-commit auditor
-- `roles/surgeon.md` — Complex fix specialist
 - `roles/journalist.md` — Documentation synthesizer
+
+**Specialist roles (as needed):**
+- `roles/machinist.md` — Code polisher and finisher
+- `roles/auditor.md` — Systematic QA/QC checker
+- `roles/surgeon.md` — Complex fix specialist
 
 ---
 
@@ -460,16 +462,23 @@ Agent: "You are correct. According to my registration in SPRINT-LOG.md,
 
 **User sees this section to know which role to activate:**
 
+**Core roles (every sprint):**
+
 | Task | Best Role | Activation Pattern | Role File |
 |------|-----------|-------------------|-----------|
-| Define new feature | COUNSELOR | "@CAROL.md COUNSELOR: Rock 'n Roll" | `roles/counselor.md` |
-| Generate boilerplate | ENGINEER | "@CAROL.md ENGINEER: Rock 'n Roll" | `roles/engineer.md` |
-| Add error handling | MACHINIST | "@CAROL.md MACHINIST: Rock 'n Roll" | `roles/machinist.md` |
-| Verify implementation | AUDITOR | "@CAROL.md AUDITOR: Rock 'n Roll" | `roles/auditor.md` |
-| Fix complex bug/issue | SURGEON | "RESET. @CAROL.md SURGEON: Rock 'n Roll" | `roles/surgeon.md` |
+| Define feature/plan | COUNSELOR | "@CAROL.md COUNSELOR: Rock 'n Roll" | `roles/counselor.md` |
+| Generate scaffold | ENGINEER | "@CAROL.md ENGINEER: Rock 'n Roll" | `roles/engineer.md` |
 | Document sprint | JOURNALIST | "@CAROL.md JOURNALIST: Rock 'n Roll" | `roles/journalist.md` |
 
-**Note:** Agents are interchangeable within role capabilities. Human orchestrator assigns dynamically based on agent availability, task complexity, cost constraints, and urgency.
+**Specialist roles (as needed):**
+
+| Task | Best Role | Activation Pattern | Role File |
+|------|-----------|-------------------|-----------|
+| Polish/finish implementation | MACHINIST | "@CAROL.md MACHINIST: Rock 'n Roll" | `roles/machinist.md` |
+| Systematic QA/QC check | AUDITOR | "@CAROL.md AUDITOR: Rock 'n Roll" | `roles/auditor.md` |
+| Fix complex bug/issue | SURGEON | "RESET. @CAROL.md SURGEON: Rock 'n Roll" | `roles/surgeon.md` |
+
+**Note:** Specialists amplify user's QA decisions. User is the real QA/QC — agents don't replace judgment.
 
 ---
 

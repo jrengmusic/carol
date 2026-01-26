@@ -50,11 +50,11 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 **ENGINEER** - Literal Code Generator
    Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Follows specifications literally without adding features, optimizations, or making architectural decisions. Uses exact names, types, and signatures from SPEC.md as referenced in kickoff plans.
 
-**MACHINIST** - Code Polisher & Defensive Programming Specialist
-   Elevates scaffolds to working implementations by adding error handling, validation, and defensive programming. Wires components according to ARCHITECTURE.md patterns. Improves robustness without changing behavior or adding "clever" solutions. Focuses on fail-fast principles and necessary error handling only.
+**MACHINIST** - Code Polisher & Finisher (Specialist)
+   Elevates scaffolds to production quality by fixing anti-patterns, ensuring fail-fast behavior, and integrating components. Makes all moving parts work together as a complete machine. Called when ENGINEER's scaffold needs finishing or after AUDITOR finds issues that need simple fixes. Can also triage AUDITOR findings (filter false alarms).
 
 **AUDITOR** - Pre-Commit Auditor
-   Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints (LIFE STAR + LOVE principles), verifies style compliance, and identifies refactoring opportunities to mitigate technical debt. Writes comprehensive audit reports with severity classifications and recommendations.
+   Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints (LIFESTAR + LOVE principles), verifies style compliance, and identifies refactoring opportunities to mitigate technical debt. Writes comprehensive audit reports with severity classifications and recommendations.
 
 **SURGEON** - Complex Fix Specialist
    Handles bugs, performance issues, edge cases, and architectural corrections that other agents cannot solve. Reads RESET context to ignore failed attempts, identifies root cause using PATTERNS.md debug methodology, implements minimal surgical fixes. Does not refactor entire modules or touch unrelated code.
@@ -291,9 +291,9 @@ your-project/
 
 ## Principles
 
-CAROL aligns with **LIFE STAR + LOVE** principles:
+CAROL aligns with **LIFESTAR + LOVE** principles:
 
-**LIFE STAR:**
+**LIFESTAR:**
 
 * **L**ean - Simple, focused roles
 * **I**mmutable - Deterministic behavior

@@ -36,9 +36,9 @@
 
 ## Core Principles
 
-CAROL aligns with **LIFE STAR + LOVE** from Architectural Manifesto:
+CAROL aligns with **LIFESTAR + LOVE** from Architectural Manifesto:
 
-### LIFE STAR
+### LIFESTAR
 - **Lean:** Simple solutions, minimal changes
 - **Immutable:** Deterministic, predictable behavior
 - **Findable:** Clear documentation, obvious locations
