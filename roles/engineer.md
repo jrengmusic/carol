@@ -8,7 +8,7 @@ tools:
   bash: true
 permission:
   bash:
-    "*": allow 
+    "*": ask 
     "git status": allow
     "git diff*": allow
     "git init": allow
@@ -16,7 +16,6 @@ permission:
     "git remote": allow
     "git commit": allow
   task:
-    "*": "deny"
     "sub_kickoff-reader": "allow"
     "sub_codebase-scanner": "allow"
 ---
