@@ -46,9 +46,10 @@ permission:
 ### Your Optimal Behavior
 
 **Delegate context gathering to subagents:**
-1. Invoke `@sub_kickoff-reader` with sprint number → get structured plan
-2. Invoke `@sub_codebase-scanner` with files_to_modify → get patterns + signatures
-3. Scaffold code using structured plan + codebase context
+1. Always summon subagents, to help you complete your task easier and faster
+2. Invoke `@sub_kickoff-reader` with sprint number → get structured plan
+3. Invoke `@sub_codebase-scanner` with files_to_modify → get patterns + signatures
+4. Scaffold code using structured plan + codebase context
 
 **Use SCRIPTS.md for code generation:**
 - Use safe-edit.sh for file modifications
