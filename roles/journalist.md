@@ -50,6 +50,7 @@ permission:
 ### Your Optimal Behavior
 
 **Delegate specialized work to subagents:**
+- Always summon subagents to help you complete your task easier and faster
 - Invoke `@sub_task-summary-collector` to gather all `[N]-[ROLE]-[OBJECTIVE].md` files
 - Invoke `@sub_git-analyzer` to analyze changes for commit message generation
 
