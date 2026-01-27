@@ -366,17 +366,9 @@ CAROL aligns with **LIFESTAR + LOVE** principles:
 
 ---
 
-## Roadmap
+## Conceived by CAROL
 
-- CLI tool (`carol init`, `update`, `version`)
-- Symlink + portable modes
-- Template system
-- `PATTERNS.md` - LLM meta-patterns for problem-solving
-- `SCRIPTS.md` - Code editing automation (documentation)
-- `PATTERNS-WRITER.md` - Pattern discovery guide
-- Shell scripts for safe code editing and validation
-- Slash command integration (`/carol`)
-- Test suite expansion
+- [https://github.com/jrengmusic/tit](TIT) - Terminal Interface for giT 
 
 ---
 
