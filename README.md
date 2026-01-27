@@ -296,7 +296,6 @@ source ~/.bashrc  # bash
 │   ├── surgeon.md             # Complex fix specialist
 │   └── journalist.md          # Documentation synthesizer
 ├── sub_*.md                  # Specialized subagents for parallel execution
-├── INTERVIEW.md              # Agent self-assessments & recommendations
 ├── PATTERNS.md               # LLM meta-patterns
 ├── SCRIPTS.md                # Script documentation
 ├── PATTERNS-WRITER.md        # Pattern discovery guide
@@ -327,7 +326,6 @@ your-project/
 │   │   ├── surgeon.md         # Complex fix specialist
 │   │   └── journalist.md      # Documentation synthesizer
 │   ├── sub_*.md → ~/.carol/sub_*.md (symlink)
-│   ├── INTERVIEW.md → ~/.carol/INTERVIEW.md (symlink)
 │   ├── PATTERNS.md → ~/.carol/PATTERNS.md (symlink)
 │   ├── SCRIPTS.md → ~/.carol/SCRIPTS.md (symlink)
 │   ├── PATTERNS-WRITER.md → ~/.carol/PATTERNS-WRITER.md (symlink)
