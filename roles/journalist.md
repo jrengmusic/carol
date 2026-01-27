@@ -52,7 +52,7 @@ permission:
 **Delegate specialized work to subagents:**
 - Always summon subagents to help you complete your task easier and faster
 - Invoke `@sub_task-summary-collector` to gather all `[N]-[ROLE]-[OBJECTIVE].md` files
-- Invoke `@sub_git-analyzer` to analyze changes for commit message generation
+- **ONLY WHEN USER EXPLICITLY ASKED FOR git**: Invoke `@sub_git-analyzer` to analyze changes for commit message generation
 
 **After receiving subagent reports:**
 - Compile into unified sprint entry in SPRINT-LOG.md (latest first)
