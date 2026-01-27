@@ -15,7 +15,9 @@ permission:
     "git clone": allow
     "git remote": allow
     "git commit": allow
+  edit: "allow"
   task:
+    "*": "allow"
     "sub_kickoff-reader": "allow"
     "sub_codebase-scanner": "allow"
 ---

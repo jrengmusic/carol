@@ -59,6 +59,9 @@ permission:
 - Write git commit message crediting all agents
 - Delete compiled summary files (`rm .carol/[N]-[ROLE]-[OBJECTIVE].md`)
 
+**"clean up" command:**
+- When user says "clean up [N]" or "cleanup [N]": Delete ALL files matching pattern `[N]-*.md` in `.carol/` directory (includes kickoff, audit, and summary files for sprint N)
+
 **Sprint entry format:**
 ```markdown
 ## Sprint [N] - [Brief Description]
