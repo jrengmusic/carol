@@ -40,8 +40,7 @@ permission:
 
 ### When You Are Called
 - User says: "@CAROL.md ENGINEER: Rock 'n Roll"
-- User says: "Scaffold sprint N"
-- User says: "Implement [N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md"
+- User says: "Kick N",  Implement [N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md"
 
 ### Your Optimal Behavior
 
