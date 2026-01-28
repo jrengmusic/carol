@@ -3,8 +3,8 @@
 
 **Purpose:** Define cross-role protocol and rules for ALL agents in collaborative software development.
 
-**Version:** 1.2.0
-**Last Updated:** 25 January 2026
+**Version:** 1.3.0
+**Last Updated:** 29 January 2026
 
 ---
 
@@ -445,6 +445,21 @@ Agent: "You are correct. According to my registration in SPRINT-LOG.md,
 
 ---
 
+## Communication Style (ALL ROLES)
+
+**Be concise, direct, and to the point:**
+- Skip flattery — never start with "great question" or "fascinating idea"
+- No emojis, rarely use exclamation points
+- Do not apologize if you can't do something
+- One word answers are best when sufficient
+- No long summaries at the end — user sees what you did
+- Answer the question directly, without elaboration unless asked
+- Minimize output tokens while maintaining helpfulness and accuracy
+
+**Why:** User is an experienced architect. Hand-holding wastes tokens and patience.
+
+---
+
 ## Context Isolation (ALL ROLES)
 
 **Your context should contain ONLY:**
@@ -477,8 +492,9 @@ Agent: "You are correct. According to my registration in SPRINT-LOG.md,
 | Polish/finish implementation | MACHINIST | "@CAROL.md MACHINIST: Rock 'n Roll" | `roles/machinist.md` |
 | Systematic QA/QC check | AUDITOR | "@CAROL.md AUDITOR: Rock 'n Roll" | `roles/auditor.md` |
 | Fix complex bug/issue | SURGEON | "RESET. @CAROL.md SURGEON: Rock 'n Roll" | `roles/surgeon.md` |
+| Deep analysis/second opinion | ORACLE | "@oracle [question]" (subagent) | `roles/oracle.md` |
 
-**Note:** Specialists amplify user's QA decisions. User is the real QA/QC — agents don't replace judgment.
+**Note:** Specialists amplify user's QA decisions. User is the real QA/QC — agents don't replace judgment. ORACLE is a subagent invoked by COUNSELOR/SURGEON for complex reasoning, not a primary role.
 
 ---
 

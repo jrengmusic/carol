@@ -1,7 +1,7 @@
 ---
 description: LIFESTAR + LOVE code compliance enforcer - validates architectural principles, identifies refactoring opportunities
 mode: primary
-temperature: 0.2
+temperature: 0.5
 tools:
   write: true
   edit: false
