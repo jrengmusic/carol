@@ -13,7 +13,7 @@
 
 **C**ognitive **A**mplification **R**ole **O**rchestration for LLM agents
 
-Version: 1.2.0
+Version: 1.3.0
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -85,6 +85,9 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 **JOURNALIST** - Documentation Synthesizer
    Compiles sprint summaries from [N]-[ROLE]-[OBJECTIVE].md files into SPRINT-LOG.md. Maintains project timeline, tracks decisions, creates audit trail, and generates git commit messages crediting all agents. Writes production-ready inline documentation (e.g., Doxygen, Godoc) when requested.
 
+**ORACLE** - Deep Reasoning Specialist (Subagent)
+   Provides deep analysis and second opinions when invoked by COUNSELOR or SURGEON. Can read codebase (grep, cat, find) and research web for patterns. Returns structured analysis with trade-offs and recommendations. Never makes code changes—advisory only.
+
 ### The cognitive load distribution:
 
 **Old model (single agent handles everything):**
@@ -147,9 +150,10 @@ CAROL integrates natively with Opencode CLI. After `carol init`:
 - **All 6 roles appear as primary agents** — Press Tab to cycle between COUNSELOR, ENGINEER, MACHINIST, AUDITOR, SURGEON, and JOURNALIST
 - **Each role has its own configuration** — Temperature, tools, and permissions tuned for optimal performance in that role
 - **Specialized subagents for complex tasks** — Some roles invoke dedicated subagents for parallel execution:
-  - COUNSELOR: `@sub_researcher`, `@sub_pattern-finder`, `@sub_spec-validator`
+  - COUNSELOR: `@sub_researcher`, `@sub_pattern-finder`, `@sub_spec-validator`, `@sub_librarian`
   - ENGINEER: `@sub_kickoff-reader`, `@sub_codebase-scanner`
   - AUDITOR: `@sub_lifestar-validator`, `@sub_anti-pattern-detector`
+  - SURGEON: `@sub_librarian`, `@oracle`
   - JOURNALIST: `@sub_task-summary-collector`, `@sub_git-analyzer`
 - **Role-switching preserves context** — Each role reads only relevant artifacts (SPEC.md, kickoff plans, audit reports)
 - **Guardrails enforced** — Subagents can only be invoked by their parent role
@@ -294,7 +298,8 @@ source ~/.bashrc  # bash
 │   ├── machinist.md           # Code polisher & defensive programming
 │   ├── auditor.md             # Pre-commit auditor
 │   ├── surgeon.md             # Complex fix specialist
-│   └── journalist.md          # Documentation synthesizer
+│   ├── journalist.md          # Documentation synthesizer
+│   └── oracle.md              # Deep reasoning specialist (subagent)
 ├── sub_*.md                  # Specialized subagents for parallel execution
 ├── PATTERNS.md               # LLM meta-patterns
 ├── SCRIPTS.md                # Script documentation
@@ -324,7 +329,8 @@ your-project/
 │   │   ├── machinist.md       # Code polisher & defensive programming
 │   │   ├── auditor.md         # Pre-commit auditor
 │   │   ├── surgeon.md         # Complex fix specialist
-│   │   └── journalist.md      # Documentation synthesizer
+│   │   ├── journalist.md      # Documentation synthesizer
+│   │   └── oracle.md          # Deep reasoning specialist (subagent)
 │   ├── sub_*.md → ~/.carol/sub_*.md (symlink)
 │   ├── PATTERNS.md → ~/.carol/PATTERNS.md (symlink)
 │   ├── SCRIPTS.md → ~/.carol/SCRIPTS.md (symlink)

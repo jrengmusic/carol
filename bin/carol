@@ -1,8 +1,8 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 1.2.0
+# Version: 1.3.0
 
-VERSION="1.2.0"
+VERSION="1.3.0"
 CAROL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Colors for output
@@ -182,32 +182,6 @@ cmd_init() {
 
     customize_templates "$project_path"
 
-    cat > .carol/.gitignore << 'EOF'
-# CAROL Framework - Git Ignore
-
-# Temp sprint files
-[0-9]*-*-*.md
-
-# Backup files
-*.bak
-*.bak[0-9]
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-EOF
-
-    if [ ! -f ".opencode/.gitignore" ]; then
-        cat > .opencode/.gitignore << 'EOF'
-# OpenCode - Git Ignore (optional)
-# opencode.json
-EOF
-    fi
-
     show_banner
     echo -e "${GREY}✓ v${VERSION} System initiated.${NC}"
     echo ""
@@ -375,12 +349,13 @@ cmd_help() {
     echo -e "  ${YELLOW}help${NC}                  Show this help message"
     echo ""
     echo -e "${MAGENTA}Roles:${NC}"
-    echo -e "  ${CYAN}COUNSELOR${NC}       Requirements counselor and planner"
+    echo -e "  ${CYAN}COUNSELOR${NC}     Requirements counselor and planner"
     echo -e "  ${CYAN}ENGINEER${NC}      Literal code generator"
     echo -e "  ${CYAN}MACHINIST${NC}     Code polisher and reviewer"
     echo -e "  ${CYAN}AUDITOR${NC}       Pre-commit auditor"
     echo -e "  ${CYAN}SURGEON${NC}       Complex fix specialist"
     echo -e "  ${CYAN}JOURNALIST${NC}    Documentation synthesizer"
+    echo -e "  ${GREY}ORACLE${NC}        Deep reasoning specialist (subagent)"
     echo ""
     echo -e "${MAGENTA}Activate:${NC}"
     echo -e "  ${YELLOW}@CAROL.md [ROLE]: Rock 'n Roll${NC}"

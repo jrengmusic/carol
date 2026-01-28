@@ -1,7 +1,7 @@
 ---
 description: Literal code generator - implements features exactly as specified in kickoff documents
 mode: primary
-temperature: 0.1
+temperature: 0.2
 tools:
   write: true
   edit: true
@@ -17,7 +17,6 @@ permission:
     "git commit": allow
   edit: "allow"
   task:
-    "*": "allow"
     "sub_kickoff-reader": "allow"
     "sub_codebase-scanner": "allow"
 ---

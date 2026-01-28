@@ -2,7 +2,7 @@
 description: Discover existing patterns in codebase for COUNSELOR to reference
 mode: subagent
 model: zai-coding-plan/glm-4.7
-temperature: 0.2
+temperature: 0.1
 tools:
   write: false
   edit: false

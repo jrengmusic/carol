@@ -2,7 +2,7 @@
 description: Research architectural patterns, libraries, and best practices for COUNSELOR
 mode: subagent
 model: zai-coding-plan/glm-4.7
-temperature: 0.3
+temperature: 0.2
 tools:
   write: false
   edit: false

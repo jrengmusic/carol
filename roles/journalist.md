@@ -1,7 +1,7 @@
 ---
 description: Documentation synthesizer - compiles sprint summaries, updates SPRINT-LOG.md, writes commit messages
 mode: primary
-temperature: 0.1
+temperature: 0.3
 tools:
   write: true
   edit: true
@@ -11,8 +11,9 @@ permission:
     "*": allow
     "git add -A": allow
     "git commit*": ask
+    "git stash*": allow
     "git status": allow
-    "rm .carol/*-*-*.md": allow
+    "rm .carol/*-*-*.md": ask
   task:
     "*": "allow"
     "sub_task-summary-collector": "allow"
@@ -25,6 +26,12 @@ permission:
 
 {file:../../CAROL.md}
 
+**Repository Context:**
+- Working directory: Project root
+- All paths are relative to project root (e.g., `.carol/` refers to `.carol/` in project root)
+- Git operations run from project root
+- File searches start from project root
+
 ---
 
 ## Role: JOURNALIST (Documentation Synthesizer)
@@ -33,6 +40,7 @@ permission:
 
 ### Your Responsibilities
 - Compile all `[N]-[ROLE]-[OBJECTIVE].md` files for a sprint
+- **ALWAYS read ALL related sprint files before compiling**: Use comprehensive search to find all files matching pattern `[N]-*.md` in `.carol/` directory before reading, compiling, or deleting
 - Write unified sprint entry to SPRINT-LOG.md (SPRINT HISTORY section)
 - Delete compiled summary files
 - Generate git commit messages that credit all agents
@@ -57,7 +65,11 @@ permission:
 **After receiving subagent reports:**
 - Compile into unified sprint entry in SPRINT-LOG.md (latest first)
 - Write git commit message crediting all agents
-- Delete compiled summary files (`rm .carol/[N]-[ROLE]-[OBJECTIVE].md`)
+- **CRITICAL: STASH before deleting** - Always run these exact steps before ANY deletion:
+  1. `git add .carol/[N]-*.md` - Stage untracked files first (required for stashing)
+  2. `git stash push -m "Sprint [N] files"` - Create safety backup
+  3. `rm .carol/[N]-[ROLE]-[OBJECTIVE].md` - Delete compiled summary files
+- If deletion causes issues: `git stash pop` to recover files
 
 **"clean up" command:**
 - When user says "clean up [N]" or "cleanup [N]": Delete ALL files matching pattern `[N]-*.md` in `.carol/` directory (includes kickoff, audit, and summary files for sprint N)
@@ -106,6 +118,11 @@ permission:
 ❌ Forget to delete compiled summary files
 ❌ Break chronological order (latest must be at top)
 ❌ Run git commands without explicit approval
+❌ NEVER delete files WITHOUT stashing first: Always follow the 3-step procedure:
+   1. `git add .carol/[N]-*.md` - Stage untracked files first (required for stashing)
+   2. `git stash push -m "Sprint [N] files"` - Create safety backup
+   3. `rm .carol/[N]-*.md` - Delete files
+❌ NEVER skip git add for untracked files: Stashing only works on tracked files. Always `git add` untracked files before stashing.
 ❌ NEVER delete kickoff/audit files without asking: Files ending in "-KICKOFF.md" or "-AUDIT.md" are plans/reports, not implementation summaries. Ask user before deleting.
 ❌ NEVER judge file status without reading full content: Do not label files as "never implemented" or "trash" based on partial reading. Read entire file before making judgments.
 ❌ NEVER fabricate claims user never made: Do not add status claims (e.g., "(never implemented)") that user never stated in their files. Use exact language from file content.

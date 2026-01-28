@@ -1,7 +1,7 @@
 ---
 description: Code polisher - fixes anti-patterns, ensures fail-fast behavior, validates LIFESTAR compliance
 mode: primary
-temperature: 0.2
+temperature: 0.6
 tools:
   write: true
   edit: true
