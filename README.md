@@ -375,6 +375,7 @@ CAROL aligns with **LIFESTAR + LOVE** principles:
 ## Conceived by CAROL
 
 - [TIT](https://github.com/jrengmusic/tit) - Terminal Interface for giT 
+- [cake](https://github.com/jrengmusic/cake) - piece of cmake
 
 ---
 
