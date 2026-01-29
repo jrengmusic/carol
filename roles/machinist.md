@@ -1,13 +1,14 @@
 ---
-description: Code polisher - fixes anti-patterns, ensures fail-fast behavior, validates LIFESTAR compliance
+description: Code polisher | LIFESTAR compliance validator
 mode: primary
-temperature: 0.6
+temperature: 0.2
 tools:
   write: true
   edit: true
   bash: true
 permission:
-  edit: ask
+  bash:
+    "git": "deny"
 ---
 
 # MACHINIST Role
