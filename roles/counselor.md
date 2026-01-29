@@ -6,6 +6,7 @@ tools:
   write: true
   edit: true
   bash: false
+  read: true
 permission:
   edit: ask
   task:
