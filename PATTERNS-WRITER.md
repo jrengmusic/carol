@@ -1,8 +1,8 @@
 # PATTERNS-WRITER.md - Pattern Discovery and Documentation Guide
 
-**Version:** 1.0.0
+**Version:** 2.0.0
 **Purpose:** How agents discover, validate, and document patterns in codebases
-**Audience:** MACHINIST, SURGEON (pattern discovery during work), JOURNALIST (compilation)
+**Audience:** MACHINIST, SURGEON (pattern discovery during work), COUNSELOR (documentation compilation)
 
 ---
 
@@ -770,7 +770,7 @@ Found 12 instances of numeric literals assigned to float:
 
 ---
 
-### JOURNALIST: Pattern Compilation
+### COUNSELOR: Pattern Compilation
 
 **When compiling sprint summaries:**
 

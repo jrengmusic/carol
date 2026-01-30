@@ -1,8 +1,8 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 1.3.0
+# Version: 2.0.0
 
-VERSION="1.3.0"
+VERSION="2.0.0"
 CAROL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Colors for output
@@ -139,11 +139,109 @@ cmd_init() {
         cp -r "$CAROL_ROOT"/* .carol/
         rm -rf .carol/.git .carol/.gitignore
         
+        # Copy SPRINT-LOG template to root for customization
+        if [ -f ".carol/templates/SPRINT-LOG.md" ]; then
+            cp .carol/templates/SPRINT-LOG.md .carol/SPRINT-LOG.md
+        fi
+        
         mkdir -p .opencode/agents
         if [ -d "$CAROL_ROOT/roles" ]; then
             cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
         fi
+
+        # Hide OpenCode default agents (plan, build)
+        mkdir -p .opencode
+        cat > .opencode/opencode.json << 'EOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "plan": {
+      "hidden": true
+    },
+    "build": {
+      "hidden": true
+    }
+  }
+}
+EOF
+
+        # Create CAROL custom commands
+        mkdir -p .opencode/commands
         
+        # Counselor command
+        cat > .opencode/commands/counselor.md << 'EOF'
+---
+description: Activate COUNSELOR agent for planning and specification
+agent: counselor
+---
+
+@.carol/CAROL.md
+
+You are now acting as COUNSELOR.
+
+**MANDATORY FIRST STEP:**
+Acknowledge your activation by replying:
+
+```
+COUNSELOR ready to Rock 'n Roll!
+
+Role: COUNSELOR
+Responsibility: Domain specific strategic analysis
+Constraints:
+- READ-ONLY for code (never write/modify code)
+- Transform user intent into formal specifications
+- Delegate implementation to ENGINEER or handoff to SURGEON
+- Ask clarifying questions before writing plans
+
+Standing by for your instructions.
+```
+
+**THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
+
+Only after user gives you specific direction:
+- ALWAYS invoke @pathfinder first
+- You are READ-ONLY for code
+- Delegate implementation to ENGINEER
+- Handoff bug fixes to SURGEON
+EOF
+
+        # Surgeon command  
+        cat > .opencode/commands/surgeon.md << 'EOF'
+---
+description: Activate SURGEON agent for bug fixes and implementation
+agent: surgeon
+---
+
+@.carol/CAROL.md
+
+You are now acting as SURGEON.
+
+**MANDATORY FIRST STEP:**
+Acknowledge your activation by replying:
+
+```
+SURGEON ready to Rock 'n Roll!
+
+Role: SURGEON
+Responsibility: Surgical precision problem solving
+Constraints:
+- Surgical fixes only (minimal changes, scoped impact)
+- Never refactor beyond the fix
+- Handle complex bugs, edge cases, performance issues
+- Work with RESET context when provided
+
+Standing by for your instructions.
+```
+
+**THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
+
+Only after user gives you specific direction:
+- ALWAYS invoke @pathfinder first
+- Provide surgical fixes only
+- Minimal changes, scoped impact
+- Do not refactor beyond the fix
+EOF
+
         if [ -f ".carol/templates/config.yml" ]; then
             cp .carol/templates/config.yml .carol/config.yml
         fi
@@ -178,6 +276,98 @@ cmd_init() {
                 [ -f "$role_file" ] && ln -sf "$role_file" ".opencode/agents/$(basename "$role_file")" 2>/dev/null
             done
         fi
+
+        # Hide OpenCode default agents (plan, build)
+        cat > .opencode/opencode.json << 'EOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "plan": {
+      "hidden": true
+    },
+    "build": {
+      "hidden": true
+    }
+  }
+}
+EOF
+
+        # Create CAROL custom commands
+        mkdir -p .opencode/commands
+        
+        # Counselor command
+        cat > .opencode/commands/counselor.md << 'EOF'
+---
+description: Activate COUNSELOR agent for planning and specification
+agent: counselor
+---
+
+@.carol/CAROL.md
+
+You are now acting as COUNSELOR.
+
+**MANDATORY FIRST STEP:**
+Acknowledge your activation by replying:
+
+```
+COUNSELOR ready to Rock 'n Roll!
+
+Role: COUNSELOR
+Responsibility: Domain specific strategic analysis
+Constraints:
+- READ-ONLY for code (never write/modify code)
+- Transform user intent into formal specifications
+- Delegate implementation to ENGINEER or handoff to SURGEON
+- Ask clarifying questions before writing plans
+
+Standing by for your instructions.
+```
+
+**THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
+
+Only after user gives you specific direction:
+- ALWAYS invoke @pathfinder first
+- You are READ-ONLY for code
+- Delegate implementation to ENGINEER
+- Handoff bug fixes to SURGEON
+EOF
+
+        # Surgeon command  
+        cat > .opencode/commands/surgeon.md << 'EOF'
+---
+description: Activate SURGEON agent for bug fixes and implementation
+agent: surgeon
+---
+
+@.carol/CAROL.md
+
+You are now acting as SURGEON.
+
+**MANDATORY FIRST STEP:**
+Acknowledge your activation by replying:
+
+```
+SURGEON ready to Rock 'n Roll!
+
+Role: SURGEON
+Responsibility: Surgical precision problem solving
+Constraints:
+- Surgical fixes only (minimal changes, scoped impact)
+- Never refactor beyond the fix
+- Handle complex bugs, edge cases, performance issues
+- Work with RESET context when provided
+
+Standing by for your instructions.
+```
+
+**THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
+
+Only after user gives you specific direction:
+- ALWAYS invoke @pathfinder first
+- Provide surgical fixes only
+- Minimal changes, scoped impact
+- Do not refactor beyond the fix
+EOF
     fi
 
     customize_templates "$project_path"
@@ -327,6 +517,7 @@ cmd_reset() {
     if [[ "$response" =~ ^[Yy]$ ]]; then
         rm -rf .carol
         rm -rf .opencode/agents
+        rm -f .opencode/opencode.json
         [ -d ".opencode" ] && rmdir .opencode 2>/dev/null
         echo -e "${YELLOW}✓ No CAROL, no cigar${NC}"
     else
@@ -348,14 +539,19 @@ cmd_help() {
     echo -e "  ${YELLOW}version${NC}               Show CAROL version"
     echo -e "  ${YELLOW}help${NC}                  Show this help message"
     echo ""
-    echo -e "${MAGENTA}Roles:${NC}"
-    echo -e "  ${CYAN}COUNSELOR${NC}     Requirements counselor and planner"
-    echo -e "  ${CYAN}ENGINEER${NC}      Literal code generator"
-    echo -e "  ${CYAN}MACHINIST${NC}     Code polisher and reviewer"
-    echo -e "  ${CYAN}AUDITOR${NC}       Pre-commit auditor"
-    echo -e "  ${CYAN}SURGEON${NC}       Complex fix specialist"
-    echo -e "  ${CYAN}JOURNALIST${NC}    Documentation synthesizer"
-    echo -e "  ${GREY}ORACLE${NC}        Deep reasoning specialist (subagent)"
+    echo -e "${MAGENTA}PRIMARY Agents:${NC}"
+    echo -e "  ${CYAN}COUNSELOR${NC}     Planning, specs, docs, SPRINT-LOG"
+    echo -e "  ${CYAN}SURGEON${NC}       Execution, fixes, surgical precision"
+    echo ""
+    echo -e "${MAGENTA}Secondary Agents:${NC}"
+    echo -e "  ${CYAN}Engineer${NC}      Code generation"
+    echo -e "  ${CYAN}Oracle${NC}        Deep analysis, research"
+    echo -e "  ${CYAN}Librarian${NC}     Library/framework research"
+    echo -e "  ${CYAN}Auditor${NC}       QA/QC validation"
+    echo -e "  ${CYAN}Machinist${NC}     Polish, finish"
+    echo -e "  ${CYAN}Pathfinder${NC}    Pattern discovery"
+    echo -e "  ${CYAN}Researcher${NC}    Domain research"
+    echo -e "  ${CYAN}Validator${NC}     Spec & compliance checking"
     echo ""
     echo -e "${MAGENTA}Activate:${NC}"
     echo -e "  ${YELLOW}@CAROL.md [ROLE]: Rock 'n Roll${NC}"

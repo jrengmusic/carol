@@ -13,7 +13,7 @@
 
 **C**ognitive **A**mplification **R**ole **O**rchestration for LLM agents
 
-Version: 1.3.0
+Version: 2.0.0
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -65,28 +65,39 @@ LLMs suffer from:
 
 CAROL is a role-based agent orchestration framework for collaborative software development. It's a cognitive load distribution system that prevents agent drift by enforcing specialized roles with explicit constraints and clear handoffs.
 
-### Specialized Roles
+### Primary Agents (2)
 
 **COUNSELOR** - Requirements Counselor & Planning Specialist
-   Transforms conceptual intent into formal specifications. Asks clarifying questions, explores edge cases and constraints, writes comprehensive SPEC.md and ARCHITECTURE.md. Never writes code directly. Uses SPEC-WRITER.md and ARCHITECTURE-WRITER.md as guides to clarify user's architectural vision into formalized development documents.
-
-**ENGINEER** - Literal Code Generator
-   Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Follows specifications literally without adding features, optimizations, or making architectural decisions. Uses exact names, types, and signatures from SPEC.md as referenced in kickoff plans.
-
-**MACHINIST** - Code Polisher & Finisher (Specialist)
-   Elevates scaffolds to production quality by fixing anti-patterns, ensuring fail-fast behavior, and integrating components. Makes all moving parts work together as a complete machine. Called when ENGINEER's scaffold needs finishing or after AUDITOR finds issues that need simple fixes. Can also triage AUDITOR findings (filter false alarms).
-
-**AUDITOR** - Pre-Commit Auditor
-   Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints (LIFESTAR + LOVE principles), verifies style compliance, and identifies refactoring opportunities to mitigate technical debt. Writes comprehensive audit reports with severity classifications and recommendations.
+   Transforms conceptual intent into formal specifications. Asks clarifying questions, explores edge cases and constraints, writes comprehensive SPEC.md and ARCHITECTURE.md. Handles all documentation including SPRINT-LOG.md updates on "log sprint" command. Never writes code directly. Uses SPEC-WRITER.md and ARCHITECTURE-WRITER.md as guides to clarify user's architectural vision into formalized development documents.
 
 **SURGEON** - Complex Fix Specialist
    Handles bugs, performance issues, edge cases, and architectural corrections that other agents cannot solve. Reads RESET context to ignore failed attempts, identifies root cause using PATTERNS.md debug methodology, implements minimal surgical fixes. Does not refactor entire modules or touch unrelated code.
 
-**JOURNALIST** - Documentation Synthesizer
-   Compiles sprint summaries from [N]-[ROLE]-[OBJECTIVE].md files into SPRINT-LOG.md. Maintains project timeline, tracks decisions, creates audit trail, and generates git commit messages crediting all agents. Writes production-ready inline documentation (e.g., Doxygen, Godoc) when requested.
+### Secondary Agents (8)
 
-**ORACLE** - Deep Reasoning Specialist (Subagent)
+**ENGINEER** - Literal Code Generator
+   Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Follows specifications literally without adding features, optimizations, or making architectural decisions. Uses exact names, types, and signatures from SPEC.md as referenced in kickoff plans.
+
+**ORACLE** - Deep Reasoning Specialist
    Provides deep analysis and second opinions when invoked by COUNSELOR or SURGEON. Can read codebase (grep, cat, find) and research web for patterns. Returns structured analysis with trade-offs and recommendations. Never makes code changes—advisory only.
+
+**LIBRARIAN** - Knowledge Curator
+   Maintains PATTERNS.md, SCRIPTS.md, and other knowledge bases. Indexes discovered patterns, organizes reusable solutions, and ensures documentation stays current. Called when new patterns emerge or existing ones need refinement.
+
+**AUDITOR** - Pre-Commit Auditor
+   Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints (LIFESTAR + LOVE principles), verifies style compliance, and identifies refactoring opportunities to mitigate technical debt. Writes comprehensive audit reports with severity classifications and recommendations.
+
+**MACHINIST** - Code Polisher & Finisher
+   Elevates scaffolds to production quality by fixing anti-patterns, ensuring fail-fast behavior, and integrating components. Makes all moving parts work together as a complete machine. Called when ENGINEER's scaffold needs finishing or after AUDITOR finds issues that need simple fixes. Can also triage AUDITOR findings (filter false alarms).
+
+**PATHFINDER** - Exploration Specialist
+   Investigates unfamiliar codebases, APIs, or technologies. Maps unknown territory, identifies integration points, and reports findings without making changes. Used when entering new domains or evaluating third-party libraries.
+
+**RESEARCHER** - Information Gatherer
+   Collects and synthesizes information from documentation, codebases, and external sources. Compiles reference materials and creates summaries for other agents to consume. Never modifies code.
+
+**VALIDATOR** - Verification Specialist
+   Runs tests, validates assumptions, and confirms implementations meet specifications. Checks edge cases, verifies error handling, and ensures compliance with requirements. Reports pass/fail status with detailed findings.
 
 ### The cognitive load distribution:
 
@@ -129,15 +140,11 @@ AUDITOR's context:
 └─ review, refactoring opportunity, audit SPEC.md and ARCHITECTURE.md compliance
    (5k tokens)
 
-JOURNALIST's context:
-└─ SPRINT-LOG.md + ARCHITECTURE.md + inline docs 
-   (5k tokens, focused on documentation)
-
 Your context:
 └─ SPEC.md + test each flow
    (Human brain, validating intent)
 
-Total distributed: ~34k tokens across 6 specialized roles
+Total distributed: ~29k tokens across specialized roles
 Result: Each agent performs optimally within their specialization
 ```
 
@@ -147,16 +154,10 @@ Result: Each agent performs optimally within their specialization
 
 CAROL integrates natively with Opencode CLI. After `carol init`:
 
-- **All 6 roles appear as primary agents** — Press Tab to cycle between COUNSELOR, ENGINEER, MACHINIST, AUDITOR, SURGEON, and JOURNALIST
+- **All 10 agents available** — Press Tab to cycle between COUNSELOR, SURGEON, ENGINEER, ORACLE, LIBRARIAN, AUDITOR, MACHINIST, PATHFINDER, RESEARCHER, and VALIDATOR
 - **Each role has its own configuration** — Temperature, tools, and permissions tuned for optimal performance in that role
-- **Specialized subagents for complex tasks** — Some roles invoke dedicated subagents for parallel execution:
-  - COUNSELOR: `@sub_researcher`, `@sub_pattern-finder`, `@sub_spec-validator`, `@sub_librarian`
-  - ENGINEER: `@sub_kickoff-reader`, `@sub_codebase-scanner`
-  - AUDITOR: `@sub_lifestar-validator`, `@sub_anti-pattern-detector`
-  - SURGEON: `@sub_librarian`, `@oracle`
-  - JOURNALIST: `@sub_task-summary-collector`, `@sub_git-analyzer`
+- **No registration ceremony** — Calling an agent is assignment. Simply invoke by name.
 - **Role-switching preserves context** — Each role reads only relevant artifacts (SPEC.md, kickoff plans, audit reports)
-- **Guardrails enforced** — Subagents can only be invoked by their parent role
 
 Activate a role: `@CAROL.md COUNSELOR: Rock 'n Roll`
 
@@ -173,7 +174,7 @@ Document-driven development pipeline with specialized artifacts:
 
 ## Key Features
 
-- **Role-Based Constraints:** 6 specialized roles with explicit behavioral rules
+- **Role-Based Constraints:** 10 specialized roles with explicit behavioral rules (2 Primary + 8 Secondary)
 - **Agent-Agnostic:** Works with any LLM CLI tool (Claude Code, Opencode, Amp, Copilot, Gemini, whatever.)
 - **Opencode Integration:** Native support for Opencode CLI with enhanced workflow patterns
 - **Language-Agnostic:** Supports any programming language/framework
@@ -254,8 +255,10 @@ carol update
 After `carol init`, activate an agent by reading role definitions:
 
 ```
-Read .carol/CAROL.md. You are assigned as COUNSELOR, register yourself in .carol/SPRINT-LOG.md
+Read .carol/CAROL.md. You are assigned as COUNSELOR.
 ```
+
+No registration ceremony needed—calling is assignment.
 
 ### Uninstall
 
@@ -293,14 +296,16 @@ source ~/.bashrc  # bash
 ~/.carol
 ├── CAROL.md                  # Role definitions (immutable)
 ├── roles/                   # Role-specific behavior definitions
-│   ├── counselor.md           # Requirements counselor
-│   ├── engineer.md            # Literal code generator
-│   ├── machinist.md           # Code polisher & defensive programming
-│   ├── auditor.md             # Pre-commit auditor
-│   ├── surgeon.md             # Complex fix specialist
-│   ├── journalist.md          # Documentation synthesizer
-│   └── oracle.md              # Deep reasoning specialist (subagent)
-├── sub_*.md                  # Specialized subagents for parallel execution
+│   ├── counselor.md          # Requirements counselor (PRIMARY)
+│   ├── surgeon.md            # Complex fix specialist (PRIMARY)
+│   ├── engineer.md           # Literal code generator
+│   ├── oracle.md             # Deep reasoning specialist
+│   ├── librarian.md          # Knowledge curator
+│   ├── auditor.md            # Pre-commit auditor
+│   ├── machinist.md          # Code polisher & defensive programming
+│   ├── pathfinder.md         # Exploration specialist
+│   ├── researcher.md         # Information gatherer
+│   └── validator.md          # Verification specialist
 ├── PATTERNS.md               # LLM meta-patterns
 ├── SCRIPTS.md                # Script documentation
 ├── PATTERNS-WRITER.md        # Pattern discovery guide
@@ -324,21 +329,23 @@ your-project/
 ├── .carol/
 │   ├── CAROL.md → ~/.carol/CAROL.md (symlink)
 │   ├── roles/ → ~/.carol/roles/ (symlink)
-│   │   ├── counselor.md       # Requirements counselor
-│   │   ├── engineer.md        # Literal code generator
-│   │   ├── machinist.md       # Code polisher & defensive programming
-│   │   ├── auditor.md         # Pre-commit auditor
-│   │   ├── surgeon.md         # Complex fix specialist
-│   │   ├── journalist.md      # Documentation synthesizer
-│   │   └── oracle.md          # Deep reasoning specialist (subagent)
-│   ├── sub_*.md → ~/.carol/sub_*.md (symlink)
+│   │   ├── counselor.md      # Requirements counselor (PRIMARY)
+│   │   ├── surgeon.md        # Complex fix specialist (PRIMARY)
+│   │   ├── engineer.md       # Literal code generator
+│   │   ├── oracle.md         # Deep reasoning specialist
+│   │   ├── librarian.md      # Knowledge curator
+│   │   ├── auditor.md        # Pre-commit auditor
+│   │   ├── machinist.md      # Code polisher & defensive programming
+│   │   ├── pathfinder.md     # Exploration specialist
+│   │   ├── researcher.md     # Information gatherer
+│   │   └── validator.md      # Verification specialist
 │   ├── PATTERNS.md → ~/.carol/PATTERNS.md (symlink)
 │   ├── SCRIPTS.md → ~/.carol/SCRIPTS.md (symlink)
 │   ├── PATTERNS-WRITER.md → ~/.carol/PATTERNS-WRITER.md (symlink)
 │   ├── SPEC-WRITER.md → ~/.carol/SPEC-WRITER.md (symlink)
 │   ├── ARCHITECTURE-WRITER.md → ~/.carol/ARCHITECTURE-WRITER.md (symlink)
 │   ├── scripts/ → ~/.carol/scripts/ (symlink)
-│   ├── SPRINT-LOG.md (copied, customized)
+│   ├── SPRINT-LOG.md (copied, customized - updated by COUNSELOR on "log sprint" command)
 │   └── [N]-[ROLE]-[OBJECTIVE].md (temp files)
 ├── .opencode/
 │   └── agents/ → ~/.carol/roles/ (symlink)

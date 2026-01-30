@@ -1,8 +1,8 @@
 # PATTERNS.md - LLM Meta-Patterns for CAROL Agents
 
-**Version:** 1.0.0
+**Version:** 2.0.0
 **Purpose:** Systematic approaches to prevent cognitive overload, scope creep, and autonomous mistakes
-**Audience:** All CAROL agents (COUNSELOR, ENGINEER, MACHINIST, AUDITOR, SURGEON, JOURNALIST)
+**Audience:** All CAROL agents (2 PRIMARY + 8 Secondary roles)
 
 ---
 
@@ -11,13 +11,9 @@
 **[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
 
 **File Naming Convention:**
-- `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
-- `[N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md` — Phase kickoff plans (COUNSELOR)
 - `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
 
 **Example Filenames:**
-- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for sprint 1
-- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in sprint 2
 - `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after sprint 2
 
 ---
@@ -78,7 +74,7 @@ CAROL aligns with **LIFESTAR + LOVE** from Architectural Manifesto:
 3. If found existing solution:
    - Reuse pattern (don't reinvent)
    - Extend if needed (don't duplicate)
-   - Document why ([N]-[ROLE]-[OBJECTIVE].md)
+   - Document in SPRINT-LOG.md
 ```
 
 **Anti-pattern:** Creating new solution without checking if it exists
@@ -243,7 +239,7 @@ Only after checking 1-4:
 3. Check Fail-Fast Checklist (1-4) FIRST
 4. Use minimal reproduction (no full codebase read)
 5. Verify fix with user
-6. Document in [N]-SURGEON-*.md
+6. Document in SPRINT-LOG.md (on "log sprint")
 ```
 
 **Never:** Read entire codebase, theorize for 50+ messages, assume complex cause
@@ -602,7 +598,7 @@ Exception: Read-only git commands OK
    - NO architectural changes
 
 4. Document what was created:
-   - [N]-ENGINEER-*.md
+   - Update SPRINT-LOG.md (on "log sprint")
    - List files created
    - Note any clarifications needed
 ```
@@ -708,7 +704,7 @@ After:
 
 **Pattern: Systematic Audit**
 ```
-1. Read audit phase requirements ([N]-AUDITOR-[TASK].md)
+1. Read audit phase requirements
 2. Check against SPEC.md:
    - All requirements implemented?
    - No extra features added?
@@ -777,7 +773,7 @@ After:
 5. Verify fix:
    - Test reproduction case
    - Verify no regressions
-   - Document in [N]-SURGEON-*.md
+   - Document in SPRINT-LOG.md (on "log sprint")
 
 6. If discovering undocumented pattern:
    - Note in ARCHITECTURE.md
@@ -803,39 +799,6 @@ Fix:
   - Add logging
   - Update 10 other files "for consistency"
 ```
-
-### JOURNALIST Patterns
-
-**Core behavior:** Compile sprint history
-
-**Pattern: Sprint Synthesis**
-```
-1. Read all [N]-[ROLE]-[OBJECTIVE].md files
-2. Extract key information:
-   - What was accomplished
-   - Which roles were involved
-   - Decisions made
-   - Issues encountered
-   - Files modified
-
-3. Update SPRINT-LOG.md:
-   - Append to timeline
-   - Link to detailed reports
-   - Note agent assignments
-   - Track cumulative progress
-
-4. Maintain audit trail:
-   - Who did what
-   - When
-   - Why (reference issues/specs)
-
-5. Create summary:
-   - Concise (1-2 paragraphs per sprint)
-   - Focus on outcomes, not process
-   - Link to detailed docs
-```
-
-**Anti-pattern:** Writing code, making decisions, changing files
 
 ---
 
@@ -946,7 +909,7 @@ Better: *uses Read tool*
    - MACHINIST: Defensive Programming
    - AUDITOR: Systematic Audit
    - SURGEON: Surgical Fix
-   - JOURNALIST: Sprint Synthesis
+   - (2 PRIMARY + 8 Secondary roles total)
 
 4. Agent uses meta-patterns:
    - Problem Decomposition (planning)
@@ -954,11 +917,9 @@ Better: *uses Read tool*
    - Tool Selection (efficiency)
    - Self-Validation (before responding)
 
-5. Agent writes sprint summary:
-   [N]-[ROLE]-[OBJECTIVE].md
-
-6. JOURNALIST compiles:
-   All [N]-[ROLE]-[OBJECTIVE].md → SPRINT-LOG.md
+5. On "log sprint" command:
+   - Update SPRINT-LOG.md with work summary
+   - No intermediate files created
 ```
 
 ### Cross-References
@@ -972,6 +933,13 @@ Better: *uses Read tool*
 ---
 
 ## Version History
+
+- **2.0.0** (2026-01-30): CAROL v2.0.0 release
+  - Removed JOURNALIST role (consolidated into SPRINT-LOG workflow)
+  - Updated from 6 roles to 2 PRIMARY + 8 Secondary model
+  - Removed [N]-[ROLE]-[OBJECTIVE].md intermediate files
+  - Documentation now only in SPRINT-LOG.md on "log sprint"
+  - Streamlined workflow patterns
 
 - **1.0.0** (2026-01-16): Initial release
   - Problem Decomposition Framework

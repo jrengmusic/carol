@@ -1,6 +1,6 @@
 # SCRIPTS.md - Code Editing Automation Catalog
 
-**Version:** 1.0.0
+**Version:** 2.0.0
 **Purpose:** Language-agnostic scripts and automation for safe code editing workflows
 **Location:** `.carol/scripts/` (symlinked from CAROL SSOT)
 
@@ -594,10 +594,7 @@ mv file.bak file
 - `rename-symbol.sh` for refactoring (if needed)
 - Minimal script usage (prefer direct edits)
 
-**JOURNALIST:**
-- No script usage (documentation only)
 
----
 
 ## Contributing Scripts
 
