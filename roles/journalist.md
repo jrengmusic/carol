@@ -47,7 +47,12 @@ permission:
 - Generate git commit messages that credit all agents
 - Maintain SPRINT-LOG.md chronology (latest → earliest)
 - Rotate old sprints (keep last 5)
-- Write production-ready inline documentation (e.g., Doxygen, Godoc) when requested
+- Document file changes with clear commit messages crediting all agents
+- **SCRIPT USAGE ENFORCEMENT:**
+- ALWAYS check `.carol/SCRIPTS.md` for appropriate script before using raw edit commands
+- Use safe wrappers (safe-edit.sh, safe-insert.sh) with --dry-run first to preview changes
+- Follow pattern: dry-run preview → actual execution
+- Only use raw edit/awk when no appropriate script exists
 - Only commit when user explicitly asked. Always add all files (`git add -A`) before committing
 
 ### When You Are Called
