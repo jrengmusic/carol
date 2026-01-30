@@ -1,13 +1,13 @@
 # ARCHITECTURE-WRITER.md
 ## Instructions for Agents: How to Analyze and Document Architecture
 
-**Purpose:** Step-by-step protocol for agents (COUNSELOR, AUDITOR, MACHINIST, SURGEON) to write or update ARCHITECTURE.md from working codebase.
+**Purpose:** Step-by-step protocol for PRIMARY agents (COUNSELOR, SURGEON) to write or update ARCHITECTURE.md. PRIMARY agents delegate analysis tasks to secondary agents (subagents) as needed.
+
+**Version:** 2.0.0
 
 **File Location:** Create ARCHITECTURE.md at project root (not in .carol/)
 
 **For Agents:** Read this document when assigned architecture documentation tasks.
-
-**Version:** 1.0
 
 **Format Reference:** See `templates/ARCHITECTURE.md` for comprehensive structure and section examples.
 
@@ -33,10 +33,18 @@
 
 ### Who Writes ARCHITECTURE.md?
 
+**PRIMARY Agents:**
+
 **COUNSELOR:**
 - Writes initial architecture sketch after SPEC is concrete
 - Updates when SPEC changes significantly
 - Documents new patterns after human approval
+
+**SURGEON:**
+- Updates when surgical fix reveals new pattern
+- Documents edge cases discovered during fix
+
+**Secondary Agents (invoked by PRIMARY):**
 
 **AUDITOR:**
 - Updates after audit discovers new patterns
@@ -46,10 +54,6 @@
 **MACHINIST:**
 - Updates when polishing introduces new patterns
 - Documents wiring decisions made during implementation
-
-**SURGEON:**
-- Updates when surgical fix reveals new pattern
-- Documents edge cases discovered during fix
 
 **NEVER assume architecture. ALWAYS consult human if uncertain.**
 
@@ -124,7 +128,7 @@ If you find mismatch:
 
 ---
 
-## MACHINIST Instructions
+## Machinist Instructions
 
 **When you update ARCHITECTURE.md:**
 - You've just added error handling to scaffolded code
@@ -165,7 +169,7 @@ process(input);  // Guaranteed valid
 
 ---
 
-## AUDITOR: Architecture Documentation
+## For AUDITOR (invoked by PRIMARY)
 
 ### Your Responsibility
 After implementation phase completes and passes user testing, audit codebase and update ARCHITECTURE.md.
@@ -280,7 +284,7 @@ Which pattern should be documented as canonical? This affects ARCHITECTURE.md.
 
 ---
 
-## SURGEON: Architecture Updates During Fixes
+## For SURGEON (PRIMARY agent)
 
 ### Your Responsibility
 When fixing complex issues, you may discover existing architectural patterns or contracts that weren't documented. Update ARCHITECTURE.md to reflect reality.
@@ -348,40 +352,17 @@ events.Emit("event_name", data);
 
 ---
 
-## JOURNALIST: Architecture in Sprint Logs
+
+
+## COUNSELOR: Documentation Responsibility
 
 ### Your Responsibility
-When compiling sprint logs, note any ARCHITECTURE.md updates.
+COUNSELOR handles all documentation tasks including:
+- Writing initial ARCHITECTURE.md after SPEC is concrete
+- Creating and updating SPRINT-LOG.md entries
+- Compiling sprint summaries from agent task files
+- Maintaining documentation consistency across the project
 
-### What to Include
-
-**In sprint summary:**
-```markdown
-### Architecture Updates
-- AUDITOR documented Type-Erased Factory pattern
-- SURGEON discovered Event Subscription pattern (undocumented)
-- MACHINIST converted 5 switch statements to map lookups (follows Manifesto)
-```
-
-**In git commit:**
-```
-Sprint [N] complete: [Feature name]
-
-Agents:
-- Implemented: ENGINEER, MACHINIST
-- Inspected: AUDITOR (updated ARCHITECTURE.md)
-
-Architecture changes:
-- Documented Type-Erased Factory pattern
-- Added Interface Contract for Registry system
-- Updated Module Structure with new Registry module
-```
-
----
-
-## COUNSELOR: Initial Architecture Sketch
-
-### Your Responsibility
 After user approves SPEC.md, create initial ARCHITECTURE.md skeleton.
 
 ### What to Write
@@ -467,63 +448,65 @@ Which should I propose in ARCHITECTURE.md?
 
 ## Cross-Role Coordination
 
-### COUNSELOR → ENGINEER
-**COUNSELOR provides:**
-- Module boundaries (don't cross these)
-- Dependency rules (only call downward)
-- Interface signatures (use these exact types)
+### COUNSELOR (PRIMARY) Delegation Flow
 
-**ENGINEER uses:**
-- Module Structure to organize files
-- Layer Rules to know what can call what
-- Dependency Graph to avoid circular refs
+**COUNSELOR delegates to subagents:**
 
-### ENGINEER → MACHINIST
-**ENGINEER leaves TODOs:**
-```cpp
-// TODO: Add error handling (MACHINIST)
-// TODO: Validate input range (MACHINIST)
-// TODO: Wire to event bus per ARCHITECTURE.md (MACHINIST)
-```
+**Pathfinder** (ALWAYS FIRST)
+- Searches codebase for existing patterns
+- Identifies where new modules should live
+- Reports findings to COUNSELOR
 
-**MACHINIST checks ARCHITECTURE.md:**
-- "What error handling pattern do we use?"
-- "How do components communicate in this layer?"
-- "What validation strategy is documented?"
+**Oracle** 
+- Analyzes SPEC.md for architectural requirements
+- Identifies design decisions needed
+- Reports analysis to COUNSELOR
 
-### MACHINIST → AUDITOR
-**MACHINIST notes patterns used:**
-```markdown
-# [N]-MACHINIST-SUMMARY.md
+**Engineer**
+- Creates module scaffolding based on COUNSELOR's boundaries
+- Implements initial structure following Layer Rules
+- Reports completion to COUNSELOR
 
-## Patterns Applied
-- Converted 3 switch statements to map lookups (Manifesto compliance)
-- Used Event Subscription pattern for StatusBar updates
-- Added fail-fast validation at module boundary
-```
+**Auditor**
+- Validates implementation matches architecture
+- Documents patterns discovered during review
+- Reports audit results to COUNSELOR
 
-**AUDITOR documents:**
-- If pattern used 3+ times → Add to ARCHITECTURE.md
-- If new pattern introduced → Document with rationale
-- If existing pattern → Verify consistency
+### SURGEON (PRIMARY) Delegation Flow
 
-### AUDITOR → SURGEON
-**AUDITOR documents constraints:**
-```markdown
-## Threading Model
+**SURGEON delegates to subagents:**
 
-**UI Thread rules:**
-- Can allocate memory
-- Can lock briefly (<1ms)
-- Cannot block on I/O
+**Pathfinder** (ALWAYS FIRST)
+- Locates relevant code for bug/feature
+- Identifies affected modules and dependencies
+- Reports findings to SURGEON
 
-**If you violate these, audio will glitch.**
-```
+**Oracle**
+- Debugs complex issues
+- Analyzes root causes
+- Reports analysis to SURGEON
 
-**SURGEON reads constraints:**
-- "I must not block UI thread with network call"
-- "I can use mutex but must keep lock duration <1ms"
-- "I should use async pattern documented in Data Flow section"
+**Machinist**
+- Polishes implementation (error handling, validation)
+- Applies patterns from ARCHITECTURE.md
+- Reports completion to SURGEON
+
+**Librarian**
+- Researches external libraries/solutions
+- Documents integration patterns
+- Reports findings to SURGEON
+
+### Information Flow
+
+**Subagent → PRIMARY:**
+- Subagent writes `[N]-[ROLE]-[OBJECTIVE].md` task file
+- PRIMARY reads task file, integrates findings
+- PRIMARY updates ARCHITECTURE.md with discovered patterns
+
+**PRIMARY → ARCHITECTURE.md:**
+- PRIMARY maintains architecture documentation
+- Subagents consult ARCHITECTURE.md for patterns
+- All agents follow documented Layer Rules and contracts
 
 ---
 
@@ -560,14 +543,17 @@ Which should I propose in ARCHITECTURE.md?
 
 **ARCHITECTURE.md should be updated when:**
 
-1. **New module added** (COUNSELOR or AUDITOR)
-2. **Pattern emerges** (3+ uses of same approach) (AUDITOR)
-3. **Interface contract established** (MACHINIST or AUDITOR)
-4. **Design decision made** (Human architect, documented by COUNSELOR)
-5. **Anti-pattern avoided** (AUDITOR after catching mistake)
-6. **Threading rules change** (Human architect, documented by COUNSELOR)
-7. **Pattern discovered during fix** (SURGEON)
-8. **SPEC changes** (COUNSELOR updates affected sections)
+**By PRIMARY agents (COUNSELOR, SURGEON):**
+1. **New module added** (COUNSELOR)
+2. **Design decision made** (Human architect, documented by COUNSELOR)
+3. **Threading rules change** (Human architect, documented by COUNSELOR)
+4. **Pattern discovered during fix** (SURGEON)
+5. **SPEC changes** (COUNSELOR updates affected sections)
+
+**By subagents (invoked by PRIMARY):**
+6. **Pattern emerges** (3+ uses of same approach) (AUDITOR reports to PRIMARY)
+7. **Interface contract established** (MACHINIST reports to SURGEON, AUDITOR reports to COUNSELOR)
+8. **Anti-pattern avoided** (AUDITOR reports to PRIMARY)
 
 ---
 
