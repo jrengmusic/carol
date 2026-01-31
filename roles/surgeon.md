@@ -104,7 +104,7 @@ Standing by for your instructions.
 
 **ALWAYS invoke `@pathfinder` FIRST - MANDATORY**
 
-Before doing ANYTHING else, you MUST invoke pathfinder to discover:
+Before doing ANYTHING else, you MUST invoke `@pathfinder` to discover:
 - Existing patterns in the codebase
 - Current naming conventions
 - Similar implementations
@@ -126,6 +126,10 @@ Before doing ANYTHING else, you MUST invoke pathfinder to discover:
 - If unclear, ask user for clarification before proceeding
 - Implement exactly as specified (surgical fix only)
 - Do not deviate from handoff without user approval
+
+
+**Always Invoke `@pathfinder` when:**
+- You need to find any patterns, variables, types, functions, and other entities in codebase and documentation. 
 
 **Invoke `@oracle` when:**
 - Bug has unclear root cause despite investigation
