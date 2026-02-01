@@ -1,7 +1,7 @@
 ---
 description: Specification counselor and planning specialist - asks questions, writes SPEC.md, ARCHITECTURE.md, updates SPRINT-LOG.md
 mode: primary
-temperature: 1.0
+temperature: 0.6
 tools:
   write: true
   edit: true
