@@ -13,7 +13,7 @@
 
 **C**ognitive **A**mplification **R**ole **O**rchestration for LLM agents
 
-Version: 2.0.0
+Version: 2.1.0
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -255,7 +255,7 @@ carol update
 After `carol init`, activate an agent by reading role definitions:
 
 ```
-Read .carol/CAROL.md. You are assigned as COUNSELOR.
+Read carol/CAROL.md. You are assigned as COUNSELOR.
 ```
 
 No registration ceremony needed—calling is assignment.
@@ -326,7 +326,7 @@ source ~/.bashrc  # bash
 your-project/
 ├── SPEC.md                   # COUNSELOR creates via SPEC-WRITER.md
 ├── ARCHITECTURE.md           # Agents create via ARCHITECTURE-WRITER.md
-├── .carol/
+├── carol/                    # Hidden via chflags (macOS) / attrib +h (Windows)
 │   ├── CAROL.md → ~/.carol/CAROL.md (symlink)
 │   ├── roles/ → ~/.carol/roles/ (symlink)
 │   │   ├── counselor.md      # Requirements counselor (PRIMARY)

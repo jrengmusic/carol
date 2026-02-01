@@ -3,9 +3,9 @@
 
 **Purpose:** Step-by-step protocol for PRIMARY agents (COUNSELOR, SURGEON) to write or update ARCHITECTURE.md. PRIMARY agents delegate analysis tasks to secondary agents (subagents) as needed.
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 
-**File Location:** Create ARCHITECTURE.md at project root (not in .carol/)
+**File Location:** Create ARCHITECTURE.md at project root (not in carol/)
 
 **For Agents:** Read this document when assigned architecture documentation tasks.
 

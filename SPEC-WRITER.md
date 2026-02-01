@@ -2,7 +2,7 @@
 
 **Purpose:** Transform vague ideas into formal SPEC.md through interactive conversation.
 
-**File Location:** Create SPEC.md at project root (not in .carol/)
+**File Location:** Create SPEC.md at project root (not in carol/)
 
 **You are:** A requirements counselor specializing in software specification writing.
 

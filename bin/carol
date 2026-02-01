@@ -1,9 +1,17 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 2.0.0
+# Version: 2.1.0
 
-VERSION="2.0.0"
-CAROL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+VERSION="2.1.0"
+
+# Resolve CAROL_ROOT handling symlinks (e.g. if /usr/local/bin/carol -> ~/.carol/bin/carol)
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/.." >/dev/null 2>&1 && pwd )"
 
 # Colors for output
 RED='\033[0;31m'
@@ -69,32 +77,38 @@ version_greater_than() {
     [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" != "$1" ]
 }
 
+get_relative_path() {
+    local target="$1"
+    local base="$2"
+    python3 -c "import os.path; print(os.path.relpath('$target', '$base'))"
+}
+
 customize_templates() {
     local project_path="$1"
     local project_name=$(basename "$project_path")
     local date=$(date +"%Y-%m-%d")
 
-    if [ -f ".carol/SPRINT-LOG.md" ]; then
+    if [ -f "carol/SPRINT-LOG.md" ]; then
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s/\[Project Name\]/$project_name/g" .carol/SPRINT-LOG.md
-            sed -i '' "s/\[YYYY-MM-DD\]/$date/g" .carol/SPRINT-LOG.md
-            sed -i '' "s|\[repo-url or local path\]|$project_path|g" .carol/SPRINT-LOG.md
+            sed -i '' "s/\[Project Name\]/$project_name/g" carol/SPRINT-LOG.md
+            sed -i '' "s/\[YYYY-MM-DD\]/$date/g" carol/SPRINT-LOG.md
+            sed -i '' "s|\[repo-url or local path\]|$project_path|g" carol/SPRINT-LOG.md
         else
-            sed -i "s/\[Project Name\]/$project_name/g" .carol/SPRINT-LOG.md
-            sed -i "s/\[YYYY-MM-DD\]/$date/g" .carol/SPRINT-LOG.md
-            sed -i "s|\[repo-url or local path\]|$project_path|g" .carol/SPRINT-LOG.md
+            sed -i "s/\[Project Name\]/$project_name/g" carol/SPRINT-LOG.md
+            sed -i "s/\[YYYY-MM-DD\]/$date/g" carol/SPRINT-LOG.md
+            sed -i "s|\[repo-url or local path\]|$project_path|g" carol/SPRINT-LOG.md
         fi
     fi
 
-    if [ -f ".carol/config.yml" ]; then
+    if [ -f "carol/config.yml" ]; then
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s/\[PROJECT_NAME\]/$project_name/g" .carol/config.yml
-            sed -i '' "s|\[PROJECT_PATH\]|$project_path|g" .carol/config.yml
-            sed -i '' "s/\[DATE\]/$date/g" .carol/config.yml
+            sed -i '' "s/\[PROJECT_NAME\]/$project_name/g" carol/config.yml
+            sed -i '' "s|\[PROJECT_PATH\]|$project_path|g" carol/config.yml
+            sed -i '' "s/\[DATE\]/$date/g" carol/config.yml
         else
-            sed -i "s/\[PROJECT_NAME\]/$project_name/g" .carol/config.yml
-            sed -i "s|\[PROJECT_PATH\]|$project_path|g" .carol/config.yml
-            sed -i "s/\[DATE\]/$date/g" .carol/config.yml
+            sed -i "s/\[PROJECT_NAME\]/$project_name/g" carol/config.yml
+            sed -i "s|\[PROJECT_PATH\]|$project_path|g" carol/config.yml
+            sed -i "s/\[DATE\]/$date/g" carol/config.yml
         fi
     fi
 }
@@ -124,7 +138,7 @@ cmd_init() {
     cd "$project_path" || error "Cannot access directory: $project_path"
     project_path="$(pwd)"
 
-    if [ -d ".carol" ]; then
+    if [ -d "carol" ] || [ -d ".carol" ]; then
         echo -e "${MAGENTA}${BOLD}ℹ CAROL already initiated.${NC}"
         echo ""
         echo "  carol reset   Remove and start fresh"
@@ -133,15 +147,25 @@ cmd_init() {
         exit 0
     fi
 
-    mkdir -p .carol
+    mkdir -p carol
+    # Hide directory (without dot-prefix, keeps LLM tools happy)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        chflags hidden carol
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        attrib +h carol 2>/dev/null
+    fi
 
     if $portable; then
-        cp -r "$CAROL_ROOT"/* .carol/
-        rm -rf .carol/.git .carol/.gitignore
+        cp -r "$CAROL_ROOT"/* carol/
+        rm -rf carol/.git carol/.gitignore
         
-        # Copy SPRINT-LOG template to root for customization
-        if [ -f ".carol/templates/SPRINT-LOG.md" ]; then
-            cp .carol/templates/SPRINT-LOG.md .carol/SPRINT-LOG.md
+        # Restore SPRINT-LOG from backup or use template
+        if [ -f ".carol-history/SPRINT-LOG.md" ]; then
+            cp ".carol-history/SPRINT-LOG.md" carol/SPRINT-LOG.md
+            rm -rf .carol-history
+            notice "SPRINT-LOG.md restored from backup"
+        elif [ -f "carol/templates/SPRINT-LOG.md" ]; then
+            cp carol/templates/SPRINT-LOG.md carol/SPRINT-LOG.md
         fi
         
         mkdir -p .opencode/agents
@@ -175,7 +199,7 @@ description: Activate COUNSELOR agent for planning and specification
 agent: counselor
 ---
 
-@.carol/CAROL.md
+@carol/CAROL.md
 
 You are now acting as COUNSELOR.
 
@@ -212,7 +236,7 @@ description: Activate SURGEON agent for bug fixes and implementation
 agent: surgeon
 ---
 
-@.carol/CAROL.md
+@carol/CAROL.md
 
 You are now acting as SURGEON.
 
@@ -242,42 +266,50 @@ Only after user gives you specific direction:
 - Do not refactor beyond the fix
 EOF
 
-        if [ -f ".carol/templates/config.yml" ]; then
-            cp .carol/templates/config.yml .carol/config.yml
+        if [ -f "carol/templates/config.yml" ]; then
+            cp carol/templates/config.yml carol/config.yml
         fi
     else
-        ln -s "$CAROL_ROOT/CAROL.md" .carol/CAROL.md
-        [ -f "$CAROL_ROOT/INTERVIEW.md" ] && ln -s "$CAROL_ROOT/INTERVIEW.md" .carol/INTERVIEW.md
-        ln -s "$CAROL_ROOT/PATTERNS.md" .carol/PATTERNS.md
-        ln -s "$CAROL_ROOT/SCRIPTS.md" .carol/SCRIPTS.md
-        ln -s "$CAROL_ROOT/PATTERNS-WRITER.md" .carol/PATTERNS-WRITER.md
-        ln -s "$CAROL_ROOT/SPEC-WRITER.md" .carol/SPEC-WRITER.md
-        ln -s "$CAROL_ROOT/ARCHITECTURE-WRITER.md" .carol/ARCHITECTURE-WRITER.md
-        [ -f "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" ] && ln -s "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" .carol/ARCHITECTURAL-MANIFESTO.md
-        [ -f "$CAROL_ROOT/NAMING-CONVENTION.md" ] && ln -s "$CAROL_ROOT/NAMING-CONVENTION.md" .carol/NAMING-CONVENTION.md
+        # Use ABSOLUTE paths for symlinks - LLM tools often don't follow relative symlinks
+        ln -sf "$CAROL_ROOT/CAROL.md" carol/CAROL.md
+        [ -f "$CAROL_ROOT/INTERVIEW.md" ] && ln -sf "$CAROL_ROOT/INTERVIEW.md" carol/INTERVIEW.md
+        ln -sf "$CAROL_ROOT/PATTERNS.md" carol/PATTERNS.md
+        ln -sf "$CAROL_ROOT/SCRIPTS.md" carol/SCRIPTS.md
+        ln -sf "$CAROL_ROOT/PATTERNS-WRITER.md" carol/PATTERNS-WRITER.md
+        ln -sf "$CAROL_ROOT/SPEC-WRITER.md" carol/SPEC-WRITER.md
+        ln -sf "$CAROL_ROOT/ARCHITECTURE-WRITER.md" carol/ARCHITECTURE-WRITER.md
+        [ -f "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" ] && ln -sf "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" carol/ARCHITECTURAL-MANIFESTO.md
+        [ -f "$CAROL_ROOT/NAMING-CONVENTION.md" ] && ln -sf "$CAROL_ROOT/NAMING-CONVENTION.md" carol/NAMING-CONVENTION.md
         
-        # Create actual directories and symlink individual files
+        # Create actual directories and symlink individual files with absolute paths
         if [ -d "$CAROL_ROOT/scripts" ]; then
-            mkdir -p .carol/scripts
+            mkdir -p carol/scripts
             for script_file in "$CAROL_ROOT/scripts"/*; do
-                [ -f "$script_file" ] && ln -sf "$script_file" ".carol/scripts/$(basename "$script_file")"
+                [ -f "$script_file" ] && ln -sf "$script_file" "carol/scripts/$(basename "$script_file")"
             done
         fi
         if [ -d "$CAROL_ROOT/roles" ]; then
-            mkdir -p .carol/roles
+            mkdir -p carol/roles
             for role_file in "$CAROL_ROOT/roles"/*.md; do
-                [ -f "$role_file" ] && ln -sf "$role_file" ".carol/roles/$(basename "$role_file")"
+                [ -f "$role_file" ] && ln -sf "$role_file" "carol/roles/$(basename "$role_file")"
             done
         fi
 
-        [ -f "$CAROL_ROOT/templates/SPRINT-LOG.md" ] && cp "$CAROL_ROOT/templates/SPRINT-LOG.md" .carol/SPRINT-LOG.md
+        # Restore SPRINT-LOG from backup or use template
+        if [ -f ".carol-history/SPRINT-LOG.md" ]; then
+            cp ".carol-history/SPRINT-LOG.md" carol/SPRINT-LOG.md
+            rm -rf .carol-history
+            notice "SPRINT-LOG.md restored from backup"
+        elif [ -f "$CAROL_ROOT/templates/SPRINT-LOG.md" ]; then
+            cp "$CAROL_ROOT/templates/SPRINT-LOG.md" carol/SPRINT-LOG.md
+        fi
 
         if [ -f "$CAROL_ROOT/templates/config.yml" ]; then
-            cp "$CAROL_ROOT/templates/config.yml" .carol/config.yml
+            cp "$CAROL_ROOT/templates/config.yml" carol/config.yml
             if [[ "$OSTYPE" == "darwin"* ]]; then
-                sed -i '' 's/mode: "portable"/mode: "symlink"/' .carol/config.yml
+                sed -i '' 's/mode: "portable"/mode: "symlink"/' carol/config.yml
             else
-                sed -i 's/mode: "portable"/mode: "symlink"/' .carol/config.yml
+                sed -i 's/mode: "portable"/mode: "symlink"/' carol/config.yml
             fi
         fi
 
@@ -313,7 +345,7 @@ description: Activate COUNSELOR agent for planning and specification
 agent: counselor
 ---
 
-@.carol/CAROL.md
+@carol/CAROL.md
 
 You are now acting as COUNSELOR.
 
@@ -350,7 +382,7 @@ description: Activate SURGEON agent for bug fixes and implementation
 agent: surgeon
 ---
 
-@.carol/CAROL.md
+@carol/CAROL.md
 
 You are now acting as SURGEON.
 
@@ -392,7 +424,7 @@ EOF
 cmd_update() {
     show_banner
     
-    if [ ! -d ".carol" ]; then
+    if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
         info "Updating CAROL..."
         
         local old_pwd="$PWD"
@@ -430,15 +462,19 @@ cmd_update() {
         return 0
     fi
 
+    # Determine carol directory (new: carol, legacy: .carol)
+    local carol_dir="carol"
+    [ -d ".carol" ] && carol_dir=".carol"
+
     local is_portable=false
-    if [ -d ".carol/.git" ]; then
+    if [ -d "$carol_dir/.git" ]; then
         is_portable=true
     fi
 
     if $is_portable; then
         info "Updating CAROL (portable mode)..."
         
-        cd .carol || error "Cannot access .carol directory"
+        cd "$carol_dir" || error "Cannot access $carol_dir directory"
         
         if ! git remote get-url origin &>/dev/null; then
             git remote add origin https://github.com/jrengmusic/carol.git
@@ -513,7 +549,7 @@ cmd_version() {
 }
 
 cmd_reset() {
-    if [ ! -d ".carol" ]; then
+    if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
         notice "No CAROL workflow found in current directory"
         return 0
     fi
@@ -526,11 +562,27 @@ cmd_reset() {
     read -r response
     
     if [[ "$response" =~ ^[Yy]$ ]]; then
-        rm -rf .carol
+        # Preserve SPRINT-LOG.md if it exists
+        local sprint_log=""
+        if [ -f "carol/SPRINT-LOG.md" ]; then
+            sprint_log=$(cat "carol/SPRINT-LOG.md")
+        elif [ -f ".carol/SPRINT-LOG.md" ]; then
+            sprint_log=$(cat ".carol/SPRINT-LOG.md")
+        fi
+        
+        rm -rf carol .carol
         rm -rf .opencode/agents
         rm -rf .opencode/commands
         rm -f .opencode/opencode.json
         [ -d ".opencode" ] && rmdir .opencode 2>/dev/null
+        
+        # Restore SPRINT-LOG.md for next init
+        if [ -n "$sprint_log" ]; then
+            mkdir -p .carol-history
+            echo "$sprint_log" > .carol-history/SPRINT-LOG.md
+            notice "SPRINT-LOG.md preserved in .carol-history/"
+        fi
+        
         echo -e "${YELLOW}✓ No CAROL, no cigar${NC}"
     else
         info "Cancelled"
