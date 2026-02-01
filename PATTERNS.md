@@ -1,6 +1,6 @@
 # PATTERNS.md - LLM Meta-Patterns for CAROL Agents
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Purpose:** Systematic approaches to prevent cognitive overload, scope creep, and autonomous mistakes
 **Audience:** All CAROL agents (2 PRIMARY + 8 Secondary roles)
 
@@ -899,7 +899,7 @@ Better: *uses Read tool*
 
 ```
 1. User assigns role:
-   "Read .carol/CAROL.md. You are COUNSELOR, register in SPRINT-LOG.md"
+   "Read carol/CAROL.md. You are COUNSELOR, register in SPRINT-LOG.md"
 
 2. Agent reads role definition + PATTERNS.md
 
@@ -934,6 +934,7 @@ Better: *uses Read tool*
 
 ## Version History
 
+- **2.1.0** (2026-02-02): Use `carol/` with hidden flag instead of `.carol/` (LLM tools ignore dot-directories)
 - **2.0.0** (2026-01-30): CAROL v2.0.0 release
   - Removed JOURNALIST role (consolidated into SPRINT-LOG workflow)
   - Updated from 6 roles to 2 PRIMARY + 8 Secondary model
