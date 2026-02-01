@@ -256,8 +256,19 @@ EOF
         [ -f "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" ] && ln -s "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" .carol/ARCHITECTURAL-MANIFESTO.md
         [ -f "$CAROL_ROOT/NAMING-CONVENTION.md" ] && ln -s "$CAROL_ROOT/NAMING-CONVENTION.md" .carol/NAMING-CONVENTION.md
         
-        [ -d "$CAROL_ROOT/scripts" ] && ln -s "$CAROL_ROOT/scripts" .carol/scripts
-        [ -d "$CAROL_ROOT/roles" ] && ln -s "$CAROL_ROOT/roles" .carol/roles
+        # Create actual directories and symlink individual files
+        if [ -d "$CAROL_ROOT/scripts" ]; then
+            mkdir -p .carol/scripts
+            for script_file in "$CAROL_ROOT/scripts"/*; do
+                [ -f "$script_file" ] && ln -sf "$script_file" ".carol/scripts/$(basename "$script_file")"
+            done
+        fi
+        if [ -d "$CAROL_ROOT/roles" ]; then
+            mkdir -p .carol/roles
+            for role_file in "$CAROL_ROOT/roles"/*.md; do
+                [ -f "$role_file" ] && ln -sf "$role_file" ".carol/roles/$(basename "$role_file")"
+            done
+        fi
 
         [ -f "$CAROL_ROOT/templates/SPRINT-LOG.md" ] && cp "$CAROL_ROOT/templates/SPRINT-LOG.md" .carol/SPRINT-LOG.md
 
@@ -517,6 +528,7 @@ cmd_reset() {
     if [[ "$response" =~ ^[Yy]$ ]]; then
         rm -rf .carol
         rm -rf .opencode/agents
+        rm -rf .opencode/commands
         rm -f .opencode/opencode.json
         [ -d ".opencode" ] && rmdir .opencode 2>/dev/null
         echo -e "${YELLOW}✓ No CAROL, no cigar${NC}"

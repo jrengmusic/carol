@@ -1,14 +1,15 @@
 ---
 description: Literal code generator - implements features exactly as specified, creates scaffolding
 mode: subagent
-temperature: 0.2
+model: zai-coding-plan/glm-4.7
+temperature: 0.1
 tools:
   write: true
   edit: true
   bash: true
 permission:
   bash:
-    "*": ask 
+    "*": allow 
     "git status": allow
     "git diff*": allow
     "git init": allow

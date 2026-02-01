@@ -1,6 +1,7 @@
 ---
 description: Specification and architectural validator - checks specs and code compliance
 mode: subagent
+model: zai-coding-plan/glm-4.6
 temperature: 0.2
 tools:
   write: false

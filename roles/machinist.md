@@ -1,6 +1,7 @@
 ---
 description: Code polisher - refines implementations to production quality
 mode: subagent
+model: zai-coding-plan/glm-4.6
 temperature: 0.2
 tools:
   write: true

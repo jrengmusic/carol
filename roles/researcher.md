@@ -1,7 +1,8 @@
 ---
 description: Domain and architectural research specialist - finds best practices and patterns
 mode: subagent
-temperature: 0.3
+model: zai-coding-plan/glm-4.7
+temperature: 0.2
 tools:
   write: false
   edit: false

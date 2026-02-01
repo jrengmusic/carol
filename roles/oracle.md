@@ -1,7 +1,8 @@
 ---
 description: Deep reasoning specialist - complex analysis, elegant solutions, architectural review
 mode: subagent
-temperature: 0.3
+model: kimi-for-coding/kimi-k2-thinking
+temperature: 1.0
 tools:
   write: false
   edit: false
