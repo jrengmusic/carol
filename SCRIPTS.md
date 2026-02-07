@@ -1,6 +1,6 @@
 # SCRIPTS.md - Code Editing Automation Catalog
 
-**Version:** 2.1.0
+**Version:** 2.1.1
 **Purpose:** Language-agnostic scripts and automation for safe code editing workflows
 **Location:** `carol/scripts/` (symlinked from CAROL SSOT)
 

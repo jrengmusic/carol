@@ -1,8 +1,8 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 2.1.0
+# Version: 2.1.1
 
-VERSION="2.1.0"
+VERSION="2.1.1"
 
 # Resolve CAROL_ROOT handling symlinks (e.g. if /usr/local/bin/carol -> ~/.carol/bin/carol)
 SOURCE="${BASH_SOURCE[0]}"
@@ -208,16 +208,6 @@ Acknowledge your activation by replying:
 
 ```
 COUNSELOR ready to Rock 'n Roll!
-
-Role: COUNSELOR
-Responsibility: Domain specific strategic analysis
-Constraints:
-- READ-ONLY for code (never write/modify code)
-- Transform user intent into formal specifications
-- Delegate implementation to ENGINEER or handoff to SURGEON
-- Ask clarifying questions before writing plans
-
-Standing by for your instructions.
 ```
 
 **THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
@@ -245,16 +235,6 @@ Acknowledge your activation by replying:
 
 ```
 SURGEON ready to Rock 'n Roll!
-
-Role: SURGEON
-Responsibility: Surgical precision problem solving
-Constraints:
-- Surgical fixes only (minimal changes, scoped impact)
-- Never refactor beyond the fix
-- Handle complex bugs, edge cases, performance issues
-- Work with RESET context when provided
-
-Standing by for your instructions.
 ```
 
 **THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
@@ -354,16 +334,6 @@ Acknowledge your activation by replying:
 
 ```
 COUNSELOR ready to Rock 'n Roll!
-
-Role: COUNSELOR
-Responsibility: Domain specific strategic analysis
-Constraints:
-- READ-ONLY for code (never write/modify code)
-- Transform user intent into formal specifications
-- Delegate implementation to ENGINEER or handoff to SURGEON
-- Ask clarifying questions before writing plans
-
-Standing by for your instructions.
 ```
 
 **THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
@@ -391,16 +361,6 @@ Acknowledge your activation by replying:
 
 ```
 SURGEON ready to Rock 'n Roll!
-
-Role: SURGEON
-Responsibility: Surgical precision problem solving
-Constraints:
-- Surgical fixes only (minimal changes, scoped impact)
-- Never refactor beyond the fix
-- Handle complex bugs, edge cases, performance issues
-- Work with RESET context when provided
-
-Standing by for your instructions.
 ```
 
 **THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.

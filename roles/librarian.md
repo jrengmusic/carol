@@ -1,7 +1,7 @@
 ---
 description: Library and framework research specialist - understands external dependencies
 mode: subagent
-model: zai-coding-plan/glm-4.7
+model: minimax-coding-plan/MiniMax-M2.1
 temperature: 0.2
 tools:
   write: false
