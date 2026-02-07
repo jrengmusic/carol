@@ -1,7 +1,7 @@
 ---
 description: Codebase pattern discovery specialist - finds existing patterns and conventions
 mode: subagent
-model: zai-coding-plan/glm-4.6
+model: minimax-coding-plan/MiniMax-M2.1
 temperature: 0.2
 tools:
   write: false

@@ -1,6 +1,6 @@
 # PATTERNS.md - LLM Meta-Patterns for CAROL Agents
 
-**Version:** 2.1.0
+**Version:** 2.1.1
 **Purpose:** Systematic approaches to prevent cognitive overload, scope creep, and autonomous mistakes
 **Audience:** All CAROL agents (2 PRIMARY + 8 Secondary roles)
 
