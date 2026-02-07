@@ -1,8 +1,8 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 2.1.1
+# Version: 2.1.2
 
-VERSION="2.1.1"
+VERSION="2.1.2"
 
 # Resolve CAROL_ROOT handling symlinks (e.g. if /usr/local/bin/carol -> ~/.carol/bin/carol)
 SOURCE="${BASH_SOURCE[0]}"
@@ -248,6 +248,11 @@ EOF
 
         if [ -f "carol/templates/config.yml" ]; then
             cp carol/templates/config.yml carol/config.yml
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' 's/mode: "symlink"/mode: "portable"/' carol/config.yml
+            else
+                sed -i 's/mode: "symlink"/mode: "portable"/' carol/config.yml
+            fi
         fi
     else
         # Use ABSOLUTE paths for symlinks - LLM tools often don't follow relative symlinks
@@ -426,71 +431,79 @@ cmd_update() {
     local carol_dir="carol"
     [ -d ".carol" ] && carol_dir=".carol"
 
+    # Detect mode from config.yml
     local is_portable=false
-    if [ -d "$carol_dir/.git" ]; then
+    if [ -f "$carol_dir/config.yml" ] && grep -q 'mode: "portable"' "$carol_dir/config.yml"; then
         is_portable=true
     fi
 
-    if $is_portable; then
-        info "Updating CAROL (portable mode)..."
-        
-        cd "$carol_dir" || error "Cannot access $carol_dir directory"
-        
-        if ! git remote get-url origin &>/dev/null; then
-            git remote add origin https://github.com/jrengmusic/carol.git
-        fi
-        
-        info "Fetching latest version..."
-        git fetch origin main || error "Failed to fetch from remote"
-        
-        local current_commit=$(git rev-parse HEAD)
-        local remote_commit=$(git rev-parse origin/main)
-        
-        if [ "$current_commit" = "$remote_commit" ]; then
-            success "Already up to date"
-            cd ..
+    # Update CAROL SSOT first (both modes need this)
+    local old_pwd="$PWD"
+    cd "$CAROL_ROOT" || error "Cannot access CAROL root"
+
+    local current_version="$VERSION"
+
+    info "Fetching latest version..."
+    git fetch origin main || error "Failed to fetch from remote"
+
+    local current_commit=$(git rev-parse HEAD)
+    local remote_commit=$(git rev-parse origin/main)
+
+    if [ "$current_commit" = "$remote_commit" ]; then
+        success "Already up to date (v$current_version)"
+        cd "$old_pwd"
+        if $is_portable; then
+            notice "Re-copying files to project..."
+        else
             return 0
         fi
-        
-        info "Updating from $(git rev-parse --short HEAD) to $(git rev-parse --short origin/main)"
-        git reset --hard origin/main || error "Failed to update"
-        
-        success "Updated to latest version"
-        cd ..
     else
-        info "Updating CAROL (symlink mode)..."
-        
-        local old_pwd="$PWD"
-        cd "$CAROL_ROOT" || error "Cannot access CAROL root"
-        
-        local current_version="$VERSION"
-        
-        info "Fetching latest version..."
-        git fetch origin main || error "Failed to fetch from remote"
-        
-        local current_commit=$(git rev-parse HEAD)
-        local remote_commit=$(git rev-parse origin/main)
-        
-        if [ "$current_commit" = "$remote_commit" ]; then
-            success "Already up to date (v$current_version)"
-            cd "$old_pwd"
-            return 0
-        fi
-        
         local remote_version=$(get_remote_version)
-        
+
         if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$current_version"; then
             notice "New version available: v$current_version → v$remote_version"
         fi
-        
+
         info "Updating CAROL SSOT..."
         git reset --hard origin/main || error "Failed to update"
-        
+
         local new_version=$(grep '^VERSION=' bin/carol | head -1 | cut -d'"' -f2)
         success "Updated CAROL SSOT: v$current_version → v$new_version"
-        
-        cd "$old_pwd"
-        
+    fi
+
+    cd "$old_pwd"
+
+    if $is_portable; then
+        info "Updating CAROL (portable mode)..."
+
+        # Re-copy framework files (preserve SPRINT-LOG and config)
+        local sprint_log_backup=""
+        if [ -f "$carol_dir/SPRINT-LOG.md" ]; then
+            sprint_log_backup=$(cat "$carol_dir/SPRINT-LOG.md")
+        fi
+        local config_backup=""
+        if [ -f "$carol_dir/config.yml" ]; then
+            config_backup=$(cat "$carol_dir/config.yml")
+        fi
+
+        cp -r "$CAROL_ROOT"/* "$carol_dir/"
+        rm -rf "$carol_dir/.git" "$carol_dir/.gitignore"
+
+        # Restore project-specific files
+        if [ -n "$sprint_log_backup" ]; then
+            echo "$sprint_log_backup" > "$carol_dir/SPRINT-LOG.md"
+        fi
+        if [ -n "$config_backup" ]; then
+            echo "$config_backup" > "$carol_dir/config.yml"
+        fi
+
+        # Update role definitions
+        if [ -d "$CAROL_ROOT/roles" ] && [ -d ".opencode/agents" ]; then
+            cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
+        fi
+
+        success "Portable files updated"
+    else
         notice "All symlinked projects now use the updated version"
     fi
 }

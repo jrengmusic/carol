@@ -1,7 +1,7 @@
 ---
 description: Literal code generator - implements features exactly as specified, creates scaffolding
 mode: subagent
-model: minimax-coding-plan/MiniMax-M2.1 
+model: openai/gpt-5.2-codex
 temperature: 0.1
 tools:
   write: true
