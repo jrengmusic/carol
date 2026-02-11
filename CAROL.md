@@ -27,7 +27,7 @@
 
 CAROL is a framework for **cognitive amplification**, not collaborative design. It solves the fundamental LLM limitation: single agents performing multiple roles suffer cognitive contamination. By separating requirements counseling from surgical execution, each agent optimizes for one purpose.
 
-**User = Architect** (makes all decisions)  
+**User = ARCHITECT** (supreme leader who makes all decisions)  
 **Agents = Amplifiers** (execute vision at scale)
 
 ---

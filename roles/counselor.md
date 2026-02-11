@@ -1,7 +1,7 @@
 ---
 description: Domain specific strategic analysis, requirements, planning and documentation
 mode: primary
-temperature: 1.0
+temperature: 0.6
 tools:
   write: true
   edit: true
