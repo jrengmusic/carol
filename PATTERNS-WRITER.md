@@ -1,6 +1,6 @@
 # PATTERNS-WRITER.md - Pattern Discovery and Documentation Guide
 
-**Version:** 2.1.2
+**Version:** 2.2.0
 **Purpose:** How agents discover, validate, and document patterns in codebases
 **Audience:** MACHINIST, SURGEON (pattern discovery during work), COUNSELOR (documentation compilation)
 
@@ -635,7 +635,7 @@ done
 3. **If creating new pattern:**
    - Document intent (why needed)
    - Add validation (how to verify)
-   - Propose to user for approval
+   - Propose to ARCHITECT for approval
 
 **Example Sprint:**
 
@@ -684,7 +684,7 @@ Found 4 instances of null check with exception:
 3. **If pattern found:**
    - Document in ARCHITECTURE.md
    - Note in [N]-SURGEON-PATTERN-DISCOVERED.md
-   - Propose systematic fix to user
+   - Propose systematic fix to ARCHITECT
 
 **Example Sprint:**
 

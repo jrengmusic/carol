@@ -104,7 +104,7 @@ Eliminate hidden randomness and non-deterministic behavior. Systems must be dete
 
 This principle has two aspects:
 1. **Code/Documentation Findability**: Easy to navigate and locate functionality
-2. **Runtime Visibility**: Users can see what the system is doing
+2. **Runtime Visibility**: End-users can see what the system is doing
 
 **When to apply:**
 
@@ -257,14 +257,14 @@ TEST_CASE("Filter deterministic")
 ---
 
 ### A: Accessible (Controllable)
-**Users must be able to adjust trade-offs instead of being locked into hidden defaults.**
+**End-users must be able to adjust trade-offs instead of being locked into hidden defaults.**
 
-Never make decisions the user should control. Every meaningful parameter that affects behavior, quality, or performance must be exposed. Users should be empowered to make informed decisions about trade-offs.
+Never make decisions the end-user should control. Every meaningful parameter that affects behavior, quality, or performance must be exposed. End-users should be empowered to make informed decisions about trade-offs.
 
 **When to apply:**
 - Expose configuration for quality vs. performance trade-offs
 - Provide sliders, toggles, or parameters for tunable behavior
-- Allow users to override defaults without modifying code
+- Allow end-users to override defaults without modifying code
 - Document the impact of different configuration choices
 - Provide sensible defaults, but never hide the controls
 - Make implicit assumptions explicit through configuration
@@ -280,7 +280,7 @@ Never make decisions the user should control. Every meaningful parameter that af
 
 **Implementation Checklist:**
 - [ ] Are critical parameters exposed and configurable?
-- [ ] Can users override defaults without code changes?
+- [ ] Can end-users override defaults without code changes?
 - [ ] Are trade-offs and their impacts documented?
 - [ ] Do sensible defaults exist for quick starts?
 - [ ] Can junior developers understand and modify this?
@@ -311,7 +311,7 @@ This is our **Supreme Principle** restated. Code that cannot be easily reviewed 
 
 ## LOVE: Developer Experience Excellence
 
-Beyond technical excellence, we follow **LOVE** principles for user-centered design:
+Beyond technical excellence, we follow **LOVE** principles for end-user-centered design:
 
 ```
 L - Listens
@@ -320,13 +320,13 @@ V - Validates
 E - Empathizes
 ```
 
-### L: Listens (User Needs Drive Design)
-**Understand user needs and fail fast when assumptions are violated.**
+### L: Listens (End-User Needs Drive Design)
+**Understand end-user needs and fail fast when assumptions are violated.**
 
-Design decisions must be driven by actual user needs, not hypothetical requirements. When user input is invalid or context is missing, the system must immediately surface the problem.
+Design decisions must be driven by actual end-user needs, not hypothetical requirements. When end-user input is invalid or context is missing, the system must immediately surface the problem.
 
 **When to apply:**
-- Gather user feedback before major architectural decisions
+- Gather end-user feedback before major architectural decisions
 - Add assertions and validations at entry points
 - Check preconditions before performing operations
 - Use type systems and schemas to catch errors at compile/load time
@@ -350,7 +350,7 @@ void setSampleRate(double rate)
 ```
 
 **Implementation Checklist:**
-- [ ] Are user needs documented and validated?
+- [ ] Are end-user needs documented and validated?
 - [ ] Are preconditions validated before operation?
 - [ ] Do error messages clearly indicate what went wrong?
 - [ ] Can invalid states be prevented by design?
@@ -373,7 +373,7 @@ Performance optimization must be data-driven. Never optimize without profiling. 
 
 **Examples:**
 ```cpp
-// âœ… Template Processing: User chooses precision vs speed
+// âœ… Template Processing: End-user chooses precision vs speed
 template<typename SampleType>
 void process(juce::dsp::AudioBlock<SampleType>& block);
 
@@ -398,7 +398,7 @@ Smooth::setValue(smoother.hiFrequency, setHiFrequency);
 Correctness is non-negotiable. Every assumption must be validated, every input must be checked, every invariant must be enforced.
 
 **When to apply (always):**
-- Validate all user inputs at system boundaries
+- Validate all end-user inputs at system boundaries
 - Assert internal invariants with `jassert()`
 - Use type systems to prevent invalid states
 - Write tests that verify correctness properties
@@ -427,8 +427,8 @@ void parameterChanged(const juce::String& id, double val)
 
 ---
 
-### E: Empathizes (User-Centered Design)
-**Design for human users—both end users and fellow developers.**
+### E: Empathizes (End-User-Centered Design)
+**Design for humans—both end-users and fellow developers.**
 
 Every design decision must consider the human who will use or maintain the system. This means clear visibility, full control, and predictable behavior.
 
@@ -436,7 +436,7 @@ Every design decision must consider the human who will use or maintain the syste
 - Make system behavior visible (logs, UI, debugging)
 - Expose controls for meaningful parameters
 - Ensure predictable, deterministic behavior
-- Write error messages that help users solve problems
+- Write error messages that help end-users solve problems
 - Document decisions and trade-offs
 - Consider onboarding experience for new developers
 
@@ -447,8 +447,8 @@ Every design decision must consider the human who will use or maintain the syste
 - Developer empathy: XML parameters accessible to non-C++ developers
 
 **Implementation Checklist:**
-- [ ] Can users see what's happening?
-- [ ] Can users control behavior?
+- [ ] Can end-users see what's happening?
+- [ ] Can end-users control behavior?
 - [ ] Is behavior predictable?
 - [ ] Are error messages helpful?
 - [ ] Is documentation clear?
@@ -477,7 +477,7 @@ For real-time audio software, we extend LIFESTAR and LOVE with four additional p
 
 **11. Evolution** (extends LIFESTAR: Immutable)
 - Versioned preset data with migration paths
-- User data preservation over code purity
+- End-user data preservation over code purity
 - Backward compatibility where possible
 
 **For complete audio extension details:** See `Audio Extensions to Architectural Manifesto.md`
@@ -659,7 +659,7 @@ class Editor : private Timer
 
 ## Decision Framework
 
-When helping user making architectural decisions, follow this framework aligned with LIFESTAR and LOVE:
+When helping ARCHITECT making architectural decisions, follow this framework aligned with LIFESTAR and LOVE:
 
 ### 1. Understand the Problem (LOVE: Listens)
 - What is the actual requirement?
@@ -675,10 +675,10 @@ When helping user making architectural decisions, follow this framework aligned 
 - Performance vs. Maintainability
 - Flexibility vs. Simplicity
 - Generality vs. Specificity
-- What does the user need to control?
+- What does the end-user need to control?
 
 ### 4. Design for Visibility (LIFESTAR: Findable)
-- How will users know what's happening?
+- How will end-users know what's happening?
 - What should be logged or surfaced?
 - Can behavior be inspected and debugged?
 
@@ -713,11 +713,11 @@ A well-designed system following LIFESTAR and LOVE should exhibit:
 - **Clear Contracts**: Interfaces are explicit and well-documented (LIFESTAR: Explicit, Reviewable)
 - **Easy Testing**: Components can be tested in isolation (LIFESTAR: Testable)
 - **Debuggability**: Problems can be traced to their source (LIFESTAR: Findable)
-- **Discoverability**: Users can find and understand controls (LIFESTAR: Findable, Accessible)
+- **Discoverability**: End-users can find and understand controls (LIFESTAR: Findable, Accessible)
 - **Consistency**: Similar problems are solved in similar ways (LIFESTAR: Single Source of Truth)
 - **Performance**: Meets documented requirements (LOVE: Optimizes)
 - **Reliability**: Validates inputs and fails gracefully (LOVE: Validates)
-- **Usability**: Empathizes with user needs (LOVE: Empathizes)
+- **Usability**: Empathizes with end-user needs (LOVE: Empathizes)
 
 ---
 
@@ -738,11 +738,11 @@ Complete Technical North Star
 4. **Explicit** - Dependencies visible
 5. **Single Source of Truth** - No duplication
 6. **Testable** - Verifiable correctness
-7. **Accessible** - User control, developer approachability
+7. **Accessible** - End-user control, developer approachability
 8. **Reviewable** - Clear and consistent (Supreme Principle)
 
 ### LOVE Principles
-1. **Listens** - User needs & fail fast
+1. **Listens** - End-user needs & fail fast
 2. **Optimizes** - Data-driven performance
 3. **Validates** - Correctness enforced
 4. **Empathizes** - Human-centered design

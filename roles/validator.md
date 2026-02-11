@@ -60,7 +60,7 @@ permission:
 - **E**xplicit: Dependencies visible?
 - **S**SOT: No duplication?
 - **T**estable: Unit testable?
-- **A**ccessible: User control?
+- **A**ccessible: End-user control?
 - **R**eviewable: Clear intent?
 
 **Your validation must be:**

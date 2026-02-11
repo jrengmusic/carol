@@ -4,7 +4,7 @@
 **Repository:** [repo-url or local path]  
 **Started:** [YYYY-MM-DD]
 
-**Purpose:** Long-term context memory across sessions. Tracks completed work, technical debt, and unresolved issues. Written by PRIMARY agents only when user explicitly requests.
+**Purpose:** Long-term context memory across sessions. Tracks completed work, technical debt, and unresolved issues. Written by PRIMARY agents only when ARCHITECT explicitly requests.
 
 ---
 
@@ -12,16 +12,16 @@
 
 **[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
 
-**Sprint:** A discrete unit of work completed by one or more agents, ending with user approval ("done", "good", "commit")
+**Sprint:** A discrete unit of work completed by one or more agents, ending with ARCHITECT approval ("done", "good", "commit")
 
 ---
 
 ## ⚠️ CRITICAL RULES
 
-**AGENTS BUILD CODE FOR USER TO TEST**
-- Agents build/modify code ONLY when user explicitly requests
-- USER tests and provides feedback
-- Agents wait for user approval before proceeding
+**AGENTS BUILD CODE FOR ARCHITECT TO TEST**
+- Agents build/modify code ONLY when ARCHITECT explicitly requests
+- ARCHITECT tests and provides feedback
+- Agents wait for ARCHITECT approval before proceeding
 
 **AGENTS NEVER RUN GIT COMMANDS**
 - Write code changes without running git commands

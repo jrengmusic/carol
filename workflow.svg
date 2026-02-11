@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="1400px" height="1000px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
     <rect x="0" y="0" width="1400" height="1000" style="fill:rgb(9,13,18);"/>
-    <text x="642.3086px" y="40px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:24px;fill:rgb(179,249,245);">CAROL v2</text>
+    <text x="620.3086px" y="40px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:24px;fill:rgb(179,249,245);">CAROL v2.2</text>
     <text x="460.0005px" y="65px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:14px;fill:rgb(105,157,170);">Cognitive Ampliﬁcation Role Orchestration with LLM agents</text>
     <g>
         <path d="M550,125L550,255C550,257.7596 547.7596,260 545,260L155,260C152.2404,260 150,257.7596 150,255L150,125C150,122.2404 152.2404,120 155,120L545,120C547.7596,120 550,122.2404 550,125Z" style="fill:rgb(13,20,28);stroke:rgb(179,249,245);stroke-width:2px;"/>
@@ -94,7 +94,7 @@
         <rect x="552.5269" y="940" width="15" height="10" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
         <text x="572.5269px" y="950px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(140,201,217);">Secondary Agent (Subagent)</text>
         <rect x="792.5269" y="940" width="15" height="10" style="fill:rgb(27,42,49);stroke:rgb(252,112,76);stroke-width:2px;"/>
-        <text x="812.5269px" y="950px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(254,255,210);">User (Architect)</text>
+        <text x="812.5269px" y="950px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(254,255,210);">ARCHITECT</text>
         <rect x="972.5269" y="940" width="15" height="10" style="fill:rgb(44,65,68);stroke:rgb(0,200,216);stroke-width:2px;"/>
         <text x="992.5269px" y="950px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(186,255,253);">Context Memory</text>
     </g>

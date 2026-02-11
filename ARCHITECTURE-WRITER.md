@@ -3,7 +3,7 @@
 
 **Purpose:** Step-by-step protocol for PRIMARY agents (COUNSELOR, SURGEON) to write or update ARCHITECTURE.md. PRIMARY agents delegate analysis tasks to secondary agents (subagents) as needed.
 
-**Version:** 2.1.2
+**Version:** 2.2.0
 
 **File Location:** Create ARCHITECTURE.md at project root (not in carol/)
 
@@ -55,7 +55,7 @@
 - Updates when polishing introduces new patterns
 - Documents wiring decisions made during implementation
 
-**NEVER assume architecture. ALWAYS consult human if uncertain.**
+**NEVER assume architecture. ALWAYS consult ARCHITECT if uncertain.**
 
 ---
 
@@ -84,7 +84,7 @@ If you find mismatch:
 3. Sketch initial layer separation
 4. Propose dependency graph
 5. Document design decisions from SPEC
-6. **STOP HERE** - Wait for human architect approval
+6. **STOP HERE** - Wait for ARCHITECT approval
 
 **You write INITIAL architecture, not final.**
 
@@ -103,12 +103,12 @@ If you find mismatch:
 ## Proposed Layer Separation
 [Your suggestions]
 
-## Open Questions for Architect
+## Open Questions for ARCHITECT
 - Should [module A] depend on [module B] or vice versa?
 - Where should [responsibility X] live?
 - Threading model: [proposal]
 
-**Status:** AWAITING HUMAN APPROVAL
+**Status:** AWAITING ARCHITECT APPROVAL
 ```
 
 ### COUNSELOR Writing Process
@@ -172,7 +172,7 @@ process(input);  // Guaranteed valid
 ## For AUDITOR (invoked by PRIMARY)
 
 ### Your Responsibility
-After implementation phase completes and passes user testing, audit codebase and update ARCHITECTURE.md.
+After implementation phase completes and passes ARCHITECT testing, audit codebase and update ARCHITECTURE.md.
 
 ### What to Document
 
@@ -262,19 +262,37 @@ auto component = make.get("knob");  // Type-erased lookup
 **Related patterns:** See Registry System documentation for full details.
 ```
 
-### When to Consult Human
+### When to Consult ARCHITECT
 
-**Stop and ask if:**
-- Pattern seems to violate Architectural Manifesto
-- Multiple viable patterns exist (you can't decide which to document)
-- Architectural decision needed (e.g., "Should we extract this to library?")
-- Breaking change discovered (API contract changed from SPEC)
+**Stop and consult ARCHITECT if:**
+- Layer calling upward (lower layer calling higher layer)
+- Circular dependency between modules
+- Direct global state access (no context passing)
+- More than 2 branches in conditional (should be map)
 
-**Example consultation:**
+### Pattern Inconsistencies
+- [ ] Same problem solved 3 different ways
+- [ ] New pattern contradicts Architectural Manifesto
+- [ ] Existing pattern being violated
+
+### Missing Constraints
+- [ ] Threading rules unclear for new component
+- Error handling strategy not documented
+- [ ] Dependency direction ambiguous
+
+**How to consult:**
+```
+ARCHITECTURE DECISION NEEDED
+
+[Describe what you found]
+
+[List options if multiple approaches exist]
+
+[Ask specific question about which pattern/rule to follow]
 ```
 ARCHITECTURAL DECISION NEEDED
 
-During audit, I found 5 places where we validate user input with different patterns:
+During audit, I found 5 places where we validate end-user input with different patterns:
 1. Early return with error message (3 places)
 2. Assert and crash (1 place)
 3. Silent fallback to default (1 place)
@@ -363,7 +381,7 @@ COUNSELOR handles all documentation tasks including:
 - Compiling sprint summaries from agent task files
 - Maintaining documentation consistency across the project
 
-After user approves SPEC.md, create initial ARCHITECTURE.md skeleton.
+After ARCHITECT approves SPEC.md, create initial ARCHITECTURE.md skeleton.
 
 ### What to Write
 
@@ -388,7 +406,7 @@ After user approves SPEC.md, create initial ARCHITECTURE.md skeleton.
 ## Module Structure
 
 ### Proposed Modules
-1. **InputHandler** - Parse and validate user input
+1. **InputHandler** - Parse and validate end-user input
 2. **CoreLogic** - Business rules and processing
 3. **OutputFormatter** - Format results for display
 
@@ -424,7 +442,7 @@ InputHandler → CoreLogic → OutputFormatter
 **Note:** This is initial architecture. Will be refined after Phase 1 implementation.
 ```
 
-### When to Consult Human
+### When to Consult ARCHITECT
 
 **Ask before writing if:**
 - Multiple architectural approaches exist (monolith vs modular)
@@ -639,7 +657,7 @@ Handles data.
 ```markdown
 // GOOD
 ## Module: DataHandler
-Validates user input, transforms to internal format, passes to CoreLogic.
+Validates end-user input, transforms to internal format, passes to CoreLogic.
 Located: `Source/Input/DataHandler.cpp`
 Depends on: Validator, Transformer
 ```

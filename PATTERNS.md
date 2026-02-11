@@ -1,6 +1,6 @@
 # PATTERNS.md - LLM Meta-Patterns for CAROL Agents
 
-**Version:** 2.1.2
+**Version:** 2.2.0
 **Purpose:** Systematic approaches to prevent cognitive overload, scope creep, and autonomous mistakes
 **Audience:** All CAROL agents (2 PRIMARY + 8 Secondary roles)
 
@@ -129,7 +129,7 @@ Count:
   - Dependencies to add: _____
 
 If numbers exceed expectations:
-  - Ask user if scope is correct
+  - Ask ARCHITECT if scope is correct
   - Propose smaller iteration
   - Document why larger scope needed
 ```
@@ -234,11 +234,11 @@ Only after checking 1-4:
 ### Debug Workflow
 
 ```
-1. Read user bug report
+1. Read ARCHITECT bug report
 2. Read RESET context (for SURGEON)
 3. Check Fail-Fast Checklist (1-4) FIRST
 4. Use minimal reproduction (no full codebase read)
-5. Verify fix with user
+5. Verify fix with ARCHITECT
 6. Document in SPRINT-LOG.md (on "log sprint")
 ```
 
@@ -272,7 +272,7 @@ Task: Need to edit code
 │  └─ NO → Continue
 ├─ Multi-file changes, uncertain scope?
 │  ├─ YES → Use scripts from SCRIPTS.md (when available)
-│  └─ NO → Ask user for approach
+│  └─ NO → Ask ARCHITECT for approach
 
 Task: Need to run command
 ├─ File operation (read/write/search)?
@@ -281,7 +281,7 @@ Task: Need to run command
 
 Task: Need to plan/design
 ├─ Requirements unclear?
-│  └─ YES → Ask user questions (COUNSELOR role)
+│  └─ YES → Ask ARCHITECT questions (COUNSELOR role)
 ```
 
 ### Tool Usage Patterns
@@ -454,7 +454,7 @@ This is HOW validation should be added, NOT WHO adds it or WHEN.
 
 **Purpose:** Prevent autonomous mistakes (documented failure: SPRINT-32 git disasters)
 
-**MANDATORY: Run before responding to user**
+**MANDATORY: Run before responding to ARCHITECT**
 
 ### Pre-Response Checklist
 
@@ -486,7 +486,7 @@ This is HOW validation should be added, NOT WHO adds it or WHEN.
 
 [ ] Did I ask when uncertain?
     - No assumptions about requirements
-    - No guessing at user intent
+    - No guessing at ARCHITECT intent
     - Clarified ambiguities
 
 [ ] For ENGINEER: Am I generating literally?
@@ -508,7 +508,7 @@ This is HOW validation should be added, NOT WHO adds it or WHEN.
 ### Git Operations Checklist (CRITICAL)
 
 ```
-NEVER run git commands without asking user:
+NEVER run git commands without asking ARCHITECT:
   - git merge, git rebase
   - git reset --hard
   - git push (especially --force)
@@ -735,7 +735,7 @@ After:
 
 7. If critical issues found:
    - Block commit
-   - Notify user
+   - Notify ARCHITECT
    - Suggest which role should fix (SURGEON, MACHINIST)
 ```
 
@@ -810,7 +810,7 @@ Fix:
 
 **Example:**
 ```
-User: "Add validation to login function"
+ARCHITECT: "Add validation to login function"
 Agent: "I'll add validation, AND refactor the auth module, AND add logging, AND..."
 ```
 
@@ -825,7 +825,7 @@ Agent: "I'll add validation, AND refactor the auth module, AND add logging, AND.
 Bug: Function returns wrong value
 Agent: *reads entire codebase*
 Agent: "This could be a threading issue... or compiler optimization... or..."
-User: "It's a typo in variable name"
+ARCHITECT: "It's a typo in variable name"
 ```
 
 **Fix:** Use Debug Methodology Fail-Fast Checklist. Check simple first.
@@ -836,7 +836,7 @@ User: "It's a typo in variable name"
 
 **Example:**
 ```
-User: "Create simple config parser"
+ARCHITECT: "Create simple config parser"
 Agent: "I'll design an extensible plugin system with XML/JSON/YAML support..."
 ```
 
@@ -844,13 +844,13 @@ Agent: "I'll design an extensible plugin system with XML/JSON/YAML support..."
 
 ### 4. The Assumption Engine (Not Asking)
 
-**Symptom:** Guessing user intent instead of asking
+**Symptom:** Guessing ARCHITECT intent instead of asking
 
 **Example:**
 ```
-User: "Add caching"
+ARCHITECT: "Add caching"
 Agent: *implements Redis without asking*
-User: "I meant in-memory cache"
+ARCHITECT: "I meant in-memory cache"
 ```
 
 **Fix:** Ask clarifying questions before implementing.
@@ -862,7 +862,7 @@ User: "I meant in-memory cache"
 **Example:**
 ```
 Agent: *runs git merge --abort*
-Agent: *destroys user's work*
+Agent: *destroys ARCHITECT's work*
 ```
 
 **Fix:** NEVER run destructive git commands. Always ask.
@@ -898,7 +898,7 @@ Better: *uses Read tool*
 ### Workflow Summary
 
 ```
-1. User assigns role:
+1. ARCHITECT assigns role:
    "Read carol/CAROL.md. You are COUNSELOR, register in SPRINT-LOG.md"
 
 2. Agent reads role definition + PATTERNS.md

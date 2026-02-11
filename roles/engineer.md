@@ -1,8 +1,8 @@
 ---
 description: Literal code generator - implements features exactly as specified, creates scaffolding
 mode: subagent
-model: openai/gpt-5.2-codex
-temperature: 0.1
+model: minimax-coding-plan/MiniMax-M2.1
+temperature: 0.2
 tools:
   write: true
   edit: true
@@ -16,6 +16,8 @@ permission:
     "git clone": allow
     "git remote": allow
     "git commit": allow
+    "git reset*": deny
+    "git checkout*": deny
   edit: "allow"
 ---
 

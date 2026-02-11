@@ -13,6 +13,8 @@ permission:
     "git diff*": "allow"
     "git log*": "allow"
     "git status": "allow"
+    "git reset*": "deny"
+    "git checkout*": "deny"
     "grep *": "allow"
     "find *": "allow"
     "cat *": "allow"

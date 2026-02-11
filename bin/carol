@@ -1,8 +1,8 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 2.1.2
+# Version: 2.2.0
 
-VERSION="2.1.2"
+VERSION="2.2.0"
 
 # Resolve CAROL_ROOT handling symlinks (e.g. if /usr/local/bin/carol -> ~/.carol/bin/carol)
 SOURCE="${BASH_SOURCE[0]}"
@@ -115,12 +115,12 @@ customize_templates() {
 
 cmd_init() {
     local project_path="."
-    local portable=false
+    local portable=true
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --portable)
-                portable=true
+            --symlink)
+                portable=false
                 shift
                 ;;
             -*)
@@ -210,9 +210,9 @@ Acknowledge your activation by replying:
 COUNSELOR ready to Rock 'n Roll!
 ```
 
-**THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
+**THEN WAIT for ARCHITECT direction.** Do NOT invoke @pathfinder. Do NOT start working.
 
-Only after user gives you specific direction:
+Only after ARCHITECT gives you specific direction:
 - ALWAYS invoke @pathfinder first
 - You are READ-ONLY for code
 - Delegate implementation to ENGINEER
@@ -237,9 +237,9 @@ Acknowledge your activation by replying:
 SURGEON ready to Rock 'n Roll!
 ```
 
-**THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
+**THEN WAIT for ARCHITECT direction.** Do NOT invoke @pathfinder. Do NOT start working.
 
-Only after user gives you specific direction:
+Only after ARCHITECT gives you specific direction:
 - ALWAYS invoke @pathfinder first
 - Provide surgical fixes only
 - Minimal changes, scoped impact
@@ -341,9 +341,9 @@ Acknowledge your activation by replying:
 COUNSELOR ready to Rock 'n Roll!
 ```
 
-**THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
+**THEN WAIT for ARCHITECT direction.** Do NOT invoke @pathfinder. Do NOT start working.
 
-Only after user gives you specific direction:
+Only after ARCHITECT gives you specific direction:
 - ALWAYS invoke @pathfinder first
 - You are READ-ONLY for code
 - Delegate implementation to ENGINEER
@@ -368,9 +368,9 @@ Acknowledge your activation by replying:
 SURGEON ready to Rock 'n Roll!
 ```
 
-**THEN WAIT for user direction.** Do NOT invoke @pathfinder. Do NOT start working.
+**THEN WAIT for ARCHITECT direction.** Do NOT invoke @pathfinder. Do NOT start working.
 
-Only after user gives you specific direction:
+Only after ARCHITECT gives you specific direction:
 - ALWAYS invoke @pathfinder first
 - Provide surgical fixes only
 - Minimal changes, scoped impact
@@ -569,8 +569,8 @@ cmd_help() {
     echo "  carol <command> [options]"
     echo ""
     echo -e "${MAGENTA}Commands:${NC}"
-    echo -e "  ${YELLOW}init${NC} [path]           Initialize CAROL in project directory"
-    echo -e "  ${YELLOW}init --portable${NC}       Initialize in portable mode (full copy)"
+    echo -e "  ${YELLOW}init${NC} [path]           Initialize CAROL (portable mode, default)"
+    echo -e "  ${YELLOW}init --symlink${NC}        Initialize with symlinks to SSOT"
     echo -e "  ${YELLOW}reset${NC}                 Remove CAROL from current project"
     echo -e "  ${YELLOW}update${NC}                Update CAROL framework"
     echo -e "  ${YELLOW}version${NC}               Show CAROL version"
