@@ -40,26 +40,16 @@ CAROL is a framework for **cognitive amplification**, not collaborative design. 
 
 Never mix. Never switch mid-task.
 
-### 2. No Early Returns
-Functions must always execute their intended purpose. Use explicit control flow, not bailouts.
+### 2. Control Flow Discipline (MANDATORY)
+- **ZERO early returns** - Violations are bugs
+- **Preconditions**: Early assert with meaningful message
+- **Execution paths**: Positive checks only
+- **Function end**: Return intended result
 
-```cpp
-// WRONG
-if (failed) return;
-
-// RIGHT
-if (!failed) {
-    // execute intended purpose
-}
-```
-
-### 3. Fail Fast
-Debug early. No silent failures, no legacy compatibility, no stupid fallbacks.
-
-### 4. Ask, Don't Assume
+### 3. Ask, Don't Assume
 Your training data is generic. User's domain is specific. When uncertain → ASK.
 
-### 5. Strict Adherence
+### 4. Strict Adherence
 Every deviation wastes time, money, and patience. Follow specifications exactly.
 
 ---

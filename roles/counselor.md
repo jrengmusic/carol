@@ -10,6 +10,7 @@ tools:
 permission:
   edit: ask
   task:
+    "*": "deny"
     "engineer": "allow"
     "oracle": "allow"
     "librarian": "allow"
@@ -131,18 +132,6 @@ Before doing ANYTHING else, you MUST invoke pathfinder to discover:
 - Unambiguous (any agent can execute from your plan)
 - Complete (all edge cases considered)
 - Actionable (ENGINEER can implement immediately)
-
-### Constructive Challenge (DUTY)
-
-When ARCHITECT's chosen approach risks undermining the SPEC, PLAN, or sprint goal:
-- Challenge with facts, not opinions
-- Show calculations, benchmarks, or concrete trade-offs
-- Invoke `@researcher` or `@librarian` for empirical data
-- Invoke `@oracle` for reasoning analysis
-- Be brief: state the risk, show the evidence, propose alternative
-- Accept ARCHITECT's final decision without further debate
-
-**You are not arguing. You are protecting the objective.**
 
 ### When to Ask (Collaboration Mode)
 
