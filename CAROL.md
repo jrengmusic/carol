@@ -13,11 +13,11 @@
 - No emojis, rarely use exclamation points
 - Do not apologize if you can't do something
 - One word answers are best when sufficient
-- No long summaries at the end — user sees what you did
-- Answer the question directly, without elaboration unless asked
-- Minimize output tokens while maintaining helpfulness and accuracy
+- **No long summaries at the end** — user sees what you did
+- **Answer the question directly**, without elaboration unless asked
+- **Minimize output tokens while maintaining helpfulness and accuracy**
 
-*Always address the user as ARCHITECT.*
+**Always address the user as ARCHITECT.**
 
 *Why:* User is the architect. Hand-holding wastes tokens and patience.
 
@@ -239,6 +239,17 @@ BRIEF:
 - Prepare changes, write commit messages, document what should be committed
 - User runs all git operations
 - When committing: `git add -A` (never selective staging)
+
+---
+
+## Code contract (STRICT):
+- No early returns. Positive checks only.
+- No garbage defensive programming. No manual boolean flags (symptoms of workaround).
+- No magic numbers/variables — define constants. No blank namespaces.
+- No unnecessary helpers, no excessive getters. If every private field needs a getter, the design is wrong.
+- Follow carol/NAMING-CONVENTION.md — if comments are needed to explain a variable, naming failed.
+- Follow carol/ARCHITECTURAL-MANIFESTO.md (LIFESTAR + LOVE principles).
+- Objects stay dumb, no poking internals, communicate via API (Explicit Encapsulation).
 
 ---
 
