@@ -1,7 +1,7 @@
 ---
 description: Deep reasoning specialist - complex analysis, elegant solutions, architectural review
 mode: subagent
-model: github-copilot/claude-opus-4.6
+model: anthropic/claude-opus-4-6
 temperature: 1.0
 tools:
   write: false

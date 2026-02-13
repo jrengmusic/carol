@@ -40,7 +40,7 @@ Our architectural foundation follows **LIFESTAR** principles for documentation a
 L - Lean
 I - Immutable
 F - Findable
-E - Explicit
+E - Explicit Encapsulation
 
 S - Single Source of Truth
 T - Testable
@@ -139,45 +139,113 @@ This principle has two aspects:
 
 ---
 
-### E: Explicit (Dependencies Visible)
-**Allow necessary access, but keep ownership and dependencies explicit.**
+### E: Explicit Encapsulation (Strict Concern Separation)
+**Objects are ignorant by design. They know nothing about the world outside their one job.**
 
-Dependencies must be visible and traceable. Hidden global state makes systems unpredictable and untestable. Make the flow of data and control explicit through the code structure.
+This principle has two enforcement angles that work together:
+1. **Explicit**: Dependencies visible, ownership traceable, no hidden state
+2. **Encapsulation**: Objects don't leak their responsibilities or absorb others'
+
+**LEAN prevents bloat from within. EXPLICIT ENCAPSULATION prevents coupling from without.**
+
+**The Four Rules:**
+
+1. **Objects should not know about other objects' responsibilities** — An object is either POD, pure functional, or both. It has one job and is ignorant of the system around it. This prevents god objects (reinforces LEAN).
+
+2. **Private by default, expose only when absolutely needed** — Getters exist only when an external caller has a proven need. If nobody calls it, it doesn't exist. Dead getters are dead code.
+
+3. **Objects manage their own state** — When an object has state, it manages that state internally. Callers don't track flags on behalf of objects. If the object knows whether it's initialized, callers don't also track that.
+
+4. **Higher hierarchy sets instructions, not pokes internals** — The caller says "do this" (instruction). The caller never says "are you in state X? then I'll do Y for you" (poking). Tell, don't ask.
+
+**The Guard Rule: Every guard must name its threat.**
+
+Before adding any defensive code (null checks, flags, SafePointers, state tracking), you must answer: "What specific scenario does this defend against?" If you can't name the threat, the guard is garbage.
 
 **When to apply:**
 - Pass context explicitly through function parameters or dependency injection
 - Document ownership and lifecycle of shared resources
 - Make dependencies visible in function signatures
-- Use context objects or providers that can be traced through the call stack
 - Avoid implicit global state that makes behavior unpredictable
 - Every function signature should reveal what it needs to operate
+- Never add a getter without a proven caller
+- Never track state that the object already represents
+- Never inspect an object's state to make decisions for it
 
 **Examples:**
 ```cpp
-// WRONG: Hidden dependency
-class Processor 
+// WRONG: Caller pokes internals, tracks state for the object
+class Component
 {
-    void process()
+    bool shuttingDown { false };
+    
+    ~Component()
     {
-        auto& config = GlobalConfig::get();  // Hidden!
+        shuttingDown = true;  // Tracking state the session already knows
+        session.shutdown();   // Doing the session's job for it
+    }
+    
+    void resized()
+    {
+        if (! shuttingDown)               // Poking
+            if (session.isRunning())      // More poking
+                session.resize (cols, rows);
     }
 };
 
-// âœ… CORRECT: Explicit dependency
-class Processor 
+// CORRECT: Caller gives instructions, object manages itself
+class Component
 {
-    void process(const Config& config)
-    {  // Visible!
-        // Use config
+    ~Component() = default;  // Session destructor handles its own cleanup
+    
+    void resized()
+    {
+        session.resized (cols, rows);  // Instruction only
     }
 };
 ```
 
+```cpp
+// WRONG: Defensive guard with no named threat
+session.onScreenDirty = [safeThis = SafePointer<Component> (this)]
+{
+    if (safeThis != nullptr)  // What outlives what? Can't answer.
+        safeThis->doWork();
+};
+
+// CORRECT: Ownership is clear, no guard needed
+session.onScreenDirty = [this]  // session is value member, can't outlive this
+{
+    doWork();
+};
+```
+
+```cpp
+// WRONG: Object knows about other objects' responsibilities
+class TerminalFIFO : public Thread  // FIFO is a buffer, not a thread
+{
+    TTY& tty;                        // FIFO shouldn't know about TTY
+    std::atomic<bool> shellExited;   // FIFO shouldn't track shell state
+};
+
+// CORRECT: Object does one job, knows nothing else
+class TerminalFIFO  // Pure ring buffer
+{
+    void write (const char* data, int len);
+    int drain (char* dest, int maxBytes);
+};
+```
+
 **Implementation Checklist:**
+- [ ] Does this object have exactly one responsibility?
 - [ ] Are all dependencies explicit in the function/class signature?
 - [ ] Can I trace where this data comes from?
 - [ ] Is ownership and lifecycle clear?
-- [ ] Can this be tested in isolation?
+- [ ] Can this be tested in isolation without knowing about the system?
+- [ ] Are there getters that nobody calls?
+- [ ] Am I tracking state that the object already represents?
+- [ ] Can I name the specific threat for every defensive guard?
+- [ ] Am I telling the object what to do, or asking it about its state?
 
 ---
 
@@ -503,8 +571,10 @@ For real-time audio software, we extend LIFESTAR and LOVE with four additional p
 1. **God Objects**: Classes that do too much (violates LIFESTAR: Lean)
 2. **Hidden State**: Globals without explicit context (violates LIFESTAR: Explicit)
 3. **Magic Numbers**: Hardcoded values without names (violates LIFESTAR: Single Source of Truth)
-4. **Tight Coupling**: Components that can't exist independently (violates LIFESTAR: Testable)
-5. **Layer Violations**: Components "poking" into other layers (violates LIFESTAR: Explicit)
+4. **Tight Coupling**: Components that can't exist independently (violates LIFESTAR: Testable, Explicit Encapsulation)
+5. **Layer Violations**: Components "poking" into other layers (violates LIFESTAR: Explicit Encapsulation)
+6. **Defensive Garbage**: Guards that can't name their threat (violates LIFESTAR: Explicit Encapsulation, Lean)
+7. **State Shadowing**: Caller tracking state the object already represents (violates LIFESTAR: Explicit Encapsulation, SSOT)
 6. **Premature Optimization**: Complexity without measured need (violates LOVE: Optimizes)
 7. **Silent Failures**: Errors that don't fail fast (violates LOVE: Validates)
 8. **Implicit Behavior**: Side effects or defaults that aren't obvious (violates LIFESTAR: Explicit)
@@ -687,10 +757,12 @@ When helping ARCHITECT making architectural decisions, follow this framework ali
 - Are edge cases handled?
 - Is the API intuitive and consistent?
 
-### 6. Make It Explicit (LIFESTAR: Explicit)
+### 6. Enforce Explicit Encapsulation (LIFESTAR: Explicit Encapsulation)
 - Are dependencies visible?
 - Is ownership clear?
-- Are assumptions documented?
+- Does each object have exactly one job?
+- Am I telling objects what to do, or poking their state?
+- Can I name the threat for every guard?
 
 ### 7. Validate Correctness (LOVE: Validates)
 - Can this be tested?
@@ -735,7 +807,7 @@ Complete Technical North Star
 1. **Lean** - Keep it simple
 2. **Immutable** - Predictable behavior
 3. **Findable** - Discoverable & visible
-4. **Explicit** - Dependencies visible
+4. **Explicit Encapsulation** - Strict concern separation, no poking
 5. **Single Source of Truth** - No duplication
 6. **Testable** - Verifiable correctness
 7. **Accessible** - End-user control, developer approachability
@@ -763,4 +835,4 @@ This manifesto is not a rigid rule book, but a north star. When in doubt, return
 
 ---
 
-*Version 2.0  - November 24, 2025*
+*Version 3.0  - February 13, 2026*
