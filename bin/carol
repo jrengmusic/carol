@@ -600,8 +600,30 @@ cmd_help() {
     echo ""
 }
 
+get_arch_suffix() {
+    local arch
+    arch=$(uname -m)
+    case "$arch" in
+        x86_64)  echo "x64" ;;
+        arm64|aarch64) echo "arm64" ;;
+        *) error "Unsupported architecture: $arch" ;;
+    esac
+}
+
+cmd_run() {
+    local arch_suffix
+    arch_suffix=$(get_arch_suffix)
+    local binary="carolcode-${arch_suffix}"
+
+    if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
+        cmd_init
+    fi
+
+    exec "$CAROL_ROOT/bin/$binary"
+}
+
 # Main command dispatcher
-case "${1:-help}" in
+case "${1:-run}" in
     init)
         shift
         cmd_init "$@"
@@ -617,6 +639,9 @@ case "${1:-help}" in
         ;;
     help|--help|-h)
         cmd_help
+        ;;
+    run)
+        cmd_run
         ;;
     *)
         echo "Unknown command: $1"

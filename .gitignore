@@ -26,4 +26,5 @@ Thumbs.db
 # Don't ignore scripts (they should be tracked)
 !/scripts/
 
+bin/carolcode-x64
 

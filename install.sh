@@ -79,52 +79,21 @@ clone_carol() {
     success "CAROL cloned to $CAROL_ROOT"
 }
 
-# Add to PATH
+# Create symlink in ~/.local/bin
 setup_path() {
     local CAROL_BIN="$CAROL_ROOT/bin"
+    local LOCAL_BIN="$HOME/.local/bin"
 
-    # Detect shell and RC file
-    local SHELL_NAME=$(basename "$SHELL")
-    local RC_FILE=""
-
-    case "$SHELL_NAME" in
-        bash)
-            # macOS uses .bash_profile, Linux uses .bashrc
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                RC_FILE="$HOME/.bash_profile"
-            else
-                RC_FILE="$HOME/.bashrc"
-            fi
-            ;;
-        zsh)
-            RC_FILE="$HOME/.zshrc"
-            ;;
-        *)
-            info "Unsupported shell: $SHELL_NAME"
-            info "Please manually add to your PATH:"
-            echo "  export PATH=\"$CAROL_BIN:\$PATH\""
-            return 0
-            ;;
-    esac
-
-    # Create RC file if it doesn't exist
-    touch "$RC_FILE"
-
-    # Check if already in PATH
-    if grep -q "CAROL Framework" "$RC_FILE" 2>/dev/null; then
-        success "CAROL already in PATH ($RC_FILE)"
-    else
-        info "Adding CAROL to PATH in $RC_FILE"
-        cat >> "$RC_FILE" << 'EOF'
-
-# CAROL Framework
-export PATH="$HOME/.carol/bin:$PATH"
-EOF
-        success "Added to $RC_FILE"
-    fi
-
-    # Make carol executable
     chmod +x "$CAROL_BIN/carol"
+
+    mkdir -p "$LOCAL_BIN"
+    ln -sf "$CAROL_BIN/carol" "$LOCAL_BIN/carol"
+    success "Symlinked carol → $LOCAL_BIN/carol"
+
+    if ! echo "$PATH" | tr ':' '\n' | grep -q "$LOCAL_BIN"; then
+        notice "$LOCAL_BIN is not in your PATH"
+        echo "  Add to your shell rc: export PATH=\"\$HOME/.local/bin:\$PATH\""
+    fi
 }
 
 # Verify installation
@@ -152,10 +121,24 @@ verify_install() {
     fi
 }
 
+# Logo banner with gradient (cyan → magenta)
+show_banner() {
+    echo ""
+    echo -e "\033[38;2;0;212;255m    ████████     ████     ██████████     ████████   ████        \033[0m"
+    echo -e "\033[38;2;51;170;255m  ████░░░░░░   ████████   ████░░░░████ ████░░░░████ ████        \033[0m"
+    echo -e "\033[38;2;102;128;255m████░░       ████░░░░████ ████    ████ ████    ████ ████        \033[0m"
+    echo -e "\033[38;2;153;102;255m████         ████    ████ ██████████░░ ████    ████ ████        \033[0m"
+    echo -e "\033[38;2;178;76;230m████         ████████████ ████░░████   ████    ████ ████        \033[0m"
+    echo -e "\033[38;2;204;51;204m░░████       ████░░░░████ ████  ░░████ ████    ████ ████        \033[0m"
+    echo -e "\033[38;2;230;25;179m  ░░████████ ████    ████ ████    ████ ░░████████░░ ████████████\033[0m"
+    echo -e "\033[38;2;255;0;153m    ░░░░░░░░ ░░░░    ░░░░ ░░░░    ░░░░   ░░░░░░░░   ░░░░░░░░░░░░\033[0m"
+    echo ""
+    echo -e "\033[0;36mCognitive Amplification Role Orchestration for LLM agents\033[0m"
+}
+
 # Main installation
 main() {
-    echo ""
-    info "Cognitive Amplification Role Orchestration with LLM agents"
+    show_banner
     echo ""
 
     detect_install_mode
@@ -171,23 +154,10 @@ main() {
     echo ""
     success "Installation complete!"
     echo ""
-    info "To use CAROL, either:"
-    echo "  1. Reload your shell:"
-    if [ -n "$(command -v bash)" ]; then
-        echo "     source ~/.bashrc  (bash on Linux)"
-        echo "     source ~/.bash_profile  (bash on macOS)"
-    fi
-    if [ -n "$(command -v zsh)" ]; then
-        echo "     source ~/.zshrc   (zsh)"
-    fi
-    echo "  2. Open a new terminal"
-    echo ""
-    info "Then run:"
+    info "Run:"
     echo "  carol version"
-    echo "  carol init              # symlink mode (default)"
-    echo "  carol init --portable   # portable mode (full copy)"
-    echo ""
-    notice "OpenCode integration: carol init creates .opencode/agents/ with role definitions"
+    echo "  carol init              # portable mode (default)"
+    echo "  carol init --symlink    # symlink mode"
     echo ""
 }
 
