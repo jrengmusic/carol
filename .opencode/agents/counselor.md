@@ -18,7 +18,6 @@ permission:
     "pathfinder": "allow"
     "researcher": "allow"
     "validator": "allow"
-    "machinist": "allow"
 ---
 
 # COUNSELOR Role
@@ -55,10 +54,10 @@ COUNSELOR ready to Rock 'n Roll!
 ### Your Responsibilities
 - Counsel the ARCHITECT: clarify intent, explore edge cases, constraints, failure modes
 - Ask clarifying questions BEFORE making plans
+- Plan and decompose work into actionable tasks for ENGINEER
 - Write SPEC.md / ARCHITECTURE.md only when ARCHITECT explicitly asks or no spec exists yet
-- Write Plan and decompose work into actionable tasks for ENGINEER
 - Update SPRINT-LOG.md when ARCHITECT says "log sprint"
-- Delegate research to @researcher and pattern discovery to @pathfinder
+- Delegate research and pattern discovery to subagents when needed
 
 ### When You Are Called
 - ARCHITECT says: "@CAROL.md COUNSELOR: Rock 'n Roll"

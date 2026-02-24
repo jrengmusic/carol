@@ -20,6 +20,7 @@ NC='\033[0m'
 # Default installation location
 CAROL_INSTALL_DIR="${CAROL_INSTALL_DIR:-$HOME/.carol}"
 CAROL_REPO="${CAROL_REPO:-https://github.com/jrengmusic/carol.git}"
+CAROL_RELEASE_URL="https://github.com/jrengmusic/carol/releases/latest/download"
 
 error() {
     echo -e "${RED}Error: $1${NC}" >&2
@@ -62,7 +63,7 @@ clone_carol() {
     # Check if already exists
     if [ -d "$CAROL_ROOT" ]; then
         info "CAROL already installed at $CAROL_ROOT"
-        read -p "Reinstall? (y/N) " -n 1 -r
+        read -p "Reinstall? (y/N) " -n 1 -r < /dev/tty
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
             exit 0
@@ -77,6 +78,36 @@ clone_carol() {
     fi
 
     success "CAROL cloned to $CAROL_ROOT"
+}
+
+# Download carolcode binary from GitHub Releases
+download_binary() {
+    local arch
+    arch=$(uname -m)
+    case "$arch" in
+        x86_64)  arch="x64" ;;
+        arm64|aarch64) arch="arm64" ;;
+        *) error "Unsupported architecture: $arch" ;;
+    esac
+
+    local binary="carolcode-${arch}"
+    local zip="${binary}.zip"
+    local dest="$CAROL_ROOT/bin/$binary"
+
+    if [ -f "$dest" ]; then
+        info "Binary already exists: $binary"
+        return 0
+    fi
+
+    info "Downloading $zip..."
+    curl -fsSL "$CAROL_RELEASE_URL/$zip" -o "/tmp/$zip" || error "Failed to download $zip"
+
+    info "Extracting..."
+    unzip -o "/tmp/$zip" -d "$CAROL_ROOT/bin/" > /dev/null || error "Failed to extract $zip"
+    chmod +x "$dest"
+    rm -f "/tmp/$zip"
+
+    success "Binary installed: $binary"
 }
 
 # Create symlink in ~/.local/bin
@@ -148,6 +179,7 @@ main() {
     echo ""
 
     clone_carol
+    download_binary
     setup_path
     verify_install
 

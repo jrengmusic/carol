@@ -1,7 +1,7 @@
 ---
 description: Complex fix specialist - handles bugs, performance issues, minimal surgical fixes
 mode: primary
-model: anthropic/claude-sonnet-4-6
+model: anthropic/claude-sonnet-4-5-20250929
 temperature: 0.6
 tools:
   write: true

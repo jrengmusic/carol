@@ -1,8 +1,8 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 2.2.0
+# Version: 2.2.2
 
-VERSION="2.2.0"
+VERSION="2.2.2"
 
 # Resolve CAROL_ROOT handling symlinks (e.g. if /usr/local/bin/carol -> ~/.carol/bin/carol)
 SOURCE="${BASH_SOURCE[0]}"
@@ -83,6 +83,38 @@ get_relative_path() {
     python3 -c "import os.path; print(os.path.relpath('$target', '$base'))"
 }
 
+MODEL_SONNET="anthropic/claude-sonnet-4-6"
+MODEL_MINIMAX="minimax-coding-plan/MiniMax-M2.5"
+SUBAGENT_ROLES=("librarian" "pathfinder" "validator" "researcher")
+
+apply_subagent_model() {
+    local model="$1"
+    local agents_dir="$2"
+
+    if [ ! -d "$agents_dir" ]; then
+        return 0
+    fi
+
+    for role in "${SUBAGENT_ROLES[@]}"; do
+        local file="$agents_dir/$role.md"
+        if [ -f "$file" ]; then
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' "s|^model: .*|model: $model|" "$file"
+            else
+                sed -i "s|^model: .*|model: $model|" "$file"
+            fi
+        fi
+    done
+}
+
+resolve_model() {
+    case "${1:-minimax}" in
+        sonnet)  echo "$MODEL_SONNET" ;;
+        minimax) echo "$MODEL_MINIMAX" ;;
+        *)       echo "" ;;
+    esac
+}
+
 customize_templates() {
     local project_path="$1"
     local project_name=$(basename "$project_path")
@@ -116,11 +148,16 @@ customize_templates() {
 cmd_init() {
     local project_path="."
     local portable=true
+    local model_name="minimax"
 
     while [ $# -gt 0 ]; do
         case "$1" in
             --symlink)
                 portable=false
+                shift
+                ;;
+            sonnet|minimax)
+                model_name="$1"
                 shift
                 ;;
             -*)
@@ -134,6 +171,9 @@ cmd_init() {
                 ;;
         esac
     done
+
+    local model
+    model="$(resolve_model "$model_name")"
 
     cd "$project_path" || error "Cannot access directory: $project_path"
     project_path="$(pwd)"
@@ -172,6 +212,10 @@ cmd_init() {
         if [ -d "$CAROL_ROOT/roles" ]; then
             cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
         fi
+
+        # Apply selected subagent model
+        apply_subagent_model "$model" ".opencode/agents"
+        info "Subagent model: $model_name ($model)"
 
         # Hide OpenCode default agents (plan, build)
         mkdir -p .opencode
@@ -304,6 +348,18 @@ EOF
                 [ -f "$role_file" ] && ln -sf "$role_file" ".opencode/agents/$(basename "$role_file")" 2>/dev/null
             done
         fi
+
+        # Copy subagent roles (replace symlinks) so model can be overridden locally
+        for role in "${SUBAGENT_ROLES[@]}"; do
+            local src="$CAROL_ROOT/roles/$role.md"
+            local dst=".opencode/agents/$role.md"
+            if [ -f "$src" ]; then
+                rm -f "$dst"
+                cp "$src" "$dst"
+            fi
+        done
+        apply_subagent_model "$model" ".opencode/agents"
+        info "Subagent model: $model_name ($model)"
 
         # Hide OpenCode default agents (plan, build)
         cat > .opencode/opencode.json << 'EOF'
@@ -569,8 +625,10 @@ cmd_help() {
     echo "  carol <command> [options]"
     echo ""
     echo -e "${MAGENTA}Commands:${NC}"
-    echo -e "  ${YELLOW}init${NC} [path]           Initialize CAROL (portable mode, default)"
+    echo -e "  ${YELLOW}init${NC} [sonnet|minimax]  Initialize CAROL (portable, minimax default)"
     echo -e "  ${YELLOW}init --symlink${NC}        Initialize with symlinks to SSOT"
+    echo -e "  ${YELLOW}sonnet${NC}                Run with Sonnet subagents"
+    echo -e "  ${YELLOW}minimax${NC}               Run with MiniMax subagents (default)"
     echo -e "  ${YELLOW}reset${NC}                 Remove CAROL from current project"
     echo -e "  ${YELLOW}update${NC}                Update CAROL framework"
     echo -e "  ${YELLOW}version${NC}               Show CAROL version"
@@ -611,12 +669,21 @@ get_arch_suffix() {
 }
 
 cmd_run() {
+    local model_name="${1:-minimax}"
     local arch_suffix
     arch_suffix=$(get_arch_suffix)
     local binary="carolcode-${arch_suffix}"
 
     if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
-        cmd_init
+        cmd_init "$model_name"
+    else
+        # Already init'd — apply model switch
+        local model
+        model="$(resolve_model "$model_name")"
+        if [ -d ".opencode/agents" ]; then
+            apply_subagent_model "$model" ".opencode/agents"
+            info "Subagent model: $model_name ($model)"
+        fi
     fi
 
     exec "$CAROL_ROOT/bin/$binary"
@@ -639,6 +706,12 @@ case "${1:-run}" in
         ;;
     help|--help|-h)
         cmd_help
+        ;;
+    sonnet)
+        cmd_run sonnet
+        ;;
+    minimax)
+        cmd_run minimax
         ;;
     run)
         cmd_run

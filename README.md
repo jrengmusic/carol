@@ -13,7 +13,7 @@
 
 **C**ognitive **A**mplification **R**ole **O**rchestration for LLM agents
 
-Version: 2.2.0
+Version: 2.2.2
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -199,23 +199,15 @@ curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/install.sh | 
 This will:
 
 - Clone CAROL to `~/.carol`
-- Add `carol` command to your PATH
-- Work on macOS and Linux with bash/zsh
-
-Then reload your shell:
-
-```bash
-source ~/.zshrc   # zsh
-# OR
-source ~/.bashrc  # bash
-```
+- Download `carolcode` binary from GitHub Releases
+- Symlink `carol` to `~/.local/bin/carol`
+- Work on macOS and Linux (x64 and arm64)
 
 **Manual Install:**
 
 ```bash
 git clone https://github.com/jrengmusic/carol.git ~/.carol
 ~/.carol/install.sh
-source ~/.zshrc  # or ~/.bashrc
 ```
 
 **Custom Install Location:**
