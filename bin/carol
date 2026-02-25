@@ -196,7 +196,11 @@ cmd_init() {
     fi
 
     if $portable; then
-        cp -r "$CAROL_ROOT"/* carol/
+        for item in "$CAROL_ROOT"/*; do
+            local base=$(basename "$item")
+            [ "$base" = "carol" ] && continue
+            cp -r "$item" carol/
+        done
         rm -rf carol/.git carol/.gitignore
         
         # Restore SPRINT-LOG from backup or use template
@@ -542,7 +546,11 @@ cmd_update() {
             config_backup=$(cat "$carol_dir/config.yml")
         fi
 
-        cp -r "$CAROL_ROOT"/* "$carol_dir/"
+        for item in "$CAROL_ROOT"/*; do
+            local base=$(basename "$item")
+            [ "$base" = "carol" ] && continue
+            cp -r "$item" "$carol_dir/"
+        done
         rm -rf "$carol_dir/.git" "$carol_dir/.gitignore"
 
         # Restore project-specific files

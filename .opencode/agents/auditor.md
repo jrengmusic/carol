@@ -1,7 +1,7 @@
 ---
 description: QA/QC specialist - validates implementations, produces audit reports for SURGEON
 mode: subagent
-model: minimax-coding-plan/MiniMax-M2.5
+model: anthropic/claude-sonnet-4-6
 temperature: 0.2
 tools:
   write: false
