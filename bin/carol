@@ -108,7 +108,7 @@ apply_subagent_model() {
 }
 
 resolve_model() {
-    case "${1:-minimax}" in
+    case "${1:-sonnet}" in
         sonnet)  echo "$MODEL_SONNET" ;;
         minimax) echo "$MODEL_MINIMAX" ;;
         *)       echo "" ;;
@@ -148,7 +148,7 @@ customize_templates() {
 cmd_init() {
     local project_path="."
     local portable=true
-    local model_name="minimax"
+    local model_name="sonnet"
 
     while [ $# -gt 0 ]; do
         case "$1" in
@@ -633,10 +633,10 @@ cmd_help() {
     echo "  carol <command> [options]"
     echo ""
     echo -e "${MAGENTA}Commands:${NC}"
-    echo -e "  ${YELLOW}init${NC} [sonnet|minimax]  Initialize CAROL (portable, minimax default)"
+    echo -e "  ${YELLOW}init${NC} [sonnet|minimax]  Initialize CAROL (portable, sonnet default)"
     echo -e "  ${YELLOW}init --symlink${NC}        Initialize with symlinks to SSOT"
-    echo -e "  ${YELLOW}sonnet${NC}                Run with Sonnet subagents"
-    echo -e "  ${YELLOW}minimax${NC}               Run with MiniMax subagents (default)"
+    echo -e "  ${YELLOW}sonnet${NC}                Run with Sonnet subagents (default)"
+    echo -e "  ${YELLOW}minimax${NC}               Run with MiniMax subagents"
     echo -e "  ${YELLOW}reset${NC}                 Remove CAROL from current project"
     echo -e "  ${YELLOW}update${NC}                Update CAROL framework"
     echo -e "  ${YELLOW}version${NC}               Show CAROL version"
@@ -677,7 +677,7 @@ get_arch_suffix() {
 }
 
 cmd_run() {
-    local model_name="${1:-minimax}"
+    local model_name="${1:-sonnet}"
     local arch_suffix
     arch_suffix=$(get_arch_suffix)
     local binary="carolcode-${arch_suffix}"
