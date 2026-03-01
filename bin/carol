@@ -196,12 +196,16 @@ cmd_init() {
     fi
 
     if $portable; then
+        # Copy only framework files (not bin, tests, install scripts, etc.)
         for item in "$CAROL_ROOT"/*; do
             local base=$(basename "$item")
-            [ "$base" = "carol" ] && continue
+            case "$base" in
+                bin|tests|.git|.gitignore|.DS_Store|.opencode|install.sh|uninstall.sh|LICENSE|README.md)
+                    continue
+                    ;;
+            esac
             cp -r "$item" carol/
         done
-        rm -rf carol/.git carol/.gitignore
         
         # Restore SPRINT-LOG from backup or use template
         if [ -f ".carol-history/SPRINT-LOG.md" ]; then
