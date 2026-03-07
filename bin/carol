@@ -85,7 +85,7 @@ get_relative_path() {
 
 MODEL_SONNET="anthropic/claude-sonnet-4-6"
 MODEL_MINIMAX="minimax-coding-plan/MiniMax-M2.5"
-SUBAGENT_ROLES=("librarian" "pathfinder" "validator" "researcher")
+SUBAGENT_ROLES=("librarian" "pathfinder" "validator" "researcher" "auditor" "engineer" "machinist")
 
 apply_subagent_model() {
     local model="$1"

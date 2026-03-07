@@ -8,7 +8,7 @@
 
 set -e
 
-SUBAGENTS=("librarian" "pathfinder" "validator" "researcher")
+SUBAGENTS=("librarian" "pathfinder" "validator" "researcher" "auditor" "engineer" "machinist" "oracle")
 
 MODEL_SONNET="anthropic/claude-sonnet-4-6"
 MODEL_MINIMAX="minimax-coding-plan/MiniMax-M2.5"
