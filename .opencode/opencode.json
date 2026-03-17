@@ -1,8 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "default_agent": "counselor",
   "agent": {
     "plan": {
-      "hidden": true
+      "disable": true
     },
     "build": {
       "hidden": true

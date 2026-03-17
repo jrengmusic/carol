@@ -235,14 +235,15 @@ cmd_init() {
         apply_subagent_model "$model" ".opencode/agents"
         info "Subagent model: $model_name ($model)"
 
-        # Hide OpenCode default agents (plan, build)
+        # Configure OpenCode: disable plan, hide build (kept as startup fallback), set counselor as default
         mkdir -p .opencode
         cat > .opencode/opencode.json << 'EOF'
 {
   "$schema": "https://opencode.ai/config.json",
+  "default_agent": "counselor",
   "agent": {
     "plan": {
-      "hidden": true
+      "disable": true
     },
     "build": {
       "hidden": true
@@ -379,13 +380,14 @@ EOF
         apply_subagent_model "$model" ".opencode/agents"
         info "Subagent model: $model_name ($model)"
 
-        # Hide OpenCode default agents (plan, build)
+        # Configure OpenCode: disable plan, hide build (kept as startup fallback), set counselor as default
         cat > .opencode/opencode.json << 'EOF'
 {
   "$schema": "https://opencode.ai/config.json",
+  "default_agent": "counselor",
   "agent": {
     "plan": {
-      "hidden": true
+      "disable": true
     },
     "build": {
       "hidden": true
@@ -578,6 +580,25 @@ cmd_update() {
         # Update role definitions
         if [ -d "$CAROL_ROOT/roles" ] && [ -d ".opencode/agents" ]; then
             cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
+        fi
+
+        # Patch opencode.json: fix startup panic (build must stay visible as fallback)
+        if [ -f ".opencode/opencode.json" ]; then
+            cat > .opencode/opencode.json << 'EOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "counselor",
+  "agent": {
+    "plan": {
+      "disable": true
+    },
+    "build": {
+      "hidden": true
+    }
+  }
+}
+EOF
+            success "Patched opencode.json"
         fi
 
         success "Portable files updated"
