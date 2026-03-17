@@ -179,6 +179,16 @@ cmd_init() {
     project_path="$(pwd)"
 
     if [ -d "carol" ] || [ -d ".carol" ]; then
+        # Ensure agents are populated even if already initiated
+        if [ -d ".opencode/agents" ] && [ -z "$(ls -A .opencode/agents 2>/dev/null)" ]; then
+            if [ -d "$CAROL_ROOT/roles" ]; then
+                cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
+                local model
+                model="$(resolve_model "$model_name")"
+                apply_subagent_model "$model" ".opencode/agents"
+                success "Restored missing agents"
+            fi
+        fi
         echo -e "${MAGENTA}${BOLD}ℹ CAROL already initiated.${NC}"
         echo ""
         echo "  carol reset   Remove and start fresh"
@@ -708,6 +718,13 @@ cmd_run() {
         # Already init'd — apply model switch
         local model
         model="$(resolve_model "$model_name")"
+        # Ensure agents exist (recover from empty .opencode/agents/)
+        if [ -d ".opencode/agents" ] && [ -z "$(ls -A .opencode/agents 2>/dev/null)" ]; then
+            if [ -d "$CAROL_ROOT/roles" ]; then
+                cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
+                success "Restored missing agents"
+            fi
+        fi
         if [ -d ".opencode/agents" ]; then
             apply_subagent_model "$model" ".opencode/agents"
             info "Subagent model: $model_name ($model)"
