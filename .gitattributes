@@ -1,0 +1,21 @@
+# CAROL Framework - Git Attributes
+# Normalize line endings: text files get LF in repo, OS-native on checkout
+
+# Default: auto-detect text files and normalize to LF
+* text=auto eol=lf
+
+# Shell scripts must always be LF (breaks on CRLF in bash/zsh)
+*.sh text eol=lf
+bin/carol text eol=lf
+
+# Markdown and config: LF
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+
+# Binaries: never touch line endings
+*.exe binary
+*.bin binary
+bin/carolcode-* binary

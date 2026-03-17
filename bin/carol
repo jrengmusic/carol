@@ -671,10 +671,27 @@ cmd_help() {
 }
 
 get_arch_suffix() {
+    local kernel
+    kernel=$(uname -s)
+
+    # On Windows ARM64 (MSYS2/Git Bash/Cygwin), uname -m lies and reports x86_64
+    # but uname -s contains ARM64 in the kernel string, e.g.:
+    #   MINGW64_NT-10.0-26100-ARM64  (Git Bash / MSYS2 on Windows ARM64)
+    #   CYGWIN_NT-10.0-ARM64         (Cygwin on Windows ARM64)
+    # Scope this check to Windows kernels only to avoid false positives on Darwin/Linux.
+    case "$kernel" in
+        MINGW*|MSYS*|CYGWIN*)
+            if echo "$kernel" | grep -qi "ARM64"; then
+                echo "arm64"
+                return
+            fi
+            ;;
+    esac
+
     local arch
     arch=$(uname -m)
     case "$arch" in
-        x86_64)  echo "x64" ;;
+        x86_64)        echo "x64" ;;
         arm64|aarch64) echo "arm64" ;;
         *) error "Unsupported architecture: $arch" ;;
     esac
@@ -684,7 +701,6 @@ cmd_run() {
     local model_name="${1:-sonnet}"
     local arch_suffix
     arch_suffix=$(get_arch_suffix)
-    local binary="carolcode-${arch_suffix}"
 
     if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
         cmd_init "$model_name"
@@ -698,7 +714,14 @@ cmd_run() {
         fi
     fi
 
-    exec "$CAROL_ROOT/bin/$binary"
+    local bin="$CAROL_ROOT/bin"
+    if [ -f "$bin/carolcode-${arch_suffix}.exe" ]; then
+        exec "$bin/carolcode-${arch_suffix}.exe"
+    elif [ -f "$bin/carolcode-${arch_suffix}" ]; then
+        exec "$bin/carolcode-${arch_suffix}"
+    else
+        error "carolcode-${arch_suffix} not found in $bin"
+    fi
 }
 
 # Main command dispatcher
