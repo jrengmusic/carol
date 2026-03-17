@@ -622,10 +622,7 @@ cmd_reset() {
         fi
         
         rm -rf carol .carol
-        rm -rf .opencode/agents
-        rm -rf .opencode/commands
-        rm -f .opencode/opencode.json
-        [ -d ".opencode" ] && rmdir .opencode 2>/dev/null
+        rm -rf .opencode
         
         # Restore SPRINT-LOG.md for next init
         if [ -n "$sprint_log" ]; then
