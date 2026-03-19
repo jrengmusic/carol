@@ -2,6 +2,9 @@
 description: Deep reasoning specialist - complex analysis, elegant solutions, architectural review
 mode: subagent
 model: anthropic/claude-opus-4-6
+thinking:
+  type: enabled
+  budgetTokens: 10000
 temperature: 1.0
 tools:
   write: false

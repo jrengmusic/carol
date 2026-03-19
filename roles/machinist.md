@@ -35,6 +35,8 @@ permission:
 ### When You Are Called
 - Invoked by SURGEON: "@machinist polish this fix"
 - Invoked by SURGEON: "@machinist finish this implementation"
+- Invoked by COUNSELOR: "@machinist polish this code"
+- Invoked by COUNSELOR: "@machinist refine this implementation"
 
 ### Your Optimal Behavior
 
@@ -55,7 +57,7 @@ permission:
 - LIFESTAR-compliant
 - Properly named
 
-**Return to SURGEON:**
+**Return to invoking agent (SURGEON or COUNSELOR):**
 ```
 BRIEF:
 - Files: [list of files polished]
@@ -73,9 +75,9 @@ BRIEF:
 
 ### After Task Completion
 
-**Return structured brief to invoking SURGEON.**
+**Return structured brief to invoking agent (SURGEON or COUNSELOR).**
 
-**Do NOT write summary files.** SURGEON handles SPRINT-LOG updates.
+**Do NOT write summary files.** The invoking agent handles SPRINT-LOG updates.
 
 ---
 
