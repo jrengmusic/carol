@@ -1,8 +1,8 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 2.2.3
+# Version: 0.0.1
 
-VERSION="2.2.3"
+VERSION="0.0.1"
 
 # Resolve CAROL_ROOT handling symlinks (e.g. if /usr/local/bin/carol -> ~/.carol/bin/carol)
 SOURCE="${BASH_SOURCE[0]}"
@@ -83,36 +83,52 @@ get_relative_path() {
     python3 -c "import os.path; print(os.path.relpath('$target', '$base'))"
 }
 
-MODEL_SONNET="anthropic/claude-sonnet-4-6"
-MODEL_MINIMAX="minimax-coding-plan/MiniMax-M2.5"
-SUBAGENT_ROLES=("librarian" "pathfinder" "validator" "researcher" "auditor" "engineer" "machinist")
 
-apply_subagent_model() {
-    local model="$1"
-    local agents_dir="$2"
+CAROL_PERMISSIONS='{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(git reset --hard*)",
+      "Bash(git checkout --*)",
+      "Bash(git branch -D*)"
+    ]
+  }
+}'
 
-    if [ ! -d "$agents_dir" ]; then
+setup_global_permissions() {
+    local settings="$HOME/.claude/settings.json"
+    mkdir -p "$HOME/.claude"
+
+    if [ ! -f "$settings" ]; then
+        echo "$CAROL_PERMISSIONS" > "$settings"
+        success "Global Claude Code permissions configured"
         return 0
     fi
 
-    for role in "${SUBAGENT_ROLES[@]}"; do
-        local file="$agents_dir/$role.md"
-        if [ -f "$file" ]; then
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                sed -i '' "s|^model: .*|model: $model|" "$file"
-            else
-                sed -i "s|^model: .*|model: $model|" "$file"
-            fi
-        fi
-    done
-}
+    if grep -q '"permissions"' "$settings"; then
+        notice "Global permissions already set — skipping"
+        return 0
+    fi
 
-resolve_model() {
-    case "${1:-sonnet}" in
-        sonnet)  echo "$MODEL_SONNET" ;;
-        minimax) echo "$MODEL_MINIMAX" ;;
-        *)       echo "" ;;
-    esac
+    if command -v jq &>/dev/null; then
+        local tmp
+        tmp=$(jq --argjson perms "$CAROL_PERMISSIONS" '. + $perms' "$settings")
+        echo "$tmp" > "$settings"
+        success "Global Claude Code permissions merged into settings.json"
+    else
+        warning "~/.claude/settings.json exists but has no permissions block"
+        warning "Install jq or add permissions manually"
+    fi
 }
 
 customize_templates() {
@@ -148,16 +164,11 @@ customize_templates() {
 cmd_init() {
     local project_path="."
     local portable=true
-    local model_name="sonnet"
 
     while [ $# -gt 0 ]; do
         case "$1" in
             --symlink)
                 portable=false
-                shift
-                ;;
-            sonnet|minimax)
-                model_name="$1"
                 shift
                 ;;
             -*)
@@ -172,21 +183,15 @@ cmd_init() {
         esac
     done
 
-    local model
-    model="$(resolve_model "$model_name")"
-
     cd "$project_path" || error "Cannot access directory: $project_path"
     project_path="$(pwd)"
 
     if [ -d "carol" ] || [ -d ".carol" ]; then
-        # Ensure agents are populated even if already initiated
-        if [ -d ".opencode/agents" ] && [ -z "$(ls -A .opencode/agents 2>/dev/null)" ]; then
-            if [ -d "$CAROL_ROOT/roles" ]; then
-                cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
-                local model
-                model="$(resolve_model "$model_name")"
-                apply_subagent_model "$model" ".opencode/agents"
-                success "Restored missing agents"
+        # Ensure commands are populated even if already initiated
+        if [ -d ".claude/commands" ] && [ -z "$(ls -A .claude/commands 2>/dev/null)" ]; then
+            if [ -d "$CAROL_ROOT/.claude/commands" ]; then
+                cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+                success "Restored missing commands"
             fi
         fi
         echo -e "${MAGENTA}${BOLD}ℹ CAROL already initiated.${NC}"
@@ -210,13 +215,13 @@ cmd_init() {
         for item in "$CAROL_ROOT"/*; do
             local base=$(basename "$item")
             case "$base" in
-                bin|tests|.git|.gitignore|.DS_Store|.opencode|install.sh|uninstall.sh|LICENSE|README.md)
+                bin|tests|.git|.gitignore|.DS_Store|.opencode|.claude|install.sh|uninstall.sh|LICENSE|README.md)
                     continue
                     ;;
             esac
             cp -r "$item" carol/
         done
-        
+
         # Restore SPRINT-LOG from backup or use template
         if [ -f ".carol-history/SPRINT-LOG.md" ]; then
             cp ".carol-history/SPRINT-LOG.md" carol/SPRINT-LOG.md
@@ -225,89 +230,15 @@ cmd_init() {
         elif [ -f "carol/templates/SPRINT-LOG.md" ]; then
             cp carol/templates/SPRINT-LOG.md carol/SPRINT-LOG.md
         fi
-        
-        mkdir -p .opencode/agents
-        if [ -d "$CAROL_ROOT/roles" ]; then
-            cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
+
+        # Copy CAROL.md as CLAUDE.md — auto-loaded by Claude Code as operating protocol
+        cp "$CAROL_ROOT/CAROL.md" CLAUDE.md
+
+        # Create Claude Code commands
+        mkdir -p .claude/commands
+        if [ -d "$CAROL_ROOT/.claude/commands" ]; then
+            cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
         fi
-
-        # Apply selected subagent model
-        apply_subagent_model "$model" ".opencode/agents"
-        info "Subagent model: $model_name ($model)"
-
-        # Configure OpenCode: disable plan, hide build (kept as startup fallback), set counselor as default
-        mkdir -p .opencode
-        cat > .opencode/opencode.json << 'EOF'
-{
-  "$schema": "https://opencode.ai/config.json",
-  "default_agent": "counselor",
-  "agent": {
-    "plan": {
-      "disable": true
-    },
-    "build": {
-      "hidden": true
-    }
-  }
-}
-EOF
-
-        # Create CAROL custom commands
-        mkdir -p .opencode/commands
-        
-        # Counselor command
-        cat > .opencode/commands/counselor.md << 'EOF'
----
-description: Activate COUNSELOR agent for planning and specification
-agent: counselor
----
-
-@carol/CAROL.md
-
-You are now acting as COUNSELOR.
-
-**MANDATORY FIRST STEP:**
-Acknowledge your activation by replying:
-
-```
-COUNSELOR ready to Rock 'n Roll!
-```
-
-**THEN WAIT for ARCHITECT direction.** Do NOT invoke @pathfinder. Do NOT start working.
-
-Only after ARCHITECT gives you specific direction:
-- ALWAYS invoke @pathfinder first
-- You are READ-ONLY for code
-- Delegate implementation to ENGINEER
-- Handoff bug fixes to SURGEON
-EOF
-
-        # Surgeon command  
-        cat > .opencode/commands/surgeon.md << 'EOF'
----
-description: Activate SURGEON agent for bug fixes and implementation
-agent: surgeon
----
-
-@carol/CAROL.md
-
-You are now acting as SURGEON.
-
-**MANDATORY FIRST STEP:**
-Acknowledge your activation by replying:
-
-```
-SURGEON ready to Rock 'n Roll!
-```
-
-**THEN WAIT for ARCHITECT direction.** Do NOT invoke @pathfinder. Do NOT start working.
-
-Only after ARCHITECT gives you specific direction:
-- ALWAYS invoke @pathfinder first
-- Provide surgical fixes only
-- Minimal changes, scoped impact
-- Do not refactor beyond the fix
-EOF
 
         if [ -f "carol/templates/config.yml" ]; then
             cp carol/templates/config.yml carol/config.yml
@@ -319,7 +250,6 @@ EOF
         fi
     else
         # Use ABSOLUTE paths for symlinks - LLM tools often don't follow relative symlinks
-        ln -sf "$CAROL_ROOT/CAROL.md" carol/CAROL.md
         [ -f "$CAROL_ROOT/INTERVIEW.md" ] && ln -sf "$CAROL_ROOT/INTERVIEW.md" carol/INTERVIEW.md
         ln -sf "$CAROL_ROOT/PATTERNS.md" carol/PATTERNS.md
         ln -sf "$CAROL_ROOT/SCRIPTS.md" carol/SCRIPTS.md
@@ -328,20 +258,6 @@ EOF
         ln -sf "$CAROL_ROOT/ARCHITECTURE-WRITER.md" carol/ARCHITECTURE-WRITER.md
         [ -f "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" ] && ln -sf "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" carol/ARCHITECTURAL-MANIFESTO.md
         [ -f "$CAROL_ROOT/NAMING-CONVENTION.md" ] && ln -sf "$CAROL_ROOT/NAMING-CONVENTION.md" carol/NAMING-CONVENTION.md
-        
-        # Create actual directories and symlink individual files with absolute paths
-        if [ -d "$CAROL_ROOT/scripts" ]; then
-            mkdir -p carol/scripts
-            for script_file in "$CAROL_ROOT/scripts"/*; do
-                [ -f "$script_file" ] && ln -sf "$script_file" "carol/scripts/$(basename "$script_file")"
-            done
-        fi
-        if [ -d "$CAROL_ROOT/roles" ]; then
-            mkdir -p carol/roles
-            for role_file in "$CAROL_ROOT/roles"/*.md; do
-                [ -f "$role_file" ] && ln -sf "$role_file" "carol/roles/$(basename "$role_file")"
-            done
-        fi
 
         # Restore SPRINT-LOG from backup or use template
         if [ -f ".carol-history/SPRINT-LOG.md" ]; then
@@ -361,100 +277,18 @@ EOF
             fi
         fi
 
-        mkdir -p .opencode/agents
-        if [ -d "$CAROL_ROOT/roles" ]; then
-            for role_file in "$CAROL_ROOT/roles"/*.md; do
-                [ -f "$role_file" ] && ln -sf "$role_file" ".opencode/agents/$(basename "$role_file")" 2>/dev/null
-            done
+        # Symlink CAROL.md as CLAUDE.md — auto-loaded by Claude Code as operating protocol
+        ln -sf "$CAROL_ROOT/CAROL.md" CLAUDE.md
+
+        # Create Claude Code commands
+        mkdir -p .claude/commands
+        if [ -d "$CAROL_ROOT/.claude/commands" ]; then
+            cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
         fi
-
-        # Copy subagent roles (replace symlinks) so model can be overridden locally
-        for role in "${SUBAGENT_ROLES[@]}"; do
-            local src="$CAROL_ROOT/roles/$role.md"
-            local dst=".opencode/agents/$role.md"
-            if [ -f "$src" ]; then
-                rm -f "$dst"
-                cp "$src" "$dst"
-            fi
-        done
-        apply_subagent_model "$model" ".opencode/agents"
-        info "Subagent model: $model_name ($model)"
-
-        # Configure OpenCode: disable plan, hide build (kept as startup fallback), set counselor as default
-        cat > .opencode/opencode.json << 'EOF'
-{
-  "$schema": "https://opencode.ai/config.json",
-  "default_agent": "counselor",
-  "agent": {
-    "plan": {
-      "disable": true
-    },
-    "build": {
-      "hidden": true
-    }
-  }
-}
-EOF
-
-        # Create CAROL custom commands
-        mkdir -p .opencode/commands
-        
-        # Counselor command
-        cat > .opencode/commands/counselor.md << 'EOF'
----
-description: Activate COUNSELOR agent for planning and specification
-agent: counselor
----
-
-@carol/CAROL.md
-
-You are now acting as COUNSELOR.
-
-**MANDATORY FIRST STEP:**
-Acknowledge your activation by replying:
-
-```
-COUNSELOR ready to Rock 'n Roll!
-```
-
-**THEN WAIT for ARCHITECT direction.** Do NOT invoke @pathfinder. Do NOT start working.
-
-Only after ARCHITECT gives you specific direction:
-- ALWAYS invoke @pathfinder first
-- You are READ-ONLY for code
-- Delegate implementation to ENGINEER
-- Handoff bug fixes to SURGEON
-EOF
-
-        # Surgeon command  
-        cat > .opencode/commands/surgeon.md << 'EOF'
----
-description: Activate SURGEON agent for bug fixes and implementation
-agent: surgeon
----
-
-@carol/CAROL.md
-
-You are now acting as SURGEON.
-
-**MANDATORY FIRST STEP:**
-Acknowledge your activation by replying:
-
-```
-SURGEON ready to Rock 'n Roll!
-```
-
-**THEN WAIT for ARCHITECT direction.** Do NOT invoke @pathfinder. Do NOT start working.
-
-Only after ARCHITECT gives you specific direction:
-- ALWAYS invoke @pathfinder first
-- Provide surgical fixes only
-- Minimal changes, scoped impact
-- Do not refactor beyond the fix
-EOF
     fi
 
     customize_templates "$project_path"
+    setup_global_permissions
 
     show_banner
     echo -e "${GREY}✓ v${VERSION} System initiated.${NC}"
@@ -577,28 +411,14 @@ cmd_update() {
             echo "$config_backup" > "$carol_dir/config.yml"
         fi
 
-        # Update role definitions
-        if [ -d "$CAROL_ROOT/roles" ] && [ -d ".opencode/agents" ]; then
-            cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
-        fi
+        # Refresh CLAUDE.md from SSOT
+        cp "$CAROL_ROOT/CAROL.md" CLAUDE.md
+        success "CLAUDE.md refreshed"
 
-        # Patch opencode.json: fix startup panic (build must stay visible as fallback)
-        if [ -f ".opencode/opencode.json" ]; then
-            cat > .opencode/opencode.json << 'EOF'
-{
-  "$schema": "https://opencode.ai/config.json",
-  "default_agent": "counselor",
-  "agent": {
-    "plan": {
-      "disable": true
-    },
-    "build": {
-      "hidden": true
-    }
-  }
-}
-EOF
-            success "Patched opencode.json"
+        # Update Claude Code commands
+        if [ -d "$CAROL_ROOT/.claude/commands" ] && [ -d ".claude/commands" ]; then
+            cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+            success "Commands updated"
         fi
 
         success "Portable files updated"
@@ -643,8 +463,9 @@ cmd_reset() {
         fi
         
         rm -rf carol .carol
-        rm -rf .opencode
-        
+        rm -rf .claude
+        rm -f CLAUDE.md
+
         # Restore SPRINT-LOG.md for next init
         if [ -n "$sprint_log" ]; then
             mkdir -p .carol-history
@@ -665,14 +486,13 @@ cmd_help() {
     echo "  carol <command> [options]"
     echo ""
     echo -e "${MAGENTA}Commands:${NC}"
-    echo -e "  ${YELLOW}init${NC} [sonnet|minimax]  Initialize CAROL (portable, sonnet default)"
-    echo -e "  ${YELLOW}init --symlink${NC}        Initialize with symlinks to SSOT"
-    echo -e "  ${YELLOW}sonnet${NC}                Run with Sonnet subagents (default)"
-    echo -e "  ${YELLOW}minimax${NC}               Run with MiniMax subagents"
-    echo -e "  ${YELLOW}reset${NC}                 Remove CAROL from current project"
-    echo -e "  ${YELLOW}update${NC}                Update CAROL framework"
-    echo -e "  ${YELLOW}version${NC}               Show CAROL version"
-    echo -e "  ${YELLOW}help${NC}                  Show this help message"
+    echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (portable)"
+    echo -e "  ${YELLOW}init --symlink${NC} Initialize with symlinks to SSOT"
+    echo -e "  ${YELLOW}--continue${NC}     Resume last CAROL session"
+    echo -e "  ${YELLOW}reset${NC}          Remove CAROL from current project"
+    echo -e "  ${YELLOW}update${NC}         Update CAROL framework"
+    echo -e "  ${YELLOW}version${NC}        Show CAROL version"
+    echo -e "  ${YELLOW}help${NC}           Show this help message"
     echo ""
     echo -e "${MAGENTA}PRIMARY Agents:${NC}"
     echo -e "  ${CYAN}COUNSELOR${NC}     Planning, specs, docs, SPRINT-LOG"
@@ -689,74 +509,32 @@ cmd_help() {
     echo -e "  ${CYAN}Validator${NC}     Spec & compliance checking"
     echo ""
     echo -e "${MAGENTA}Activate:${NC}"
-    echo -e "  ${YELLOW}@CAROL.md [ROLE]: Rock 'n Roll${NC}"
+    echo -e "  ${YELLOW}/counselor${NC}   Activate COUNSELOR (default on init)"
+    echo -e "  ${YELLOW}/surgeon${NC}     Activate SURGEON"
     echo ""
-    echo -e "  ${GREY}OpenCode${NC}    Press Tab to switch roles"
-    echo -e "  ${GREY}Others${NC}      @CAROL.md Rock 'n Role: [ROLE]"
+    echo -e "  CLAUDE.md auto-loaded — CAROL protocol always active"
     echo ""
     echo -e "${GREY}https://github.com/jrengmusic/carol${NC}"
     echo ""
 }
 
-get_arch_suffix() {
-    local kernel
-    kernel=$(uname -s)
-
-    # On Windows ARM64 (MSYS2/Git Bash/Cygwin), uname -m lies and reports x86_64
-    # but uname -s contains ARM64 in the kernel string, e.g.:
-    #   MINGW64_NT-10.0-26100-ARM64  (Git Bash / MSYS2 on Windows ARM64)
-    #   CYGWIN_NT-10.0-ARM64         (Cygwin on Windows ARM64)
-    # Scope this check to Windows kernels only to avoid false positives on Darwin/Linux.
-    case "$kernel" in
-        MINGW*|MSYS*|CYGWIN*)
-            if echo "$kernel" | grep -qi "ARM64"; then
-                echo "arm64"
-                return
-            fi
-            ;;
-    esac
-
-    local arch
-    arch=$(uname -m)
-    case "$arch" in
-        x86_64)        echo "x64" ;;
-        arm64|aarch64) echo "arm64" ;;
-        *) error "Unsupported architecture: $arch" ;;
-    esac
-}
 
 cmd_run() {
-    local model_name="${1:-sonnet}"
-    local arch_suffix
-    arch_suffix=$(get_arch_suffix)
+    local claude_args=("$@")
 
     if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
-        cmd_init "$model_name"
+        cmd_init
     else
-        # Already init'd — apply model switch
-        local model
-        model="$(resolve_model "$model_name")"
-        # Ensure agents exist (recover from empty .opencode/agents/)
-        if [ -d ".opencode/agents" ] && [ -z "$(ls -A .opencode/agents 2>/dev/null)" ]; then
-            if [ -d "$CAROL_ROOT/roles" ]; then
-                cp "$CAROL_ROOT/roles"/*.md .opencode/agents/
-                success "Restored missing agents"
+        # Ensure commands exist (recover from empty .claude/commands/)
+        if [ -d ".claude/commands" ] && [ -z "$(ls -A .claude/commands 2>/dev/null)" ]; then
+            if [ -d "$CAROL_ROOT/.claude/commands" ]; then
+                cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+                success "Restored missing commands"
             fi
-        fi
-        if [ -d ".opencode/agents" ]; then
-            apply_subagent_model "$model" ".opencode/agents"
-            info "Subagent model: $model_name ($model)"
         fi
     fi
 
-    local bin="$CAROL_ROOT/bin"
-    if [ -f "$bin/carolcode-${arch_suffix}.exe" ]; then
-        exec "$bin/carolcode-${arch_suffix}.exe"
-    elif [ -f "$bin/carolcode-${arch_suffix}" ]; then
-        exec "$bin/carolcode-${arch_suffix}"
-    else
-        error "carolcode-${arch_suffix} not found in $bin"
-    fi
+    exec claude "${claude_args[@]}"
 }
 
 # Main command dispatcher
@@ -777,14 +555,12 @@ case "${1:-run}" in
     help|--help|-h)
         cmd_help
         ;;
-    sonnet)
-        cmd_run sonnet
-        ;;
-    minimax)
-        cmd_run minimax
-        ;;
     run)
-        cmd_run
+        shift
+        cmd_run "$@"
+        ;;
+    --continue|-c)
+        cmd_run --continue
         ;;
     *)
         echo "Unknown command: $1"
