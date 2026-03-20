@@ -526,6 +526,8 @@ cmd_help() {
     echo -e "${MAGENTA}Commands:${NC}"
     echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (portable)"
     echo -e "  ${YELLOW}init --symlink${NC} Initialize with symlinks to SSOT"
+    echo -e "  ${YELLOW}counselor${NC}      Launch COUNSELOR session (default model)"
+    echo -e "  ${YELLOW}surgeon${NC}        Launch SURGEON session (Sonnet)"
     echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
     echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
     echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
@@ -650,6 +652,41 @@ cmd_resume() {
     exec claude --resume "$full_uuid"
 }
 
+cmd_continue() {
+    local project_hash
+    project_hash=$(pwd | sed 's/[^a-zA-Z0-9]/-/g')
+    local sessions_dir="$HOME/.claude/projects/$project_hash"
+
+    local model_flag=()
+    if [ -d "$sessions_dir" ]; then
+        local last_session
+        last_session=$(ls -t "$sessions_dir"/*.jsonl 2>/dev/null | head -1)
+        if [ -n "$last_session" ]; then
+            local model
+            model=$(python3 -c "
+import json
+model = ''
+try:
+    with open('$last_session') as f:
+        for line in reversed(f.readlines()):
+            try:
+                d = json.loads(line)
+                if d.get('type') == 'assistant':
+                    m = (d.get('message') or {}).get('model', '')
+                    if m:
+                        model = m
+                        break
+            except: continue
+except: pass
+print(model)
+" 2>/dev/null)
+            [ -n "$model" ] && model_flag=(--model "$model")
+        fi
+    fi
+
+    cmd_run --continue "${model_flag[@]}"
+}
+
 cmd_run() {
     local claude_args=("$@")
 
@@ -691,7 +728,13 @@ case "${1:-run}" in
         cmd_run "$@"
         ;;
     continue|--continue|-c)
-        cmd_run --continue
+        cmd_continue
+        ;;
+    counselor)
+        cmd_run
+        ;;
+    surgeon)
+        cmd_run --model claude-sonnet-4-6
         ;;
     sessions)
         cmd_sessions
