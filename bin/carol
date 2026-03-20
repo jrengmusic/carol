@@ -105,6 +105,31 @@ CAROL_PERMISSIONS='{
   }
 }'
 
+setup_statusline() {
+    local settings=".claude/settings.json"
+    mkdir -p .claude
+
+    if [ ! -f "$settings" ]; then
+        echo '{"statusLine":{"type":"command","command":"~/.carol/bin/carol-statusline.sh"}}' > "$settings"
+        success "Context rot meter configured"
+        return 0
+    fi
+
+    if grep -q '"statusLine"' "$settings"; then
+        notice "Status line already configured — skipping"
+        return 0
+    fi
+
+    if command -v jq &>/dev/null; then
+        local tmp
+        tmp=$(jq '. + {"statusLine":{"type":"command","command":"~/.carol/bin/carol-statusline.sh"}}' "$settings")
+        echo "$tmp" > "$settings"
+        success "Context rot meter configured"
+    else
+        warning "Install jq to auto-configure status line, or add manually to .claude/settings.json"
+    fi
+}
+
 setup_global_permissions() {
     local settings="$HOME/.claude/settings.json"
     mkdir -p "$HOME/.claude"
@@ -289,6 +314,7 @@ cmd_init() {
 
     customize_templates "$project_path"
     setup_global_permissions
+    setup_statusline
 
     show_banner
     echo -e "${GREY}✓ v${VERSION} System initiated.${NC}"
@@ -421,6 +447,8 @@ cmd_update() {
             success "Commands updated"
         fi
 
+        setup_statusline
+
         success "Portable files updated"
     else
         notice "All symlinked projects now use the updated version"
@@ -488,7 +516,9 @@ cmd_help() {
     echo -e "${MAGENTA}Commands:${NC}"
     echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (portable)"
     echo -e "  ${YELLOW}init --symlink${NC} Initialize with symlinks to SSOT"
-    echo -e "  ${YELLOW}--continue${NC}     Resume last CAROL session"
+    echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
+    echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
+    echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
     echo -e "  ${YELLOW}reset${NC}          Remove CAROL from current project"
     echo -e "  ${YELLOW}update${NC}         Update CAROL framework"
     echo -e "  ${YELLOW}version${NC}        Show CAROL version"
@@ -518,6 +548,97 @@ cmd_help() {
     echo ""
 }
 
+
+cmd_sessions() {
+    local project_hash
+    project_hash=$(pwd | sed 's/[^a-zA-Z0-9]/-/g')
+    local sessions_dir="$HOME/.claude/projects/$project_hash"
+
+    if [ ! -d "$sessions_dir" ]; then
+        notice "No sessions found for this project"
+        return 0
+    fi
+
+    local jsonl_files
+    jsonl_files=$(ls -t "$sessions_dir"/*.jsonl 2>/dev/null)
+
+    if [ -z "$jsonl_files" ]; then
+        notice "No sessions found"
+        return 0
+    fi
+
+    echo ""
+    echo -e "${CYAN}Sessions — $(pwd)${NC}"
+    echo ""
+    printf "${BOLD}%-10s %-44s %s${NC}\n" "ID" "NAME" "DATE"
+    echo "──────────────────────────────────────────────────────────────"
+
+    while IFS= read -r file; do
+        local uuid
+        uuid=$(basename "$file" .jsonl)
+        local short_id="${uuid:0:8}"
+        local date
+        date=$(date -r "$file" "+%Y-%m-%d" 2>/dev/null)
+
+        local label
+        label=$(python3 -c "
+import json
+label = ''
+try:
+    with open('$file') as f:
+        lines = f.readlines()
+    # Prefer custom-title (set by /rename)
+    for line in reversed(lines):
+        try:
+            d = json.loads(line)
+            if d.get('type') == 'custom-title':
+                label = d.get('customTitle', '')
+                break
+        except: continue
+    # Fall back to first real user message
+    if not label:
+        for line in lines:
+            try:
+                d = json.loads(line)
+                if d.get('type') == 'user':
+                    content = d.get('message', {}).get('content', '')
+                    text = content if isinstance(content, str) else next((b.get('text','') for b in content if isinstance(b,dict) and b.get('text')), '')
+                    text = text.strip()
+                    if text and not text.startswith('<'):
+                        label = text[:50]
+                        break
+            except: continue
+except: pass
+print(label)
+" 2>/dev/null)
+
+        [ -z "$label" ] && label="(no label)"
+        printf "${YELLOW}%-10s${NC} %-44s ${GREY}%s${NC}\n" "$short_id" "${label:0:44}" "$date"
+    done <<< "$jsonl_files"
+
+    echo ""
+}
+
+cmd_resume() {
+    local id="$1"
+    [ -z "$id" ] && error "Usage: carol resume <session-id>"
+
+    local project_hash
+    project_hash=$(pwd | sed 's/[^a-zA-Z0-9]/-/g')
+    local sessions_dir="$HOME/.claude/projects/$project_hash"
+
+    local full_uuid=""
+
+    # Resolve by short ID prefix
+    if [ -d "$sessions_dir" ]; then
+        full_uuid=$(ls "$sessions_dir"/*.jsonl 2>/dev/null | xargs -I{} basename {} .jsonl | grep "^$id" | head -1)
+    fi
+
+    # Use as-is (full UUID or whatever was passed)
+    [ -z "$full_uuid" ] && full_uuid="$id"
+
+    exec claude --resume "$full_uuid"
+}
 
 cmd_run() {
     local claude_args=("$@")
@@ -559,8 +680,15 @@ case "${1:-run}" in
         shift
         cmd_run "$@"
         ;;
-    --continue|-c)
+    continue|--continue|-c)
         cmd_run --continue
+        ;;
+    sessions)
+        cmd_sessions
+        ;;
+    resume)
+        shift
+        cmd_resume "$@"
         ;;
     *)
         echo "Unknown command: $1"
