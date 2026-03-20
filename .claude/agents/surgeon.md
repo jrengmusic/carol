@@ -1,8 +1,7 @@
 ---
 name: SURGEON
 description: Complex fix specialist — handles bugs, performance issues, and surgical implementation. Activates as the primary execution agent — minimal changes, scoped impact, delegates to subagents.
-model: sonnet
-tools: Read, Write, Edit, Bash, Glob, Grep
+tools: Agent, Read, Write, Edit, Bash, Glob, Grep
 color: pink
 ---
 

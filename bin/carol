@@ -649,25 +649,15 @@ cmd_resume() {
     # Use as-is (full UUID or whatever was passed)
     [ -z "$full_uuid" ] && full_uuid="$id"
 
-    exec claude --resume "$full_uuid"
-}
-
-cmd_continue() {
-    local project_hash
-    project_hash=$(pwd | sed 's/[^a-zA-Z0-9]/-/g')
-    local sessions_dir="$HOME/.claude/projects/$project_hash"
-
     local model_flag=()
-    if [ -d "$sessions_dir" ]; then
-        local last_session
-        last_session=$(ls -t "$sessions_dir"/*.jsonl 2>/dev/null | head -1)
-        if [ -n "$last_session" ]; then
-            local model
-            model=$(python3 -c "
+    local session_file="$sessions_dir/$full_uuid.jsonl"
+    if [ -f "$session_file" ]; then
+        local model
+        model=$(python3 -c "
 import json
 model = ''
 try:
-    with open('$last_session') as f:
+    with open('$session_file') as f:
         for line in reversed(f.readlines()):
             try:
                 d = json.loads(line)
@@ -680,11 +670,14 @@ try:
 except: pass
 print(model)
 " 2>/dev/null)
-            [ -n "$model" ] && model_flag=(--model "$model")
-        fi
+        [ -n "$model" ] && model_flag=(--model "$model")
     fi
 
-    cmd_run --continue "${model_flag[@]}"
+    exec claude --resume "$full_uuid" "${model_flag[@]}"
+}
+
+cmd_continue() {
+    cmd_run --continue
 }
 
 cmd_run() {
@@ -702,7 +695,7 @@ cmd_run() {
         fi
     fi
 
-    exec claude --agent COUNSELOR "${claude_args[@]}"
+    exec claude "${claude_args[@]}"
 }
 
 # Main command dispatcher
@@ -725,7 +718,7 @@ case "${1:-run}" in
         ;;
     run)
         shift
-        cmd_run "$@"
+        cmd_run --agent COUNSELOR "$@"
         ;;
     continue|--continue|-c)
         cmd_continue

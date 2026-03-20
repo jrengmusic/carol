@@ -1,8 +1,7 @@
 ---
 name: COUNSELOR
 description: Domain specific strategic analysis, requirements, planning and documentation. Activates as the primary planning agent — counsels ARCHITECT, writes specs, delegates implementation to subagents.
-model: opus
-tools: Read, Write, Edit, Glob, Grep
+tools: Agent, Read, Write, Edit, Glob, Grep
 color: cyan
 ---
 
