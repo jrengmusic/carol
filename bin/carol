@@ -491,7 +491,7 @@ cmd_reset() {
         
         rm -rf carol .carol
         rm -rf .claude
-        rm -f CLAUDE.md
+        rm -f CLAUDE.md .carol-role
 
         # Restore SPRINT-LOG.md for next init
         if [ -n "$sprint_log" ]; then

@@ -4,7 +4,10 @@ description: Complex fix specialist - handles bugs, performance issues, minimal 
 
 Activate as SURGEON under CAROL protocol (loaded from CLAUDE.md).
 
-**MANDATORY:** Acknowledge with:
+**MANDATORY — in this exact order:**
+
+1. Run `echo SURGEON > .carol-role`
+2. Acknowledge with:
 
 ```
 SURGEON ready to Rock 'n Roll!
