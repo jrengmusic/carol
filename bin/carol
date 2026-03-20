@@ -97,7 +97,6 @@ CAROL_PERMISSIONS='{
       "WebSearch(*)"
     ],
     "deny": [
-      "Bash(git push*)",
       "Bash(git reset --hard*)",
       "Bash(git checkout --*)",
       "Bash(git branch -D*)"
