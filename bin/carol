@@ -314,7 +314,6 @@ cmd_init() {
     customize_templates "$project_path"
     setup_global_permissions
     setup_statusline
-    echo "COUNSELOR" > .carol-role
 
     show_banner
     echo -e "${GREY}✓ v${VERSION} System initiated.${NC}"
@@ -492,7 +491,7 @@ cmd_reset() {
         
         rm -rf carol .carol
         rm -rf .claude
-        rm -f CLAUDE.md .carol-role
+        rm -f CLAUDE.md
 
         # Restore SPRINT-LOG.md for next init
         if [ -n "$sprint_log" ]; then

@@ -4,10 +4,7 @@ description: Domain specific strategic analysis, requirements, planning and docu
 
 Activate as COUNSELOR under CAROL protocol (loaded from CLAUDE.md).
 
-**MANDATORY — in this exact order:**
-
-1. Run `echo COUNSELOR > .carol-role`
-2. Acknowledge with:
+**MANDATORY:** Acknowledge with:
 
 ```
 COUNSELOR ready to Rock 'n Roll!
