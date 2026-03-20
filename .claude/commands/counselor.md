@@ -25,3 +25,5 @@ Then wait for ARCHITECT direction. Do not start working.
 | VALIDATOR | `Explore` | default |
 
 ALWAYS invoke PATHFINDER first before any planning work.
+
+**Before invoking any subagent:** Read `.claude/agents/<role>.md` and prepend its full contents to the Agent tool prompt.

@@ -258,10 +258,13 @@ cmd_init() {
         # Copy CAROL.md as CLAUDE.md — auto-loaded by Claude Code as operating protocol
         cp "$CAROL_ROOT/CAROL.md" CLAUDE.md
 
-        # Create Claude Code commands
-        mkdir -p .claude/commands
+        # Create Claude Code commands and agent definitions
+        mkdir -p .claude/commands .claude/agents
         if [ -d "$CAROL_ROOT/.claude/commands" ]; then
             cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+        fi
+        if [ -d "$CAROL_ROOT/.claude/agents" ]; then
+            cp "$CAROL_ROOT/.claude/agents"/*.md .claude/agents/
         fi
 
         if [ -f "carol/templates/config.yml" ]; then
@@ -304,10 +307,13 @@ cmd_init() {
         # Symlink CAROL.md as CLAUDE.md — auto-loaded by Claude Code as operating protocol
         ln -sf "$CAROL_ROOT/CAROL.md" CLAUDE.md
 
-        # Create Claude Code commands
-        mkdir -p .claude/commands
+        # Create Claude Code commands and agent definitions
+        mkdir -p .claude/commands .claude/agents
         if [ -d "$CAROL_ROOT/.claude/commands" ]; then
             cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+        fi
+        if [ -d "$CAROL_ROOT/.claude/agents" ]; then
+            cp "$CAROL_ROOT/.claude/agents"/*.md .claude/agents/
         fi
     fi
 
@@ -440,10 +446,15 @@ cmd_update() {
         cp "$CAROL_ROOT/CAROL.md" CLAUDE.md
         success "CLAUDE.md refreshed"
 
-        # Update Claude Code commands
+        # Update Claude Code commands and agent definitions
         if [ -d "$CAROL_ROOT/.claude/commands" ] && [ -d ".claude/commands" ]; then
             cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
             success "Commands updated"
+        fi
+        if [ -d "$CAROL_ROOT/.claude/agents" ]; then
+            mkdir -p .claude/agents
+            cp "$CAROL_ROOT/.claude/agents"/*.md .claude/agents/
+            success "Agent definitions updated"
         fi
 
         setup_statusline
