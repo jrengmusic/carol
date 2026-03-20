@@ -702,7 +702,7 @@ cmd_run() {
         fi
     fi
 
-    exec claude "${claude_args[@]}"
+    exec claude --agent COUNSELOR "${claude_args[@]}"
 }
 
 # Main command dispatcher
@@ -731,10 +731,10 @@ case "${1:-run}" in
         cmd_continue
         ;;
     counselor)
-        cmd_run
+        cmd_run --agent COUNSELOR
         ;;
     surgeon)
-        cmd_run --model claude-sonnet-4-6
+        cmd_run --agent SURGEON --model claude-sonnet-4-6
         ;;
     sessions)
         cmd_sessions
