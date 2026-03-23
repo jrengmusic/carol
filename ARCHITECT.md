@@ -96,5 +96,5 @@ The ARCHITECT who understands computer architecture, data flow, threading models
 The limit is only what you can see.
 
 ---
-
-*JRENG — 2026*
+* Rock 'n Roll!'*
+**JRENG! - March 2026**
