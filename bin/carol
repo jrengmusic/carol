@@ -526,8 +526,8 @@ cmd_help() {
     echo -e "${MAGENTA}Commands:${NC}"
     echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (portable)"
     echo -e "  ${YELLOW}init --symlink${NC} Initialize with symlinks to SSOT"
-    echo -e "  ${YELLOW}counselor${NC}      Launch COUNSELOR session (default model)"
-    echo -e "  ${YELLOW}surgeon${NC}        Launch SURGEON session (Sonnet)"
+    echo -e "  ${YELLOW}counselor${NC} [name] Launch COUNSELOR session (default model)"
+    echo -e "  ${YELLOW}surgeon${NC} [name]   Launch SURGEON session (Sonnet)"
     echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
     echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
     echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
@@ -681,7 +681,27 @@ cmd_continue() {
 }
 
 cmd_run() {
-    local claude_args=("$@")
+    local claude_args=()
+    local session_name=""
+
+    # Separate claude flags from session name
+    # Session name is the first non-flag argument after known flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --agent|--model)
+                claude_args+=("$1" "$2")
+                shift 2
+                ;;
+            --*)
+                claude_args+=("$1")
+                shift
+                ;;
+            *)
+                session_name="$1"
+                shift
+                ;;
+        esac
+    done
 
     if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
         cmd_init
@@ -693,6 +713,11 @@ cmd_run() {
                 success "Restored missing commands"
             fi
         fi
+    fi
+
+    # Pass session name as /rename prompt
+    if [ -n "$session_name" ]; then
+        exec claude "${claude_args[@]}" "/rename $session_name"
     fi
 
     exec claude "${claude_args[@]}"
@@ -724,10 +749,12 @@ case "${1:-run}" in
         cmd_continue
         ;;
     counselor)
-        cmd_run --agent COUNSELOR
+        shift
+        cmd_run --agent COUNSELOR "$@"
         ;;
     surgeon)
-        cmd_run --agent SURGEON --model claude-sonnet-4-6
+        shift
+        cmd_run --agent SURGEON --model claude-sonnet-4-6 "$@"
         ;;
     sessions)
         cmd_sessions
