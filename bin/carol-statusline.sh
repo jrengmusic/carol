@@ -58,10 +58,10 @@ label_color="\033[38;2;105;157;170m"  # tranquiliTeal
 
 # Color: 4 hard thresholds
 # 0-24%: deep teal | 25-49%: rich amber | 50-74%: warm orange | 75%+: preciousPersimmon
-if   [ "$scaled" -ge 75 ]; then color="\033[38;2;252;112;76m"
-elif [ "$scaled" -ge 50 ]; then color="\033[38;2;200;120;50m"
-elif [ "$scaled" -ge 25 ]; then color="\033[38;2;0;150;160m"
-else                            color="\033[38;2;51;83;91m"
+if   [ "$scaled" -ge 75 ]; then color="\033[38;2;252;112;76m"; ctx_emoji="🥵"
+elif [ "$scaled" -ge 50 ]; then color="\033[38;2;200;120;50m"; ctx_emoji="😟"
+elif [ "$scaled" -ge 25 ]; then color="\033[38;2;0;150;160m"; ctx_emoji="😐"
+else                            color="\033[38;2;51;83;91m"; ctx_emoji="😊"
 fi
 
 # Grid bar builder: segments with 1-char gaps
@@ -113,4 +113,4 @@ if [ "$rl_pct" -gt 0 ]; then
     rl_label="  ${dim_color}⚡${reset}${rl_bar}${rl_reset_label}"
 fi
 
-printf "${label_color}◈ CAROL v${carol_version}${reset}${role_label}  ${dim_color}${model}${reset}  ${bar}${rl_label}\n"
+printf "${label_color}◈ CAROL v${carol_version}${reset}${role_label}  ${dim_color}${model}${reset}  ${ctx_emoji}${bar}${rl_label}\n"
