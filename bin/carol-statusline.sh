@@ -82,7 +82,7 @@ build_bar() {
 }
 
 # Context bar — 20 segments
-CTX_SEGMENTS=20
+CTX_SEGMENTS=10
 ctx_filled=$((scaled * CTX_SEGMENTS / 100))
 bar=$(build_bar $CTX_SEGMENTS $ctx_filled "$color")
 
@@ -105,7 +105,7 @@ if [ "$rl_pct" -gt 0 ]; then
     elif [ "$rl_pct" -ge 25 ]; then rl_color="\033[38;2;0;150;160m"
     else                            rl_color="\033[38;2;51;83;91m"
     fi
-    RL_SEGMENTS=20
+    RL_SEGMENTS=10
     rl_filled=$((rl_pct * RL_SEGMENTS / 100))
     rl_bar=$(build_bar $RL_SEGMENTS $rl_filled "$rl_color")
     rl_reset_label=""
