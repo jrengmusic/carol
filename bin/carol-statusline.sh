@@ -64,17 +64,16 @@ elif [ "$scaled" -ge 25 ]; then color="\033[38;2;0;150;160m"; ctx_emoji="😐"
 else                            color="\033[38;2;51;83;91m"; ctx_emoji="😊"
 fi
 
-# Grid bar builder: segments with 1-char gaps
+# Continuous bar builder
 # Usage: build_bar <segments> <filled_count> <color_escape>
 build_bar() {
     local segments=$1 filled=$2 clr=$3
-    local bar_out=""
+    local bar_out="${bg_dark}"
     for ((i=0; i<segments; i++)); do
-        [ "$i" -gt 0 ] && bar_out="${bar_out}${bg_gap} "
         if [ "$i" -lt "$filled" ]; then
-            bar_out="${bar_out}${bg_dark}${clr}${bold}█"
+            bar_out="${bar_out}${clr}${bold}█"
         else
-            bar_out="${bar_out}${bg_dark} "
+            bar_out="${bar_out} "
         fi
     done
     bar_out="${bar_out}${reset}"
@@ -82,7 +81,7 @@ build_bar() {
 }
 
 # Context bar — 20 segments
-CTX_SEGMENTS=10
+CTX_SEGMENTS=15
 ctx_filled=$((scaled * CTX_SEGMENTS / 100))
 bar=$(build_bar $CTX_SEGMENTS $ctx_filled "$color")
 
@@ -105,7 +104,7 @@ if [ "$rl_pct" -gt 0 ]; then
     elif [ "$rl_pct" -ge 25 ]; then rl_color="\033[38;2;0;150;160m"
     else                            rl_color="\033[38;2;51;83;91m"
     fi
-    RL_SEGMENTS=10
+    RL_SEGMENTS=15
     rl_filled=$((rl_pct * RL_SEGMENTS / 100))
     rl_bar=$(build_bar $RL_SEGMENTS $rl_filled "$rl_color")
     rl_reset_label=""
