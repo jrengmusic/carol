@@ -713,9 +713,8 @@ cmd_run() {
                 success "Restored missing commands"
             fi
         fi
+        show_banner
     fi
-
-    show_banner
 
     # Pass session name as /rename prompt
     if [ -n "$session_name" ]; then
