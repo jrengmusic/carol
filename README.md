@@ -21,6 +21,12 @@ CAROL was never meant to be used for 100% vibing, you could if you want. But it 
 
 CAROL also works effectively as a rapid prototyping methodology for experienced architects exploring unfamiliar stacks.
 
+**CAROL is your preamp.**
+
+A high-end preamp never eliminates noise — and distortion sometimes becomes its signature color. But the signal-to-noise ratio is always at the highest. CAROL does the same for LLM sessions. It doesn't produce sterile, generic output. It has your character baked in — your coding contract, your naming conventions, your architectural philosophy. The distortion is intentional and consistent.
+
+The model is the signal source. CAROL is the signal chain. The output has your signature.
+
 ---
 
 ## 📖 Notation Reference
