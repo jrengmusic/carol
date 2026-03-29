@@ -27,6 +27,8 @@ A high-end preamp never eliminates noise — and distortion sometimes becomes it
 
 The model is the signal source. CAROL is the signal chain. The output has your signature.
 
+Context is headroom. Keep transients below it, but enough signal to record. Sessions are takes — you don't stop because time ran out, you stop because you got what you needed. Anything after that is noise on tape. SPRINT-LOG is the pool — distilled signal from every take, ready for the next session to reference without replaying the entire reel.
+
 ---
 
 ## 📖 Notation Reference
