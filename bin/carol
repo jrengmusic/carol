@@ -77,12 +77,6 @@ version_greater_than() {
     [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" != "$1" ]
 }
 
-get_relative_path() {
-    local target="$1"
-    local base="$2"
-    python3 -c "import os.path; print(os.path.relpath('$target', '$base'))"
-}
-
 
 CAROL_PERMISSIONS='{
   "permissions": {
@@ -561,9 +555,19 @@ cmd_help() {
 }
 
 
+get_project_hash() {
+    local cwd
+    if command -v cygpath &>/dev/null; then
+        cwd=$(cygpath -w "$(pwd)")
+    else
+        cwd=$(pwd)
+    fi
+    echo "$cwd" | sed 's/[^a-zA-Z0-9]/-/g'
+}
+
 cmd_sessions() {
     local project_hash
-    project_hash=$(pwd | sed 's/[^a-zA-Z0-9]/-/g')
+    project_hash=$(get_project_hash)
     local sessions_dir="$HOME/.claude/projects/$project_hash"
 
     if [ ! -d "$sessions_dir" ]; then
@@ -590,14 +594,16 @@ cmd_sessions() {
         uuid=$(basename "$file" .jsonl)
         local short_id="${uuid:0:8}"
         local date
-        date=$(date -r "$file" "+%Y-%m-%d" 2>/dev/null)
+        date=$(date -r "$file" "+%d-%m-%Y" 2>/dev/null)
 
+        local python_file="$file"
+        command -v cygpath &>/dev/null && python_file=$(cygpath -w "$file")
         local label
         label=$(python3 -c "
 import json
 label = ''
 try:
-    with open('$file') as f:
+    with open(r'$python_file') as f:
         lines = f.readlines()
     # Prefer custom-title (set by /rename)
     for line in reversed(lines):
@@ -636,7 +642,7 @@ cmd_resume() {
     [ -z "$id" ] && error "Usage: carol resume <session-id>"
 
     local project_hash
-    project_hash=$(pwd | sed 's/[^a-zA-Z0-9]/-/g')
+    project_hash=$(get_project_hash)
     local sessions_dir="$HOME/.claude/projects/$project_hash"
 
     local full_uuid=""
@@ -652,12 +658,14 @@ cmd_resume() {
     local model_flag=()
     local session_file="$sessions_dir/$full_uuid.jsonl"
     if [ -f "$session_file" ]; then
+        local python_file="$session_file"
+        command -v cygpath &>/dev/null && python_file=$(cygpath -w "$session_file")
         local model
         model=$(python3 -c "
 import json
 model = ''
 try:
-    with open('$session_file') as f:
+    with open(r'$python_file') as f:
         for line in reversed(f.readlines()):
             try:
                 d = json.loads(line)
