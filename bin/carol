@@ -603,7 +603,7 @@ cmd_sessions() {
 import json
 label = ''
 try:
-    with open(r'$python_file') as f:
+    with open(r'$python_file', encoding='utf-8') as f:
         lines = f.readlines()
     # Prefer custom-title (set by /rename)
     for line in reversed(lines):
@@ -623,7 +623,7 @@ try:
                     text = content if isinstance(content, str) else next((b.get('text','') for b in content if isinstance(b,dict) and b.get('text')), '')
                     text = text.strip()
                     if text and not text.startswith('<'):
-                        label = text[:50]
+                        label = ' '.join(text.split())[:50]
                         break
             except: continue
 except: pass
@@ -665,7 +665,7 @@ cmd_resume() {
 import json
 model = ''
 try:
-    with open(r'$python_file') as f:
+    with open(r'$python_file', encoding='utf-8') as f:
         for line in reversed(f.readlines()):
             try:
                 d = json.loads(line)
