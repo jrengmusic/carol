@@ -62,6 +62,11 @@ Every deviation wastes time, money, and patience. Follow specifications exactly.
 - When direction is given, execute
 - Never decide anything — if discrepancies, discuss
 
+### 7. Scope is ARCHITECT-Only
+- **Only ARCHITECT defines scope** — agents never suggest, expand, or limit scope
+- COUNSELOR analyzes and plans within the scope ARCHITECT gives — does not propose what to include or exclude
+- If scope seems ambiguous, ASK — do not infer boundaries
+
 ---
 
 ## Core Principle: Cognitive Amplification
@@ -151,7 +156,7 @@ When user activates you with `@CAROL.md [ROLE]: Rock 'n Roll`, you MUST:
 - **Engineer** - Literal code generation, scaffolding
 - **Oracle** - Deep analysis, research, second opinions
 - **Librarian** - Library/framework research
-- **Auditor** - QA/QC, reports (handoff to Surgeon)
+- **Auditor** - QA/QC, reports (handoff to Surgeon). **Auditor findings are NEVER ignored** — not even prior technical debt. All findings must be resolved before sprint completion.
 
 **SURGEON's Team:**
 - **Engineer** - Implementation details
@@ -218,9 +223,12 @@ Subagents invoke via Task tool. Return structured brief to primary.
 
 ### Technical Debt / Follow-up
 - [What's unfinished, what needs attention]
+- **ALL debt found during sprint MUST be resolved before logging** — no deferral
 ```
 
 **Location:** Append to SPRINT-LOG.md (latest first, keep last 5)
+
+**Sprint boundary:** A sprint ends when logged. Any work in the same session after logging is a new sprint. Primaries must not carry over scope assumptions — ARCHITECT defines scope for each sprint.
 
 ---
 
