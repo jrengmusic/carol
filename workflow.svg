@@ -9,13 +9,7 @@
             <path d="M850,95.556L850,184.444C850,187.511 847.76,190 845,190L555,190C552.24,190 550,187.511 550,184.444L550,95.556C550,92.489 552.24,90 555,90L845,90C847.76,90 850,92.489 850,95.556Z" style="fill:#0d141c;stroke:#fcba03;stroke-width:2.11px;"/>
             <g>
                 <text x="641.715px" y="125.793px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:16px;fill:#fcba03;">BRAINSTORMER</text>
-                <g transform="matrix(10,0,0,10,657.866211,143.793457)">
-                </g>
-                <g transform="matrix(10,0,0,10,660.876465,143.793457)">
-                </g>
                 <text x="633.784px" y="143.793px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#699daa;">Pre-ﬂight Shadow Agent</text>
-                <g transform="matrix(11,0,0,11,792.844727,163.793457)">
-                </g>
                 <text x="607.413px" y="163.793px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#c5f0e9;">Research • Ideate • Scaffold</text>
             </g>
         </g>
@@ -26,16 +20,12 @@
     </g>
     <g>
         <text x="301.234px" y="285px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:18px;fill:#b3f9f5;">COUNSELOR</text>
-        <g transform="matrix(10,0,0,10,272.735394,310)">
-        </g>
-        <g transform="matrix(10,0,0,10,275.745648,310)">
-        </g>
-        <text x="200.489px" y="310px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#699daa;">Domain Speciﬁc Strategic Analysis</text>
+        <text x="250.823px" y="310px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#699daa;">Domain Speciﬁc Strategic Analysis</text>
         <text x="244.039px" y="335px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Write SPEC.md, PLAN.md, ARCHITECTURE.md</text>
         <text x="250.662px" y="355px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Plan features, ask questions</text>
         <text x="253.973px" y="375px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Handoff to SURGEON for ﬁxes</text>
         <text x="1012.071px" y="285px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:18px;fill:#b3f9f5;">SURGEON</text>
-        <text x="910.877px" y="310px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#699daa;">Surgical Precision Problem Solving</text>
+        <text x="947.778px" y="310px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#699daa;">Surgical Precision Problem Solving</text>
         <text x="950.662px" y="335px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Fix bugs, implement features</text>
         <text x="944.039px" y="355px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Surgical ﬁxes, minimal changes</text>
         <text x="973.841px" y="375px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Handle complex issues</text>
@@ -82,17 +72,11 @@
         <g>
             <path d="M500,95L500,185C500,187.76 497.76,190 495,190L205,190C202.24,190 200,187.76 200,185L200,95C200,92.24 202.24,90 205,90L495,90C497.76,90 500,92.24 500,95Z" style="fill:#2c4144;stroke:#00c8d8;stroke-width:2px;"/>
             <g>
-                <g transform="matrix(16,0,0,16,379.327396,119.497128)">
-                </g>
                 <text x="321.531px" y="119.497px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:16px;fill:#00c8d8;">RFC.md</text>
-                <g transform="matrix(11,0,0,11,416.386719,138.709961)">
-                </g>
                 <text x="283.936px" y="138.71px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#bafffd;">Request for Comments</text>
-                <g transform="matrix(1,0,0,1,241.916504,160.579044)">
-                    <text x="0px" y="0px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#8cc9d9;">research, rationale, open questions,</text>
-                    <g transform="matrix(10,0,0,10,156.533203,10)">
-                    </g>
-                    <text x="60.205px" y="10px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#8cc9d9;">ready for review</text>
+                <g>
+                    <text x="241.917px" y="160.579px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#8cc9d9;">research, rationale, open questions,</text>
+                    <text x="302.122px" y="170.579px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#8cc9d9;">ready for review</text>
                 </g>
             </g>
         </g>
@@ -102,9 +86,13 @@
     </g>
     <g>
         <g>
-            <text x="685.551px" y="659.793px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:16px;fill:#fc704c;">YOU</text>
-            <text x="665.04px" y="684.793px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:12px;fill:#feffd2;">ARCHITECT</text>
-            <text x="623.841px" y="709.793px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#c5f0e9;">Test • Decide • Approve</text>
+            <g transform="matrix(18.662293,0,0,18.662293,750.82012,686.79333)">
+            </g>
+            <text x="649.699px" y="686.793px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:18.662px;fill:#fc704c;">ARCHITECT</text>
+            <g transform="matrix(12,0,0,12,711.162109,663.779297)">
+            </g>
+            <text x="689.488px" y="663.779px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:12px;fill:#feffd2;">YOU</text>
+            <text x="624.018px" y="704.408px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#c5f0e9;">Test • Decide • Approve</text>
         </g>
     </g>
     <g>
