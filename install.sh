@@ -136,8 +136,8 @@ verify_install() {
     fi
 
     # Verify required directories exist
-    if [ ! -d "$CAROL_ROOT/roles" ]; then
-        error "Installation failed: roles directory not found"
+    if [ ! -d "$CAROL_ROOT/.claude/agents" ]; then
+        error "Installation failed: agent definitions not found"
     fi
 
     if [ ! -d "$CAROL_ROOT/templates" ]; then
@@ -164,7 +164,7 @@ show_banner() {
     echo -e "\033[38;2;230;25;179m  ░░████████ ████    ████ ████    ████ ░░████████░░ ████████████\033[0m"
     echo -e "\033[38;2;255;0;153m    ░░░░░░░░ ░░░░    ░░░░ ░░░░    ░░░░   ░░░░░░░░   ░░░░░░░░░░░░\033[0m"
     echo ""
-    echo -e "\033[0;36mCognitive Amplification Role Orchestration for LLM agents\033[0m"
+    echo -e "\033[0;36mCognitive Amplifier Role Orchestration for LLM agents\033[0m"
 }
 
 # Main installation
