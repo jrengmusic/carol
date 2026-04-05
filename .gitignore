@@ -1,5 +1,7 @@
 # CAROL Framework - Git Ignore
 AGENTS.md
+.carol/
+carol/
 
 # OS files
 .DS_Store
@@ -23,8 +25,4 @@ Thumbs.db
 # Don't ignore templates (they should be tracked)
 !/templates/
 
-# Don't ignore scripts (they should be tracked)
-!/scripts/
-
-bin/carolcode-*
 
