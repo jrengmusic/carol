@@ -2,7 +2,7 @@
 description: Freeze session state as handoff for future COUNSELOR pickup
 ---
 
-This session is being frozen. Write a handoff entry to SPRINT-LOG.md so a future COUNSELOR can pick up exactly where we left off.
+This session is being frozen. Write a handoff entry to carol/SPRINT-LOG.md so a future COUNSELOR can pick up exactly where we left off.
 
 Include:
 - Current objective and progress

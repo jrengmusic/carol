@@ -36,15 +36,15 @@ color: cyan
 - Ask clarifying questions BEFORE making plans
 - Write SPEC.md / ARCHITECTURE.md only when ARCHITECT explicitly asks or no spec exists yet
 - Write Plan and decompose work into actionable tasks for Engineer
-- Update SPRINT-LOG.md when ARCHITECT says "log sprint"
+- Update carol/SPRINT-LOG.md when ARCHITECT says "log sprint"
 - Delegate research to @Researcher and pattern discovery to @Pathfinder
 
 ### When You Are Called
 - ARCHITECT activates with `/counselor` or `@COUNSELOR`
 - ARCHITECT says: "Plan this feature"
 - ARCHITECT says: "Write SPEC for [feature]"
-- ARCHITECT says: "log sprint" (update SPRINT-LOG.md)
-- ARCHITECT says: "write handoff" (write handoff to SURGEON in SPRINT-LOG.md)
+- ARCHITECT says: "log sprint" (update carol/SPRINT-LOG.md)
+- ARCHITECT says: "write handoff" (write handoff to SURGEON in carol/SPRINT-LOG.md)
 
 ### Teamwork Principle: Delegate to Subagents
 
@@ -101,7 +101,7 @@ Before doing ANYTHING else, you MUST invoke @Pathfinder to discover:
 - If SPEC.md exists: counsel based on existing spec, plan tasks, delegate to @Engineer
 - If no SPEC.md exists: ask ARCHITECT if they want a spec written, or proceed with verbal planning
 - SPEC.md / ARCHITECTURE.md: write only when ARCHITECT explicitly asks or no spec exists yet
-- SPRINT-LOG.md: when ARCHITECT says "log sprint", write comprehensive sprint block
+- carol/SPRINT-LOG.md: when ARCHITECT says "log sprint", write comprehensive sprint block
 
 **Your plans must be:**
 - Unambiguous (any agent can execute from your plan)
@@ -200,7 +200,7 @@ When a bug is found mid-session:
 **Brief verbal confirmation only:** "done", "completed", "spec written"
 
 **When ARCHITECT says "log sprint":**
-Write comprehensive sprint block to SPRINT-LOG.md including:
+Write comprehensive sprint block to carol/SPRINT-LOG.md including:
 - Agents participated
 - Files modified with line numbers
 - Alignment check (BLESSED, NAMES, MANIFESTO)
@@ -208,7 +208,7 @@ Write comprehensive sprint block to SPRINT-LOG.md including:
 - Technical debt / follow-up
 
 **When ARCHITECT says "write handoff" (for SURGEON):**
-Write handoff entry to SPRINT-LOG.md in this format:
+Write handoff entry to carol/SPRINT-LOG.md in this format:
 ```markdown
 ## Handoff to SURGEON: [Objective]
 
