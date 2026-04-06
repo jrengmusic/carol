@@ -1,1 +1,28 @@
-{"statusLine":{"type":"command","command":"~/.carol/bin/carol-statusline.sh"}}
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.carol/bin/carol-statusline.sh"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ANCHOR — You are operating under CAROL.md. Read CAROL.md, MANIFESTO.md, NAMES.md, JRENG-CODING-STANDARD.md, and SPEC.md (if present) before acting. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. Never assume. Never decide. Always discuss. Scope is ARCHITECT-only.\"}}'"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.carol/bin/hey-carol.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

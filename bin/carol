@@ -98,29 +98,54 @@ CAROL_PERMISSIONS='{
   }
 }'
 
+CAROL_CLAUDE_SETTINGS='{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.carol/bin/carol-statusline.sh"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '"'"'{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ANCHOR — You are operating under CAROL.md. Read CAROL.md, MANIFESTO.md, NAMES.md, JRENG-CODING-STANDARD.md, and SPEC.md (if present) before acting. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. Never assume. Never decide. Always discuss. Scope is ARCHITECT-only.\"}}'"'"'"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.carol/bin/hey-carol.sh"
+          }
+        ]
+      }
+    ]
+  }
+}'
+
 setup_statusline() {
     local settings=".claude/settings.json"
     mkdir -p .claude
 
     if [ ! -f "$settings" ]; then
-        echo '{"statusLine":{"type":"command","command":"~/.carol/bin/carol-statusline.sh"}}' > "$settings"
-        success "Context rot meter configured"
+        echo "$CAROL_CLAUDE_SETTINGS" > "$settings"
+        success "Context rot meter + protocol hooks configured"
         return 0
     fi
 
-    if grep -q '"statusLine"' "$settings"; then
-        notice "Status line already configured — skipping"
+    if ! command -v jq &>/dev/null; then
+        warning "Install jq to auto-configure statusLine + hooks, or merge manually from $CAROL_ROOT/.claude/settings.json"
         return 0
     fi
 
-    if command -v jq &>/dev/null; then
-        local tmp
-        tmp=$(jq '. + {"statusLine":{"type":"command","command":"~/.carol/bin/carol-statusline.sh"}}' "$settings")
-        echo "$tmp" > "$settings"
-        success "Context rot meter configured"
-    else
-        warning "Install jq to auto-configure status line, or add manually to .claude/settings.json"
-    fi
+    local tmp
+    tmp=$(jq --argjson carol "$CAROL_CLAUDE_SETTINGS" '. * $carol' "$settings")
+    echo "$tmp" > "$settings"
+    success "Context rot meter + protocol hooks configured"
 }
 
 setup_global_permissions() {
