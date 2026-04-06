@@ -3,8 +3,8 @@
 
 data=$(cat)
 
-# CAROL version from SSOT (bin/carol)
-carol_version=$(grep '^VERSION=' "$(dirname "$0")/carol" 2>/dev/null | cut -d'"' -f2)
+# CAROL version from SSOT (/VERSION file at repo root)
+carol_version=$(tr -d '[:space:]' < "$(dirname "$0")/../VERSION" 2>/dev/null)
 carol_version=${carol_version:-"?"}
 
 # Parse context %, model name, agent role, and rate limit

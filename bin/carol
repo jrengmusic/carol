@@ -1,8 +1,6 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 0.0.6
-
-VERSION="0.0.6"
+# Version is SSOT'd in /VERSION — read at runtime below.
 
 # Resolve CAROL_ROOT handling symlinks (e.g. if /usr/local/bin/carol -> ~/.carol/bin/carol)
 SOURCE="${BASH_SOURCE[0]}"
@@ -12,6 +10,9 @@ while [ -h "$SOURCE" ]; do
     [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
 done
 CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/.." >/dev/null 2>&1 && pwd )"
+
+VERSION="$(cat "$CAROL_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')"
+[ -z "$VERSION" ] && VERSION="unknown"
 
 # Colors for output
 RED='\033[0;31m'
