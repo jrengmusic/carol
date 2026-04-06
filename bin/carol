@@ -524,8 +524,9 @@ cmd_help() {
     echo -e "${MAGENTA}Commands:${NC}"
     echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (portable)"
     echo -e "  ${YELLOW}init --symlink${NC} Initialize with symlinks to SSOT"
-    echo -e "  ${YELLOW}counselor${NC} [name] Launch COUNSELOR session (default model)"
-    echo -e "  ${YELLOW}surgeon${NC} [name]   Launch SURGEON session (Sonnet)"
+    echo -e "  ${YELLOW}brainstormer${NC} [name] Launch BRAINSTORMER session (pre-flight)"
+    echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
+    echo -e "  ${YELLOW}surgeon${NC} [name]    Launch SURGEON session (Sonnet)"
     echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
     echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
     echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
@@ -764,6 +765,10 @@ case "${1:-run}" in
         ;;
     continue|--continue|-c)
         cmd_continue
+        ;;
+    brainstormer)
+        shift
+        cmd_run --agent BRAINSTORMER "$@"
         ;;
     counselor)
         shift
