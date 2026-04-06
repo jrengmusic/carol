@@ -700,12 +700,19 @@ cmd_continue() {
 cmd_run() {
     local claude_args=()
     local session_name=""
+    local agent_slash=""
 
     # Separate claude flags from session name
-    # Session name is the first non-flag argument after known flags
+    # --agent is carol-only: consumed here, converted to an initial slash command
+    # --model is a real claude flag: passed through
     while [ $# -gt 0 ]; do
         case "$1" in
-            --agent|--model)
+            --agent)
+                # Lowercase the agent name to match slash command file
+                agent_slash="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
+                shift 2
+                ;;
+            --model)
                 claude_args+=("$1" "$2")
                 shift 2
                 ;;
@@ -733,9 +740,21 @@ cmd_run() {
         show_banner
     fi
 
-    # Pass session name as /rename prompt
+    # Build initial prompt: agent activation + optional /rename
+    local initial_prompt=""
+    if [ -n "$agent_slash" ]; then
+        initial_prompt="/$agent_slash"
+    fi
     if [ -n "$session_name" ]; then
-        MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "/rename $session_name"
+        if [ -n "$initial_prompt" ]; then
+            initial_prompt="$initial_prompt"$'\n'"/rename $session_name"
+        else
+            initial_prompt="/rename $session_name"
+        fi
+    fi
+
+    if [ -n "$initial_prompt" ]; then
+        MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "$initial_prompt"
     fi
 
     exec claude "${claude_args[@]}"
