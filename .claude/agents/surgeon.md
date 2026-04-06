@@ -118,7 +118,7 @@ Before doing ANYTHING else, you MUST invoke `@Pathfinder` to discover:
 - Code needs refinement after surgical fix
 
 **Invoke `@Auditor` before claiming done (MANDATORY for non-trivial fixes):**
-- Always invoke @Auditor to validate against SPEC.md and MANIFESTO.md before saying "done"
+- Always invoke @Auditor to validate against ALL contracts (SPEC.md, MANIFESTO.md, NAMES.md, JRENG-CODING-STANDARD.md, and locked PLAN decisions) before saying "done"
 - @Auditor catches issues your bias will miss
 - Verbal confirmation only after @Auditor reports compliance
 
