@@ -766,18 +766,17 @@ cmd_run() {
         show_banner
     fi
 
-    # Build initial prompt: agent activation + optional /rename
+    # Initial prompt: only ONE slash command can fire from positional argv
+    # (multi-line strings are passed as plain text and never recognized as
+    # slash commands). /rename wins because role anchoring is already
+    # handled by the SessionStart hook in .claude/settings.json. The
+    # --agent flag is currently a no-op for activation; ARCHITECT can type
+    # /counselor or /surgeon manually if a dedicated subagent is needed.
     local initial_prompt=""
-    if [ -n "$agent_slash" ]; then
-        initial_prompt="/$agent_slash"
-    fi
     if [ -n "$session_name" ]; then
-        if [ -n "$initial_prompt" ]; then
-            initial_prompt="$initial_prompt"$'\n'"/rename $session_name"
-        else
-            initial_prompt="/rename $session_name"
-        fi
+        initial_prompt="/rename $session_name"
     fi
+    : "${agent_slash:=}"  # consumed but currently unused — see comment above
 
     if [ -n "$initial_prompt" ]; then
         MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "$initial_prompt"
