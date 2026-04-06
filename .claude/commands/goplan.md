@@ -1,10 +1,14 @@
 ---
-description: Consume RFC.md and produce BLESSED-compliant incremental execution plan
+description: Produce BLESSED-compliant incremental execution plan (consumes RFC.md if one exists)
 ---
 
 ## Plan-Go Protocol
 
-1. **Read RFC** at project root (`RFC.md` or `RFC-[objective].md`) — if missing, STOP and report
+**Invocation:**
+- `/goplan` — consume RFC.md if present, otherwise use ARCHITECT's prompt
+- `/goplan no RFC` (or `no-rfc`, `skip rfc`) — explicit override: DO NOT read any RFC file, objective comes from ARCHITECT's prompt only
+
+1. **Read RFC** at project root (`RFC.md` or `RFC-[objective].md`) — OPTIONAL. Skip entirely if ARCHITECT passed "no RFC". If present and not overridden, consume it. If absent, proceed using ARCHITECT's prompt as the objective source. Never invent an RFC, never block on a missing one.
 2. **Read MANIFESTO.md** (BLESSED principles)
 3. **Read LANGUAGE.md** — language-specific BLESSED adaptations and framework constraints
 4. **Read SPEC.md** if it exists — plan must align with spec
@@ -16,7 +20,7 @@ description: Consume RFC.md and produce BLESSED-compliant incremental execution 
 ```markdown
 # PLAN: [Objective]
 
-**RFC:** [RFC filename]
+**RFC:** [RFC filename, or "none — objective from ARCHITECT prompt"]
 **Date:** YYYY-MM-DD
 **BLESSED Compliance:** verified
 **Language Constraints:** [language/framework from LANGUAGE.md, e.g. "Go / Bubbletea"]
@@ -58,5 +62,5 @@ Validation = @Auditor confirms step output complies with ALL documented contract
 ### Rules
 - Steps must be small and incremental — never choke the engineer
 - Each step must have explicit validation criteria
-- Objective name in filename derived from RFC title (kebab-case, e.g. `PLAN-session-management.md`)
+- Objective name in filename derived from RFC title when RFC exists, otherwise from ARCHITECT's stated objective (kebab-case, e.g. `PLAN-session-management.md`)
 - Delegate to @Engineer for execution, @Auditor for validation — COUNSELOR tracks and orchestrates
