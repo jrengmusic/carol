@@ -110,7 +110,7 @@ CAROL_CLAUDE_SETTINGS='{
         "hooks": [
           {
             "type": "command",
-            "command": "echo '"'"'{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ANCHOR — You are operating under CAROL.md. Read CAROL.md, MANIFESTO.md, NAMES.md, JRENG-CODING-STANDARD.md, and SPEC.md (if present) before acting. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. Never assume. Never decide. Always discuss. Scope is ARCHITECT-only.\"}}'"'"'"
+            "command": "echo '"'"'{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ACTIVE — CAROL.md is already loaded as CLAUDE.md. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. The execution gate is at EXECUTION, not at understanding. Read @mentioned files, referenced paths, and project docs IMMEDIATELY without asking permission. Never ask a question that can be answered by reading. Never assume. Never decide. Always discuss before EXECUTING changes.\"}}'"'"'"
           }
         ]
       }
@@ -726,19 +726,12 @@ cmd_continue() {
 cmd_run() {
     local claude_args=()
     local session_name=""
-    local agent_slash=""
 
     # Separate claude flags from session name
-    # --agent is carol-only: consumed here, converted to an initial slash command
-    # --model is a real claude flag: passed through
+    # Session name is the first non-flag argument after known flags
     while [ $# -gt 0 ]; do
         case "$1" in
-            --agent)
-                # Lowercase the agent name to match slash command file
-                agent_slash="$(echo "$2" | tr '[:upper:]' '[:lower:]')"
-                shift 2
-                ;;
-            --model)
+            --agent|--model)
                 claude_args+=("$1" "$2")
                 shift 2
                 ;;
@@ -766,20 +759,9 @@ cmd_run() {
         show_banner
     fi
 
-    # Initial prompt: only ONE slash command can fire from positional argv
-    # (multi-line strings are passed as plain text and never recognized as
-    # slash commands). /rename wins because role anchoring is already
-    # handled by the SessionStart hook in .claude/settings.json. The
-    # --agent flag is currently a no-op for activation; ARCHITECT can type
-    # /counselor or /surgeon manually if a dedicated subagent is needed.
-    local initial_prompt=""
+    # Pass session name as /rename prompt
     if [ -n "$session_name" ]; then
-        initial_prompt="/rename $session_name"
-    fi
-    : "${agent_slash:=}"  # consumed but currently unused — see comment above
-
-    if [ -n "$initial_prompt" ]; then
-        MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "$initial_prompt"
+        MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "/rename $session_name"
     fi
 
     exec claude "${claude_args[@]}"
