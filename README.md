@@ -187,7 +187,6 @@ curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/install.sh | 
 This will:
 
 - Clone CAROL to `~/.carol`
-- Download `carolcode` binary from GitHub Releases
 - Symlink `carol` to `~/.local/bin/carol`
 - Work on macOS and Linux (x64 and arm64)
 
