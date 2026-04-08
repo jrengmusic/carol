@@ -14,20 +14,31 @@ d = json.load(sys.stdin)
 cw = d.get('context_window', {}) or {}
 pct = int(cw.get('used_percentage', 0) or 0)
 model = (d.get('model', {}) or {}).get('display_name', '') or ''
+model = model.replace(' (1M context)', '').strip()
 agent = (d.get('agent', {}) or {}).get('name', '') or ''
-rl = (d.get('rate_limits', {}) or {}).get('five_hour', {}) or {}
-rl_pct = int(rl.get('used_percentage', 0) or 0)
-resets_at = int(rl.get('resets_at', 0) or 0)
-remaining = ''
-if resets_at > 0:
-    delta = max(0, resets_at - int(time.time()))
-    h, m = delta // 3600, (delta % 3600) // 60
-    remaining = f'{h}h{m:02d}m' if h else f'{m}m'
+rls = d.get('rate_limits', {}) or {}
+def fmt(window):
+    w = rls.get(window, {}) or {}
+    p = int(w.get('used_percentage', 0) or 0)
+    r = int(w.get('resets_at', 0) or 0)
+    rem = ''
+    if r > 0:
+        delta = max(0, r - int(time.time()))
+        days, rem_s = delta // 86400, delta % 86400
+        h, m = rem_s // 3600, (rem_s % 3600) // 60
+        if days: rem = f'{days}d{h:02d}h'
+        elif h:  rem = f'{h}h{m:02d}m'
+        else:    rem = f'{m}m'
+    return p, rem
+rl_pct, remaining = fmt('five_hour')
+wk_pct, wk_remaining = fmt('seven_day')
 print(pct)
 print(model)
 print(agent.upper())
 print(rl_pct)
 print(remaining)
+print(wk_pct)
+print(wk_remaining)
 " <<< "$data" 2>/dev/null)
 
 pct=$(sed -n '1p' <<< "$parsed")
@@ -35,12 +46,16 @@ model=$(sed -n '2p' <<< "$parsed")
 agent=$(sed -n '3p' <<< "$parsed")
 rl_pct=$(sed -n '4p' <<< "$parsed")
 rl_remaining=$(sed -n '5p' <<< "$parsed")
+wk_pct=$(sed -n '6p' <<< "$parsed")
+wk_remaining=$(sed -n '7p' <<< "$parsed")
 
 pct=${pct:-0}
 model=${model:-""}
 agent=${agent:-""}
 rl_pct=${rl_pct:-0}
 rl_remaining=${rl_remaining:-""}
+wk_pct=${wk_pct:-0}
+wk_remaining=${wk_remaining:-""}
 
 # Scale to 0-80% range (CC compacts at ~80%, so 80% = full bar)
 # Clamp at 100 to handle any edge cases
@@ -110,7 +125,23 @@ if [ "$rl_pct" -gt 0 ]; then
     rl_bar=$(build_bar $RL_SEGMENTS $rl_filled "$rl_color")
     rl_reset_label=""
     [ -n "$rl_remaining" ] && rl_reset_label=" ${dim_color}${rl_remaining}${reset}"
-    rl_label="  ${dim_color}⚡${reset}${rl_bar}${rl_reset_label}"
+    rl_label="  ${dim_color}🕔${reset}${rl_bar}${rl_reset_label}"
 fi
 
-printf "${label_color}◈ CAROL v${carol_version}${reset}${role_label}  ${dim_color}${model}${reset}  ${ctx_emoji}${bar}${rl_label}\n"
+# Weekly (7-day) bar
+wk_label=""
+if [ "$wk_pct" -gt 0 ]; then
+    if   [ "$wk_pct" -ge 75 ]; then wk_color="\033[38;2;252;112;76m"
+    elif [ "$wk_pct" -ge 50 ]; then wk_color="\033[38;2;200;120;50m"
+    elif [ "$wk_pct" -ge 25 ]; then wk_color="\033[38;2;0;150;160m"
+    else                            wk_color="\033[38;2;51;83;91m"
+    fi
+    WK_SEGMENTS=15
+    wk_filled=$((wk_pct * WK_SEGMENTS / 100))
+    wk_bar=$(build_bar $WK_SEGMENTS $wk_filled "$wk_color")
+    wk_reset_label=""
+    [ -n "$wk_remaining" ] && wk_reset_label=" ${dim_color}${wk_remaining}${reset}"
+    wk_label="  ${dim_color}📅${reset}${wk_bar}${wk_reset_label}"
+fi
+
+printf "${label_color}◈ CAROL v${carol_version}${reset}${role_label}  ${dim_color}${model}${reset}  ${ctx_emoji}${bar}${rl_label}${wk_label}\n"

@@ -13,7 +13,7 @@
 
 **C**ognitive **A**mplifier **R**ole **O**rchestration for LLM agents
 
-Version: 0.0.7
+Version: 0.0.8
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -187,6 +187,7 @@ curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/install.sh | 
 This will:
 
 - Clone CAROL to `~/.carol`
+- Download `carolcode` binary from GitHub Releases
 - Symlink `carol` to `~/.local/bin/carol`
 - Work on macOS and Linux (x64 and arm64)
 
