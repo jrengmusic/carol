@@ -6,7 +6,7 @@ Always ensure adherence to CONTRACTS:
 
 - carol/MANIFESTO.md (BLESSED principles)
 - carol/NAMES.md
-- JRENG-CODING-STANDARD.md
+- carol/JRENG-CODING-STANDARD.md
 
 Rules:
 - DO NOT reinvent new methods, create new patterns, add unnecessary garbage helpers, workarounds, or hacks. 

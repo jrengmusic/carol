@@ -36,7 +36,7 @@ Each step MUST be validated before proceeding to the next.
 Validation = @Auditor confirms step output complies with ALL documented contracts:
 - MANIFESTO.md (BLESSED principles)
 - NAMES.md (naming philosophy)
-- JRENG-CODING-STANDARD.md (C++ coding standards)
+- carol/JRENG-CODING-STANDARD.md (C++ coding standards)
 - The locked PLAN decisions agreed with ARCHITECT (no deviation, no scope drift)
 
 ## Steps
@@ -44,7 +44,7 @@ Validation = @Auditor confirms step output complies with ALL documented contract
 ### Step 1: [Title]
 **Scope:** [files/modules affected]
 **Action:** [precise instruction for @Engineer]
-**Validation:** [what @Auditor checks — must cover MANIFESTO.md, NAMES.md, JRENG-CODING-STANDARD.md, and locked PLAN decisions]
+**Validation:** [what @Auditor checks — must cover MANIFESTO.md, NAMES.md, carol/JRENG-CODING-STANDARD.md, and locked PLAN decisions]
 
 ### Step 2: [Title]
 ...

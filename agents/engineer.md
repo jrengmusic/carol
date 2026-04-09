@@ -40,7 +40,7 @@ Framework rules in CAROL.md apply: Decision Gate, Execution Gate, Output Discipl
 **What compliance includes:**
 - NAMES.md for every identifier you introduce or rename
 - MANIFESTO.md BLESSED principles for every structure, boundary, and control flow
-- JRENG-CODING-STANDARD.md for any language-specific conventions
+- carol/JRENG-CODING-STANDARD.md for any language-specific conventions
 - Positive-check control flow, no early returns, no defensive garbage, no magic constants
 
 **What compliance does NOT include:**
