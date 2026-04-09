@@ -645,17 +645,15 @@ cmd_run() {
     fi
 
     # Role auto-detection when none specified:
-    # - Inside CAROL_ROOT            → MACHINIST (framework maintenance)
-    # - Inside a carol/ project      → COUNSELOR (project work)
-    # - Anywhere else (no project)   → MACHINIST (machine work, no scaffold)
+    # - Inside CAROL_ROOT → MACHINIST (framework maintenance)
+    # - Everywhere else   → COUNSELOR (project work; cmd_init will scaffold if no project yet)
+    # MACHINIST is only entered when explicitly requested via `carol machinist` or --agent MACHINIST.
     if [ -z "$requested_role" ]; then
         if $inside_carol_root; then
             requested_role="MACHINIST"
-        elif $in_project; then
+        else
             requested_role="COUNSELOR"
             claude_args+=(--agent COUNSELOR)
-        else
-            requested_role="MACHINIST"
         fi
     fi
 
