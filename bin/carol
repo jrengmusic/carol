@@ -580,11 +580,27 @@ _launch_machinist() {
     local carol_md_content
     carol_md_content=$(cat "$CAROL_ROOT/CAROL.md")
 
+    local agent_file="$CAROL_ROOT/agents/machinist.md"
+    local agent_json
+    agent_json=$(python3 -c "
+import json, sys
+lines = open(sys.argv[1]).read()
+parts = lines.split('---')
+front = parts[1].strip()
+body = '---'.join(parts[2:]).strip()
+desc = ''
+for line in front.splitlines():
+    if line.startswith('description:'):
+        desc = line.split(':', 1)[1].strip()
+        break
+print(json.dumps({'MACHINIST': {'description': desc, 'prompt': body}}))
+" "$agent_file")
+
     exec claude \
         --plugin-dir "$CAROL_ROOT" \
         --add-dir "$CAROL_ROOT" \
         --append-system-prompt "$carol_md_content" \
-        --agent MACHINIST \
+        --agents "$agent_json" \
         "${claude_args[@]}"
 }
 
@@ -653,21 +669,10 @@ cmd_run() {
         claude_args+=(--agent COUNSELOR)
     fi
 
-    # MACHINIST: plugin-dir mode, no cwd scaffold, reads CAROL.md from SSOT live
+    # MACHINIST: no project scaffold, agent def via --agents flag
     if [ "$requested_role" = "MACHINIST" ]; then
         if [ -n "$session_name" ]; then
-            local carol_md_content
-            carol_md_content=$(cat "$CAROL_ROOT/CAROL.md")
-            show_banner
-            echo -e "${GREY}✓ v${VERSION} MACHINIST mode — machine custodian${NC}"
-            echo ""
-            MSYS_NO_PATHCONV=1 exec claude \
-                --plugin-dir "$CAROL_ROOT" \
-                --add-dir "$CAROL_ROOT" \
-                --append-system-prompt "$carol_md_content" \
-                --agent MACHINIST \
-                "${claude_args[@]}" \
-                "/rename $session_name"
+            claude_args+=("/rename $session_name")
         fi
         _launch_machinist "${claude_args[@]}"
     fi
@@ -679,9 +684,6 @@ cmd_run() {
     else
         show_banner
     fi
-
-    # Ensure CAROL plugin is installed at project scope (idempotent)
-    install_plugin_project_scope
 
     if [ -n "$session_name" ]; then
         MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "/rename $session_name"

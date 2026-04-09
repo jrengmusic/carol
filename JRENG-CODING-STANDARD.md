@@ -320,6 +320,66 @@ JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyClass)
 
 ---
 
+## NAMESPACES
+
+**NO anonymous namespaces allowed:**
+```cpp
+// WRONG
+namespace
+{
+    void helperFunction();
+    constexpr int kSomeConstant { 42 };
+}
+
+// CORRECT: use named namespace or static linkage
+static void helperFunction();
+static constexpr int kSomeConstant { 42 };
+```
+
+**Rationale:**
+- Anonymous namespaces hide symbols from tooling, debuggers, and grep-based searches
+- They create implicit "private" scopes that fragment the reader's mental model
+- Translation-unit-local symbols should be explicit — use `static` linkage, which is visible and greppable
+- Named entities survive refactoring across files; anonymous ones silently die or collide
+
+**NO `namespace detail` (or equivalent implementation-hiding namespaces) allowed:**
+```cpp
+// WRONG
+namespace myLibrary
+{
+    namespace detail
+    {
+        template <typename T>
+        struct HelperImpl { ... };
+    }
+
+    template <typename T>
+    using Helper = detail::HelperImpl<T>;
+}
+
+// CORRECT: place implementation at proper encapsulation boundary
+namespace myLibrary
+{
+    template <typename T>
+    struct Helper { ... };
+}
+```
+
+**Rationale:**
+- `namespace detail` is a convention borrowed from header-only libraries to fake private members. It signals "I know this should be encapsulated but I couldn't figure out where" — a design smell, not a tool.
+- Real encapsulation belongs in class `private:` sections, separate translation units, or `static` file-local symbols. Use those.
+- `detail` namespaces fragment ownership: readers must chase nested namespaces to find what a type actually does, and tooling loses its grip on intent
+- BLESSED principle — **Encapsulation**: one responsibility, explicit boundaries, tell don't ask. `detail` violates all three.
+
+If something truly needs to be "hidden" from the public API, it belongs in:
+1. A class `private:` section
+2. A separate `.cpp` file with `static` linkage
+3. A PIMPL idiom with forward-declared implementation class
+
+None of those require `namespace detail`.
+
+---
+
 ## CONTROL FLOW
 
 **No early returns — use positive checks and assert:**
@@ -491,6 +551,8 @@ bool someCondition = false;           // Clear: bool
 - **ALWAYS use nested positive checks:** `if (valid) { if (ready) { doWork(); } }` — NEVER `if (not valid) return;`
 - **ALWAYS use `.at()` for container access** — NEVER `[]`. Fail Fast principle: invalid index throws immediately.
 - **Use C++ alternative tokens:** `not`, `and`, `or` — NEVER `!`, `&&`, `||`
+- **NO anonymous namespaces.** Use `static` linkage for translation-unit-local symbols.
+- **NO `namespace detail` (or equivalent implementation-hiding namespaces).** Use class `private:`, separate `.cpp` with `static`, or PIMPL.
 
 ---
 
@@ -517,6 +579,8 @@ bool someCondition = false;           // Clear: bool
 ✓ No early returns — nested positive checks
 ✓ **ALWAYS use `.at()` for container access** (Fail Fast principle)
 ✓ **ALWAYS use `not`, `and`, `or`** alternative tokens
+✓ **NO anonymous namespaces** — use `static` linkage instead
+✓ **NO `namespace detail`** — use class `private:`, static file-local symbols, or PIMPL
 
 ---
 

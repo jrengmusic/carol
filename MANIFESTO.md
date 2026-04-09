@@ -65,7 +65,11 @@ The 3-branch rule is the sharpest. A lookup is clearer in intent, O(1), and addi
 
 Lean is about **quantity**. Balanced decomposition — distributing responsibilities correctly — is how you achieve Lean. Descriptor holds data. Manager holds logic. View holds composition. You decompose to keep each piece within bounds.
 
-**Violation signature:** Anything a reasonable reader would call a god object. Any function that needs a scroll to read. Any chain of conditions that needs a mental truth table.
+**YAGNI — You Ain't Gonna Need It.** Do not build for a future that has not arrived. Speculative abstractions, "just in case" parameters, and future-proofing layers all add lines, branches, and complexity before they deliver any value. The cost is immediate; the benefit is hypothetical. When the need arrives, it rarely matches what was predicted — the speculative code becomes dead weight or, worse, a design constraint that fights the real requirement.
+
+YAGNI is Lean's temporal dimension: 300/30/3 bounds what exists now. YAGNI bounds what gets created at all.
+
+**Violation signature:** Anything a reasonable reader would call a god object. Any function that needs a scroll to read. Any chain of conditions that needs a mental truth table. An abstraction with one concrete implementation. A parameter nobody passes yet. Code defended with "we might need this later."
 
 ---
 

@@ -10,6 +10,16 @@ They are tools, not laws: reliable in most situations, but not universally appli
 
 ---
 
+## Rule -1 — No Improvisation
+
+**Principle:**
+All new names are gated. No agent introduces a new name, type, method, or pattern without explicit ARCHITECT approval.
+
+**Rationale:**
+Naming is architecture. A new name creates a new concept in the system's vocabulary — it shapes how every future reader understands the domain. Improvised names during implementation drift from the architectural intent and create inconsistency that compounds. CAROL.md gates the behavior; this document defines what correct naming looks like once approved.
+
+---
+
 ## Rule 0 — Use English
 
 **Principle:**  
