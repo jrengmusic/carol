@@ -96,7 +96,8 @@ CAROL_PERMISSIONS='{
       "Bash(git checkout --*)",
       "Bash(git branch -D*)"
     ]
-  }
+  },
+  "showTurnDuration": false
 }'
 
 CAROL_CLAUDE_SETTINGS='{
@@ -138,13 +139,15 @@ ensure_marketplace_added() {
     claude plugin marketplace add "$CAROL_ROOT" 2>&1 || warning "Could not add marketplace. Retry manually: claude plugin marketplace add $CAROL_ROOT"
 }
 
-install_plugin_project_scope() {
+refresh_marketplace() {
     ensure_marketplace_added
-    if claude plugin list 2>/dev/null | grep -q "$CAROL_PLUGIN_ID"; then
-        return 0
-    fi
+    claude plugin marketplace update "$CAROL_MARKETPLACE_NAME" 2>&1 >/dev/null || true
+}
+
+install_plugin_project_scope() {
+    refresh_marketplace
     info "Installing CAROL plugin (project scope)..."
-    claude plugin install "$CAROL_PLUGIN_ID" --scope project 2>&1 || warning "Plugin install failed. Retry manually: claude plugin install $CAROL_PLUGIN_ID --scope project"
+    claude plugin install "$CAROL_PLUGIN_ID" --scope project 2>&1 || true
 }
 
 setup_global_permissions() {
@@ -268,6 +271,9 @@ cmd_init() {
 
     customize_templates "$project_path"
 
+    # Protocol auto-load: symlink CAROL.md as CLAUDE.md at project root
+    ln -sf "$CAROL_ROOT/CAROL.md" CLAUDE.md
+
     setup_global_permissions
     setup_statusline
 
@@ -283,54 +289,22 @@ cmd_init() {
 cmd_update() {
     show_banner
 
-    # Step 1: Update CAROL SSOT via git
-    local old_pwd="$PWD"
-    cd "$CAROL_ROOT" || error "Cannot access CAROL root"
+    # NO git operations here — local edits to ~/.carol are honored.
+    # ARCHITECT manages git state manually.
 
-    local current_version="$VERSION"
+    # Refresh marketplace catalog (picks up local edits to ~/.carol)
+    info "Refreshing marketplace..."
+    refresh_marketplace
 
-    info "Fetching latest version..."
-    git fetch origin main || error "Failed to fetch from remote"
-
-    local current_commit=$(git rev-parse HEAD)
-    local remote_commit=$(git rev-parse origin/main)
-
-    local ssot_updated=false
-    if [ "$current_commit" = "$remote_commit" ]; then
-        success "SSOT already up to date (v$current_version)"
-    else
-        local remote_version=$(get_remote_version)
-        if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$current_version"; then
-            notice "New version available: v$current_version → v$remote_version"
-        fi
-        info "Updating CAROL SSOT at $CAROL_ROOT..."
-        git reset --hard origin/main || error "Failed to update"
-        local new_version=$(cat VERSION 2>/dev/null | tr -d '[:space:]')
-        success "Updated CAROL SSOT: v$current_version → v$new_version"
-        ssot_updated=true
-    fi
-
-    cd "$old_pwd"
-
-    # Step 2: Refresh marketplace and update plugin
-    if claude plugin marketplace list 2>/dev/null | grep -q "$CAROL_MARKETPLACE_NAME"; then
-        info "Refreshing marketplace..."
-        claude plugin marketplace update "$CAROL_MARKETPLACE_NAME" 2>&1 || warning "Marketplace update failed"
-    else
-        notice "$CAROL_MARKETPLACE_NAME not added yet — will be added on next carol init"
-    fi
-
-    # Step 3: If inside a CAROL project, also update the installed plugin
+    # If inside a CAROL project, reinstall plugin at project scope (re-copies from refreshed source)
     if [ -d "carol" ] || [ -d ".carol" ]; then
-        if claude plugin list 2>/dev/null | grep -q "$CAROL_PLUGIN_ID"; then
-            info "Updating CAROL plugin..."
-            claude plugin update carol 2>&1 || warning "Plugin update failed"
-        else
-            notice "CAROL plugin not installed in this project — run 'carol' to install"
-        fi
+        info "Reinstalling CAROL plugin (project scope, refreshes cache)..."
+        claude plugin uninstall carol --scope project 2>&1 >/dev/null || true
+        claude plugin install "$CAROL_PLUGIN_ID" --scope project 2>&1 || warning "Plugin install failed"
+        setup_statusline
     fi
 
-    success "Update complete"
+    success "Update complete (v$VERSION)"
 }
 
 cmd_version() {
@@ -625,13 +599,6 @@ cmd_run() {
         esac
     done
 
-    # Resume mode: prior session already has its own role — do NOT apply role detection
-    # and do NOT force plugin-dir. Pass through to claude as-is.
-    if $is_resume; then
-        show_banner
-        exec claude "${claude_args[@]}"
-    fi
-
     # Context detection
     local in_project=false
     if [ -d "carol" ] || [ -d ".carol" ]; then
@@ -644,17 +611,23 @@ cmd_run() {
         inside_carol_root=true
     fi
 
-    # Role auto-detection when none specified:
-    # - Inside CAROL_ROOT → MACHINIST (framework maintenance)
-    # - Everywhere else   → COUNSELOR (project work; cmd_init will scaffold if no project yet)
-    # MACHINIST is only entered when explicitly requested via `carol machinist` or --agent MACHINIST.
-    if [ -z "$requested_role" ]; then
-        if $inside_carol_root; then
-            requested_role="MACHINIST"
+    # Resume mode: prior session has its own role — skip role forcing.
+    # BUT still ensure project scaffold exists before resuming.
+    if $is_resume; then
+        if ! $in_project && ! $inside_carol_root; then
+            info "No CAROL project here — initializing before resume..."
+            cmd_init
         else
-            requested_role="COUNSELOR"
-            claude_args+=(--agent COUNSELOR)
+            show_banner
         fi
+        exec claude "${claude_args[@]}"
+    fi
+
+    # Bare carol = COUNSELOR, always. cwd is always a project.
+    # MACHINIST only via explicit `carol machinist` or --agent MACHINIST.
+    if [ -z "$requested_role" ]; then
+        requested_role="COUNSELOR"
+        claude_args+=(--agent COUNSELOR)
     fi
 
     # MACHINIST: plugin-dir mode, no cwd scaffold, reads CAROL.md from SSOT live
