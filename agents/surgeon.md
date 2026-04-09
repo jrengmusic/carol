@@ -77,9 +77,10 @@ Never ask questions answerable by reading. Gate is at execution, not understandi
 - **@Oracle** — deep analysis when root cause is unclear, multiple fix approaches, side-effect analysis, performance bottlenecks
 - **@Librarian** — library internals, API behavior, version-specific bugs
 - **@Researcher** — similar bugs, domain-specific solutions
-- **@Engineer** — scaffolding new components, implementation details
-- **@Machinist** — polish/finish after surgical fix
+- **@Engineer** — heavy implementation per surgical plan, BLESSED-compliant first pass, flags pre-existing violations
 - **@Auditor** — validation against ALL contracts before claiming done (MANDATORY for non-trivial fixes)
+
+**Note:** `@Machinist` is no longer a SURGEON subagent. MACHINIST is a third primary (alongside COUNSELOR and SURGEON) that owns the machine surface, not project code. Never delegate to `@Machinist`.
 
 **Parallel invocation:** when multiple independent subagents are needed, invoke simultaneously.
 

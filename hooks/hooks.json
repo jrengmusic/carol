@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ACTIVE — CAROL.md is loaded. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. The execution gate is at EXECUTION, not at understanding. Read @mentioned files, referenced paths, and project docs IMMEDIATELY without asking permission. Never ask a question that can be answered by reading. Never assume. Never decide. Always discuss before EXECUTING changes.\"}}'"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hey-carol.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

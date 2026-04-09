@@ -103,28 +103,6 @@ CAROL_CLAUDE_SETTINGS='{
   "statusLine": {
     "type": "command",
     "command": "~/.carol/bin/carol-statusline.sh"
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '"'"'{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ACTIVE — CAROL.md is already loaded as CLAUDE.md. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. The execution gate is at EXECUTION, not at understanding. Read @mentioned files, referenced paths, and project docs IMMEDIATELY without asking permission. Never ask a question that can be answered by reading. Never assume. Never decide. Always discuss before EXECUTING changes.\"}}'"'"'"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.carol/bin/hey-carol.sh"
-          }
-        ]
-      }
-    ]
   }
 }'
 
@@ -134,19 +112,39 @@ setup_statusline() {
 
     if [ ! -f "$settings" ]; then
         echo "$CAROL_CLAUDE_SETTINGS" > "$settings"
-        success "Context rot meter + protocol hooks configured"
+        success "Statusline configured"
         return 0
     fi
 
     if ! command -v jq &>/dev/null; then
-        warning "Install jq to auto-configure statusLine + hooks, or merge manually from $CAROL_ROOT/.claude/settings.json"
+        warning "Install jq to auto-configure statusLine, or merge manually from $CAROL_ROOT/.claude-plugin/plugin.json"
         return 0
     fi
 
     local tmp
     tmp=$(jq --argjson carol "$CAROL_CLAUDE_SETTINGS" '. * $carol' "$settings")
     echo "$tmp" > "$settings"
-    success "Context rot meter + protocol hooks configured"
+    success "Statusline configured"
+}
+
+CAROL_MARKETPLACE_NAME="carol-marketplace"
+CAROL_PLUGIN_ID="carol@${CAROL_MARKETPLACE_NAME}"
+
+ensure_marketplace_added() {
+    if claude plugin marketplace list 2>/dev/null | grep -q "$CAROL_MARKETPLACE_NAME"; then
+        return 0
+    fi
+    info "Adding $CAROL_MARKETPLACE_NAME..."
+    claude plugin marketplace add "$CAROL_ROOT" 2>&1 || warning "Could not add marketplace. Retry manually: claude plugin marketplace add $CAROL_ROOT"
+}
+
+install_plugin_project_scope() {
+    ensure_marketplace_added
+    if claude plugin list 2>/dev/null | grep -q "$CAROL_PLUGIN_ID"; then
+        return 0
+    fi
+    info "Installing CAROL plugin (project scope)..."
+    claude plugin install "$CAROL_PLUGIN_ID" --scope project 2>&1 || warning "Plugin install failed. Retry manually: claude plugin install $CAROL_PLUGIN_ID --scope project"
 }
 
 setup_global_permissions() {
@@ -207,12 +205,11 @@ customize_templates() {
 
 cmd_init() {
     local project_path="."
-    local portable=true
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --symlink)
-                portable=false
+            --symlink|--portable)
+                notice "Note: $1 is deprecated in v0.0.9+ — CAROL is now a Claude Code plugin"
                 shift
                 ;;
             -*)
@@ -239,13 +236,6 @@ cmd_init() {
     fi
 
     if [ -d "carol" ] || [ -d ".carol" ]; then
-        # Ensure commands are populated even if already initiated
-        if [ -d ".claude/commands" ] && [ -z "$(ls -A .claude/commands 2>/dev/null)" ]; then
-            if [ -d "$CAROL_ROOT/.claude/commands" ]; then
-                cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
-                success "Restored missing commands"
-            fi
-        fi
         echo -e "${MAGENTA}${BOLD}ℹ CAROL already initiated.${NC}"
         echo ""
         echo "  carol reset   Remove and start fresh"
@@ -254,155 +244,46 @@ cmd_init() {
         exit 0
     fi
 
+    # Create minimal carol/ dir for project state (SPRINT-LOG + config)
     mkdir -p carol
-    # Hide directory (without dot-prefix, keeps LLM tools happy)
     if [[ "$OSTYPE" == "darwin"* ]]; then
         chflags hidden carol
     elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
         attrib +h carol 2>/dev/null
     fi
 
-    if $portable; then
-        # Copy only framework files (not bin, tests, install scripts, etc.)
-        for item in "$CAROL_ROOT"/*; do
-            local base=$(basename "$item")
-            case "$base" in
-                bin|tests|.git|.gitignore|.DS_Store|.claude|install.sh|uninstall.sh|LICENSE|README.md)
-                    continue
-                    ;;
-            esac
-            cp -r "$item" carol/
-        done
+    # Restore SPRINT-LOG from backup or use template
+    if [ -f ".carol-history/SPRINT-LOG.md" ]; then
+        cp ".carol-history/SPRINT-LOG.md" carol/SPRINT-LOG.md
+        rm -rf .carol-history
+        notice "SPRINT-LOG.md restored from backup"
+    elif [ -f "$CAROL_ROOT/templates/SPRINT-LOG.md" ]; then
+        cp "$CAROL_ROOT/templates/SPRINT-LOG.md" carol/SPRINT-LOG.md
+    fi
 
-        # Restore SPRINT-LOG from backup or use template
-        if [ -f ".carol-history/SPRINT-LOG.md" ]; then
-            cp ".carol-history/SPRINT-LOG.md" carol/SPRINT-LOG.md
-            rm -rf .carol-history
-            notice "SPRINT-LOG.md restored from backup"
-        elif [ -f "carol/templates/SPRINT-LOG.md" ]; then
-            cp carol/templates/SPRINT-LOG.md carol/SPRINT-LOG.md
-        fi
-
-        # Copy CAROL.md as CLAUDE.md — auto-loaded by Claude Code as operating protocol
-        cp "$CAROL_ROOT/CAROL.md" CLAUDE.md
-
-        # Create Claude Code commands and agent definitions
-        mkdir -p .claude/commands .claude/agents
-        if [ -d "$CAROL_ROOT/.claude/commands" ]; then
-            cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
-        fi
-        if [ -d "$CAROL_ROOT/.claude/agents" ]; then
-            cp "$CAROL_ROOT/.claude/agents"/*.md .claude/agents/
-        fi
-
-        if [ -f "carol/templates/config.yml" ]; then
-            cp carol/templates/config.yml carol/config.yml
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                sed -i '' 's/mode: "symlink"/mode: "portable"/' carol/config.yml
-            else
-                sed -i 's/mode: "symlink"/mode: "portable"/' carol/config.yml
-            fi
-        fi
-    else
-        # Use ABSOLUTE paths for symlinks - LLM tools often don't follow relative symlinks
-        ln -sf "$CAROL_ROOT/SPEC-WRITER.md" carol/SPEC-WRITER.md
-        ln -sf "$CAROL_ROOT/ARCHITECTURE-WRITER.md" carol/ARCHITECTURE-WRITER.md
-        [ -f "$CAROL_ROOT/MANIFESTO.md" ] && ln -sf "$CAROL_ROOT/MANIFESTO.md" carol/MANIFESTO.md
-        [ -f "$CAROL_ROOT/NAMES.md" ] && ln -sf "$CAROL_ROOT/NAMES.md" carol/NAMES.md
-
-        # Restore SPRINT-LOG from backup or use template
-        if [ -f ".carol-history/SPRINT-LOG.md" ]; then
-            cp ".carol-history/SPRINT-LOG.md" carol/SPRINT-LOG.md
-            rm -rf .carol-history
-            notice "SPRINT-LOG.md restored from backup"
-        elif [ -f "$CAROL_ROOT/templates/SPRINT-LOG.md" ]; then
-            cp "$CAROL_ROOT/templates/SPRINT-LOG.md" carol/SPRINT-LOG.md
-        fi
-
-        if [ -f "$CAROL_ROOT/templates/config.yml" ]; then
-            cp "$CAROL_ROOT/templates/config.yml" carol/config.yml
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                sed -i '' 's/mode: "portable"/mode: "symlink"/' carol/config.yml
-            else
-                sed -i 's/mode: "portable"/mode: "symlink"/' carol/config.yml
-            fi
-        fi
-
-        # Symlink CAROL.md as CLAUDE.md — auto-loaded by Claude Code as operating protocol
-        ln -sf "$CAROL_ROOT/CAROL.md" CLAUDE.md
-
-        # Create Claude Code commands and agent definitions
-        mkdir -p .claude/commands .claude/agents
-        if [ -d "$CAROL_ROOT/.claude/commands" ]; then
-            cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
-        fi
-        if [ -d "$CAROL_ROOT/.claude/agents" ]; then
-            cp "$CAROL_ROOT/.claude/agents"/*.md .claude/agents/
-        fi
+    # Copy config.yml template
+    if [ -f "$CAROL_ROOT/templates/config.yml" ]; then
+        cp "$CAROL_ROOT/templates/config.yml" carol/config.yml
     fi
 
     customize_templates "$project_path"
+
     setup_global_permissions
     setup_statusline
 
+    # Install CAROL plugin at project scope — never user scope (preserves raw claude lane)
+    install_plugin_project_scope
+
     show_banner
-    echo -e "${GREY}✓ v${VERSION} System initiated.${NC}"
+    echo -e "${GREY}✓ v${VERSION} System initiated (plugin mode).${NC}"
     echo ""
     echo "Rock 'n Roll!"
 }
 
 cmd_update() {
     show_banner
-    
-    if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
-        info "Updating CAROL..."
-        
-        local old_pwd="$PWD"
-        cd "$CAROL_ROOT" || error "Cannot access CAROL root"
-        
-        local current_version="$VERSION"
-        
-        info "Fetching latest version..."
-        git fetch origin main || error "Failed to fetch from remote"
-        
-        local current_commit=$(git rev-parse HEAD)
-        local remote_commit=$(git rev-parse origin/main)
-        
-        if [ "$current_commit" = "$remote_commit" ]; then
-            success "Already up to date (v$current_version)"
-            cd "$old_pwd"
-            return 0
-        fi
-        
-        local remote_version=$(get_remote_version)
-        
-        if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$current_version"; then
-            notice "New version available: v$current_version → v$remote_version"
-        fi
-        
-        info "Updating CAROL SSOT at $CAROL_ROOT..."
-        git reset --hard origin/main || error "Failed to update"
-        
-        local new_version=$(grep '^VERSION=' bin/carol | head -1 | cut -d'"' -f2)
-        success "Updated CAROL SSOT: v$current_version → v$new_version"
-        
-        cd "$old_pwd"
-        
-        notice "All symlinked projects now use the updated version"
-        return 0
-    fi
 
-    # Determine carol directory (new: carol, legacy: .carol)
-    local carol_dir="carol"
-    [ -d ".carol" ] && carol_dir=".carol"
-
-    # Detect mode from config.yml
-    local is_portable=false
-    if [ -f "$carol_dir/config.yml" ] && grep -q 'mode: "portable"' "$carol_dir/config.yml"; then
-        is_portable=true
-    fi
-
-    # Update CAROL SSOT first (both modes need this)
+    # Step 1: Update CAROL SSOT via git
     local old_pwd="$PWD"
     cd "$CAROL_ROOT" || error "Cannot access CAROL root"
 
@@ -414,79 +295,42 @@ cmd_update() {
     local current_commit=$(git rev-parse HEAD)
     local remote_commit=$(git rev-parse origin/main)
 
+    local ssot_updated=false
     if [ "$current_commit" = "$remote_commit" ]; then
-        success "Already up to date (v$current_version)"
-        cd "$old_pwd"
-        if $is_portable; then
-            notice "Re-copying files to project..."
-        else
-            return 0
-        fi
+        success "SSOT already up to date (v$current_version)"
     else
         local remote_version=$(get_remote_version)
-
         if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$current_version"; then
             notice "New version available: v$current_version → v$remote_version"
         fi
-
-        info "Updating CAROL SSOT..."
+        info "Updating CAROL SSOT at $CAROL_ROOT..."
         git reset --hard origin/main || error "Failed to update"
-
-        local new_version=$(grep '^VERSION=' bin/carol | head -1 | cut -d'"' -f2)
+        local new_version=$(cat VERSION 2>/dev/null | tr -d '[:space:]')
         success "Updated CAROL SSOT: v$current_version → v$new_version"
+        ssot_updated=true
     fi
 
     cd "$old_pwd"
 
-    if $is_portable; then
-        info "Updating CAROL (portable mode)..."
-
-        # Re-copy framework files (preserve SPRINT-LOG and config)
-        local sprint_log_backup=""
-        if [ -f "$carol_dir/SPRINT-LOG.md" ]; then
-            sprint_log_backup=$(cat "$carol_dir/SPRINT-LOG.md")
-        fi
-        local config_backup=""
-        if [ -f "$carol_dir/config.yml" ]; then
-            config_backup=$(cat "$carol_dir/config.yml")
-        fi
-
-        for item in "$CAROL_ROOT"/*; do
-            local base=$(basename "$item")
-            [ "$base" = "carol" ] && continue
-            cp -r "$item" "$carol_dir/"
-        done
-        rm -rf "$carol_dir/.git" "$carol_dir/.gitignore"
-
-        # Restore project-specific files
-        if [ -n "$sprint_log_backup" ]; then
-            echo "$sprint_log_backup" > "$carol_dir/SPRINT-LOG.md"
-        fi
-        if [ -n "$config_backup" ]; then
-            echo "$config_backup" > "$carol_dir/config.yml"
-        fi
-
-        # Refresh CLAUDE.md from SSOT
-        cp "$CAROL_ROOT/CAROL.md" CLAUDE.md
-        success "CLAUDE.md refreshed"
-
-        # Update Claude Code commands and agent definitions
-        if [ -d "$CAROL_ROOT/.claude/commands" ] && [ -d ".claude/commands" ]; then
-            cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
-            success "Commands updated"
-        fi
-        if [ -d "$CAROL_ROOT/.claude/agents" ]; then
-            mkdir -p .claude/agents
-            cp "$CAROL_ROOT/.claude/agents"/*.md .claude/agents/
-            success "Agent definitions updated"
-        fi
-
-        setup_statusline
-
-        success "Portable files updated"
+    # Step 2: Refresh marketplace and update plugin
+    if claude plugin marketplace list 2>/dev/null | grep -q "$CAROL_MARKETPLACE_NAME"; then
+        info "Refreshing marketplace..."
+        claude plugin marketplace update "$CAROL_MARKETPLACE_NAME" 2>&1 || warning "Marketplace update failed"
     else
-        notice "All symlinked projects now use the updated version"
+        notice "$CAROL_MARKETPLACE_NAME not added yet — will be added on next carol init"
     fi
+
+    # Step 3: If inside a CAROL project, also update the installed plugin
+    if [ -d "carol" ] || [ -d ".carol" ]; then
+        if claude plugin list 2>/dev/null | grep -q "$CAROL_PLUGIN_ID"; then
+            info "Updating CAROL plugin..."
+            claude plugin update carol 2>&1 || warning "Plugin update failed"
+        else
+            notice "CAROL plugin not installed in this project — run 'carol' to install"
+        fi
+    fi
+
+    success "Update complete"
 }
 
 cmd_version() {
@@ -514,7 +358,7 @@ cmd_reset() {
     echo ""
     echo -en "${MAGENTA}Are you sure? [y/N]${NC} "
     read -r response
-    
+
     if [[ "$response" =~ ^[Yy]$ ]]; then
         # Preserve SPRINT-LOG.md if it exists
         local sprint_log=""
@@ -523,7 +367,13 @@ cmd_reset() {
         elif [ -f ".carol/SPRINT-LOG.md" ]; then
             sprint_log=$(cat ".carol/SPRINT-LOG.md")
         fi
-        
+
+        # Uninstall CAROL plugin at project scope (v0.0.9+)
+        if claude plugin list 2>/dev/null | grep -q "$CAROL_PLUGIN_ID"; then
+            info "Uninstalling CAROL plugin (project scope)..."
+            claude plugin uninstall carol --scope project 2>&1 || warning "Plugin uninstall failed — continue manually if needed"
+        fi
+
         rm -rf carol .carol
         rm -rf .claude
         rm -f CLAUDE.md
@@ -534,7 +384,7 @@ cmd_reset() {
             echo "$sprint_log" > .carol-history/SPRINT-LOG.md
             notice "SPRINT-LOG.md preserved in .carol-history/"
         fi
-        
+
         echo -e "${YELLOW}✓ No CAROL, no cigar${NC}"
     else
         info "Cancelled"
@@ -548,11 +398,11 @@ cmd_help() {
     echo "  carol <command> [options]"
     echo ""
     echo -e "${MAGENTA}Commands:${NC}"
-    echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (portable)"
-    echo -e "  ${YELLOW}init --symlink${NC} Initialize with symlinks to SSOT"
+    echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (plugin mode)"
     echo -e "  ${YELLOW}brainstormer${NC} [name] Launch BRAINSTORMER session (pre-flight)"
     echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
     echo -e "  ${YELLOW}surgeon${NC} [name]    Launch SURGEON session (Sonnet)"
+    echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
     echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
     echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
     echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
@@ -566,15 +416,15 @@ cmd_help() {
     echo ""
     echo -e "${MAGENTA}PRIMARY Agents:${NC}"
     echo -e "  ${CYAN}COUNSELOR${NC}     Planning, specs, docs, SPRINT-LOG"
-    echo -e "  ${CYAN}SURGEON${NC}       Execution, fixes, surgical precision"
+    echo -e "  ${CYAN}SURGEON${NC}       Execution, fixes, surgical precision on project code"
+    echo -e "  ${CYAN}MACHINIST${NC}     Machine custodian — CAROL, harness, ~/.config, dotfiles, dev env"
     echo ""
     echo -e "${MAGENTA}Secondary Agents:${NC}"
-    echo -e "  ${CYAN}Engineer${NC}      Code generation"
+    echo -e "  ${CYAN}Engineer${NC}      Code implementation (BLESSED-compliant, flags pre-existing violations)"
     echo -e "  ${CYAN}Oracle${NC}        Deep analysis, research"
     echo -e "  ${CYAN}Librarian${NC}     Library/framework research"
     echo -e "  ${CYAN}Auditor${NC}       QA/QC validation"
-    echo -e "  ${CYAN}Machinist${NC}     Polish, finish"
-    echo -e "  ${CYAN}Pathfinder${NC}    Pattern discovery"
+    echo -e "  ${CYAN}Pathfinder${NC}    Pattern discovery (ALWAYS first)"
     echo -e "  ${CYAN}Researcher${NC}    Domain research"
     echo ""
     echo -e "${MAGENTA}Slash Commands:${NC}"
@@ -583,7 +433,8 @@ cmd_help() {
     echo -e "  ${YELLOW}/stop${NC}        Emergency brake — cease all execution"
     echo -e "  ${YELLOW}/ode${NC}         ODE to Joy — reframe the problem"
     echo ""
-    echo -e "  CLAUDE.md auto-loaded — CAROL protocol always active"
+    echo -e "  ${MAGENTA}carol${NC} = CAROL plugin enforced. ${MAGENTA}claude${NC} = raw, no CAROL protocol."
+    echo -e "  bare ${YELLOW}carol${NC} auto-selects role: COUNSELOR in a project, MACHINIST elsewhere."
     echo ""
     echo -e "${GREY}https://github.com/jrengmusic/carol${NC}"
     echo ""
@@ -723,15 +574,37 @@ cmd_continue() {
     cmd_run --continue
 }
 
+_launch_machinist() {
+    local claude_args=("$@")
+    show_banner
+    echo -e "${GREY}✓ v${VERSION} MACHINIST mode — machine custodian${NC}"
+    echo ""
+
+    local carol_md_content
+    carol_md_content=$(cat "$CAROL_ROOT/CAROL.md")
+
+    exec claude \
+        --plugin-dir "$CAROL_ROOT" \
+        --add-dir "$CAROL_ROOT" \
+        --append-system-prompt "$carol_md_content" \
+        --agent MACHINIST \
+        "${claude_args[@]}"
+}
+
 cmd_run() {
     local claude_args=()
     local session_name=""
+    local requested_role=""
 
     # Separate claude flags from session name
-    # Session name is the first non-flag argument after known flags
     while [ $# -gt 0 ]; do
         case "$1" in
-            --agent|--model)
+            --agent)
+                requested_role="$2"
+                claude_args+=("$1" "$2")
+                shift 2
+                ;;
+            --model)
                 claude_args+=("$1" "$2")
                 shift 2
                 ;;
@@ -746,20 +619,63 @@ cmd_run() {
         esac
     done
 
-    if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
+    # Context detection
+    local in_project=false
+    if [ -d "carol" ] || [ -d ".carol" ]; then
+        in_project=true
+    fi
+    local cwd
+    cwd=$(pwd)
+    local inside_carol_root=false
+    if [ "$cwd" = "$CAROL_ROOT" ]; then
+        inside_carol_root=true
+    fi
+
+    # Role auto-detection when none specified:
+    # - Inside CAROL_ROOT            → MACHINIST (framework maintenance)
+    # - Inside a carol/ project      → COUNSELOR (project work)
+    # - Anywhere else (no project)   → MACHINIST (machine work, no scaffold)
+    if [ -z "$requested_role" ]; then
+        if $inside_carol_root; then
+            requested_role="MACHINIST"
+        elif $in_project; then
+            requested_role="COUNSELOR"
+            claude_args+=(--agent COUNSELOR)
+        else
+            requested_role="MACHINIST"
+        fi
+    fi
+
+    # MACHINIST: plugin-dir mode, no cwd scaffold, reads CAROL.md from SSOT live
+    if [ "$requested_role" = "MACHINIST" ]; then
+        if [ -n "$session_name" ]; then
+            local carol_md_content
+            carol_md_content=$(cat "$CAROL_ROOT/CAROL.md")
+            show_banner
+            echo -e "${GREY}✓ v${VERSION} MACHINIST mode — machine custodian${NC}"
+            echo ""
+            MSYS_NO_PATHCONV=1 exec claude \
+                --plugin-dir "$CAROL_ROOT" \
+                --add-dir "$CAROL_ROOT" \
+                --append-system-prompt "$carol_md_content" \
+                --agent MACHINIST \
+                "${claude_args[@]}" \
+                "/rename $session_name"
+        fi
+        _launch_machinist "${claude_args[@]}"
+    fi
+
+    # Project roles (COUNSELOR, SURGEON, BRAINSTORMER): need project context
+    if ! $in_project; then
+        info "No CAROL project here — initializing..."
         cmd_init
     else
-        # Ensure commands exist (recover from empty .claude/commands/)
-        if [ -d ".claude/commands" ] && [ -z "$(ls -A .claude/commands 2>/dev/null)" ]; then
-            if [ -d "$CAROL_ROOT/.claude/commands" ]; then
-                cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
-                success "Restored missing commands"
-            fi
-        fi
         show_banner
     fi
 
-    # Pass session name as /rename prompt
+    # Ensure CAROL plugin is installed at project scope (idempotent)
+    install_plugin_project_scope
+
     if [ -n "$session_name" ]; then
         MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "/rename $session_name"
     fi
@@ -787,7 +703,7 @@ case "${1:-run}" in
         ;;
     run)
         shift
-        cmd_run --agent COUNSELOR "$@"
+        cmd_run "$@"
         ;;
     continue|--continue|-c)
         cmd_continue
@@ -803,6 +719,10 @@ case "${1:-run}" in
     surgeon)
         shift
         cmd_run --agent SURGEON --model claude-sonnet-4-6 "$@"
+        ;;
+    machinist)
+        shift
+        cmd_run --agent MACHINIST "$@"
         ;;
     sessions)
         cmd_sessions

@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="1400px" height="1000px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
     <rect x="0" y="0" width="1400" height="1000" style="fill:#090d12;"/>
-    <text x="627.554px" y="30px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:20px;fill:#b3f9f5;">CAROL v0.0.8</text>
+    <text x="627.554px" y="30px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:20px;fill:#b3f9f5;">CAROL v0.0.9</text>
     <text x="524.674px" y="50px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#699daa;">Cognitive Ampliﬁer Role Orchestration with LLM agents</text>
     <g>
         <g>
@@ -47,7 +47,7 @@
         <text x="261.929px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Oracle</text>
         <text x="258.48px" y="520.031px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">analysis</text>
         <text x="395.627px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Engineer</text>
-        <text x="398.278px" y="520.903px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">scaffold</text>
+        <text x="398.278px" y="520.903px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">implement</text>
         <text x="539.028px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Auditor</text>
         <text x="538.355px" y="520.903px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">validate</text>
         <text x="812.617px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Pathﬁnder</text>
@@ -55,8 +55,8 @@
         <text x="807.511px" y="545px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#519299;">ALWAYS FIRST</text>
         <text x="961.929px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Oracle</text>
         <text x="966.603px" y="519.987px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">debug</text>
-        <text x="1093.311px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Machinist</text>
-        <text x="1103.727px" y="520.031px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">polish</text>
+        <text x="1103.311px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Auditor</text>
+        <text x="1103.727px" y="520.031px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">validate</text>
         <text x="1232.827px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Librarian</text>
         <text x="1237.931px" y="520.89px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">research</text>
     </g>

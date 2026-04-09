@@ -1,0 +1,13 @@
+{
+  "name": "carol",
+  "version": "0.0.9",
+  "description": "CAROL — Cognitive Amplifier Role Orchestration with LLM agents. Opinionated ritualistic framework that enforces discipline when working with multiple agents.",
+  "author": {
+    "name": "JRENG",
+    "url": "https://github.com/jrengmusic/carol"
+  },
+  "homepage": "https://github.com/jrengmusic/carol",
+  "repository": "https://github.com/jrengmusic/carol",
+  "license": "MIT",
+  "keywords": ["carol", "agents", "protocol", "cognitive-amplifier", "orchestration", "blessed"]
+}

@@ -13,7 +13,7 @@
 
 **C**ognitive **A**mplifier **R**ole **O**rchestration for LLM agents
 
-Version: 0.0.8
+Version: 0.0.9
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -64,18 +64,21 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 **BRAINSTORMER** - Pre-flight Shadow Agent
    Operates upstream of COUNSELOR. Researches, ideates, prototype-sketches, and produces RFC.md for COUNSELOR handoff. Reads codebase but never executes. The last checkpoint before COUNSELOR picks up a task.
 
-### Primary Agents (2)
+### Primary Agents (3)
 
 **COUNSELOR** - Requirements Counselor & Planning Specialist
    Transforms conceptual intent into formal specifications. Asks clarifying questions, explores edge cases and constraints, writes comprehensive SPEC.md and ARCHITECTURE.md. Handles all documentation including SPRINT-LOG.md updates on "log sprint" command. Never writes code directly. Uses SPEC-WRITER.md and ARCHITECTURE-WRITER.md as guides to clarify ARCHITECT's architectural vision into formalized development documents.
 
 **SURGEON** - Complex Fix Specialist
-   Handles bugs, performance issues, edge cases, and architectural corrections that other agents cannot solve. Identifies root cause, implements minimal surgical fixes. Does not refactor entire modules or touch unrelated code.
+   Handles bugs, performance issues, edge cases, and architectural corrections on project code. Identifies root cause, implements minimal surgical fixes. Does not refactor entire modules or touch unrelated code.
 
-### Secondary Agents (7)
+**MACHINIST** - Machine Custodian
+   Third primary. Surface is the entire operator environment — CAROL framework itself, Claude Code harness (`~/.claude/`), cross-platform `~/.config/` monorepo, dotfiles, shell/dev env, general machine setup and troubleshooting. Executes directly with its own hands (no Engineer delegation). Pathfinder mandatory first. Never touches project code. Launched via `carol machinist` — no project scaffold, can run from anywhere on the machine.
 
-**ENGINEER** - Literal Code Generator
-   Implements features exactly as specified in kickoff documents. Generates boilerplate, structures, and straightforward implementations. Follows specifications literally without adding features, optimizations, or making architectural decisions. Uses exact names, types, and signatures from SPEC.md as referenced in kickoff plans.
+### Secondary Agents (6)
+
+**ENGINEER** - Code Implementer
+   Implements working, BLESSED-compliant code on first pass per COUNSELOR's or SURGEON's instructions. Refactors when instructed. Flags every pre-existing BLESSED violation encountered during implementation via return brief — never silently ignores. Three-case contract: (1) implement primary task, (2) fix adjacent non-BLESSED inside the edit surface and report, (3) flag pre-existing non-BLESSED outside the edit surface and report for ARCHITECT decision. No features beyond spec, no architectural decisions.
 
 **ORACLE** - Deep Reasoning Specialist
    Provides deep analysis and second opinions when invoked by COUNSELOR or SURGEON. Can read codebase (grep, cat, find) and research web for patterns. Returns structured analysis with trade-offs and recommendations. Never makes code changes—advisory only.
@@ -85,9 +88,6 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 
 **AUDITOR** - Pre-Commit Auditor
    Performs systematic code review before commits. Validates against SPEC.md, checks architectural constraints (BLESSED principles), verifies style compliance, and identifies refactoring opportunities to mitigate technical debt. Writes comprehensive audit reports with severity classifications and recommendations.
-
-**MACHINIST** - Code Polisher & Finisher
-   Elevates scaffolds to production quality by fixing anti-patterns, ensuring fail-fast behavior, and integrating components. Makes all moving parts work together as a complete machine. Called when ENGINEER's scaffold needs finishing or after AUDITOR finds issues that need simple fixes. Can also triage AUDITOR findings (filter false alarms).
 
 **PATHFINDER** - Exploration Specialist
    Investigates unfamiliar codebases, APIs, or technologies. Maps unknown territory, identifies integration points, and reports findings without making changes. Used when entering new domains or evaluating third-party libraries.
@@ -163,7 +163,7 @@ Document-driven development pipeline with specialized artifacts:
 
 ## Key Features
 
-- **Role-Based Constraints:** 9 specialized roles with explicit behavioral rules (2 Primary + 7 Secondary)
+- **Role-Based Constraints:** 10 specialized roles with explicit behavioral rules (1 Upstream + 3 Primary + 6 Secondary)
 - **Agent-Agnostic:** Works with any LLM CLI tool (Claude Code, Opencode, Amp, Copilot, Gemini, whatever.)
 - **Language-Agnostic:** Supports any programming language/framework
 - **TDD-Friendly:** Built-in testing patterns and scripts
@@ -275,24 +275,28 @@ source ~/.bashrc  # bash
 ```
 ~/.carol
 ├── CAROL.md                  # Protocol, role definitions (SSOT)
-├── CLAUDE.md → CAROL.md      # Symlink — auto-loaded by Claude Code
+├── CLAUDE.md → CAROL.md      # Symlink — auto-loaded when working inside ~/.carol
 ├── MANIFESTO.md              # BLESSED principles
 ├── NAMES.md                  # Naming conventions
 ├── SPEC-WRITER.md            # Counselor conversation guide
 ├── ARCHITECTURE-WRITER.md    # Architecture documentation guide
-├── .claude/
-│   ├── agents/               # Agent definitions
-│   │   ├── brainstormer.md   # Pre-flight shadow agent (UPSTREAM)
-│   │   ├── counselor.md      # Requirements counselor (PRIMARY)
-│   │   ├── surgeon.md        # Complex fix specialist (PRIMARY)
-│   │   ├── engineer.md       # Literal code generator
-│   │   ├── oracle.md         # Deep reasoning specialist
-│   │   ├── librarian.md      # Library/framework research
-│   │   ├── auditor.md        # Pre-commit auditor
-│   │   ├── machinist.md      # Code polisher
-│   │   ├── pathfinder.md     # Exploration specialist
-│   │   └── researcher.md     # Information gatherer
-│   └── commands/             # Slash commands
+├── .claude-plugin/
+│   ├── plugin.json           # Claude Code plugin manifest
+│   └── marketplace.json      # Local marketplace catalog
+├── agents/                   # Agent definitions (plugin default location)
+│   ├── brainstormer.md       # Pre-flight shadow agent (UPSTREAM)
+│   ├── counselor.md          # Requirements counselor (PRIMARY)
+│   ├── surgeon.md            # Complex fix specialist (PRIMARY)
+│   ├── machinist.md          # Machine custodian (PRIMARY)
+│   ├── engineer.md           # Code implementer
+│   ├── oracle.md             # Deep reasoning specialist
+│   ├── librarian.md          # Library/framework research
+│   ├── auditor.md            # Pre-commit auditor
+│   ├── pathfinder.md         # Exploration specialist
+│   └── researcher.md         # Information gatherer
+├── commands/                 # Slash commands (plugin default location)
+├── hooks/
+│   └── hooks.json            # Plugin-level hooks (SessionStart, UserPromptSubmit)
 ├── templates/                # Project templates
 │   ├── SPRINT-LOG.md
 │   ├── ARCHITECTURE.md
@@ -301,28 +305,24 @@ source ~/.bashrc  # bash
 └── install.sh                # Installation script
 ```
 
-**Project After `carol init`:**
+**Project After `carol init` (v0.0.9+ plugin mode):**
 
 ```
 your-project/
-├── CLAUDE.md → ~/.carol/CAROL.md  # Symlink (or copy in portable mode)
 ├── RFC.md                         # BRAINSTORMER produces, COUNSELOR consumes
 ├── SPEC.md                        # COUNSELOR creates via SPEC-WRITER.md
 ├── PLAN.md                        # COUNSELOR writes per sprint
 ├── ARCHITECTURE.md                # Agents create via ARCHITECTURE-WRITER.md
-├── carol/                         # Hidden via chflags (macOS) / attrib +h (Windows)
-│   ├── SPEC-WRITER.md
-│   ├── ARCHITECTURE-WRITER.md
-│   ├── MANIFESTO.md
-│   ├── NAMES.md
+├── carol/                         # Project state only (hidden)
 │   ├── SPRINT-LOG.md              # Updated by primaries on "log sprint"
-│   └── config.yml
+│   └── config.yml                 # Per-project CAROL config
 ├── .claude/
-│   ├── agents/                    # Agent definitions
-│   └── commands/                  # Slash commands
+│   └── settings.json              # statusLine + enabledPlugins (carol@carol-marketplace)
 ├── src/                           # Your code
 └── .gitignore
 ```
+
+Note: v0.0.9+ no longer places `CLAUDE.md` at project root or copies framework files into `carol/`. The CAROL protocol, agents, commands, and hooks are delivered by the `carol@carol-marketplace` plugin installed at **project scope only** (never user scope — preserves raw `claude` lane).
 
 ---
 

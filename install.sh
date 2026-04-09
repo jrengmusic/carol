@@ -136,8 +136,16 @@ verify_install() {
     fi
 
     # Verify required directories exist
-    if [ ! -d "$CAROL_ROOT/.claude/agents" ]; then
-        error "Installation failed: agent definitions not found"
+    if [ ! -d "$CAROL_ROOT/agents" ]; then
+        error "Installation failed: agent definitions not found (expected $CAROL_ROOT/agents)"
+    fi
+
+    if [ ! -f "$CAROL_ROOT/.claude-plugin/plugin.json" ]; then
+        error "Installation failed: plugin manifest not found (expected $CAROL_ROOT/.claude-plugin/plugin.json)"
+    fi
+
+    if [ ! -f "$CAROL_ROOT/.claude-plugin/marketplace.json" ]; then
+        error "Installation failed: marketplace manifest not found (expected $CAROL_ROOT/.claude-plugin/marketplace.json)"
     fi
 
     if [ ! -d "$CAROL_ROOT/templates" ]; then
@@ -188,8 +196,9 @@ main() {
     echo ""
     info "Run:"
     echo "  carol version"
-    echo "  carol init              # portable mode (default)"
-    echo "  carol init --symlink    # symlink mode"
+    echo "  carol                   # auto-detect role (COUNSELOR in project, MACHINIST elsewhere)"
+    echo "  carol init              # initialize CAROL in current project (plugin mode)"
+    echo "  carol machinist         # machine custodian mode (no project scaffold)"
     echo ""
 }
 
