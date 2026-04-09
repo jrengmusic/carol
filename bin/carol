@@ -595,6 +595,7 @@ cmd_run() {
     local claude_args=()
     local session_name=""
     local requested_role=""
+    local is_resume=false
 
     # Separate claude flags from session name
     while [ $# -gt 0 ]; do
@@ -603,6 +604,11 @@ cmd_run() {
                 requested_role="$2"
                 claude_args+=("$1" "$2")
                 shift 2
+                ;;
+            --continue|-c)
+                is_resume=true
+                claude_args+=("$1")
+                shift
                 ;;
             --model)
                 claude_args+=("$1" "$2")
@@ -618,6 +624,13 @@ cmd_run() {
                 ;;
         esac
     done
+
+    # Resume mode: prior session already has its own role — do NOT apply role detection
+    # and do NOT force plugin-dir. Pass through to claude as-is.
+    if $is_resume; then
+        show_banner
+        exec claude "${claude_args[@]}"
+    fi
 
     # Context detection
     local in_project=false
