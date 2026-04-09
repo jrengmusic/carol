@@ -269,6 +269,29 @@ cmd_init() {
         cp "$CAROL_ROOT/templates/config.yml" carol/config.yml
     fi
 
+    # Symlink reference docs into carol/ so ARCHITECT can @mention them
+    # SSOT: edits to ~/.carol/*.md reflect instantly, no copies.
+    local ref_doc
+    for ref_doc in NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md JRENG-CODING-STANDARD.md LANGUAGE.md ODE.md ARCHITECT.md; do
+        [ -f "$CAROL_ROOT/$ref_doc" ] && ln -sf "$CAROL_ROOT/$ref_doc" "carol/$ref_doc"
+    done
+
+    # Symlink agents and slash commands into project-level .claude/ so they use
+    # bare names (/go, @oracle) instead of plugin-namespaced (/carol:go, @carol:oracle).
+    # Plugin delivers hooks only; agents+commands are project-scoped symlinks to SSOT.
+    mkdir -p .claude/agents .claude/commands
+    local agent_file cmd_file
+    if [ -d "$CAROL_ROOT/agents" ]; then
+        for agent_file in "$CAROL_ROOT/agents"/*.md; do
+            [ -f "$agent_file" ] && ln -sf "$agent_file" ".claude/agents/$(basename "$agent_file")"
+        done
+    fi
+    if [ -d "$CAROL_ROOT/commands" ]; then
+        for cmd_file in "$CAROL_ROOT/commands"/*.md; do
+            [ -f "$cmd_file" ] && ln -sf "$cmd_file" ".claude/commands/$(basename "$cmd_file")"
+        done
+    fi
+
     customize_templates "$project_path"
 
     # Protocol auto-load: symlink CAROL.md as CLAUDE.md at project root

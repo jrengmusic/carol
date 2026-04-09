@@ -9,5 +9,7 @@
   "homepage": "https://github.com/jrengmusic/carol",
   "repository": "https://github.com/jrengmusic/carol",
   "license": "MIT",
-  "keywords": ["carol", "agents", "protocol", "cognitive-amplifier", "orchestration", "blessed"]
+  "keywords": ["carol", "agents", "protocol", "cognitive-amplifier", "orchestration", "blessed"],
+  "commands": [],
+  "agents": []
 }
