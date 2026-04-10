@@ -57,7 +57,7 @@ If you need a `SafePointer` or a lifetime guard, ownership was wrong to begin wi
 
 These are smell detectors, not arbitrary limits. Crossing them means stop and ask why. The answer is almost always wrong decomposition.
 
-- **300 lines per file** — file is too large, too many responsibilities. Split the object.
+- **300 lines per file** — file is too large, too many responsibilities. Split the object. Inline documentation (doxygen, godoc, etc.) is excluded from the count.
 - **30 lines per function** — function is doing more than one thing. Split the function.
 - **3 branches max** — more than 3 `if/else` or `switch` cases means you are encoding a decision table in imperative code. Replace with direct lookup.
 
