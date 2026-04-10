@@ -144,10 +144,28 @@ refresh_marketplace() {
     claude plugin marketplace update "$CAROL_MARKETPLACE_NAME" 2>&1 >/dev/null || true
 }
 
-install_plugin_project_scope() {
-    refresh_marketplace
-    info "Installing CAROL plugin (project scope)..."
-    claude plugin install "$CAROL_PLUGIN_ID" --scope project 2>&1 || true
+symlink_carol_assets() {
+    # Symlink reference docs into carol/ so ARCHITECT can @mention them
+    # SSOT: edits to ~/.carol/*.md reflect instantly, no copies.
+    local ref_doc
+    for ref_doc in NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md JRENG-CODING-STANDARD.md LANGUAGE.md ODE.md ARCHITECT.md; do
+        [ -f "$CAROL_ROOT/$ref_doc" ] && ln -sf "$CAROL_ROOT/$ref_doc" "carol/$ref_doc"
+    done
+
+    # Symlink agents and slash commands into project-level .claude/ so they use
+    # bare names (/go, @oracle) instead of plugin-namespaced (/carol:go, @carol:oracle).
+    mkdir -p .claude/agents .claude/commands
+    local agent_file cmd_file
+    if [ -d "$CAROL_ROOT/agents" ]; then
+        for agent_file in "$CAROL_ROOT/agents"/*.md; do
+            [ -f "$agent_file" ] && ln -sf "$agent_file" ".claude/agents/$(basename "$agent_file")"
+        done
+    fi
+    if [ -d "$CAROL_ROOT/commands" ]; then
+        for cmd_file in "$CAROL_ROOT/commands"/*.md; do
+            [ -f "$cmd_file" ] && ln -sf "$cmd_file" ".claude/commands/$(basename "$cmd_file")"
+        done
+    fi
 }
 
 setup_global_permissions() {
@@ -269,28 +287,7 @@ cmd_init() {
         cp "$CAROL_ROOT/templates/config.yml" carol/config.yml
     fi
 
-    # Symlink reference docs into carol/ so ARCHITECT can @mention them
-    # SSOT: edits to ~/.carol/*.md reflect instantly, no copies.
-    local ref_doc
-    for ref_doc in NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md JRENG-CODING-STANDARD.md LANGUAGE.md ODE.md ARCHITECT.md; do
-        [ -f "$CAROL_ROOT/$ref_doc" ] && ln -sf "$CAROL_ROOT/$ref_doc" "carol/$ref_doc"
-    done
-
-    # Symlink agents and slash commands into project-level .claude/ so they use
-    # bare names (/go, @oracle) instead of plugin-namespaced (/carol:go, @carol:oracle).
-    # Plugin delivers hooks only; agents+commands are project-scoped symlinks to SSOT.
-    mkdir -p .claude/agents .claude/commands
-    local agent_file cmd_file
-    if [ -d "$CAROL_ROOT/agents" ]; then
-        for agent_file in "$CAROL_ROOT/agents"/*.md; do
-            [ -f "$agent_file" ] && ln -sf "$agent_file" ".claude/agents/$(basename "$agent_file")"
-        done
-    fi
-    if [ -d "$CAROL_ROOT/commands" ]; then
-        for cmd_file in "$CAROL_ROOT/commands"/*.md; do
-            [ -f "$cmd_file" ] && ln -sf "$cmd_file" ".claude/commands/$(basename "$cmd_file")"
-        done
-    fi
+    symlink_carol_assets
 
     customize_templates "$project_path"
 
@@ -298,10 +295,8 @@ cmd_init() {
     ln -sf "$CAROL_ROOT/CAROL.md" CLAUDE.md
 
     setup_global_permissions
+    ensure_marketplace_added
     setup_statusline
-
-    # Install CAROL plugin at project scope — never user scope (preserves raw claude lane)
-    install_plugin_project_scope
 
     show_banner
     echo -e "${GREY}✓ v${VERSION} System initiated (plugin mode).${NC}"
@@ -319,11 +314,11 @@ cmd_update() {
     info "Refreshing marketplace..."
     refresh_marketplace
 
-    # If inside a CAROL project, reinstall plugin at project scope (re-copies from refreshed source)
+    # If inside a CAROL project, re-symlink assets (picks up new agents/commands/docs)
     if [ -d "carol" ] || [ -d ".carol" ]; then
-        info "Reinstalling CAROL plugin (project scope, refreshes cache)..."
-        claude plugin uninstall carol --scope project 2>&1 >/dev/null || true
-        claude plugin install "$CAROL_PLUGIN_ID" --scope project 2>&1 || warning "Plugin install failed"
+        info "Refreshing symlinks..."
+        symlink_carol_assets
+        ln -sf "$CAROL_ROOT/CAROL.md" CLAUDE.md
         setup_statusline
     fi
 
@@ -363,12 +358,6 @@ cmd_reset() {
             sprint_log=$(cat "carol/SPRINT-LOG.md")
         elif [ -f ".carol/SPRINT-LOG.md" ]; then
             sprint_log=$(cat ".carol/SPRINT-LOG.md")
-        fi
-
-        # Uninstall CAROL plugin at project scope (v0.0.9+)
-        if claude plugin list 2>/dev/null | grep -q "$CAROL_PLUGIN_ID"; then
-            info "Uninstalling CAROL plugin (project scope)..."
-            claude plugin uninstall carol --scope project 2>&1 || warning "Plugin uninstall failed — continue manually if needed"
         fi
 
         rm -rf carol .carol
