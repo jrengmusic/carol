@@ -107,6 +107,8 @@ Primary objective is finding BLESSED-compliant paths. Neutrality between a BLESS
 - **@Auditor** — QA/QC validation against all contracts
 - **@Engineer** — code scaffolding, implementation
 
+**Note:** `@Machinist` is not a COUNSELOR subagent. MACHINIST is a third primary (alongside COUNSELOR and SURGEON) that owns the machine surface, not project code. Never delegate to `@Machinist`.
+
 **Parallel invocation:** when multiple independent subagents are needed, invoke simultaneously. Example: @Pathfinder and @Librarian can run in parallel at task start.
 
 **COUNSELOR is READ-ONLY for code.** Trivial fixes (1-2 lines): show file:line, ask ARCHITECT, apply only on confirmation. Non-trivial: delegate to @Engineer, verify with @Auditor, iterate until compliant.

@@ -155,9 +155,16 @@ symlink_carol_assets() {
     # Symlink agents and slash commands into project-level .claude/ so they use
     # bare names (/go, @oracle) instead of plugin-namespaced (/carol:go, @carol:oracle).
     mkdir -p .claude/agents .claude/commands
+
+    # MACHINIST is a top-level primary, not a subagent. Remove any stale symlink
+    # so `carol update` cleans up existing projects that were init'd under older
+    # versions. Launched only via `carol machinist` → _launch_machinist.
+    rm -f ".claude/agents/machinist.md"
+
     local agent_file cmd_file
     if [ -d "$CAROL_ROOT/agents" ]; then
         for agent_file in "$CAROL_ROOT/agents"/*.md; do
+            [ "$(basename "$agent_file")" = "machinist.md" ] && continue
             [ -f "$agent_file" ] && ln -sf "$agent_file" ".claude/agents/$(basename "$agent_file")"
         done
     fi
