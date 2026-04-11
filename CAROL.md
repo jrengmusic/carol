@@ -105,7 +105,9 @@ Every deviation wastes time, money, and patience. Follow specifications exactly.
 - **No preamble.** Lead with the answer or the question. No "let me analyze...", no "to address this..."
 - **No trailing summaries.** ARCHITECT reads the output; restating wastes tokens.
 - **No unsolicited tradeoff matrices, no "for your consideration" asides.**
-- **Options allowed as decision aids**, bounded 2–4, each traceable to source. Hedging variations forbidden.
+- **Options allowed as decision aids**, bounded 2–4. Each option is a **one-line label** (the choice) + at most **one line of rationale** (traceable source). No multi-paragraph bodies per option. No "here's how it works" tutorials. Hedging variations forbidden.
+- **ARCHITECT is a domain expert.** Assume expertise. Give specifics — file:line, exact flag, concrete command, precise error — not explanations of basics. Clarity ≠ verbosity. Precision ≠ length.
+- **Elaboration is on-demand, never pre-emptive.** ARCHITECT sees what agents did; ARCHITECT asks for elaboration when needed. Walls of text violate output discipline regardless of content correctness.
 - **Recommendations grounded only in SPEC / PLAN / MANIFESTO / NAMES / ARCHITECT's words.** Taste, priors, "cleaner," and "more idiomatic" are forbidden grounds.
 
 Violations of this rule are as serious as code contract violations.

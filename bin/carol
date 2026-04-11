@@ -711,9 +711,6 @@ _launch_machinist() {
     echo -e "${GREY}✓ v${VERSION} MACHINIST mode — machine custodian${NC}"
     echo ""
 
-    local carol_md_content
-    carol_md_content=$(cat "$CAROL_ROOT/CAROL.md")
-
     local agent_file="$CAROL_ROOT/agents/machinist.md"
     local agent_json
     agent_json=$(python3 -c "
@@ -730,10 +727,14 @@ for line in front.splitlines():
 print(json.dumps({'MACHINIST': {'description': desc, 'prompt': body}}))
 " "$agent_file")
 
+    # Pass CAROL.md as a file path (not content) to stay under Windows
+    # CreateProcess command-line limit (~32 KB). Inlining the content via
+    # --append-system-prompt triggers "Argument list too long" as CAROL.md
+    # grows.
     exec claude \
         --plugin-dir "$CAROL_ROOT" \
         --add-dir "$CAROL_ROOT" \
-        --append-system-prompt "$carol_md_content" \
+        --append-system-prompt-file "$CAROL_ROOT/CAROL.md" \
         --agents "$agent_json" \
         "${claude_args[@]}"
 }
@@ -752,9 +753,14 @@ cmd_run() {
                 claude_args+=("$1" "$2")
                 shift 2
                 ;;
-            --continue|-c)
+            --continue|-c|continue)
                 is_resume=true
-                claude_args+=("$1")
+                # Normalize word form to flag form so claude sees --continue
+                if [ "$1" = "continue" ]; then
+                    claude_args+=("--continue")
+                else
+                    claude_args+=("$1")
+                fi
                 shift
                 ;;
             --model)
@@ -784,6 +790,19 @@ cmd_run() {
         inside_carol_root=true
     fi
 
+    # MACHINIST: no project scaffold, agent def via --agents flag.
+    # Handled BEFORE the resume branch because MACHINIST is not a registered
+    # agent name — it is injected inline each launch via --agents JSON,
+    # including resume. Falling through to the generic resume branch would
+    # exec `claude --agent MACHINIST --continue` which fails to resolve
+    # MACHINIST and never re-injects the agent definition.
+    if [ "$requested_role" = "MACHINIST" ]; then
+        if [ -n "$session_name" ]; then
+            claude_args+=("/rename $session_name")
+        fi
+        _launch_machinist "${claude_args[@]}"
+    fi
+
     # Resume mode: prior session has its own role — skip role forcing.
     # BUT still ensure project scaffold exists before resuming.
     if $is_resume; then
@@ -801,14 +820,6 @@ cmd_run() {
     if [ -z "$requested_role" ]; then
         requested_role="COUNSELOR"
         claude_args+=(--agent COUNSELOR)
-    fi
-
-    # MACHINIST: no project scaffold, agent def via --agents flag
-    if [ "$requested_role" = "MACHINIST" ]; then
-        if [ -n "$session_name" ]; then
-            claude_args+=("/rename $session_name")
-        fi
-        _launch_machinist "${claude_args[@]}"
     fi
 
     # Project roles (COUNSELOR, SURGEON, BRAINSTORMER): need project context
