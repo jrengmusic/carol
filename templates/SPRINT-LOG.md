@@ -4,7 +4,7 @@
 **Repository:** [repo-url or local path]  
 **Started:** [YYYY-MM-DD]
 
-**Purpose:** Long-term context memory across sessions. Tracks completed work, technical debt, and unresolved issues. Written by PRIMARY agents only when ARCHITECT explicitly requests.
+**Purpose:** Long-term context memory across sessions. Tracks completed work, debts paid, and debts deferred to the inter-sprint ledger (`DEBT.md`). Written by PRIMARY agents only when ARCHITECT explicitly requests.
 
 ---
 
@@ -77,7 +77,8 @@
 
 1. **Check:** Did I (PRIMARY agent) complete work this session?
 2. **If YES:** Write sprint block to SPRINT-LOG.md (latest first)
-3. **Include:** Files modified, changes made, alignment check, technical debt
+3. **Include:** Files modified, changes made, alignment check, debts paid, debts deferred
+4. **Hygiene:** After writing the SPRINT-LOG entry, drain paid debts from project-root `DEBT.md` via `carol debt clear <id>` for each ID under *Debts Paid*. Receipt first, then clean the books.
 
 ### For User
 
@@ -143,9 +144,13 @@
 - Established project foundation following domain-specific patterns
 - Defined clear module boundaries preventing layer violations
 
-### Technical Debt / Follow-up
-- Error handling needs refinement in module.cpp (marked with TODO)
-- Performance requirements not yet defined for real-time constraints
+### Debts Paid
+- `DEBT-20260111T101530` — Resolved missing module.h include in core_test.cpp (see Files Modified)
+- *(or)* "None" if sprint did not touch any DEBT.md entries
+
+### Debts Deferred
+- `DEBT-20260111T143022` — Performance benchmarking suite (deferred by ARCHITECT command — out of scope for setup sprint)
+- *(or)* "None" if no items pushed to DEBT.md during this sprint
 
 **Status:** ✅ APPROVED - All files compile, tests scaffold in place
 

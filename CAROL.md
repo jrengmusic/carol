@@ -281,14 +281,74 @@ Subagents invoke via Task tool. Return structured brief to primary.
 ### Problems Solved
 - [Problem description and solution]
 
-### Technical Debt / Follow-up
-- [What's unfinished, what needs attention]
-- **ALL debt found during sprint MUST be resolved before logging** — no deferral
+### Debts Paid
+- `DEBT-YYYYMMDDTHHMMSS` — [one-line resolution, references Files Modified entry]
+- *(or)* "None" if sprint did not touch any DEBT.md entries
+
+### Debts Deferred
+- `DEBT-YYYYMMDDTHHMMSS` — [one-line summary of deferred item]
+- *(or)* "None" if no items pushed to DEBT.md during this sprint
 ```
+
+**Zero-debt rule:** ALL debt retained in scope MUST be resolved before logging. Debts explicitly pushed to DEBT.md by ARCHITECT command are out of scope and recorded under *Debts Deferred*. **No silent deferral.** Every sprint-visible issue is either fixed or explicitly paid-later by ARCHITECT command.
+
+**Hygiene step (MANDATORY, after SPRINT-LOG write):** drain paid entries from project-root `DEBT.md` via `carol debt clear <id>` for each ID listed under *Debts Paid*. Order matters: **receipt first (SPRINT-LOG), then clean the books (DEBT.md).**
 
 **Location:** Append to carol/SPRINT-LOG.md (latest first, keep last 5)
 
 **Sprint boundary:** A sprint ends when logged. Any work in the same session after logging is a new sprint. Primaries must not carry over scope assumptions — ARCHITECT defines scope for each sprint.
+
+---
+
+## DEBT.md Protocol
+
+**DEBT.md is the inter-sprint ledger** — bugs, nitpicks, friction observed during usage that need to be paid in a future sprint. Lives at **project root** (next to SPEC.md), not inside `carol/`. Transient and ephemeral: created lazily, drained on payment, survives `carol reset`.
+
+**This is an extraction**, not a new feature: the previous "Technical Debt / Follow-up" subsection of SPRINT-LOG.md has been pulled out into its own dedicated file with formal capture and payment protocol. Same information, formalized surface.
+
+### Capture: `carol debt add`
+
+**ARCHITECT-initiated only.** Agents never write DEBT.md autonomously — they flag findings to ARCHITECT, who decides disposition (fix in scope, or "add to DEBT.md"). The agent then runs `carol debt add` on ARCHITECT's command.
+
+`carol debt add` is an interactive bash prompt that asks three questions, in order:
+
+1. *"What did you see?"* → **Observation**
+2. *"What went wrong?"* → **Divergence**
+3. *"What did you expect?"* → **Expectation**
+
+Empty answer or Ctrl-C at any prompt aborts cleanly — no partial entry, no file mutation. All three answered → entry prepended to `DEBT.md` at project root with auto-generated ID `DEBT-YYYYMMDDTHHMMSS` (UTC).
+
+**Note:** The O/D/E format is borrowed from ODE.md because it is the proper articulation structure for a reproducible bug. DEBT.md does **not** invoke the ODE protocol — they share format only, not lifecycle. ODE remains a session-intervention primitive; DEBT is async deferred capture.
+
+### Planning: `/pay` (COUNSELOR only)
+
+**`/pay` is a COUNSELOR slash command.** SURGEON cannot invoke `/pay` — planning is COUNSELOR territory per Role Separation. If invoked outside COUNSELOR, the primary responds: *"/pay is planning work. Activate COUNSELOR first."*
+
+COUNSELOR's response shape on `/pay`:
+
+1. **Read** project-root `DEBT.md` in full.
+2. **Report** count and brief per-entry summary to ARCHITECT.
+3. **Synthesize** — group related items, identify sequencing dependencies, estimate sprint scope.
+4. **Propose** sprint plan: grouping + sequencing rationale.
+5. **Gate** — wait for ARCHITECT approval. No PLAN.md write, no DEBT.md mutation.
+6. **On approval** — write PLAN.md per existing PLAN protocol (or hold in context).
+7. **Hand off** — sprint execution begins normally. Role switch to SURGEON happens at ARCHITECT's command.
+
+**JRENG law: no severity, no triage, no "defer this one."** Every entry on the ledger goes into the next sprint scope. Sequencing is COUNSELOR's job; selection is not a question. Paid in full, cash.
+
+### Payment: sprint execution
+
+Each entry tackled one by one. Understood: a "small bug" can expand into architectural refactoring mid-sprint. The ledger respects reality — if a debt requires major changes to resolve or is **diminished** entirely by adjacent refactoring, both count as paid for drain purposes.
+
+### Drain: `/log` hygiene step
+
+`/pay` does NOT drain DEBT.md. Drain happens at `log sprint` time, after the SPRINT-LOG receipt is written. Drain criterion = **what the sprint actually touched/fixed/diminished**, not what `/pay` originally proposed. Sprint reality overrides `/pay` plan.
+
+For each ID listed under *Debts Paid* in the SPRINT-LOG entry, the primary calls `carol debt clear <id>`. Order is mandatory: **SPRINT-LOG receipt first, then DEBT.md drain.**
+
+### Mid-sprint capture
+
+Even during a running sprint, ARCHITECT may explicitly say "add to DEBT.md" when an agent flags an out-of-scope finding. The agent runs `carol debt add` on that command. The deferred IDs are listed under *Debts Deferred* at `log sprint` time. **The zero-debt invariant holds for items that stay in scope** — only ARCHITECT-commanded deferrals leave a sprint with unresolved items.
 
 ---
 

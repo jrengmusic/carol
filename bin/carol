@@ -389,6 +389,7 @@ cmd_help() {
     echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
     echo -e "  ${YELLOW}surgeon${NC} [name]    Launch SURGEON session (Sonnet)"
     echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
+    echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/list/clear)"
     echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
     echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
     echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
@@ -416,6 +417,8 @@ cmd_help() {
     echo -e "${MAGENTA}Slash Commands:${NC}"
     echo -e "  ${YELLOW}/counselor${NC}   Activate COUNSELOR (default on init)"
     echo -e "  ${YELLOW}/surgeon${NC}     Activate SURGEON"
+    echo -e "  ${YELLOW}/pay${NC}         Drain DEBT.md ledger into next sprint plan (COUNSELOR only)"
+    echo -e "  ${YELLOW}/log${NC}         Log sprint, drain paid debts (COUNSELOR or SURGEON)"
     echo -e "  ${YELLOW}/stop${NC}        Emergency brake — cease all execution"
     echo -e "  ${YELLOW}/ode${NC}         ODE to Joy — reframe the problem"
     echo ""
@@ -558,6 +561,141 @@ print(model)
 
 cmd_continue() {
     cmd_run --continue
+}
+
+cmd_debt() {
+    local subcmd="${1:-help}"
+    [ $# -gt 0 ] && shift
+
+    case "$subcmd" in
+        add)
+            cmd_debt_add "$@"
+            ;;
+        list)
+            cmd_debt_list "$@"
+            ;;
+        clear)
+            cmd_debt_clear "$@"
+            ;;
+        help|--help|-h)
+            cmd_debt_help
+            ;;
+        *)
+            error "Unknown debt subcommand: $subcmd. Run 'carol debt help' for usage."
+            ;;
+    esac
+}
+
+cmd_debt_help() {
+    echo ""
+    echo -e "${CYAN}Usage:${NC} carol debt <subcommand>"
+    echo ""
+    echo -e "${MAGENTA}Subcommands:${NC}"
+    echo -e "  ${YELLOW}add${NC}              Interactive prompt to register a new debt entry"
+    echo -e "  ${YELLOW}list${NC}             Show DEBT.md contents"
+    echo -e "  ${YELLOW}clear <id>${NC}       Drain a paid debt entry by ID (called by /log hygiene)"
+    echo ""
+    echo -e "${GREY}DEBT.md is the inter-sprint ledger at project root. JRENG = paid in full.${NC}"
+    echo ""
+}
+
+cmd_debt_add() {
+    # Lazy create DEBT.md from template if missing
+    if [ ! -f "DEBT.md" ]; then
+        if [ -f "$CAROL_ROOT/templates/DEBT.md" ]; then
+            cp "$CAROL_ROOT/templates/DEBT.md" DEBT.md
+            notice "Created DEBT.md from template"
+        else
+            error "DEBT.md template not found at $CAROL_ROOT/templates/DEBT.md"
+        fi
+    fi
+
+    # Generate ID from UTC timestamp
+    local id="DEBT-$(date -u +%Y%m%dT%H%M%S)"
+
+    echo ""
+    echo -e "${CYAN}New debt entry — ${BOLD}$id${NC}"
+    echo -e "${GREY}Empty answer or Ctrl-C aborts. No partial entry will be saved.${NC}"
+    echo ""
+
+    local observation divergence expectation
+
+    echo -en "${YELLOW}What did you see?${NC} "
+    read -r observation
+    if [ -z "$observation" ]; then
+        info "Cancelled — no entry registered"
+        return 0
+    fi
+
+    echo -en "${YELLOW}What went wrong?${NC} "
+    read -r divergence
+    if [ -z "$divergence" ]; then
+        info "Cancelled — no entry registered"
+        return 0
+    fi
+
+    echo -en "${YELLOW}What did you expect?${NC} "
+    read -r expectation
+    if [ -z "$expectation" ]; then
+        info "Cancelled — no entry registered"
+        return 0
+    fi
+
+    # Find line number of first --- separator (end of preamble)
+    local sep_line
+    sep_line=$(grep -n '^---$' DEBT.md | head -1 | cut -d: -f1)
+    if [ -z "$sep_line" ]; then
+        error "DEBT.md format invalid: no '---' separator found"
+    fi
+
+    # Build new file: preamble through first ---, then new entry, then rest
+    local tmp_file="DEBT.md.tmp.$$"
+    {
+        sed -n "1,${sep_line}p" DEBT.md
+        echo ""
+        echo "## $id"
+        echo ""
+        echo "**Observation:** $observation"
+        echo "**Divergence:** $divergence"
+        echo "**Expectation:** $expectation"
+        echo ""
+        echo "---"
+        sed -n "$((sep_line+1)),\$p" DEBT.md
+    } > "$tmp_file"
+    mv "$tmp_file" DEBT.md
+
+    success "Debt registered: $id"
+}
+
+cmd_debt_list() {
+    if [ ! -f "DEBT.md" ]; then
+        notice "No DEBT.md in this project — ledger is empty"
+        return 0
+    fi
+    cat DEBT.md
+}
+
+cmd_debt_clear() {
+    local id="$1"
+    [ -z "$id" ] && error "Usage: carol debt clear <DEBT-id>"
+    [ ! -f "DEBT.md" ] && error "No DEBT.md in current directory"
+
+    # Find the heading line for the target id
+    local start_line
+    start_line=$(grep -n "^## $id$" DEBT.md | head -1 | cut -d: -f1)
+    [ -z "$start_line" ] && error "$id not found in DEBT.md"
+
+    # Find the next --- separator after start_line — this is the entry's terminator
+    local end_line
+    end_line=$(awk -v start="$start_line" 'NR > start && /^---$/ { print NR; exit }' DEBT.md)
+    [ -z "$end_line" ] && error "$id has no terminating separator (DEBT.md corrupt?)"
+
+    # Delete from start_line to end_line (inclusive)
+    local tmp_file="DEBT.md.tmp.$$"
+    sed "${start_line},${end_line}d" DEBT.md > "$tmp_file"
+    mv "$tmp_file" DEBT.md
+
+    success "Drained $id"
 }
 
 _launch_machinist() {
@@ -721,6 +859,10 @@ case "${1:-run}" in
     machinist)
         shift
         cmd_run --agent MACHINIST "$@"
+        ;;
+    debt)
+        shift
+        cmd_debt "$@"
         ;;
     sessions)
         cmd_sessions

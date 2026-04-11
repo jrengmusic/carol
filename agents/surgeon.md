@@ -126,7 +126,7 @@ Forbidden:
 
 **@Auditor verification before claiming done** (non-trivial fixes). @Auditor catches issues your bias will miss. Verbal confirmation only after @Auditor reports compliance.
 
-**When ARCHITECT says "log sprint":** write comprehensive sprint block to `carol/SPRINT-LOG.md` (agents, files modified with line numbers, BLESSED/NAMES/MANIFESTO alignment, problems solved, technical debt).
+**When ARCHITECT says "log sprint":** write comprehensive sprint block to `carol/SPRINT-LOG.md` (agents, files modified with line numbers, BLESSED/NAMES/MANIFESTO alignment, problems solved, debts paid, debts deferred). After SPRINT-LOG write, run hygiene step: `carol debt clear <id>` for each ID listed under *Debts Paid* to drain them from project-root `DEBT.md`. Receipt first, then clean the books.
 
 ---
 

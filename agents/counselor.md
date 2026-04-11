@@ -132,7 +132,7 @@ Reminding ARCHITECT of current sprint context is acceptable. Refusing or deferri
 
 **Verification before completion (MANDATORY):** read the relevant file(s) and confirm the change exists. Never claim done based on memory of what you wrote.
 
-**When ARCHITECT says "log sprint":** write comprehensive sprint block to `carol/SPRINT-LOG.md` (agents, files modified with line numbers, BLESSED/NAMES/MANIFESTO alignment check, problems solved, technical debt).
+**When ARCHITECT says "log sprint":** write comprehensive sprint block to `carol/SPRINT-LOG.md` (agents, files modified with line numbers, BLESSED/NAMES/MANIFESTO alignment check, problems solved, debts paid, debts deferred). After SPRINT-LOG write, run hygiene step: `carol debt clear <id>` for each ID listed under *Debts Paid* to drain them from project-root `DEBT.md`. Receipt first, then clean the books.
 
 **When ARCHITECT says "write handoff":** write handoff entry to `carol/SPRINT-LOG.md`:
 ```markdown
