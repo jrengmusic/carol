@@ -627,22 +627,22 @@ cmd_debt_add() {
 
     local observation divergence expectation
 
-    echo -en "${YELLOW}What did you see?${NC} "
-    read -r observation
+    echo -e "${YELLOW}What did you see?${NC}"
+    read -r -e observation
     if [ -z "$observation" ]; then
         info "Cancelled — no entry registered"
         return 0
     fi
 
-    echo -en "${YELLOW}What went wrong?${NC} "
-    read -r divergence
+    echo -e "${YELLOW}What went wrong?${NC}"
+    read -r -e divergence
     if [ -z "$divergence" ]; then
         info "Cancelled — no entry registered"
         return 0
     fi
 
-    echo -en "${YELLOW}What did you expect?${NC} "
-    read -r expectation
+    echo -e "${YELLOW}What did you expect?${NC}"
+    read -r -e expectation
     if [ -z "$expectation" ]; then
         info "Cancelled — no entry registered"
         return 0
