@@ -113,36 +113,88 @@ if [ -n "$agent" ]; then
     role_label="  ${role_bg}${bold} ${agent} ${reset}"
 fi
 
-# Rate limit bar — 10 segments (same gradient)
-rl_label=""
+# Rate limit components (5-hour and weekly)
+rl_color="$dim_color"
+rl_left=0
 if [ "$rl_pct" -gt 0 ]; then
     if   [ "$rl_pct" -ge 75 ]; then rl_color="\033[38;2;252;112;76m"
     elif [ "$rl_pct" -ge 50 ]; then rl_color="\033[38;2;200;120;50m"
     elif [ "$rl_pct" -ge 25 ]; then rl_color="\033[38;2;0;150;160m"
     else                            rl_color="\033[38;2;51;83;91m"
     fi
-    RL_SEGMENTS=15
-    rl_filled=$((rl_pct * RL_SEGMENTS / 100))
-    rl_bar=$(build_bar $RL_SEGMENTS $rl_filled "$rl_color")
-    rl_reset_label=""
-    [ -n "$rl_remaining" ] && rl_reset_label=" ${dim_color}${rl_remaining}${reset}"
-    rl_label="  ${dim_color}🕔${reset}${rl_bar}${rl_reset_label}"
+    rl_left=$((100 - rl_pct))
 fi
 
-# Weekly (7-day) bar
-wk_label=""
+wk_color="$dim_color"
+wk_left=0
 if [ "$wk_pct" -gt 0 ]; then
     if   [ "$wk_pct" -ge 75 ]; then wk_color="\033[38;2;252;112;76m"
     elif [ "$wk_pct" -ge 50 ]; then wk_color="\033[38;2;200;120;50m"
     elif [ "$wk_pct" -ge 25 ]; then wk_color="\033[38;2;0;150;160m"
     else                            wk_color="\033[38;2;51;83;91m"
     fi
-    WK_SEGMENTS=15
-    wk_filled=$((wk_pct * WK_SEGMENTS / 100))
-    wk_bar=$(build_bar $WK_SEGMENTS $wk_filled "$wk_color")
-    wk_reset_label=""
-    [ -n "$wk_remaining" ] && wk_reset_label=" ${dim_color}${wk_remaining}${reset}"
-    wk_label="  ${dim_color}📅${reset}${wk_bar}${wk_reset_label}"
+    wk_left=$((100 - wk_pct))
 fi
 
-printf "${label_color}◈ CAROL v${carol_version}${reset}${role_label}  ${dim_color}${model}${reset}  ${ctx_emoji}${bar}${rl_label}${wk_label}\n"
+# Responsive tiers — measure actual component widths, pick highest that fits
+# Tier 1: role + ctx bar
+# Tier 2: + percent-only for session and weekly
+# Tier 3: + bars + reset ETAs
+# Tier 4: + CAROL version + model name
+cols=${COLUMNS:-$(stty size < /dev/tty 2>/dev/null | cut -d' ' -f2)}
+cols=${cols:-120}
+
+# Pre-build rate limit bars (needed for tier 3+)
+RL_SEGMENTS=15
+WK_SEGMENTS=15
+rl_bar=""
+wk_bar=""
+[ "$rl_pct" -gt 0 ] && rl_bar=$(build_bar $RL_SEGMENTS $((rl_pct * RL_SEGMENTS / 100)) "$rl_color")
+[ "$wk_pct" -gt 0 ] && wk_bar=$(build_bar $WK_SEGMENTS $((wk_pct * WK_SEGMENTS / 100)) "$wk_color")
+
+# Calculate visible cell widths per component (emoji = 2 cells)
+role_w=0
+[ -n "$agent" ] && role_w=$((2 + 1 + ${#agent} + 1))  # "  " + " ROLE "
+ctx_w=$((2 + 2 + CTX_SEGMENTS))                         # "  " + emoji + bar
+
+rl_pct_w=0; rl_full_w=0
+if [ "$rl_pct" -gt 0 ]; then
+    rl_pct_w=$((2 + 2 + ${#rl_left} + 1))               # "  " + emoji + digits + "%"
+    rl_full_w=$((2 + 2 + RL_SEGMENTS + 1 + ${#rl_left} + 1))  # + bar + " " + digits + "%"
+    [ -n "$rl_remaining" ] && rl_full_w=$((rl_full_w + 1 + ${#rl_remaining}))
+fi
+
+wk_pct_w=0; wk_full_w=0
+if [ "$wk_pct" -gt 0 ]; then
+    wk_pct_w=$((2 + 2 + ${#wk_left} + 1))
+    wk_full_w=$((2 + 2 + WK_SEGMENTS + 1 + ${#wk_left} + 1))
+    [ -n "$wk_remaining" ] && wk_full_w=$((wk_full_w + 1 + ${#wk_remaining}))
+fi
+
+ver_w=$((2 + ${#carol_version} + 9))                    # "◈ CAROL v" + version
+model_w=$((2 + ${#model}))                               # "  " + model
+
+t1=$((role_w + ctx_w))
+t2=$((t1 + rl_pct_w + wk_pct_w))
+t3=$((t1 + rl_full_w + wk_full_w))
+t4=$((ver_w + role_w + model_w + ctx_w + rl_full_w + wk_full_w))
+
+# Assemble: pick highest tier that fits
+if [ "$cols" -ge "$t4" ]; then
+    out="${label_color}◈ CAROL v${carol_version}${reset}"
+    out="${out}${role_label}  ${dim_color}${model}${reset}  ${ctx_emoji}${bar}"
+    [ "$rl_pct" -gt 0 ] && out="${out}  ${dim_color}🕔${reset}${rl_bar} ${rl_color}${rl_left}%%${reset}$([ -n "$rl_remaining" ] && printf " ${dim_color}${rl_remaining}${reset}")"
+    [ "$wk_pct" -gt 0 ] && out="${out}  ${dim_color}📅${reset}${wk_bar} ${wk_color}${wk_left}%%${reset}$([ -n "$wk_remaining" ] && printf " ${dim_color}${wk_remaining}${reset}")"
+elif [ "$cols" -ge "$t3" ]; then
+    out="${role_label}  ${ctx_emoji}${bar}"
+    [ "$rl_pct" -gt 0 ] && out="${out}  ${dim_color}🕔${reset}${rl_bar} ${rl_color}${rl_left}%%${reset}$([ -n "$rl_remaining" ] && printf " ${dim_color}${rl_remaining}${reset}")"
+    [ "$wk_pct" -gt 0 ] && out="${out}  ${dim_color}📅${reset}${wk_bar} ${wk_color}${wk_left}%%${reset}$([ -n "$wk_remaining" ] && printf " ${dim_color}${wk_remaining}${reset}")"
+elif [ "$cols" -ge "$t2" ]; then
+    out="${role_label}  ${ctx_emoji}${bar}"
+    [ "$rl_pct" -gt 0 ] && out="${out}  ${dim_color}🕔${reset}${rl_color}${rl_left}%%${reset}"
+    [ "$wk_pct" -gt 0 ] && out="${out}  ${dim_color}📅${reset}${wk_color}${wk_left}%%${reset}"
+else
+    out="${role_label}  ${ctx_emoji}${bar}"
+fi
+
+printf "${out}\n"
