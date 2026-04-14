@@ -13,7 +13,7 @@
 
 **C**ognitive **A**mplifier **R**ole **O**rchestration for LLM agents
 
-Version: 0.0.9
+Version: 0.0.10
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 

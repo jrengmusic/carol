@@ -141,7 +141,26 @@ ODE is domain-agnostic as a structure, but the quality of its output scales with
 
 ---
 
-## VI · The Beethoven Note
+## VI · Investigation
+
+After O/D/E are surfaced and the gap is named, CAROL enters investigation mode. The goal: find the working solution by grounding in runtime evidence, not in-context recall.
+
+### The method: ephemeral diagnostic logging
+
+1. **Instrument call sites** — add diagnostic log statements at the code locations implicated by the Divergence. Use the codebase's native logging primitive (`juce::Logger`, `std::cout`, `printf`, `fmt::print`, `log.Printf` — whatever is already in use). Never introduce a new logging framework for this.
+2. **Run the code** — diagnostics emit to an ephemeral log file at project root.
+3. **Read the log** — runtime evidence grounds the investigation. Written diagnostics override in-context recall and model intuition.
+4. **Iterate** — add or remove log points based on what the log reveals. This is a trace, not guesswork.
+5. **Find the working solution** — cite log output as evidence when proposing the fix.
+6. **Clean up (MANDATORY, same sprint)** — diagnostic logging is ephemeral. All log statements added during ODE investigation are removed as part of the sprint that resolves the issue. The log file is git-ignored.
+
+### Why runtime diagnostics over in-context reasoning
+
+A stuck session keeps re-reasoning over stale context and re-arriving at the same wrong conclusion. Runtime diagnostics capture what the code *actually does* — unmediated. When reasoning has failed, reality beats recall.
+
+---
+
+## VII · The Beethoven Note
 
 Beethoven composed the Ninth Symphony — including the Ode to Joy — while completely deaf. He could not hear the output. He held the model with such precision that the output could be reconstructed from it alone.
 

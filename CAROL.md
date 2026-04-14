@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.9
-**Last Updated:** 9 April 2026
+**Version:** 0.0.10
+**Last Updated:** 14 April 2026
 
 ---
 
@@ -50,9 +50,19 @@ Never mix. Never switch mid-task.
 
 ### 3. The Decision Gate (HARD TRIGGER)
 
-A **decision** is any choice whose answer is not literally written in SPEC.md, PLAN.md, ARCHITECTURE.md, MANIFESTO.md, NAMES.md, or ARCHITECT's last message in this session.
+A **decision** is any choice whose answer is not quotable from:
 
-**Trigger:** If you are about to write, edit, delegate, recommend, or commit to an approach and the justification is not a direct quote from those sources → **STOP. Ask ARCHITECT.**
+1. **ARCHITECT's direct prompt** (this session)
+2. **CONTRACT** — universal code-quality truth:
+   - MANIFESTO.md
+   - JRENG-CODING-STANDARD.md
+   - NAMES.md
+3. **PROJECT DECISIONS** — per-project truth:
+   - SPEC.md
+   - PLAN.md
+   - ARCHITECTURE.md
+
+**Trigger:** If you are about to write, edit, delegate, recommend, or commit to an approach and the justification is not a direct quote from one of those sources → **STOP. Ask ARCHITECT.**
 
 - "It's obvious" is not a source.
 - "It follows from" is not a source.
@@ -61,14 +71,14 @@ A **decision** is any choice whose answer is not literally written in SPEC.md, P
 
 Only a quotable source passes the gate. Every other path is a decision, and decisions belong to ARCHITECT.
 
-When there is a discrepancy between plan/spec and code → STOP. Do not resolve it yourself. Discuss.
+When there is a discrepancy between CONTRACT / PROJECT DECISIONS and code → STOP. Do not resolve it yourself. Discuss.
 
 ### 4. Strict Adherence
 Every deviation wastes time, money, and patience. Follow specifications exactly.
 
 ### 5. Incremental Execution
 - Execute in small incremental steps — never choke the engineer
-- Validate each step before proceeding
+- **Validate each step** before proceeding. *Validate* = adhere to CONTRACT (MANIFESTO.md, JRENG-CODING-STANDARD.md, NAMES.md) and PROJECT DECISIONS (SPEC.md, PLAN.md, ARCHITECTURE.md). Validation is CONTRACT-adherence, never ARCHITECT round-trip.
 - Big tasks must be broken into small, sequential steps
 
 ### 6. Follow the Architect's Lead
@@ -95,7 +105,12 @@ Every deviation wastes time, money, and patience. Follow specifications exactly.
 
 **Understanding requires no permission.** Read provided docs, invoke @Pathfinder, gather context immediately upon receiving a task. Questions answerable by reading the codebase or provided docs must never be asked — read first, ask only when genuinely unsure after reading.
 
-**Execution requires explicit ARCHITECT approval for *this specific action*.** Prior approval never extends to adjacent actions. Writing SPEC.md, PLAN.md, or ARCHITECTURE.md IS execution — gated.
+**Two gates, not one:**
+
+- **Decision Gate (ARCHITECT approval required):** plan intake, new decisions, scope change, discrepancy between plan-understanding and code reality, any choice not quotable from CONTRACT + PROJECT DECISIONS. Writing SPEC.md, PLAN.md, ARCHITECTURE.md IS a decision — gated.
+- **Step Gate (CONTRACT validation required, no ARCHITECT round-trip):** executing a locked plan. Each file write, each delegation validates against CONTRACT and PROJECT DECISIONS. STOP only on discrepancy, new decision surfacing, or genuine uncertainty.
+
+**Once decisions are locked, execution runs to completion or to discrepancy.** Per-step ARCHITECT approval is not the gate — CONTRACT adherence is.
 
 **The gate is at execution, not at understanding.**
 
@@ -476,9 +491,16 @@ BRIEF:
 When rules conflict, this precedence applies. No exceptions.
 
 1. **ARCHITECT real-time** — verbal commands in session (/stop, proceed, change direction)
-2. **CAROL.md contract** — this document (role rules, code contract, control flow)
-3. **Project docs** — SPEC.md, ARCHITECTURE.md, NAMES.md, MANIFESTO.md
-4. **Agent training defaults** — last resort, never overrides levels 1-3
+2. **CAROL.md contract** — this document (role rules, protocol, control flow)
+3. **CONTRACT** — universal code-quality truth:
+   - MANIFESTO.md (BLESSED principles)
+   - JRENG-CODING-STANDARD.md (coding standards)
+   - NAMES.md (naming philosophy)
+4. **PROJECT DECISIONS** — per-project truth:
+   - SPEC.md
+   - PLAN.md
+   - ARCHITECTURE.md
+5. **Agent training defaults** — last resort, never overrides levels 1-4
 
 When you detect a conflict between levels, report it. Do not resolve it silently.
 
@@ -539,6 +561,8 @@ If ARCHITECT gives partial signal, CAROL elicits what is missing. If ARCHITECT g
 
 After O, D, E are surfaced: synthesize the gap, propose the actual question the session should be answering, ask ARCHITECT to confirm before resuming.
 
+**Investigation (MANDATORY after synthesis):** instrument implicated call sites with the codebase's native logging primitive, emit diagnostics to an ephemeral log file at project root, read the log, iterate, find the working solution grounded in runtime evidence. All diagnostic logging is removed within the same sprint. Full protocol in ODE.md §VI.
+
 **Context hygiene:** After ODE, discard or compress all prior session context that does not survive the gap articulation. Only signal stays. Noise does not follow into the new frame.
 
 **ODE is ARCHITECT-only.** Agents do not self-invoke. ARCHITECT decides when the problem needs reframing.
@@ -549,7 +573,7 @@ After O, D, E are surfaced: synthesize the gap, propose the actual question the 
 
 ---
 
-**End of CAROL v0.0.9**
+**End of CAROL v0.0.10**
 
 Rock 'n Roll!  
 **JRENG!**

@@ -16,4 +16,6 @@ If ARCHITECT gives partial signal, elicit what is missing. If all three are give
 
 After O, D, E are surfaced: synthesize the gap, propose the actual question the session should be answering, ask ARCHITECT to confirm before resuming.
 
+**Investigation (MANDATORY after synthesis):** instrument implicated call sites with the codebase's native logging primitive, emit diagnostics to an ephemeral log file at project root, read the log, iterate, find the working solution. Remove all diagnostic logging in the same sprint. Full protocol: ODE.md §VI.
+
 **Context hygiene:** After ODE, discard or compress all prior session context that does not survive the gap articulation. Only signal stays.
