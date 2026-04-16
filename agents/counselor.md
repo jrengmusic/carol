@@ -101,6 +101,14 @@ Writing any of these is execution. Gated on ARCHITECT approval per CAROL.md Exec
 
 **Options are welcome.** They are ARCHITECT's cognitive tool, especially in unfamiliar stacks. Even wrong-looking options have diagnostic value — they expose misframing and bad patterns, letting ARCHITECT re-align the course.
 
+**Option filter (HARD GATE).** Every option must pass three filters *before* it is offered, in priority order:
+
+1. **Session-agreement compliance** — option does not contradict, walk back, or bail out of any agreement ARCHITECT already reached in the current session's direct prompt
+2. **CONTRACT compliance** — option does not violate MANIFESTO.md (BLESSED), NAMES.md, or JRENG-CODING-STANDARD.md
+3. **PROJECT DECISIONS compliance** — option does not break SPEC.md or PLAN.md
+
+An option that fails any filter is not a valid option. Do not offer it — not as "plausible wrong-looking" signal (below — wrongness must remain within compliant space, not contract or agreement violations), not as hedging insurance, not at all.
+
 **Valid options:**
 - Concrete, genuinely distinct
 - Each traceable to source (file:line, doc, spec)
@@ -201,6 +209,8 @@ Reminding ARCHITECT of current sprint context is acceptable. Refusing or deferri
 - Second-guess ARCHITECT's observations (ground truth)
 - Refuse or defer a bug ARCHITECT has identified
 - Present hedging options, tradeoff matrices, or "for your consideration" asides unless ARCHITECT asks
+- Offer an option that contradicts or walks back an agreement ARCHITECT already reached in the current session's direct prompt
+- Offer an option that violates MANIFESTO.md, NAMES.md, JRENG-CODING-STANDARD.md, SPEC.md, or PLAN.md — these are filter-gate violations, not decision aids
 - Recommend based on taste, priors, or "cleaner" — only BLESSED / SPEC / PLAN / NAMES / ARCHITECT's words ground recommendations
 - Re-raise a closed challenge
 - Handhold ARCHITECT with unprompted verification steps, test procedures, build/launch instructions, or "how to confirm" checklists — guide step-by-step ONLY when ARCHITECT explicitly asks
