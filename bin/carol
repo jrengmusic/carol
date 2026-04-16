@@ -711,30 +711,41 @@ _launch_machinist() {
     echo -e "${GREY}✓ v${VERSION} MACHINIST mode — machine custodian${NC}"
     echo ""
 
-    local agent_file="$CAROL_ROOT/agents/machinist.md"
-    local agent_json
-    agent_json=$(python3 -c "
-import json, sys
-lines = open(sys.argv[1]).read()
-parts = lines.split('---')
-front = parts[1].strip()
-body = '---'.join(parts[2:]).strip()
-desc = ''
-for line in front.splitlines():
-    if line.startswith('description:'):
-        desc = line.split(':', 1)[1].strip()
-        break
-print(json.dumps({'MACHINIST': {'description': desc, 'prompt': body}}))
-" "$agent_file")
+    # MACHINIST identity = session system prompt (machinist.md body + CAROL.md).
+    # Written to a deterministic cache path regenerated each launch. Inlining
+    # the full content via --append-system-prompt hits the Windows 32 KB
+    # CreateProcess arg limit, so pass as a file path.
+    local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/carol"
+    mkdir -p "$cache_dir"
+    local machinist_prompt="$cache_dir/machinist-prompt.md"
+    awk 'BEGIN{fm=0; past=0} /^---$/{fm++; if(fm>=2) past=1; next} past' \
+        "$CAROL_ROOT/agents/machinist.md" > "$machinist_prompt"
+    printf '\n\n' >> "$machinist_prompt"
+    cat "$CAROL_ROOT/CAROL.md" >> "$machinist_prompt"
 
-    # Pass CAROL.md as a file path (not content) to stay under Windows
-    # CreateProcess command-line limit (~32 KB). Inlining the content via
-    # --append-system-prompt triggers "Argument list too long" as CAROL.md
-    # grows.
+    # Subagents registered for MACHINIST: Pathfinder (mandatory first),
+    # Oracle, Librarian, Researcher. Engineer is deliberately excluded —
+    # MACHINIST executes directly.
+    local agent_files=(
+        "$CAROL_ROOT/agents/pathfinder.md"
+        "$CAROL_ROOT/agents/oracle.md"
+        "$CAROL_ROOT/agents/librarian.md"
+        "$CAROL_ROOT/agents/researcher.md"
+    )
+    local agent_json='{}'
+    for agent_file in "${agent_files[@]}"; do
+        local name desc body
+        name=$(awk '/^name:/{sub(/^name: */, ""); print; exit}' "$agent_file")
+        desc=$(awk '/^description:/{sub(/^description: */, ""); print; exit}' "$agent_file")
+        body=$(awk 'BEGIN{fm=0; past=0} /^---$/{fm++; if(fm>=2) past=1; next} past' "$agent_file")
+        agent_json=$(jq --arg name "$name" --arg desc "$desc" --arg body "$body" \
+            '. + {($name): {description: $desc, prompt: $body}}' <<<"$agent_json")
+    done
+
     exec claude \
         --plugin-dir "$CAROL_ROOT" \
         --add-dir "$CAROL_ROOT" \
-        --append-system-prompt-file "$CAROL_ROOT/CAROL.md" \
+        --append-system-prompt-file "$machinist_prompt" \
         --agents "$agent_json" \
         "${claude_args[@]}"
 }
@@ -790,13 +801,24 @@ cmd_run() {
         inside_carol_root=true
     fi
 
-    # MACHINIST: no project scaffold, agent def via --agents flag.
-    # Handled BEFORE the resume branch because MACHINIST is not a registered
-    # agent name — it is injected inline each launch via --agents JSON,
-    # including resume. Falling through to the generic resume branch would
-    # exec `claude --agent MACHINIST --continue` which fails to resolve
-    # MACHINIST and never re-injects the agent definition.
+    # MACHINIST: no project scaffold. Identity is injected as session system
+    # prompt (machinist.md body + CAROL.md) by _launch_machinist; MACHINIST is
+    # NOT a registered agent, so strip --agent MACHINIST from claude_args
+    # before handing off. Handled BEFORE the resume branch because falling
+    # through would exec `claude --agent MACHINIST --continue` which fails to
+    # resolve MACHINIST.
     if [ "$requested_role" = "MACHINIST" ]; then
+        local filtered=()
+        local i=0
+        while [ $i -lt ${#claude_args[@]} ]; do
+            if [ "${claude_args[$i]}" = "--agent" ] && [ "${claude_args[$((i+1))]}" = "MACHINIST" ]; then
+                i=$((i+2))
+            else
+                filtered+=("${claude_args[$i]}")
+                i=$((i+1))
+            fi
+        done
+        claude_args=("${filtered[@]}")
         if [ -n "$session_name" ]; then
             claude_args+=("/rename $session_name")
         fi

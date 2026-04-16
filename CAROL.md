@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.10
-**Last Updated:** 14 April 2026
+**Version:** 0.0.11
+**Last Updated:** 16 April 2026
 
 ---
 
@@ -575,7 +575,7 @@ After O, D, E are surfaced: synthesize the gap, propose the actual question the 
 
 ---
 
-**End of CAROL v0.0.10**
+**End of CAROL v0.0.11**
 
 Rock 'n Roll!  
 **JRENG!**
