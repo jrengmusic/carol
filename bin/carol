@@ -128,6 +128,31 @@ setup_statusline() {
     success "Statusline configured"
 }
 
+setup_global_statusline() {
+    # MACHINIST runs without project scaffold, so statusLine must live in
+    # user-global settings. Idempotent — skips if already present.
+    local settings="$HOME/.claude/settings.json"
+    mkdir -p "$HOME/.claude"
+
+    if [ ! -f "$settings" ]; then
+        echo "$CAROL_CLAUDE_SETTINGS" > "$settings"
+        return 0
+    fi
+
+    if grep -q '"statusLine"' "$settings"; then
+        return 0
+    fi
+
+    if ! command -v jq &>/dev/null; then
+        warning "Install jq to auto-configure global statusLine"
+        return 0
+    fi
+
+    local tmp
+    tmp=$(jq --argjson carol "$CAROL_CLAUDE_SETTINGS" '. * $carol' "$settings")
+    echo "$tmp" > "$settings"
+}
+
 CAROL_MARKETPLACE_NAME="carol-marketplace"
 CAROL_PLUGIN_ID="carol@${CAROL_MARKETPLACE_NAME}"
 
@@ -705,48 +730,30 @@ cmd_debt_clear() {
     success "Drained $id"
 }
 
+symlink_machinist_assets() {
+    # MACHINIST + its team resolve as user-global agents so `carol machinist`
+    # works anywhere (no project scaffold required). Lazy-created on launch.
+    # Engineer deliberately excluded — MACHINIST executes directly.
+    mkdir -p "$HOME/.claude/agents"
+    local agent_file
+    for agent_file in machinist.md pathfinder.md oracle.md librarian.md researcher.md; do
+        [ -f "$CAROL_ROOT/agents/$agent_file" ] && \
+            ln -sf "$CAROL_ROOT/agents/$agent_file" "$HOME/.claude/agents/$agent_file"
+    done
+}
+
 _launch_machinist() {
     local claude_args=("$@")
+    symlink_machinist_assets
+    setup_global_statusline
     show_banner
     echo -e "${GREY}✓ v${VERSION} MACHINIST mode — machine custodian${NC}"
     echo ""
 
-    # MACHINIST identity = session system prompt (machinist.md body + CAROL.md).
-    # Written to a deterministic cache path regenerated each launch. Inlining
-    # the full content via --append-system-prompt hits the Windows 32 KB
-    # CreateProcess arg limit, so pass as a file path.
-    local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/carol"
-    mkdir -p "$cache_dir"
-    local machinist_prompt="$cache_dir/machinist-prompt.md"
-    awk 'BEGIN{fm=0; past=0} /^---$/{fm++; if(fm>=2) past=1; next} past' \
-        "$CAROL_ROOT/agents/machinist.md" > "$machinist_prompt"
-    printf '\n\n' >> "$machinist_prompt"
-    cat "$CAROL_ROOT/CAROL.md" >> "$machinist_prompt"
-
-    # Subagents registered for MACHINIST: Pathfinder (mandatory first),
-    # Oracle, Librarian, Researcher. Engineer is deliberately excluded —
-    # MACHINIST executes directly.
-    local agent_files=(
-        "$CAROL_ROOT/agents/pathfinder.md"
-        "$CAROL_ROOT/agents/oracle.md"
-        "$CAROL_ROOT/agents/librarian.md"
-        "$CAROL_ROOT/agents/researcher.md"
-    )
-    local agent_json='{}'
-    for agent_file in "${agent_files[@]}"; do
-        local name desc body
-        name=$(awk '/^name:/{sub(/^name: */, ""); print; exit}' "$agent_file")
-        desc=$(awk '/^description:/{sub(/^description: */, ""); print; exit}' "$agent_file")
-        body=$(awk 'BEGIN{fm=0; past=0} /^---$/{fm++; if(fm>=2) past=1; next} past' "$agent_file")
-        agent_json=$(jq --arg name "$name" --arg desc "$desc" --arg body "$body" \
-            '. + {($name): {description: $desc, prompt: $body}}' <<<"$agent_json")
-    done
-
     exec claude \
         --plugin-dir "$CAROL_ROOT" \
         --add-dir "$CAROL_ROOT" \
-        --append-system-prompt-file "$machinist_prompt" \
-        --agents "$agent_json" \
+        --append-system-prompt-file "$CAROL_ROOT/CAROL.md" \
         "${claude_args[@]}"
 }
 
@@ -801,24 +808,10 @@ cmd_run() {
         inside_carol_root=true
     fi
 
-    # MACHINIST: no project scaffold. Identity is injected as session system
-    # prompt (machinist.md body + CAROL.md) by _launch_machinist; MACHINIST is
-    # NOT a registered agent, so strip --agent MACHINIST from claude_args
-    # before handing off. Handled BEFORE the resume branch because falling
-    # through would exec `claude --agent MACHINIST --continue` which fails to
-    # resolve MACHINIST.
+    # MACHINIST: no project scaffold. Registered as user-global agent by
+    # _launch_machinist via ~/.claude/agents/ symlinks. Handled BEFORE the
+    # resume branch because MACHINIST sessions never need project context.
     if [ "$requested_role" = "MACHINIST" ]; then
-        local filtered=()
-        local i=0
-        while [ $i -lt ${#claude_args[@]} ]; do
-            if [ "${claude_args[$i]}" = "--agent" ] && [ "${claude_args[$((i+1))]}" = "MACHINIST" ]; then
-                i=$((i+2))
-            else
-                filtered+=("${claude_args[$i]}")
-                i=$((i+1))
-            fi
-        done
-        claude_args=("${filtered[@]}")
         if [ -n "$session_name" ]; then
             claude_args+=("/rename $session_name")
         fi

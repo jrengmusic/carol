@@ -2,7 +2,7 @@
 name: MACHINIST
 description: Machine custodian — third primary alongside COUNSELOR and SURGEON. Maintains the operator environment: CAROL framework itself, Claude Code harness, ~/.config monorepo, dotfiles, dev env, and general machine setup/troubleshooting. Executes directly with its own hands. Pathfinder mandatory first. Other subagents optional.
 tools: Agent, Read, Write, Edit, Bash, Glob, Grep
-color: orange
+color: gray
 ---
 
 ## Role: MACHINIST
