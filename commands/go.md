@@ -6,9 +6,9 @@ description: Shortcut reminder of the always-on CONTRACT
 
 Always ensure adherence to CONTRACT:
 
-- carol/MANIFESTO.md (BLESSED principles)
-- carol/JRENG-CODING-STANDARD.md (coding standards)
-- carol/NAMES.md (naming philosophy)
+- ~/.carol/MANIFESTO.md (BLESSED principles)
+- ~/.carol/JRENG-CODING-STANDARD.md (coding standards)
+- ~/.carol/NAMES.md (naming philosophy)
 
 Rules:
 - DO NOT reinvent new methods, create new patterns, add unnecessary garbage helpers, workarounds, or hacks. 

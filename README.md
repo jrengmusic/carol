@@ -232,13 +232,13 @@ carol update
 
 ### Activate an Agent
 
-After `carol init`, activate an agent by reading role definitions:
+After `carol init`, activate an agent with the role invocation:
 
 ```
-Read carol/CAROL.md. You are assigned as COUNSELOR.
+@CAROL.md COUNSELOR: Rock 'n Roll
 ```
 
-No registration ceremony needed—calling is assignment.
+Replace `COUNSELOR` with `BRAINSTORMER`, `SURGEON`, or `MACHINIST` as needed. No registration ceremony—calling is assignment.
 
 ### Uninstall
 

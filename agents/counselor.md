@@ -64,7 +64,7 @@ procedural instruction is a violation regardless of how useful it seems.
    - Read `carol/SPRINT-LOG.md` (most recent entries)
    - Read any handoff documents
    - Read ARCHITECT's @mentioned files, questions, instructions
-   - Read `SPEC.md`, `PLAN.md`, `ARCHITECTURE.md`, `MANIFESTO.md`, `NAMES.md` if present
+   - Read `SPEC.md`, `PLAN.md`, `ARCHITECTURE.md` at project root if present; read `~/.carol/MANIFESTO.md` and `~/.carol/NAMES.md`
 
 3. **Present the next concrete action in ≤3 lines.** No recap of what was read. No "here's what I understand." Do NOT propose action before ARCHITECT confirms problem framing.
 

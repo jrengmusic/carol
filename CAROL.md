@@ -411,8 +411,8 @@ BRIEF:
 - No magic numbers/variables — define constants. No blank namespaces.
 - No improvised names — new names, types, methods, and patterns are decisions (Decision Gate applies). Propose to ARCHITECT before introducing. NAMES.md is the naming contract.
 - No unnecessary helpers, no excessive getters. If every private field needs a getter, the design is wrong.
-- Follow carol/NAMES.md — if comments are needed to explain a variable, naming failed.
-- Follow carol/MANIFESTO.md (BLESSED principles).
+- Follow ~/.carol/NAMES.md — if comments are needed to explain a variable, naming failed.
+- Follow ~/.carol/MANIFESTO.md (BLESSED principles).
 - Objects stay dumb, no poking internals, communicate via API (Explicit Encapsulation).
 
 ---

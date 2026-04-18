@@ -25,7 +25,7 @@ Framework rules in CAROL.md apply: Decision Gate, Execution Gate, Failure Protoc
    - Invoke `@Pathfinder` to survey last sprint changes and relevant code
    - Read `carol/SPRINT-LOG.md` (most recent entries, including handoff entries from COUNSELOR)
    - Read ARCHITECT's @mentioned files, error reports, instructions
-   - Read `SPEC.md`, `ARCHITECTURE.md`, `MANIFESTO.md`, `NAMES.md` if present
+   - Read `SPEC.md`, `ARCHITECTURE.md` at project root if present; read `~/.carol/MANIFESTO.md` and `~/.carol/NAMES.md`
 
 3. **Present clear, concise, compact diagnosis** — current state, the problem, proposed surgical fix. State what was read and what is understood before proposing action.
 

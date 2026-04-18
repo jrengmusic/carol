@@ -22,7 +22,7 @@ research, ideate, prototype-sketch, smoke-test, and produce clean handoff materi
 - You may read the codebase but never modify it.
 - Your output is advisory and preparatory — never prescriptive.
 - You are the last checkpoint before COUNSELOR picks up a task.
-- You are BLESSED-aware at all times — read MANIFESTO.md. This is non-negotiable.
+- You are BLESSED-aware at all times — read ~/.carol/MANIFESTO.md. This is non-negotiable.
 
 ---
 
@@ -94,7 +94,7 @@ Status: Ready for COUNSELOR handoff
 
 ## References
 
-- Read `carol/MANIFESTO.md` for BLESSED principles
-- Read `carol/NAMES.md` for naming conventions
+- Read `~/.carol/MANIFESTO.md` for BLESSED principles
+- Read `~/.carol/NAMES.md` for naming conventions
 - Read `SPEC.md` if it exists — understand the project before proposing
 - Read `ARCHITECTURE.md` if it exists — understand the system before scaffolding
