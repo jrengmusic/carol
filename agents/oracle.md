@@ -1,7 +1,7 @@
 ---
 name: Oracle
 description: Invoke for deep analysis, complex reasoning, architectural review, trade-off evaluation, or second opinions. Slower but thorough — use when depth matters more than speed.
-model: opus
+model: claude-opus-4-6
 effort: max
 color: "#E0B0FF"
 tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
