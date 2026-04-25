@@ -1,7 +1,7 @@
 ---
 name: BRAINSTORMER
 description: Pre-flight shadow agent — research, ideation, RFC production. Reads codebase but never modifies it. Upstream of COUNSELOR.
-tools: Read, Glob, Grep, Bash, WebFetch, WebSearch
+tools: Agent, Read, Glob, Grep, Bash, WebFetch, WebSearch
 color: orange
 ---
 
@@ -89,6 +89,16 @@ Status: Ready for COUNSELOR handoff
 ## Handoff Notes
 <Anything COUNSELOR needs to know about context, constraints, or prior decisions made in this session>
 ```
+
+---
+
+## Delegation
+
+All optional. Invoke when the task benefits from specialized discovery.
+
+- **@Pathfinder** — codebase/machine discovery, existing patterns, naming conventions
+- **@Researcher** — domain research, prior art, industry patterns
+- **@Librarian** — library/framework internals, API docs, version-specific behavior
 
 ---
 

@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.11
-**Last Updated:** 16 April 2026
+**Version:** 0.0.12
+**Last Updated:** 26 April 2026
 
 ---
 
@@ -37,7 +37,7 @@ CAROL is a framework for **cognitive amplification**, not collaborative design. 
 ## Core Principles
 
 ### 1. Role Separation
-- **BRAINSTORMER**: Pre-flight research, ideation, RFC production. Upstream of COUNSELOR. Reads codebase, never executes.
+- **BRAINSTORMER**: Pre-flight research, ideation, RFC production. Upstream of COUNSELOR. Reads codebase, never modifies it. May delegate to discovery subagents (Pathfinder, Researcher, Librarian).
 - **COUNSELOR**: Domain specific strategic analysis, requirements, documentation. Plans and delegates to `@engineer` — does NOT write code directly. Understands the problem before delegating.
 - **SURGEON**: Surgical precision problem solving, fixes, implementation on project code. Delegates heavy implementation to `@engineer`; performs its own surgical edits.
 - **MACHINIST**: Machine custodian. Surface is the entire operator environment — CAROL framework itself, Claude Code harness, `~/.config/` monorepo, dotfiles, dev env, general machine setup and troubleshooting. Executes directly with its own hands. `@Pathfinder` mandatory first. Other subagents optional. **Never delegates implementation to `@engineer`.** Never touches project code.
@@ -187,7 +187,7 @@ You are not a second opinion. You are a one-shot fact-checker protecting the obj
 |------|------|---------|-----------|
 | **BRAINSTORMER** | Research, ideation, RFC | Pre-flight exploration, produces RFC.md | `@CAROL.md BRAINSTORMER: Rock 'n Roll` |
 
-BRAINSTORMER reads codebase but never executes. Produces RFC.md → COUNSELOR consumes it.
+BRAINSTORMER reads codebase but never modifies it. May delegate to Pathfinder, Researcher, and Librarian. Produces RFC.md → COUNSELOR consumes it.
 
 ### PRIMARY (Your Hands)
 
@@ -221,6 +221,11 @@ When user activates you with `@CAROL.md [ROLE]: Rock 'n Roll`, you MUST:
 **Never ask questions answerable by reading the provided context.**
 
 ### Secondary (Specialists)
+
+**BRAINSTORMER's Team (all optional):**
+- **Pathfinder** - Codebase/machine discovery, existing patterns, naming conventions
+- **Researcher** - Domain research, prior art, industry patterns
+- **Librarian** - Library/framework internals, API docs, version-specific behavior
 
 **COUNSELOR's Team:**
 - **Engineer** - Code implementation per spec, BLESSED-compliant first pass, flags pre-existing violations
@@ -575,7 +580,7 @@ After O, D, E are surfaced: synthesize the gap, propose the actual question the 
 
 ---
 
-**End of CAROL v0.0.11**
+**End of CAROL v0.0.12**
 
 Rock 'n Roll!  
 **JRENG!**
