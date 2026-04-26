@@ -877,11 +877,11 @@ case "${1:-run}" in
     continue|--continue|-c)
         cmd_continue
         ;;
-    brainstormer)
+    brainstormer|brain)
         shift
         cmd_run --agent BRAINSTORMER "$@"
         ;;
-    counselor)
+    counselor|counsel)
         shift
         cmd_run --agent COUNSELOR "$@"
         ;;
@@ -889,7 +889,7 @@ case "${1:-run}" in
         shift
         cmd_run --agent SURGEON --model claude-sonnet-4-6 "$@"
         ;;
-    machinist)
+    machinist|machine)
         shift
         cmd_run --agent MACHINIST "$@"
         ;;
