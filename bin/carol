@@ -421,7 +421,8 @@ cmd_help() {
     echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
     echo -e "  ${YELLOW}surgeon${NC} [name]    Launch SURGEON session (Sonnet)"
     echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
-    echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/list/clear)"
+    echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/clear)"
+    echo -e "  ${YELLOW}ledger${NC}         Show DEBT.md ledger"
     echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
     echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
     echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
@@ -628,9 +629,6 @@ cmd_debt() {
         add)
             cmd_debt_add "$@"
             ;;
-        list)
-            cmd_debt_list "$@"
-            ;;
         clear)
             cmd_debt_clear "$@"
             ;;
@@ -649,7 +647,6 @@ cmd_debt_help() {
     echo ""
     echo -e "${MAGENTA}Subcommands:${NC}"
     echo -e "  ${YELLOW}add${NC}              Interactive prompt to register a new debt entry"
-    echo -e "  ${YELLOW}list${NC}             Show DEBT.md contents"
     echo -e "  ${YELLOW}clear <id>${NC}       Drain a paid debt entry by ID (called by /log hygiene)"
     echo ""
     echo -e "${GREY}DEBT.md is the inter-sprint ledger at project root. JRENG = paid in full.${NC}"
@@ -724,12 +721,32 @@ cmd_debt_add() {
     success "Debt registered: $id"
 }
 
-cmd_debt_list() {
+cmd_ledger() {
     if [ ! -f "DEBT.md" ]; then
         notice "No DEBT.md in this project — ledger is empty"
         return 0
     fi
-    cat DEBT.md
+
+    local past_preamble=0
+    while IFS= read -r line; do
+        if [ "$past_preamble" -eq 0 ]; then
+            if [ "$line" = "---" ]; then
+                past_preamble=1
+            fi
+        elif [[ "$line" =~ ^##\ (DEBT-[0-9T]+)$ ]]; then
+            echo -e "\033[1;36m${line}${NC}"
+        elif [[ "$line" =~ ^\*\*Observation:\*\*(.*)$ ]]; then
+            echo -e "${YELLOW}**Observation:**${BASH_REMATCH[1]}${NC}"
+        elif [[ "$line" =~ ^\*\*Divergence:\*\*(.*)$ ]]; then
+            echo -e "${RED}**Divergence:**${BASH_REMATCH[1]}${NC}"
+        elif [[ "$line" =~ ^\*\*Expectation:\*\*(.*)$ ]]; then
+            echo -e "${GREEN}**Expectation:**${BASH_REMATCH[1]}${NC}"
+        elif [ "$line" = "---" ]; then
+            echo -e "${GREY}---${NC}"
+        else
+            echo "$line"
+        fi
+    done < DEBT.md
 }
 
 cmd_debt_clear() {
@@ -921,6 +938,9 @@ case "${1:-run}" in
     debt)
         shift
         cmd_debt "$@"
+        ;;
+    ledger)
+        cmd_ledger
         ;;
     sessions|list)
         cmd_sessions
