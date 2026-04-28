@@ -493,8 +493,8 @@ cmd_sessions() {
     echo ""
     echo -e "${CYAN}Sessions — $(pwd)${NC}"
     echo ""
-    printf "${BOLD}%-10s %-44s %s${NC}\n" "ID" "NAME" "DATE"
-    echo "──────────────────────────────────────────────────────────────"
+    printf "${BOLD}%-10s %-14s %-34s %s${NC}\n" "ID" "ROLE" "NAME" "DATE"
+    echo "────────────────────────────────────────────────────────────────────────"
 
     while IFS= read -r file; do
         local uuid
@@ -505,13 +505,22 @@ cmd_sessions() {
 
         local python_file="$file"
         command -v cygpath &>/dev/null && python_file=$(cygpath -w "$file")
-        local label
-        label=$(python3 -c "
+        local output role label
+        output=$(python3 -c "
 import json
+role = ''
 label = ''
 try:
     with open(r'$python_file', encoding='utf-8') as f:
         lines = f.readlines()
+    # Extract agent role
+    for line in lines:
+        try:
+            d = json.loads(line)
+            if d.get('type') == 'agent-setting':
+                role = d.get('agentSetting', '')
+                break
+        except: continue
     # Prefer custom-title (set by /rename)
     for line in reversed(lines):
         try:
@@ -534,11 +543,27 @@ try:
                         break
             except: continue
 except: pass
+print(role)
 print(label)
 " 2>/dev/null)
+        role=$(printf '%s' "$output" | head -1)
+        label=$(printf '%s' "$output" | sed -n '2p')
 
+        [ -z "$role" ] && role="-"
         [ -z "$label" ] && label="(no label)"
-        printf "${YELLOW}%-10s${NC} %-44s ${GREY}%s${NC}\n" "$short_id" "${label:0:44}" "$date"
+        local role_color
+        case "$role" in
+            BRAINSTORMER) role_color='\033[38;2;217;119;41m'  ;;
+            COUNSELOR)    role_color='\033[38;2;0;200;216m'   ;;
+            SURGEON)      role_color='\033[38;2;252;112;76m'  ;;
+            MACHINIST)    role_color='\033[38;2;160;160;160m' ;;
+            *)            role_color="$GREY"                  ;;
+        esac
+        local f_id f_role f_name
+        f_id=$(printf "%-10s" "$short_id")
+        f_role=$(printf "%-14s" "$role")
+        f_name=$(printf "%-34s" "${label:0:34}")
+        printf "${YELLOW}%s${NC} ${role_color}%s${NC} %s ${GREY}%s${NC}\n" "$f_id" "$f_role" "$f_name" "$date"
     done <<< "$jsonl_files"
 
     echo ""
@@ -897,7 +922,7 @@ case "${1:-run}" in
         shift
         cmd_debt "$@"
         ;;
-    sessions)
+    sessions|list)
         cmd_sessions
         ;;
     resume)
