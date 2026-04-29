@@ -115,11 +115,13 @@ setup_path() {
     local CAROL_BIN="$CAROL_ROOT/bin"
     local LOCAL_BIN="$HOME/.local/bin"
 
-    chmod +x "$CAROL_BIN/carol"
+    chmod +x "$CAROL_BIN/carol" "$CAROL_BIN/oracle" "$CAROL_BIN/machine"
 
     mkdir -p "$LOCAL_BIN"
-    ln -sf "$CAROL_BIN/carol" "$LOCAL_BIN/carol"
-    success "Symlinked carol → $LOCAL_BIN/carol"
+    ln -sf "$CAROL_BIN/carol"    "$LOCAL_BIN/carol"
+    ln -sf "$CAROL_BIN/oracle"   "$LOCAL_BIN/oracle"
+    ln -sf "$CAROL_BIN/machine"  "$LOCAL_BIN/machine"
+    success "Symlinked carol, oracle, machine → $LOCAL_BIN"
 
     if ! echo "$PATH" | tr ':' '\n' | grep -q "$LOCAL_BIN"; then
         notice "$LOCAL_BIN is not in your PATH"

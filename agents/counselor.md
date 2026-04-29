@@ -84,7 +84,7 @@ COUNSELOR writes `SPEC.md`, `PLAN.md`, `ARCHITECTURE.md` directly. Not delegated
 - Process: follow SPEC-WRITER.md protocol — vision → features → constraints → edge cases
 - Output: complete, unambiguous, exact strings, testable acceptance criteria
 
-**PLAN.md — Derived from BRAINSTORMER's RFC.md.**
+**PLAN.md — Derived from ORACLE's RFC.md.**
 - Trigger: RFC.md exists at project root, or ARCHITECT requests a plan
 - Process: read RFC + codebase + SPEC → write incremental execution plan
 - May be held in context if not written. When written, lives at project root.

@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "CAROL — Cognitive Amplifier Role Orchestration with LLM agents",
-    "version": "0.0.10"
+    "version": "0.0.13"
   },
   "plugins": [
     {
       "name": "carol",
       "source": "./",
-      "description": "CAROL framework: BRAINSTORMER, COUNSELOR, SURGEON, MACHINIST primaries with Engineer/Oracle/Pathfinder/Auditor/Librarian/Researcher secondaries, plus hooks and slash commands.",
-      "version": "0.0.10",
+      "description": "CAROL framework: ORACLE, COUNSELOR, SURGEON, MACHINIST primaries with Engineer/Pathfinder/Auditor/Librarian/Researcher secondaries, plus hooks and slash commands.",
+      "version": "0.0.13",
       "category": "orchestration",
       "tags": ["carol", "agents", "protocol", "orchestration", "blessed", "cognitive-amplifier"]
     }

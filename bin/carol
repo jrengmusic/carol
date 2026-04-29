@@ -417,7 +417,7 @@ cmd_help() {
     echo ""
     echo -e "${MAGENTA}Commands:${NC}"
     echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (plugin mode)"
-    echo -e "  ${YELLOW}brainstormer${NC} [name] Launch BRAINSTORMER session (pre-flight)"
+    echo -e "  ${YELLOW}oracle${NC} [name]       Launch ORACLE session (research, RFC, analysis)"
     echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
     echo -e "  ${YELLOW}surgeon${NC} [name]    Launch SURGEON session (Sonnet)"
     echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
@@ -431,17 +431,14 @@ cmd_help() {
     echo -e "  ${YELLOW}version${NC}        Show CAROL version"
     echo -e "  ${YELLOW}help${NC}           Show this help message"
     echo ""
-    echo -e "${MAGENTA}Upstream Agent:${NC}"
-    echo -e "  ${CYAN}BRAINSTORMER${NC}  Pre-flight research, RFC production"
-    echo ""
     echo -e "${MAGENTA}PRIMARY Agents:${NC}"
+    echo -e "  ${CYAN}ORACLE${NC}        Research, ideation, RFC production, deep analysis"
     echo -e "  ${CYAN}COUNSELOR${NC}     Planning, specs, docs, SPRINT-LOG"
     echo -e "  ${CYAN}SURGEON${NC}       Execution, fixes, surgical precision on project code"
     echo -e "  ${CYAN}MACHINIST${NC}     Machine custodian — CAROL, harness, ~/.config, dotfiles, dev env"
     echo ""
     echo -e "${MAGENTA}Secondary Agents:${NC}"
     echo -e "  ${CYAN}Engineer${NC}      Code implementation (BLESSED-compliant, flags pre-existing violations)"
-    echo -e "  ${CYAN}Oracle${NC}        Deep analysis, research"
     echo -e "  ${CYAN}Librarian${NC}     Library/framework research"
     echo -e "  ${CYAN}Auditor${NC}       QA/QC validation"
     echo -e "  ${CYAN}Pathfinder${NC}    Pattern discovery (ALWAYS first)"
@@ -554,7 +551,7 @@ print(label)
         [ -z "$label" ] && label="(no label)"
         local role_color
         case "$role" in
-            BRAINSTORMER) role_color='\033[38;2;217;119;41m'  ;;
+            ORACLE)       role_color='\033[38;2;217;119;41m'  ;;
             COUNSELOR)    role_color='\033[38;2;0;200;216m'   ;;
             SURGEON)      role_color='\033[38;2;252;112;76m'  ;;
             MACHINIST)    role_color='\033[38;2;160;160;160m' ;;
@@ -879,7 +876,7 @@ cmd_run() {
         claude_args+=(--agent COUNSELOR)
     fi
 
-    # Project roles (COUNSELOR, SURGEON, BRAINSTORMER): need project context
+    # Project roles (ORACLE, COUNSELOR, SURGEON): need project context
     if ! $in_project; then
         info "No CAROL project here — initializing..."
         cmd_init
@@ -919,9 +916,9 @@ case "${1:-run}" in
     continue|--continue|-c)
         cmd_continue
         ;;
-    brainstormer|brain)
+    oracle)
         shift
-        cmd_run --agent BRAINSTORMER "$@"
+        cmd_run --agent ORACLE "$@"
         ;;
     counselor|counsel)
         shift

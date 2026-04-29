@@ -104,7 +104,7 @@ bar=$(build_bar $CTX_SEGMENTS $ctx_filled "$color")
 role_label=""
 if [ -n "$agent" ]; then
     case "$agent" in
-        BRAINSTORMER) role_bg="\033[48;2;217;119;41m\033[38;2;9;13;18m" ;;   # claude orange bg, bunker fg
+        ORACLE)       role_bg="\033[48;2;217;119;41m\033[38;2;9;13;18m" ;;  # oracle orange bg, bunker fg
         COUNSELOR)    role_bg="\033[48;2;0;200;216m\033[38;2;9;13;18m" ;;   # blueBikini bg, bunker fg
         SURGEON)      role_bg="\033[48;2;252;112;76m\033[38;2;9;13;18m" ;;  # preciousPersimmon bg, bunker fg
         MACHINIST)    role_bg="\033[48;2;160;160;160m\033[38;2;9;13;18m" ;;  # grey bg, bunker fg

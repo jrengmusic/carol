@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.12
-**Last Updated:** 26 April 2026
+**Version:** 0.0.13
+**Last Updated:** 29 April 2026
 
 ---
 
@@ -37,7 +37,7 @@ CAROL is a framework for **cognitive amplification**, not collaborative design. 
 ## Core Principles
 
 ### 1. Role Separation
-- **BRAINSTORMER**: Pre-flight research, ideation, RFC production. Upstream of COUNSELOR. Reads codebase, never modifies it. May delegate to discovery subagents (Pathfinder, Researcher, Librarian).
+- **ORACLE**: Pre-flight research, ideation, RFC production + deep analysis and second opinions. Direct ARCHITECT communication. Reads codebase, never modifies it. May delegate to discovery subagents (Pathfinder, Researcher, Librarian). Also callable as secondary by COUNSELOR, SURGEON, and MACHINIST.
 - **COUNSELOR**: Domain specific strategic analysis, requirements, documentation. Plans and delegates to `@engineer` — does NOT write code directly. Understands the problem before delegating.
 - **SURGEON**: Surgical precision problem solving, fixes, implementation on project code. Delegates heavy implementation to `@engineer`; performs its own surgical edits.
 - **MACHINIST**: Machine custodian. Surface is the entire operator environment — CAROL framework itself, Claude Code harness, `~/.config/` monorepo, dotfiles, dev env, general machine setup and troubleshooting. Executes directly with its own hands. `@Pathfinder` mandatory first. Other subagents optional. **Never delegates implementation to `@engineer`.** Never touches project code.
@@ -181,18 +181,11 @@ You are not a second opinion. You are a one-shot fact-checker protecting the obj
 
 ## Agency Hierarchy
 
-### UPSTREAM (Pre-flight)
-
-| Role | Mode | Purpose | Activates |
-|------|------|---------|-----------|
-| **BRAINSTORMER** | Research, ideation, RFC | Pre-flight exploration, produces RFC.md | `@CAROL.md BRAINSTORMER: Rock 'n Roll` |
-
-BRAINSTORMER reads codebase but never modifies it. May delegate to Pathfinder, Researcher, and Librarian. Produces RFC.md → COUNSELOR consumes it.
-
 ### PRIMARY (Your Hands)
 
 | Role | Mode | Purpose | Activates |
 |------|------|---------|-----------|
+| **ORACLE** | Research, ideation, analysis, RFC | Pre-flight exploration + deep analysis, produces RFC.md | `@CAROL.md ORACLE: Rock 'n Roll` or `carol oracle` |
 | **COUNSELOR** | Domain specific strategic analysis | Requirements, specs, documentation | `@CAROL.md COUNSELOR: Rock 'n Roll` |
 | **SURGEON** | Surgical precision problem solving | Execution, fixes, implementation on project code | `@CAROL.md SURGEON: Rock 'n Roll` |
 | **MACHINIST** | Machine custodian | CAROL framework, harness, `~/.config/`, dotfiles, dev env, machine setup/troubleshooting | `@CAROL.md MACHINIST: Rock 'n Roll` or `carol machinist` |
@@ -221,11 +214,6 @@ When user activates you with `@CAROL.md [ROLE]: Rock 'n Roll`, you MUST:
 **Never ask questions answerable by reading the provided context.**
 
 ### Secondary (Specialists)
-
-**BRAINSTORMER's Team (all optional):**
-- **Pathfinder** - Codebase/machine discovery, existing patterns, naming conventions
-- **Researcher** - Domain research, prior art, industry patterns
-- **Librarian** - Library/framework internals, API docs, version-specific behavior
 
 **COUNSELOR's Team:**
 - **Engineer** - Code implementation per spec, BLESSED-compliant first pass, flags pre-existing violations
@@ -443,11 +431,11 @@ BRIEF:
 
 | Task | Role | Invocation |
 |------|------|------------|
-| Pre-flight research, RFC | BRAINSTORMER | `@CAROL.md BRAINSTORMER: Rock 'n Roll` |
+| Pre-flight research, RFC | ORACLE | `@CAROL.md ORACLE: Rock 'n Roll` or `carol oracle` |
 | Write SPEC, plan sprint | COUNSELOR | `@CAROL.md COUNSELOR: Rock 'n Roll` |
 | Fix bug, implement feature on project code | SURGEON | `@CAROL.md SURGEON: Rock 'n Roll` |
 | Maintain CAROL / harness / `~/.config/` / dotfiles / dev env / machine troubleshooting | MACHINIST | `carol machinist` or `@CAROL.md MACHINIST: Rock 'n Roll` |
-| Need analysis/research | Oracle | `@oracle [question]` |
+| Deep analysis, second opinion (mid-sprint) | ORACLE | `@oracle [question]` |
 | Code implementation | Engineer | `@engineer [task]` |
 | QA/QC verification | Auditor | `@auditor [scope]` |
 | Codebase / machine discovery | Pathfinder | `@Pathfinder [target]` |
@@ -471,7 +459,7 @@ BRIEF:
 
 **RFC.md** — Request for Comments
 - Pre-flight research, rationale, scaffold, open questions
-- Produced by BRAINSTORMER, consumed by COUNSELOR
+- Produced by ORACLE, consumed by COUNSELOR
 - COUNSELOR reads RFC + codebase → writes PLAN.md
 
 **SPEC.md** — The Project Specification
@@ -580,7 +568,7 @@ After O, D, E are surfaced: synthesize the gap, propose the actual question the 
 
 ---
 
-**End of CAROL v0.0.12**
+**End of CAROL v0.0.13**
 
 Rock 'n Roll!  
 **JRENG!**

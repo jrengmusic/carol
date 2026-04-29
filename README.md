@@ -13,7 +13,7 @@
 
 **C**ognitive **A**mplifier **R**ole **O**rchestration for LLM agents
 
-Version: 0.0.10
+Version: 0.0.13
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -59,12 +59,10 @@ LLMs suffer from:
 
 CAROL is a role-based agent orchestration framework for collaborative software development. It's a cognitive load distribution system that prevents agent drift by enforcing specialized roles with explicit constraints and clear handoffs.
 
-### Upstream Agent (1)
+### Primary Agents (4)
 
-**BRAINSTORMER** - Pre-flight Shadow Agent
-   Operates upstream of COUNSELOR. Researches, ideates, prototype-sketches, and produces RFC.md for COUNSELOR handoff. Reads codebase but never executes. The last checkpoint before COUNSELOR picks up a task.
-
-### Primary Agents (3)
+**ORACLE** - Research, Analysis & RFC Specialist
+   Primary agent for pre-flight research, ideation, deep analysis, and RFC production. Direct ARCHITECT communication. Reads codebase but never modifies it. Produces RFC.md for COUNSELOR handoff. Also callable as secondary by COUNSELOR, SURGEON, and MACHINIST for mid-sprint analysis.
 
 **COUNSELOR** - Requirements Counselor & Planning Specialist
    Transforms conceptual intent into formal specifications. Asks clarifying questions, explores edge cases and constraints, writes comprehensive SPEC.md and ARCHITECTURE.md. Handles all documentation including SPRINT-LOG.md updates on "log sprint" command. Never writes code directly. Uses SPEC-WRITER.md and ARCHITECTURE-WRITER.md as guides to clarify ARCHITECT's architectural vision into formalized development documents.
@@ -75,13 +73,10 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 **MACHINIST** - Machine Custodian
    Third primary. Surface is the entire operator environment — CAROL framework itself, Claude Code harness (`~/.claude/`), cross-platform `~/.config/` monorepo, dotfiles, shell/dev env, general machine setup and troubleshooting. Executes directly with its own hands (no Engineer delegation). Pathfinder mandatory first. Never touches project code. Launched via `carol machinist` — no project scaffold, can run from anywhere on the machine.
 
-### Secondary Agents (6)
+### Secondary Agents (5)
 
 **ENGINEER** - Code Implementer
    Implements working, BLESSED-compliant code on first pass per COUNSELOR's or SURGEON's instructions. Refactors when instructed. Flags every pre-existing BLESSED violation encountered during implementation via return brief — never silently ignores. Three-case contract: (1) implement primary task, (2) fix adjacent non-BLESSED inside the edit surface and report, (3) flag pre-existing non-BLESSED outside the edit surface and report for ARCHITECT decision. No features beyond spec, no architectural decisions.
-
-**ORACLE** - Deep Reasoning Specialist
-   Provides deep analysis and second opinions when invoked by COUNSELOR or SURGEON. Can read codebase (grep, cat, find) and research web for patterns. Returns structured analysis with trade-offs and recommendations. Never makes code changes—advisory only.
 
 **LIBRARIAN** - Library/Framework Research
    Researches library internals, API docs, usage patterns, version-specific behavior, and best practices for specific dependencies. Called when agents need external library knowledge.
@@ -116,7 +111,7 @@ Result: Single agent makes mistakes, over-engineers, loses track
 **CAROL (distributed roles):**
 
 ```
-BRAINSTORMER's context:
+ORACLE's context:
 └─ Research + RFC production
    (10k tokens, pre-flight exploration)
 
@@ -238,7 +233,7 @@ After `carol init`, activate an agent with the role invocation:
 @CAROL.md COUNSELOR: Rock 'n Roll
 ```
 
-Replace `COUNSELOR` with `BRAINSTORMER`, `SURGEON`, or `MACHINIST` as needed. No registration ceremony—calling is assignment.
+Replace `COUNSELOR` with `ORACLE`, `SURGEON`, or `MACHINIST` as needed. No registration ceremony—calling is assignment.
 
 ### Uninstall
 
@@ -284,12 +279,11 @@ source ~/.bashrc  # bash
 │   ├── plugin.json           # Claude Code plugin manifest
 │   └── marketplace.json      # Local marketplace catalog
 ├── agents/                   # Agent definitions (plugin default location)
-│   ├── brainstormer.md       # Pre-flight shadow agent (UPSTREAM)
 │   ├── counselor.md          # Requirements counselor (PRIMARY)
 │   ├── surgeon.md            # Complex fix specialist (PRIMARY)
 │   ├── machinist.md          # Machine custodian (PRIMARY)
 │   ├── engineer.md           # Code implementer
-│   ├── oracle.md             # Deep reasoning specialist
+│   ├── oracle.md             # Research, analysis, RFC (PRIMARY)
 │   ├── librarian.md          # Library/framework research
 │   ├── auditor.md            # Pre-commit auditor
 │   ├── pathfinder.md         # Exploration specialist
@@ -309,7 +303,7 @@ source ~/.bashrc  # bash
 
 ```
 your-project/
-├── RFC.md                         # BRAINSTORMER produces, COUNSELOR consumes
+├── RFC.md                         # ORACLE produces, COUNSELOR consumes
 ├── SPEC.md                        # COUNSELOR creates via SPEC-WRITER.md
 ├── PLAN.md                        # COUNSELOR writes per sprint
 ├── ARCHITECTURE.md                # Agents create via ARCHITECTURE-WRITER.md
