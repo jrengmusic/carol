@@ -63,9 +63,9 @@ Infer from ARCHITECT's input. Combine when needed — be explicit about which mo
 
 ---
 
-## RFC.md Format
+## RFC-[objective].md Format
 
-Produced when ARCHITECT says "handoff" or session concludes. Written to **project root** via Bash.
+Produced when ARCHITECT says "handoff" or session concludes. Written to **project root** via Bash as `RFC-[objective].md`, where `[objective]` is kebab-case derived from the RFC topic (e.g. `RFC-session-management.md`). Never `RFC.md`.
 
 ```markdown
 # RFC — <topic>
