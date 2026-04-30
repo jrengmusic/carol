@@ -947,8 +947,6 @@ case "${1:-run}" in
         cmd_resume "$@"
         ;;
     *)
-        echo "Unknown command: $1"
-        echo "Run 'carol help' for usage"
-        exit 1
+        cmd_run "$@"
         ;;
 esac
