@@ -586,8 +586,15 @@ cmd_resume() {
     [ -z "$full_uuid" ] && full_uuid="$id"
 
     local model_flag=()
+    local meta_file="$sessions_dir/$full_uuid.meta"
     local session_file="$sessions_dir/$full_uuid.jsonl"
-    if [ -f "$session_file" ]; then
+    if [ -f "$meta_file" ]; then
+        local meta_model
+        meta_model=$(grep '^model=' "$meta_file" | head -1 | sed 's/^model=//')
+        if [ -n "$meta_model" ]; then
+            model_flag=(--model "$meta_model")
+        fi
+    elif [ -f "$session_file" ]; then
         local python_file="$session_file"
         command -v cygpath &>/dev/null && python_file=$(cygpath -w "$session_file")
         local model
@@ -884,11 +891,36 @@ cmd_run() {
         show_banner
     fi
 
-    if [ -n "$session_name" ]; then
-        MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "/rename $session_name"
+    local agent_model=""
+    local agent_file="$HOME/.claude/agents/$(echo "$requested_role" | tr '[:upper:]' '[:lower:]').md"
+    if [ -f "$agent_file" ]; then
+        agent_model=$(grep '^model:' "$agent_file" | head -1 | sed 's/^model:[[:space:]]*//')
     fi
 
-    exec claude "${claude_args[@]}"
+    if [ -n "$agent_model" ]; then
+        local ts_file
+        ts_file=$(mktemp)
+        local launch_sessions_dir="$HOME/.claude/projects/$(get_project_hash)"
+        if [ -n "$session_name" ]; then
+            MSYS_NO_PATHCONV=1 claude "${claude_args[@]}" "/rename $session_name"
+        else
+            claude "${claude_args[@]}"
+        fi
+        local new_session
+        new_session=$(find "$launch_sessions_dir" -name "*.jsonl" -newer "$ts_file" 2>/dev/null | sort | tail -1)
+        if [ -n "$new_session" ]; then
+            local base_uuid
+            base_uuid=$(basename "$new_session" .jsonl)
+            printf 'agent=%s\nmodel=%s\n' "$requested_role" "$agent_model" > "$launch_sessions_dir/$base_uuid.meta"
+        fi
+        rm -f "$ts_file"
+    else
+        if [ -n "$session_name" ]; then
+            MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "/rename $session_name"
+        else
+            exec claude "${claude_args[@]}"
+        fi
+    fi
 }
 
 # Main command dispatcher
