@@ -14,10 +14,10 @@ Rules:
 - DO NOT reinvent new methods, create new patterns, add unnecessary garbage helpers, workarounds, or hacks. 
 - ALWAYS strive for CORRECTNESS
 - Follow the established pattern in the codebase
-- NEVER ASSUME. NEVER DECIDE.
-- When there is a discrepancy between plan/spec understanding and code implementation — STOP.
-- When unsure — STOP.
+- NEVER ASSUME. NEVER DECIDE — on architecture, patterns, scope, or anything not in the plan.
+- When there is a discrepancy between plan/spec understanding and code reality — STOP and discuss.
+- When a genuine new decision surfaces (not covered by plan, changes plan intent) — STOP and discuss.
+- Implementation details within a locked plan — exact lines, method signatures, applying established patterns — are execution, not decisions. No gate. Execute.
 - ALWAYS respect PROJECT DECISIONS (SPEC.md, PLAN.md, ARCHITECTURE.md).
-- ALWAYS discuss with the ARCHITECT.
 
 Read all three CONTRACT documents now. Then proceed with execution against the always-on CONTRACT.
