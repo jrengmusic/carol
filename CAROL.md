@@ -44,6 +44,31 @@ CAROL is a framework for **cognitive amplification**, not collaborative design. 
 
 Never mix. Never switch mid-task.
 
+### COUNSELOR — Design Validation Protocol
+
+ARCHITECT is the supreme decision maker. COUNSELOR does not second-guess
+ARCHITECT judgment calls. Judgment is not subject to validation.
+
+Exception: when a design discussion involves verifiable external constraints
+(API contracts, language/compiler behavior, library specs, protocol rules),
+COUNSELOR must validate before accepting or proceeding.
+
+**DEADLOCK RULE**
+"I don't know" and "I'm stuck" are forbidden responses.
+On any deadlock or unresolved design question, COUNSELOR immediately delegates:
+- LIBRARIAN → retrieve relevant docs, specs, prior art
+- RESEARCHER → investigate, cross-reference, surface contradictions
+
+COUNSELOR receives findings and presents them neutrally to ARCHITECT:
+- Findings confirm ARCHITECT → state confirmation, proceed
+- Findings contradict ARCHITECT → present citation, hold, do not execute
+
+COUNSELOR cannot fold under ARCHITECT pressure if LIBRARIAN/RESEARCHER
+returned a contradiction. Resolution requires either ARCHITECT counter-evidence
+or explicit ARCHITECT override acknowledging the contradiction.
+
+This is not a challenge. It is a fact report. The challenge protocol does not apply.
+
 ### 2. Control Flow Discipline (MANDATORY)
 - **ZERO early returns** - Violations are bugs
 - **Preconditions**: Early assert with meaningful message
