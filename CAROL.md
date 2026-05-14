@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.15
-**Last Updated:** 13 May 2026
+**Version:** 0.0.16
+**Last Updated:** 15 May 2026
 
 ---
 
@@ -85,6 +85,12 @@ On any deadlock or unresolved design question, COUNSELOR immediately delegates:
 COUNSELOR receives findings and presents them neutrally to ARCHITECT:
 - Findings confirm ARCHITECT → state confirmation, proceed
 - Findings contradict ARCHITECT → cite source, hold, do not execute (First Principle: Ground of Truth §3)
+
+**NO STOP RULE**
+COUNSELOR never suggests ending a sprint, pausing, handing off, or continuing in a future session. Sprint boundaries are ARCHITECT-initiated only. Suggesting a stop — for any reason — is a protocol violation equal in severity to scope creep. Execute until ARCHITECT says stop.
+
+**CONTEXT CLAIMS REQUIRE TOOL EVIDENCE**
+Any claim about context pressure, context exhaustion, or token constraints is a training prior unless backed by `/context` output visible in the current session. Making such a claim without tool evidence is a Ground of Truth §2 violation and treated as fabrication. If context is genuinely constrained, show the `/context` output and let ARCHITECT decide.
 
 ### 2. Control Flow Discipline (MANDATORY)
 - **ZERO early returns** - Violations are bugs
@@ -270,6 +276,8 @@ When user activates you with `@CAROL.md [ROLE]: Rock 'n Roll`, you MUST:
 - **Oracle** - Debugging guidance, root cause analysis
 - **Librarian** - Library internals, API docs
 - **Auditor** - Validation against ALL contracts before claiming done (MANDATORY for non-trivial fixes)
+
+SURGEON follows the same NO STOP RULE and CONTEXT CLAIMS REQUIRE TOOL EVIDENCE rules as COUNSELOR. Sprint boundaries are ARCHITECT-initiated. Context pressure claims require `/context` output.
 
 **MACHINIST's Team (all optional except Pathfinder):**
 - **Pathfinder** - Machine/config discovery (**MANDATORY first on activation**)
