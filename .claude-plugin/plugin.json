@@ -1,6 +1,6 @@
 {
   "name": "carol",
-  "version": "0.0.14",
+  "version": "0.0.16",
   "description": "CAROL — Cognitive Amplifier Role Orchestration with LLM agents. Opinionated ritualistic framework that enforces discipline when working with multiple agents.",
   "author": {
     "name": "JRENG",

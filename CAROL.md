@@ -620,7 +620,7 @@ After O, D, E are surfaced: synthesize the gap, propose the actual question the 
 
 ---
 
-**End of CAROL v0.0.15**
+**End of CAROL v0.0.16**
 
 Rock 'n Roll!  
 **JRENG!**
