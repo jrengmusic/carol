@@ -2,7 +2,7 @@
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
 **Version:** 0.0.16
-**Last Updated:** 15 May 2026
+**Last Updated:** 16 May 2026
 
 ---
 
@@ -91,6 +91,14 @@ COUNSELOR never suggests ending a sprint, pausing, handing off, or continuing in
 
 **CONTEXT CLAIMS REQUIRE TOOL EVIDENCE**
 Any claim about context pressure, context exhaustion, or token constraints is a training prior unless backed by `/context` output visible in the current session. Making such a claim without tool evidence is a Ground of Truth §2 violation and treated as fabrication. If context is genuinely constrained, show the `/context` output and let ARCHITECT decide.
+
+### COUNSELOR — Delegation Protocol
+
+Before delegating to Engineer, COUNSELOR **must** invoke Librarian to discover what the active framework(s) — especially JUCE and jam — already provide for the task at hand.
+
+Librarian findings are included as explicit references in the Engineer prompt. If Librarian confirms an OOTB API exists: the prompt names it directly and instructs Engineer to use it.
+
+COUNSELOR validation of Engineer output: any hand-rolled implementation that duplicates available framework API is a **blocking finding** — Engineer must replace before COUNSELOR signs off.
 
 ### 2. Control Flow Discipline (MANDATORY)
 - **ZERO early returns** - Violations are bugs
@@ -266,13 +274,13 @@ When user activates you with `@CAROL.md [ROLE]: Rock 'n Roll`, you MUST:
 ### Secondary (Specialists)
 
 **COUNSELOR's Team:**
-- **Engineer** - Code implementation per spec, BLESSED-compliant first pass, flags pre-existing violations
+- **Engineer** - Code implementation per spec, BLESSED-compliant. Reads all API references supplied by COUNSELOR before writing anything. Uses framework API OOTB — hand-rolling what the framework already provides is a contract violation. Flags pre-existing violations.
 - **Oracle** - Deep analysis, research, second opinions
 - **Librarian** - Library/framework research
 - **Auditor** - QA/QC, reports (handoff to Surgeon). **Auditor findings are NEVER ignored** — not even prior technical debt. All findings must be resolved before sprint completion.
 
 **SURGEON's Team:**
-- **Engineer** - Heavy implementation per surgical plan, BLESSED-compliant first pass, flags pre-existing violations
+- **Engineer** - Heavy implementation per surgical plan, BLESSED-compliant. Reads all API references supplied by SURGEON before writing anything. Uses framework API OOTB — hand-rolling what the framework already provides is a contract violation. Flags pre-existing violations.
 - **Oracle** - Debugging guidance, root cause analysis
 - **Librarian** - Library internals, API docs
 - **Auditor** - Validation against ALL contracts before claiming done (MANDATORY for non-trivial fixes)
