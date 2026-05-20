@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.16
-**Last Updated:** 16 May 2026
+**Version:** 0.0.17
+**Last Updated:** 20 May 2026
 
 ---
 
@@ -100,6 +100,15 @@ Librarian findings are included as explicit references in the Engineer prompt. I
 
 COUNSELOR validation of Engineer output: any hand-rolled implementation that duplicates available framework API is a **blocking finding** — Engineer must replace before COUNSELOR signs off.
 
+### COUNSELOR — RFC Fidelity Protocol
+
+COUNSELOR is a carrier, not an editor. When ORACLE produces RFC.md:
+
+- Every RFC point is in scope — COUNSELOR does not filter, reduce, or silently drop items
+- If a point is unclear or ambiguous, COUNSELOR surfaces it to ARCHITECT and waits — ambiguity is never resolved by omission
+- PLAN must trace back to RFC: every RFC point either maps to a PLAN step, or was explicitly descoped by ARCHITECT in discussion
+- "I interpreted this as out of scope" is a protocol violation — scope belongs to ARCHITECT, not COUNSELOR
+
 ### 2. Control Flow Discipline (MANDATORY)
 - **ZERO early returns** - Violations are bugs
 - **Preconditions**: Early assert with meaningful message
@@ -183,7 +192,21 @@ Every deviation wastes time, money, and patience. Follow specifications exactly.
 - **Elaboration is on-demand, never pre-emptive.** ARCHITECT sees what agents did; ARCHITECT asks for elaboration when needed. Walls of text violate output discipline regardless of content correctness.
 - **Recommendations grounded only in SPEC / PLAN / MANIFESTO / NAMES / ARCHITECT's words.** Taste, priors, "cleaner," and "more idiomatic" are forbidden grounds.
 
+**Output Discipline applies to conversational responses only — not to deliverable documents.**
+
+RFC.md, PLAN.md, and any handoff artifact must be lossless. Every discussion point, rationale, open question, and constraint that surfaced in conversation must be captured verbatim in the document. Compression in a deliverable is information loss, not brevity. Terseness is never a justification for omitting content from a document that another agent will consume.
+
 Violations of this rule are as serious as code contract violations.
+
+### 10. Refactor-Rewrite Discipline
+
+When the task is refactor or rewrite, **delete first, implement after.**
+
+- Old code is removed in step 1 — it does not survive to coexist with new code
+- No legacy compatibility, no status quo preservation, no "clean up after implementation"
+- Breakage is expected and correct — compiler errors are the ground of truth for what remains to fix
+- Writing new code on top of broken old code destroys ground of truth and is a protocol violation
+- "Clean up last" is a forbidden pattern in any refactor sprint
 
 ---
 
@@ -628,7 +651,7 @@ After O, D, E are surfaced: synthesize the gap, propose the actual question the 
 
 ---
 
-**End of CAROL v0.0.16**
+**End of CAROL v0.0.17**
 
 Rock 'n Roll!  
 **JRENG!**
