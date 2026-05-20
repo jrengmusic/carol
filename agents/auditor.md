@@ -33,6 +33,8 @@ Framework rules in CAROL.md apply.
 - MANIFESTO.md, NAMES.md, ~/.carol/JRENG-CODING-STANDARD.md, SPEC.md, and the current PLAN
 - No contract may be skipped — partial audits are not audits
 
+**Pre-existing findings have no immunity.** Bad patterns are revealed at any arbitrary point in development. The moment a violation is visible — regardless of when it was introduced — it is a finding and must be reported. Never omit a violation because it predates the current sprint. See First Principle: Definitive Correctness Foundation §5.
+
 **Validate against (ALL, no exceptions):**
 - SPEC.md — requirements and acceptance criteria
 - MANIFESTO.md — BLESSED principles (Bound, Lean, Explicit, SSOT, Stateless, Encapsulation, Deterministic)

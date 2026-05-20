@@ -419,7 +419,6 @@ cmd_help() {
     echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (plugin mode)"
     echo -e "  ${YELLOW}oracle${NC} [name]       Launch ORACLE session (research, RFC, analysis)"
     echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
-    echo -e "  ${YELLOW}surgeon${NC} [name]    Launch SURGEON session (Sonnet)"
     echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
     echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/clear)"
     echo -e "  ${YELLOW}ledger${NC}         Show DEBT.md ledger"
@@ -433,8 +432,7 @@ cmd_help() {
     echo ""
     echo -e "${MAGENTA}PRIMARY Agents:${NC}"
     echo -e "  ${CYAN}ORACLE${NC}        Research, ideation, RFC production, deep analysis"
-    echo -e "  ${CYAN}COUNSELOR${NC}     Planning, specs, docs, SPRINT-LOG"
-    echo -e "  ${CYAN}SURGEON${NC}       Execution, fixes, surgical precision on project code"
+    echo -e "  ${CYAN}COUNSELOR${NC}     Planning, specs, docs, bug fixing, implementation, SPRINT-LOG"
     echo -e "  ${CYAN}MACHINIST${NC}     Machine custodian — CAROL, harness, ~/.config, dotfiles, dev env"
     echo ""
     echo -e "${MAGENTA}Secondary Agents:${NC}"
@@ -446,9 +444,8 @@ cmd_help() {
     echo ""
     echo -e "${MAGENTA}Slash Commands:${NC}"
     echo -e "  ${YELLOW}/counselor${NC}   Activate COUNSELOR (default on init)"
-    echo -e "  ${YELLOW}/surgeon${NC}     Activate SURGEON"
     echo -e "  ${YELLOW}/pay${NC}         Drain DEBT.md ledger into next sprint plan (COUNSELOR only)"
-    echo -e "  ${YELLOW}/log${NC}         Log sprint, drain paid debts (COUNSELOR or SURGEON)"
+    echo -e "  ${YELLOW}/log${NC}         Log sprint, drain paid debts (COUNSELOR)"
     echo -e "  ${YELLOW}/stop${NC}        Emergency brake — cease all execution"
     echo -e "  ${YELLOW}/ode${NC}         ODE to Joy — reframe the problem"
     echo ""
@@ -553,8 +550,7 @@ print(label)
         case "$role" in
             ORACLE)       role_color='\033[38;2;217;119;41m'  ;;
             COUNSELOR)    role_color='\033[38;2;0;200;216m'   ;;
-            SURGEON)      role_color='\033[38;2;252;112;76m'  ;;
-            MACHINIST)    role_color='\033[38;2;160;160;160m' ;;
+                MACHINIST)    role_color='\033[38;2;160;160;160m' ;;
             *)            role_color="$GREY"                  ;;
         esac
         local f_id f_role f_name
@@ -883,7 +879,7 @@ cmd_run() {
         claude_args+=(--agent COUNSELOR)
     fi
 
-    # Project roles (ORACLE, COUNSELOR, SURGEON): need project context
+    # Project roles (ORACLE, COUNSELOR): need project context
     if ! $in_project; then
         info "No CAROL project here — initializing..."
         cmd_init
@@ -955,10 +951,6 @@ case "${1:-run}" in
     counselor|counsel)
         shift
         cmd_run --agent COUNSELOR "$@"
-        ;;
-    surgeon)
-        shift
-        cmd_run --agent SURGEON --model claude-sonnet-4-6 "$@"
         ;;
     machinist|machine)
         shift

@@ -32,7 +32,6 @@
     </g>
     <g>
         <path d="M550,255L550,385C550,387.76 547.76,390 545,390L155,390C152.24,390 150,387.76 150,385L150,255C150,252.24 152.24,250 155,250L545,250C547.76,250 550,252.24 550,255Z" style="fill:#0d141c;stroke:#b3f9f5;stroke-width:2px;"/>
-        <path d="M1250,255L1250,385C1250,387.76 1247.76,390 1245,390L855,390C852.24,390 850,387.76 850,385L850,255C850,252.24 852.24,250 855,250L1245,250C1247.76,250 1250,252.24 1250,255Z" style="fill:#0d141c;stroke:#b3f9f5;stroke-width:2px;"/>
     </g>
     <g>
         <g>
@@ -40,23 +39,13 @@
             <text x="250.823px" y="306.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#699daa;">Domain Speciﬁc Strategic Analysis</text>
             <text x="214.477px" y="331.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Write SPEC.md, PLAN.md, ARCHITECTURE.md</text>
             <text x="250.933px" y="351.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Plan features, ask questions</text>
-            <text x="254.244px" y="371.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Handoff to SURGEON for ﬁxes</text>
-        </g>
-        <g>
-            <text x="1012.071px" y="280.536px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:18px;fill:#b3f9f5;">SURGEON</text>
-            <text x="947.778px" y="305.536px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#699daa;">Surgical Precision Problem Solving</text>
-            <text x="950.933px" y="330.536px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Fix bugs, implement features</text>
-            <text x="944.039px" y="350.536px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Surgical ﬁxes, minimal changes</text>
-            <text x="973.841px" y="370.536px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Handle complex issues</text>
+            <text x="214.477px" y="371.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Delegate: @Engineer, @Auditor, @Oracle</text>
         </g>
     </g>
     <g>
         <path d="M200,483L200,557C200,558.656 198.656,560 197,560L83,560C81.344,560 80,558.656 80,557L80,483C80,481.344 81.344,480 83,480L197,480C198.656,480 200,481.344 200,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
         <path d="M480,483L480,557C480,558.656 478.656,560 477,560L363,560C361.344,560 360,558.656 360,557L360,483C360,481.344 361.344,480 363,480L477,480C478.656,480 480,481.344 480,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
         <path d="M620,483L620,557C620,558.656 618.656,560 617,560L503,560C501.344,560 500,558.656 500,557L500,483C500,481.344 501.344,480 503,480L617,480C618.656,480 620,481.344 620,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
-        <path d="M900,483L900,557C900,558.656 898.656,560 897,560L783,560C781.344,560 780,558.656 780,557L780,483C780,481.344 781.344,480 783,480L897,480C898.656,480 900,481.344 900,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
-        <path d="M1180,483L1180,557C1180,558.656 1178.656,560 1177,560L1063,560C1061.344,560 1060,558.656 1060,557L1060,483C1060,481.344 1061.344,480 1063,480L1177,480C1178.656,480 1180,481.344 1180,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
-        <path d="M1320,483L1320,557C1320,558.656 1318.656,560 1317,560L1203,560C1201.344,560 1200,558.656 1200,557L1200,483C1200,481.344 1201.344,480 1203,480L1317,480C1318.656,480 1320,481.344 1320,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
     </g>
     <g>
         <text x="112.617px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Pathﬁnder</text>
@@ -66,13 +55,6 @@
         <text x="398.278px" y="520.903px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">implement</text>
         <text x="539.028px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Auditor</text>
         <text x="538.355px" y="520.903px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">validate</text>
-        <text x="812.617px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Pathﬁnder</text>
-        <text x="818.355px" y="519.758px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">patterns</text>
-        <text x="807.511px" y="545px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#519299;">ALWAYS FIRST</text>
-        <text x="1103.311px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Auditor</text>
-        <text x="1103.727px" y="520.031px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">validate</text>
-        <text x="1232.827px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Librarian</text>
-        <text x="1237.931px" y="520.89px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">research</text>
     </g>
     <g>
         <g>
@@ -109,14 +91,9 @@
         <path d="M260,390L260,430L140,430L140,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
         <path d="M410,390L410,410L420,410L420,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
         <path d="M460,390L460,430L560,430L560,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
-        <path d="M950,390L950,430L840,430L840,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
-        <path d="M1100,390L1100,410L1120,410L1120,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
-        <path d="M1150,390L1150,430L1260,430L1260,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
         <path d="M555,325L675,325L675,630" style="fill:none;stroke:#b3f9f5;stroke-width:2px;stroke-dasharray:5,5;"/>
         <path d="M700,190L700,630" style="fill:none;stroke:#b3f9f5;stroke-width:2.48px;stroke-dasharray:6.206,6.206;"/>
-        <path d="M845,325L725,325L725,630" style="fill:none;stroke:#b3f9f5;stroke-width:2px;stroke-dasharray:5,5;"/>
         <path d="M900,680L850,680" style="fill:none;stroke:#b3f9f5;stroke-width:1.74px;stroke-dasharray:4.344,4.344;"/>
-        <path d="M850,883L1360,883L1360,325L1250,325" style="fill:none;stroke:#b3f9f5;stroke-width:2px;"/>
         <path d="M150,320L40,320L40,883L550,883" style="fill:none;stroke:#b3f9f5;stroke-width:2px;"/>
         <path d="M350,190L350,250" style="fill:none;stroke:#b3f9f5;stroke-width:2px;"/>
         <path d="M550,140L500,140" style="fill:none;stroke:#b3f9f5;stroke-width:2px;"/>
@@ -124,9 +101,7 @@
     </g>
     <g>
         <text x="323.445px" y="434.39px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#699daa;">delegate</text>
-        <text x="1023.445px" y="434.39px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#699daa;">delegate</text>
         <text x="326.982px" y="872.844px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#699daa;">results</text>
-        <text x="1026.982px" y="872.688px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#699daa;">results</text>
     </g>
     <g>
         <g>

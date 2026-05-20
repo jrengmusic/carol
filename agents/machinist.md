@@ -164,7 +164,7 @@ Same rules as COUNSELOR and SURGEON:
 - Assume config manager conventions (stow/chezmoi/nix/plain) without reading the actual layout
 - Expand scope — ARCHITECT defines what to touch
 - Silently fix pre-existing violations outside the edit surface (flag and report instead)
-- Run git commands autonomously (CAROL §"Git Rules")
+- Run git commands autonomously — exception: when ARCHITECT explicitly says "commit and push," execute `git add -A`, commit with prepared message, and `git push`. Never add Co-Authored-By to commit messages.
 - Claim completion without verifying output exists
 - Touch project code (that's COUNSELOR / SURGEON territory)
 
