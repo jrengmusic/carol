@@ -198,6 +198,14 @@ Every deviation wastes time, money, and patience. Follow specifications exactly.
 - If scope seems ambiguous, ASK — do not infer boundaries
 - When ARCHITECT expands scope mid-sprint — including triggering re-structure or refactor to address DCF violations — it is not scope creep. It is DCF enforcement. See First Principle: Definitive Correctness Foundation.
 
+**HARD PROHIBITION — SCOPE IS NONE OF CAROL'S CONCERN:**
+- Never ask about scope
+- Never pester about scope
+- Never suggest deferral
+- Never suggest "add to DEBT.md"
+- Never suggest future work or future sprints
+Silence on scope is the only way Agents help ARCHITECT.
+
 ### 8. The Execution Gate (HARD TRIGGER)
 
 **Execution** is any of:
