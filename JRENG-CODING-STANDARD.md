@@ -441,6 +441,111 @@ for (int i = 0; i < 10; ++i)  // Pre-increment preferred
 
 ---
 
+## HEADER DISCIPLINE (MANDATORY)
+
+### No Forward Declarations
+
+```cpp
+// WRONG — forward declarations are symptoms of bad design, strictly forbidden
+class SomeComponent;
+
+class MyComponent : public juce::Component
+{
+    SomeComponent* owner;  // avoid
+};
+```
+
+**Rationale:** Forward declarations hide dependencies, obscure ownership, and mask include cycles. If you need the type — include the header. If the header is expensive, the design is wrong, not the include.
+
+---
+
+### No Redundant STL Includes
+
+Project-level headers must not explicitly include STL types — `JuceHeader.h` already includes them transitively.
+
+```cpp
+// WRONG — JuceHeader.h already provides all STL types
+#include "MyProcessor.h"
+#include <vector>
+#include <string>
+
+class MyComponent : public juce::Component
+{
+    std::vector<float> data;  // available via JuceHeader.h transitively
+};
+
+// CORRECT — trust the transitive include
+#include "MyProcessor.h"
+
+class MyComponent : public juce::Component
+{
+    std::vector<float> data;
+};
+```
+
+**Rationale:** Explicit STL re-inclusion is redundant, masks include depth, and slows compilation.
+
+---
+
+### No Includes in Submodule Headers or Source Files
+
+A submodule's `.h` and `.cpp` files must include **nothing** — zero includes. Platform-specific headers are the only exception.
+
+```cpp
+// WRONG — jam_graphics.h includes its own detail files
+#include "detail/jam_cell.h"             // forbidden
+#include <cstdint>                       // forbidden
+#include "fonts/font/glyph/jam_atlas.h"   // forbidden
+```
+
+**Correct pattern — all includes at topmost module header:**
+
+```cpp
+// jam_graphics.h — TOPMOST, includes only here
+#pragma once
+#include <juce_gui_basics/juce_gui_basics.h>
+#include <jam_core/jam_core.h>           // jam_core's topmost header only
+#include "detail/jam_cell.h"             // detail files included HERE
+#include "detail/jam_cell_point.h"       // — not in the detail files themselves
+// no other includes in this file
+
+// jam_cell.h — SUBMODULE, zero includes
+#pragma once
+// — no includes, no forward declares, no STL
+
+// jam_cell.cpp — SUBMODULE, zero includes
+// — no includes
+```
+
+**Platform-specific exception (.mm / .m files):**
+
+```cpp
+// jam_background_blur.mm — platform-specific submodule
+#if JUCE_MAC
+#include <dlfcn.h>              // platform header — allowed
+#import <Cocoa/Cocoa.h>         // Obj-C framework — allowed
+// — no other includes
+#endif
+```
+
+**Rationale:** Single inclusion point at the module definition header enforces clear dependency chains. Submodules are atomic units with no coupling to their containing module's internals. Platform/OS headers are the only exception — required for native API access in `.mm`/`.m` files.
+
+---
+
+### No Redundant TU Includes
+
+A translation unit (`.cpp`) should include only what its declarations require.
+
+```cpp
+// WRONG — TU includes headers it does not use
+#include "MyHeader.h"
+#include "UnusedHeader.h"
+```
+
+**Rationale:** Unnecessary includes extend build graphs, slow compiles, and create fragile coupling.
+
+---
+
 ## PASS BY VALUE VS REFERENCE
 
 **Pass by value for small types:**
