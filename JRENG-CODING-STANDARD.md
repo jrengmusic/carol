@@ -231,8 +231,18 @@ if (! myPointer)           // WRONG: implicit
 **Use modern casts:**
 ```cpp
 static_cast<float> (x)     // For trivial casts
-reinterpret_cast           // For data reinterpretation
+reinterpret_cast           // For data reinterpretation (see below)
 ```
+
+**`reinterpret_cast` — legitimate, well-defined use cases:**
+
+| Use case | Standard status |
+|---|---|
+| `T* → unsigned char* / std::byte*` | Defined by the standard — legal object representation inspection |
+| `uintptr_t ↔ pointer round-trips` | Defined when type is sufficiently wide — required for hardware addresses, MMIO, JIT |
+| Function pointer ↔ `void*` | `static_cast` cannot do this — implementation-defined but universally supported |
+
+Outside these three cases, `reinterpret_cast` is a red flag. Every other use must be justified at the call site.
 
 **Integer types:**
 ```cpp
