@@ -677,7 +677,7 @@ bool someCondition = false;           // Clear: bool
 ## CRITICAL RULES (MANDATORY)
 
 - **Aggregate (brace) initialization is ALWAYS preferred** over copy assignment: `int x { 0 };` not `int x = 0;`
-- **No bail-out guards.** Preconditions use `assert` / `jassert` — NEVER `if (not valid) return;`. Result returns (value determined at that point) are correct and preferred.
+- **No bail-out guards.** Preconditions use an assert (STL, JUCE, or project-specific) — NEVER `if (not valid) return;`. Result returns (value determined at that point) are correct and preferred.
 - **ALWAYS use nested positive checks:** `if (valid) { if (ready) { doWork(); } }` — NEVER `if (not valid) return;`
 - **Use `.at()` for container access where the container provides it** — NEVER raw `[]` when a bounds-checked accessor exists. Fail Fast principle: invalid index throws immediately.
 - **Use C++ alternative tokens:** `not`, `and`, `or` — NEVER `!`, `&&`, `||`
@@ -706,7 +706,7 @@ bool someCondition = false;           // Clear: bool
 ✓ Pass small types by value
 ✓ Use `std::` math functions
 ✓ Aggregate (brace) initialization always
-✓ No bail-out guards — `assert`/`jassert` for preconditions, nested positive checks for conditional execution, result returns correct and preferred
+✓ No bail-out guards — assert (project-appropriate) for preconditions, nested positive checks for conditional execution, result returns correct and preferred
 ✓ **Use `.at()` where the container provides it** — bounds-checked accessor always preferred over raw `[]`
 ✓ **ALWAYS use `not`, `and`, `or`** alternative tokens
 ✓ **NO anonymous namespaces** — use `static` linkage instead

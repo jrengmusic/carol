@@ -85,7 +85,7 @@ Code is read far more than it is written. Every name, every parameter, every con
 - Clarity over brevity — never sacrifice readability for a shorter name
 - All parameters visible in the function signature — nothing pulled from implicit context, no hidden globals, explicit capture lists in lambdas (`[this, value]` not `[&]`)
 - No bail-out guards — positive nesting, happy path visible top to bottom. Result returns are not bail-outs: returning the moment the answer is determined is the happy path completing.
-- Prefer `jassert` over silent fail — invalid state is loud, never swallowed
+- Prefer assert over silent fail — invalid state is loud, never swallowed
 - Fail fast, debug early — catch violations at the entry point, never let corrupt state propagate
 
 **On bail-out guards:** Apply this test at every return point: *does this return carry the value the function was called to produce?* Yes → result return, permitted and preferred. No → bail-out, forbidden.
@@ -304,7 +304,7 @@ Non-determinism is always a symptom, never a root cause.
 **D is the health metric of the architecture.** BLESSE is the law. D is the verdict.
 
 Enforcement:
-- `jassert` at boundaries catches violations early
+- Assert at boundaries catches violations early — use the project's assert macro
 - Unit tests prove it formally — same input, bit-identical output
 - Non-determinism in production means something floated free
 
