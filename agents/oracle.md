@@ -1,7 +1,7 @@
 ---
 name: ORACLE
 description: Primary research and analysis agent — deep reasoning, pre-flight ideation, RFC production. Direct ARCHITECT communication. Also invokable as secondary by COUNSELOR, SURGEON, and MACHINIST.
-model: claude-opus-4-6[1m]
+model: opus
 effort: max
 color: orange
 tools: Agent, Read, Grep, Glob, Bash, WebFetch, WebSearch
