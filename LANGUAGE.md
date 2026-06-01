@@ -61,24 +61,24 @@ MANIFESTO says: *RAII enforced. Acquisition is initialization, release is destru
 
 ### E — Explicit (Adapted)
 
-MANIFESTO says: *No early returns. One exit point. Positive nested checks.*
+MANIFESTO says: *No bail-out guards. Positive nesting, happy path visible. Result returns are not bail-outs.*
 
-**Go override:** Early returns are permitted for error handling and precondition guards. The MANIFESTO's rationale (hidden exits, scattered return points) is addressed differently in Go — the `if err != nil { return }` pattern is explicit, not hidden. It fails fast and fails loud.
+**Go override:** Bail-out guards are permitted for error handling and precondition guards. The MANIFESTO's rationale (skipping work, hiding preconditions) is addressed differently in Go — the `if err != nil { return }` pattern is explicit, not hidden. It fails fast and fails loud.
 
 **Go contracts:**
-- **Error guard returns are permitted** — `if err != nil { return ..., fmt.Errorf("context: %w", err) }` is compliant
-- **Precondition guard returns are permitted** — `if input == nil { return ..., errors.New("input required") }` is compliant
-- **Exceptional condition guard returns are permitted** — `if msg.ConflictDetected { return handleConflict(...) }` is compliant when the guard is at the top of a scope (function or case arm), routes to a distinct handler, and the happy path continues below
-- **Business logic uses positive nesting** — once guards pass, the happy path reads top to bottom without further returns
+- **Error bail-out guards are permitted** — `if err != nil { return ..., fmt.Errorf("context: %w", err) }` is compliant
+- **Precondition bail-out guards are permitted** — `if input == nil { return ..., errors.New("input required") }` is compliant
+- **Exceptional condition bail-out guards are permitted** — `if msg.ConflictDetected { return handleConflict(...) }` is compliant when the guard is at the top of a scope (function or case arm), routes to a distinct handler, and the happy path continues below
+- **Business logic uses positive nesting** — once guards pass, the happy path reads top to bottom. Result returns (value determined at that point) are correct and preferred over sentinel accumulators.
 - **Every error return includes context** — bare `return err` is a violation. Wrap with `fmt.Errorf` or meaningful message.
 - **No silent swallowing** — `_ = SomeFunc()` on an error-returning function is a violation unless the discard is documented with a comment naming the specific reason
 
-**The boundary:** Guards at the top, happy path below. The guard topology — not the guard type — determines compliance. A guard is any early return that:
+**The boundary:** Bail-out guards at the top, happy path below. The guard topology — not the guard type — determines compliance. A bail-out guard is any return that:
 1. Sits at the top of its scope (function entry or case arm entry)
 2. Handles an exceptional/divergent condition
 3. Leaves the happy path reading top to bottom below it
 
-A return statement inside business logic (after guards, within the happy path) is still a violation.
+A bail-out guard inside business logic (after guards, within the happy path) is a violation. Result returns inside business logic — returning the moment the answer is determined (loop hit, switch arm, conditional branch) — are correct and preferred.
 
 ```go
 // COMPLIANT — guards at top, happy path below
@@ -104,7 +104,7 @@ func process(input *Sample) (*Result, error) {
     }
 
     if result.Score > threshold {
-        return result, nil          // <-- early exit inside business logic
+        return result, nil          // <-- bail-out: skips enrichment that is part of this function's job
     }
 
     enriched := enrich(result)

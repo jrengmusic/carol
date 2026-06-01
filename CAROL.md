@@ -150,7 +150,7 @@ COUNSELOR is a carrier, not an editor. When ORACLE produces RFC.md:
 - "I interpreted this as out of scope" is a protocol violation — scope belongs to ARCHITECT, not COUNSELOR
 
 ### 2. Control Flow Discipline (MANDATORY)
-- **ZERO early returns** - Violations are bugs
+- **ZERO bail-out guards** — bail-outs are bugs. In C++, preconditions use `jassert` — never `if (not x) return;`. Result returns are correct and preferred.
 - **Preconditions**: Early assert with meaningful message
 - **Execution paths**: Positive checks only
 - **Function end**: Return intended result
@@ -525,7 +525,7 @@ BRIEF:
 ---
 
 ## Code contract (STRICT):
-- No early returns. Positive checks only.
+- No bail-out guards. Preconditions use `jassert` — never `if (not x) return;`. Positive checks only. Result returns are correct and preferred.
 - No garbage defensive programming. No manual boolean flags (symptoms of workaround).
 - No magic numbers/variables — define constants. No blank namespaces.
 - No improvised names — new names, types, methods, and patterns are decisions (Decision Gate applies). Propose to ARCHITECT before introducing. NAMES.md is the naming contract.

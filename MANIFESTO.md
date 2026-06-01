@@ -84,11 +84,15 @@ Code is read far more than it is written. Every name, every parameter, every con
 - Semantic names — `gainReductionDb` not `gr`, `isProcessingActive` not `flag`
 - Clarity over brevity — never sacrifice readability for a shorter name
 - All parameters visible in the function signature — nothing pulled from implicit context, no hidden globals, explicit capture lists in lambdas (`[this, value]` not `[&]`)
-- No early returns — one exit point, positive nested checks, happy path reads top to bottom
+- No bail-out guards — positive nesting, happy path visible top to bottom. Result returns are not bail-outs: returning the moment the answer is determined is the happy path completing.
 - Prefer `jassert` over silent fail — invalid state is loud, never swallowed
 - Fail fast, debug early — catch violations at the entry point, never let corrupt state propagate
 
-**On early returns:** Early returns hide intent. They scatter exit points and force the reader to track every possible escape mentally. Positive nesting makes the full execution path visible in a single read. A function that exits early has lied about its contract.
+**On bail-out guards:** Apply this test at every return point: *does this return carry the value the function was called to produce?* Yes → result return, permitted and preferred. No → bail-out, forbidden.
+
+**Bail-out (forbidden):** returns before doing work — the function had a job and the guard skipped it. Use positive nesting; the guard disappears into a condition.
+
+**Result return (permitted):** returns the moment the answer is determined — the function's job is complete at that point. Forcing these into a sentinel accumulator to reach a single exit adds state and hides intent.
 
 ```cpp
 // WRONG — hides conditions, silent exits
@@ -100,7 +104,7 @@ void process (const Sample& input)
     doWork (input);
 }
 
-// CORRECT — full contract visible, one exit
+// CORRECT — bail-out guards replaced by positive nesting
 void process (const Sample& input)
 {
     jassert (input.isValid());
@@ -113,6 +117,37 @@ void process (const Sample& input)
                 doWork (input);
         }
     }
+}
+```
+
+```cpp
+// Result returns — correct and preferred
+
+// Loop: return the moment the answer is found
+int findFirst (const Array<Item>& items, const Query& q)
+{
+    for (int i = 0; i < items.size(); ++i)
+        if (items.at (i).matches (q)) return i;   // answer found — done
+
+    return -1;
+}
+
+// Switch arm: each case delivers its own complete answer
+String tokenName (TokenType t)
+{
+    switch (t)
+    {
+        case TokenType::keyword:    return "keyword";
+        case TokenType::identifier: return "identifier";
+        default:                    return "unknown";
+    }
+}
+
+// Conditional branch: each branch returns its computed result
+float applyScale (float x, float threshold, float high, float low)
+{
+    if (x > threshold) return x * high;   // result for this branch — done
+    return x * low;
 }
 ```
 
@@ -282,7 +317,7 @@ Enforcement:
 | God object | **L** |
 | Manual boolean to track subordinate state | **S** (Stateless) + **E** (Encapsulation) |
 | Shadow state / duplicate truth | **S** (SSOT) + **B** |
-| Early return | **E** (Explicit) |
+| Bail-out guard | **E** (Explicit) |
 | Silent fail | **E** (Explicit) |
 | Getter without proven caller | **E** (Encapsulation) |
 | Caller tracking state the object already represents | **S** (Stateless) + **E** (Encapsulation) |

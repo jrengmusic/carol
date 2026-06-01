@@ -392,14 +392,14 @@ None of those require `namespace detail`.
 
 ## CONTROL FLOW
 
-**No early returns — use positive checks and assert:**
+**No bail-out guards — use positive nesting and assert. Result returns are correct and preferred.**
 ```cpp
-// WRONG: early return
+// WRONG: bail-out guard — skips work, hides precondition
 if (not foobar())
     return;
 doSomething();
 
-// CORRECT: assert precondition, positive check
+// CORRECT: assert precondition, positive nesting
 assert(foobar() and "precondition: foobar must be valid");
 doSomething();
 
@@ -407,6 +407,21 @@ doSomething();
 if (foobar())
 {
     doSomething();
+}
+
+// CORRECT: result returns — answer determined at that point
+int findFirst (const Array<Item>& items, const Query& q)
+{
+    for (int i = 0; i < items.size(); ++i)
+        if (items.at (i).matches (q)) return i;   // answer found — done
+
+    return -1;
+}
+
+float applyScale (float x, float threshold, float high, float low)
+{
+    if (x > threshold) return x * high;   // branch result — done
+    return x * low;
 }
 ```
 
@@ -595,7 +610,7 @@ unsigned                                                  // AVOID alone
 
 ## CONTAINERS AND ARRAY ACCESS
 
-**ALWAYS use `.at()` for indexed access to containers:**
+**Use `.at()` for indexed access on containers that provide it (STL containers). For containers without `.at()`, use the container's own bounds-checked accessor.**
 
 ```cpp
 // CORRECT: Bounds-checked access (Fail Fast principle)
@@ -662,9 +677,9 @@ bool someCondition = false;           // Clear: bool
 ## CRITICAL RULES (MANDATORY)
 
 - **Aggregate (brace) initialization is ALWAYS preferred** over copy assignment: `int x { 0 };` not `int x = 0;`
-- **No early return patterns.** Use `assert`, `static_assert` only when necessary. Use nested positive checks instead.
+- **No bail-out guards.** Preconditions use `assert` / `jassert` — NEVER `if (not valid) return;`. Result returns (value determined at that point) are correct and preferred.
 - **ALWAYS use nested positive checks:** `if (valid) { if (ready) { doWork(); } }` — NEVER `if (not valid) return;`
-- **ALWAYS use `.at()` for container access** — NEVER `[]`. Fail Fast principle: invalid index throws immediately.
+- **Use `.at()` for container access where the container provides it** — NEVER raw `[]` when a bounds-checked accessor exists. Fail Fast principle: invalid index throws immediately.
 - **Use C++ alternative tokens:** `not`, `and`, `or` — NEVER `!`, `&&`, `||`
 - **NO anonymous namespaces.** Use `static` linkage for translation-unit-local symbols.
 - **NO `namespace detail` (or equivalent implementation-hiding namespaces).** Use class `private:`, separate `.cpp` with `static`, or PIMPL.
@@ -691,8 +706,8 @@ bool someCondition = false;           // Clear: bool
 ✓ Pass small types by value
 ✓ Use `std::` math functions
 ✓ Aggregate (brace) initialization always
-✓ No early returns — nested positive checks
-✓ **ALWAYS use `.at()` for container access** (Fail Fast principle)
+✓ No bail-out guards — `assert`/`jassert` for preconditions, nested positive checks for conditional execution, result returns correct and preferred
+✓ **Use `.at()` where the container provides it** — bounds-checked accessor always preferred over raw `[]`
 ✓ **ALWAYS use `not`, `and`, `or`** alternative tokens
 ✓ **NO anonymous namespaces** — use `static` linkage instead
 ✓ **NO `namespace detail`** — use class `private:`, static file-local symbols, or PIMPL
