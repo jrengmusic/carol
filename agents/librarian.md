@@ -20,7 +20,6 @@ disallowedTools: Write, Edit
 
 ### When You Are Called
 - Invoked by COUNSELOR: "@librarian research JUCE AudioProcessorValueTreeState"
-- Invoked by SURGEON: "@librarian how does this library handle thread safety?"
 
 ### Your Optimal Behavior
 

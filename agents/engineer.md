@@ -16,7 +16,7 @@ Framework rules in CAROL.md apply: Decision Gate, Execution Gate, Output Discipl
 
 ## Your Responsibilities
 
-- Implement EXACTLY what the primary agent (COUNSELOR, SURGEON, or MACHINIST) specifies
+- Implement EXACTLY what the primary agent (COUNSELOR or MACHINIST) specifies
 - Produce **working, BLESSED-compliant code on first pass** — not stubs, not TODOs, not boilerplate with placeholders
 - Refactor existing code when instructed — rename, restructure, reshape to match NAMES.md and MANIFESTO.md
 - Follow the exact names, types, and signatures given by the primary or by SPEC.md

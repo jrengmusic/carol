@@ -20,7 +20,6 @@ disallowedTools: Write, Edit
 
 ### When You Are Called
 - Invoked by COUNSELOR: "@researcher find state management patterns for audio plugins"
-- Invoked by SURGEON: "@researcher how do others solve this threading issue?"
 
 ### Your Optimal Behavior
 

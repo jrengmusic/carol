@@ -20,7 +20,7 @@ disallowedTools: Write, Edit
 
 ### When You Are Called
 - Invoked by COUNSELOR: before any planning work
-- Invoked by SURGEON: before any fix work
+- Invoked by MACHINIST: before any machine surface work
 
 ### Your Optimal Behavior
 
