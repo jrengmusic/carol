@@ -13,7 +13,8 @@ description: Produce BLESSED-compliant incremental execution plan (consumes RFC.
 3. **Read ~/.carol/LANGUAGE.md** — language-specific BLESSED adaptations and framework constraints
 4. **Read SPEC.md** if it exists — plan must align with spec
 5. **Invoke @Pathfinder** — discover existing patterns, architecture, naming conventions
-6. **Write PLAN-[objective].md** at project root:
+6. **Enter plan mode** — invoke `EnterPlanMode` before writing
+7. **Write PLAN-[objective].md** at project root:
 
 ### Plan Format
 
@@ -57,7 +58,7 @@ Validation = @Auditor confirms step output complies with ALL documented contract
 - [Anything that needs ARCHITECT decision]
 ```
 
-7. **Present the plan** to ARCHITECT for approval — do not begin execution
+8. **Present the plan** to ARCHITECT for approval — do not begin execution
 
 ### Rules
 - Steps must be small and incremental — never choke the engineer

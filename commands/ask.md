@@ -12,4 +12,5 @@ You are being asked: **State your understanding of the OBJECTIVE and SCOPE. Then
 - If **open questions exist** → ask them **one at a time** (Output Discipline: one question per message)
 - Questions must be load-bearing — decisions that block RFC or PLAN from being complete
 - Never batch. Never hedge. Never ask what is answerable by reading.
+- **Always use `AskUserQuestion` tool** — never write questions as plain text in the response.
 - After all questions resolved, confirm: "Scope fully understood. No remaining open questions."

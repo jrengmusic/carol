@@ -522,6 +522,26 @@ BRIEF:
 
 - **IGNORE ALL LSP ERRORS** — they are false positives from the JUCE module system
 
+## Doxygen Protocol (ALL AGENTS — MANDATORY)
+
+**When working on any C++/JUCE/JAM/KANJUT/CIUM project or library, read doxygen XML before any grep or file search.**
+
+Order of operations:
+1. Check `doxygen/xml/index.xml` at project root — read it to locate symbols
+2. Read the relevant compound XML (`doxygen/xml/<CompoundName>.xml`) for API details, `<references>`, `<referencedby>`
+3. Fall back to Grep/Glob only if the symbol is absent from the index
+
+Library doxygen locations:
+- JAM: `~/Documents/Poems/dev/jam/doxygen/xml/index.xml`
+- KANJUT: `~/Documents/Poems/kuassa/___lib___/doxygen/xml/index.xml`
+- CIUM: `~/Documents/Poems/iqala/___cium___/doxygen/xml/index.xml`
+- JUCE: `~/Documents/Poems/JUCE-docs/doxygen/xml/index.xml`
+
+Project doxygen: `{project_root}/doxygen/xml/index.xml`
+
+Regen library doxygen: `cd {library}/doxygen && doxygen Doxyfile`
+Regen project doxygen: `ninja doxygen` (requires `include(BuildDoxygen)` in project CMakeLists.txt)
+
 ---
 
 ## Code contract (STRICT):
