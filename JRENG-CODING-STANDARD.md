@@ -686,6 +686,34 @@ bool someCondition = false;           // Clear: bool
 
 ---
 
+## DOXYGEN DISCIPLINE (MANDATORY)
+
+### Zero-warning policy
+Doxygen must produce zero warnings. Warnings are treated as build failures.
+
+### Single source of truth
+Document in the **header only**. Implementation files (.cpp/.mm) must NOT
+have doxygen blocks for member functions — the header is the canonical doc.
+
+### Every @param must match the signature
+If a parameter is renamed, the @param MUST be updated in the same edit.
+No stale parameter names. No undocumented parameters.
+
+### No @file mismatches
+`@file` must match the actual filename. No copy-paste leftovers.
+
+### Escape markup in prose
+HTML-like tokens in doxygen prose (`<path>`, `<uuid>`, `\x1b`) must be
+escaped: `\<path\>`, `\\x1b`. Backtick fences inside `/** */` blocks
+must use `@code` / `@endcode`, not triple backticks.
+
+### No @copydoc to external targets
+Do not use `@copydoc`, `@copybrief`, or `@copydetails` referencing
+JUCE or other external library symbols — they are not in the doxygen
+tag scope. Write inline docs instead.
+
+---
+
 ## SUMMARY CHECKLIST
 
 ✓ DRY: Never repeat code
@@ -711,6 +739,7 @@ bool someCondition = false;           // Clear: bool
 ✓ **ALWAYS use `not`, `and`, `or`** alternative tokens
 ✓ **NO anonymous namespaces** — use `static` linkage instead
 ✓ **NO `namespace detail`** — use class `private:`, static file-local symbols, or PIMPL
+✓ **Doxygen:** zero warnings, header-only docs, @param matches signature, escaped markup, no @copydoc to external targets
 
 ---
 

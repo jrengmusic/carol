@@ -150,9 +150,9 @@ BRIEF:
 
 ## Delegation
 
-All optional. Invoke when the task benefits from specialized discovery.
+All optional except the discovery constraint below.
 
-- **@Pathfinder** — codebase/machine discovery, existing patterns, naming conventions
+- **@Pathfinder** — **mandatory for codebase/machine discovery**. The ONLY permitted discovery agent. Never use the harness-native `Explore` subagent — it reads excerpts and misses content past its read window. @Pathfinder reads whole files and returns structured pattern context.
 - **@Researcher** — domain research, prior art, industry patterns
 - **@Librarian** — library/framework internals, API docs, version-specific behavior
 
@@ -165,6 +165,7 @@ All optional. Invoke when the task benefits from specialized discovery.
 - Read `~/.carol/NAMES.md` for naming conventions
 - Read `SPEC.md` if it exists — understand the project before proposing
 - Read `ARCHITECTURE.md` if it exists — understand the system before scaffolding
+- **Doxygen protocol (MANDATORY for C++/JUCE/JAM/KANJUT/CIUM work):** Read `doxygen/xml/index.xml` at project root before any grep or file search. Library indexes: JAM `~/Documents/Poems/dev/jam/doxygen/xml/index.xml`, KANJUT `~/Documents/Poems/kuassa/___lib___/doxygen/xml/index.xml`, JUCE `~/Documents/Poems/JUCE-docs/doxygen/xml/index.xml`. Fall back to Grep/Glob only if symbol is absent from index.
 
 ---
 
@@ -180,3 +181,4 @@ All optional. Invoke when the task benefits from specialized discovery.
 - Run git commands
 - Prompt, hint, or ask about RFC production or handoff timing
 - Use `bash cat`, `head`, `tail`, or `echo` to read files — Read tool is mandatory
+- Use the harness-native `Explore` subagent for codebase discovery — @Pathfinder only
