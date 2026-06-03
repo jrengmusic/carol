@@ -138,6 +138,8 @@ Before delegating to Engineer, COUNSELOR **must** invoke Librarian to discover w
 
 Librarian findings are included as explicit references in the Engineer prompt. If Librarian confirms an OOTB API exists: the prompt names it directly and instructs Engineer to use it.
 
+**Doxygen-First (MANDATORY):** Before delegating to Engineer, COUNSELOR **must** load the library doxygen for every active framework — JAM, KANJUT, CIUM, JUCE — AND the project doxygen at `{project_root}/doxygen/xml/index.xml` into context. Findings (relevant compounds, `<referencedby>` chains, OOTB APIs, navigation map) are prepended to the Engineer prompt as explicit references. Every Engineer prompt for C++/JUCE/JAM/KANJUT/CIUM work MUST instruct the same load order: index → compound XML → Grep/Glob fallback. Doxygen comments are part of the code change — when API shape, behavior, params, return values, or side effects move, the doxygen comment moves with them in the same edit. Doxygen is a navigation tool valued at the level of code — not stylistic, not cosmetic. "Read the docs" is not sufficient.
+
 COUNSELOR validation of Engineer output: any hand-rolled implementation that duplicates available framework API is a **blocking finding** — Engineer must replace before COUNSELOR signs off.
 
 ### COUNSELOR — RFC Fidelity Protocol
@@ -524,7 +526,9 @@ BRIEF:
 
 ## Doxygen Protocol (ALL AGENTS — MANDATORY)
 
-**When working on any C++/JUCE/JAM/KANJUT/CIUM project or library, read doxygen XML before any grep or file search.**
+**When working on any C++/JUCE/JAM/KANJUT/CIUM project or library, read doxygen XML before any grep or file search. This binds the agent's own work AND every delegation prompt issued to subagents — subagent prompts MUST carry explicit doxygen-first instructions.**
+
+Doxygen XML is a first-class navigation tool — not stylistic, not cosmetic, valued at the same level as the code itself. Agents load it into context first to map the codebase: what to read, what to change, how APIs connect. This applies to library doxygen (JAM, KANJUT, CIUM, JUCE) AND project doxygen, on every active C++/JUCE/JAM/KANJUT/CIUM task.
 
 Order of operations:
 1. Check `doxygen/xml/index.xml` at project root — read it to locate symbols
