@@ -13,7 +13,7 @@
 
 **C**ognitive **A**mplifier **R**ole **O**rchestration for LLM agents
 
-Version: 0.0.17
+Version: 0.0.18
 
 An opinionated ritualistic framework that enforces discipline to work with multiple agents simultaneously.
 
@@ -59,16 +59,13 @@ LLMs suffer from:
 
 CAROL is a role-based agent orchestration framework for collaborative software development. It's a cognitive load distribution system that prevents agent drift by enforcing specialized roles with explicit constraints and clear handoffs.
 
-### Primary Agents (4)
+### Primary Agents (3)
 
 **ORACLE** - Research, Analysis & RFC Specialist
-   Primary agent for pre-flight research, ideation, deep analysis, and RFC production. Direct ARCHITECT communication. Reads codebase but never modifies it. Produces RFC.md for COUNSELOR handoff. Also callable as secondary by COUNSELOR, SURGEON, and MACHINIST for mid-sprint analysis.
+   Primary agent for pre-flight research, ideation, deep analysis, and RFC production. Direct ARCHITECT communication. Reads codebase but never modifies it. Produces RFC.md for COUNSELOR handoff. Also callable as secondary by COUNSELOR and MACHINIST for mid-sprint analysis.
 
 **COUNSELOR** - Requirements Counselor & Planning Specialist
    Transforms conceptual intent into formal specifications. Asks clarifying questions, explores edge cases and constraints, writes comprehensive SPEC.md and ARCHITECTURE.md. Handles all documentation including SPRINT-LOG.md updates on "log sprint" command. Never writes code directly. Uses SPEC-WRITER.md and ARCHITECTURE-WRITER.md as guides to clarify ARCHITECT's architectural vision into formalized development documents.
-
-**SURGEON** - Complex Fix Specialist
-   Handles bugs, performance issues, edge cases, and architectural corrections on project code. Identifies root cause, implements minimal surgical fixes. Does not refactor entire modules or touch unrelated code.
 
 **MACHINIST** - Machine Custodian
    Third primary. Surface is the entire operator environment — CAROL framework itself, Claude Code harness (`~/.claude/`), cross-platform `~/.config/` monorepo, dotfiles, shell/dev env, general machine setup and troubleshooting. Executes directly with its own hands (no Engineer delegation). Pathfinder mandatory first. Never touches project code. Launched via `carol machinist` — no project scaffold, can run from anywhere on the machine.
@@ -76,7 +73,7 @@ CAROL is a role-based agent orchestration framework for collaborative software d
 ### Secondary Agents (5)
 
 **ENGINEER** - Code Implementer
-   Implements working, BLESSED-compliant code on first pass per COUNSELOR's or SURGEON's instructions. Refactors when instructed. Flags every pre-existing BLESSED violation encountered during implementation via return brief — never silently ignores. Three-case contract: (1) implement primary task, (2) fix adjacent non-BLESSED inside the edit surface and report, (3) flag pre-existing non-BLESSED outside the edit surface and report for ARCHITECT decision. No features beyond spec, no architectural decisions.
+   Implements working, BLESSED-compliant code on first pass per COUNSELOR's instructions. Refactors when instructed. Flags every pre-existing BLESSED violation encountered during implementation via return brief — never silently ignores. Three-case contract: (1) implement primary task, (2) fix adjacent non-BLESSED inside the edit surface and report, (3) flag pre-existing non-BLESSED outside the edit surface and report for ARCHITECT decision. No features beyond spec, no architectural decisions.
 
 **LIBRARIAN** - Library/Framework Research
    Researches library internals, API docs, usage patterns, version-specific behavior, and best practices for specific dependencies. Called when agents need external library knowledge.
@@ -127,10 +124,6 @@ MACHINIST's context:
  └─ Scaffold to production quality
     (8k tokens, focused on polish and finishing)
 
-SURGEON's context (when escalated):
-└─ Specific complex problem + what failed + fix this one thing
-   (8k tokens, surgical fix)
-   
 AUDITOR's context:
 └─ review, refactoring opportunity, audit SPEC.md and ARCHITECTURE.md compliance
    (5k tokens)
@@ -158,7 +151,7 @@ Document-driven development pipeline with specialized artifacts:
 
 ## Key Features
 
-- **Role-Based Constraints:** 10 specialized roles with explicit behavioral rules (1 Upstream + 3 Primary + 6 Secondary)
+- **Role-Based Constraints:** 9 specialized roles with explicit behavioral rules (3 Primary + 6 Secondary)
 - **Agent-Agnostic:** Works with any LLM CLI tool (Claude Code, Opencode, Amp, Copilot, Gemini, whatever.)
 - **Language-Agnostic:** Supports any programming language/framework
 - **TDD-Friendly:** Built-in testing patterns and scripts
@@ -233,7 +226,7 @@ After `carol init`, activate an agent with the role invocation:
 @CAROL.md COUNSELOR: Rock 'n Roll
 ```
 
-Replace `COUNSELOR` with `ORACLE`, `SURGEON`, or `MACHINIST` as needed. No registration ceremony—calling is assignment.
+Replace `COUNSELOR` with `ORACLE` or `MACHINIST` as needed. No registration ceremony—calling is assignment.
 
 ### Uninstall
 
@@ -280,7 +273,6 @@ source ~/.bashrc  # bash
 │   └── marketplace.json      # Local marketplace catalog
 ├── agents/                   # Agent definitions (plugin default location)
 │   ├── counselor.md          # Requirements counselor (PRIMARY)
-│   ├── surgeon.md            # Complex fix specialist (PRIMARY)
 │   ├── machinist.md          # Machine custodian (PRIMARY)
 │   ├── engineer.md           # Code implementer
 │   ├── oracle.md             # Research, analysis, RFC (PRIMARY)

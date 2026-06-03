@@ -32,7 +32,7 @@
   - ✅ DO `git add -A` to capture every modified file
 
 **SPRINT-LOG WRITTEN BY PRIMARY AGENTS ONLY**
-- **COUNSELOR** or **SURGEON** write to SPRINT-LOG
+- **COUNSELOR** writes to SPRINT-LOG
 - Only when user explicitly says: `"log sprint"`
 - No intermediate summary files
 - No automatic logging after every task
@@ -85,7 +85,6 @@
 **Activate PRIMARY:**
 ```
 "@CAROL.md COUNSELOR: Rock 'n Roll"
-"@CAROL.md SURGEON: Rock 'n Roll"
 ```
 
 **Log completed work:**
@@ -101,7 +100,7 @@
 ```
 
 **Available Agents:**
-- **PRIMARY:** COUNSELOR (domain specific strategic analysis), SURGEON (surgical precision problem solving)
+- **PRIMARY:** COUNSELOR (domain specific strategic analysis)
 - **Subagents:** Pathfinder, Oracle, Engineer, Auditor, Machinist, Librarian
 
 ---

@@ -3,7 +3,7 @@ description: Comprehensive audit of the last N sprints via @Auditor — contract
 argument-hint: [N sprints, default 1]
 ---
 
-Primary must be active (COUNSELOR or SURGEON). Invoke `@Auditor` for a comprehensive audit of the **last $ARGUMENTS sprint(s)** recorded in `carol/SPRINT-LOG.md`. If `$ARGUMENTS` is empty, default to the **last 1 sprint**. Read the log, identify the sprint range (latest entries first), and hand Auditor the explicit file scope tracked for those sprints.
+Primary must be active (COUNSELOR). Invoke `@Auditor` for a comprehensive audit of the **last $ARGUMENTS sprint(s)** recorded in `carol/SPRINT-LOG.md`. If `$ARGUMENTS` is empty, default to the **last 1 sprint**. Read the log, identify the sprint range (latest entries first), and hand Auditor the explicit file scope tracked for those sprints.
 
 **Scope rule:** initial scope is the files tracked in the selected sprint entries. Auditor may discover broader scope through entanglement (callers, callees, shared headers, coupled modules, reverse dependencies). **Any finding within the discovered scope — narrow or broad — must be resolved.** Entanglement is not an excuse to defer.
 

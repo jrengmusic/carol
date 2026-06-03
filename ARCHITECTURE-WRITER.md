@@ -1,7 +1,7 @@
 # ARCHITECTURE-WRITER.md
 ## Instructions for Agents: How to Analyze and Document Architecture
 
-**Purpose:** Step-by-step protocol for PRIMARY agents (COUNSELOR, SURGEON) to write or update ARCHITECTURE.md. PRIMARY agents delegate analysis tasks to secondary agents (subagents) as needed.
+**Purpose:** Step-by-step protocol for PRIMARY agents (COUNSELOR) to write or update ARCHITECTURE.md. PRIMARY agents delegate analysis tasks to secondary agents (subagents) as needed.
 
 **Version:** 0.0.8
 
@@ -29,10 +29,6 @@
 - Writes initial architecture sketch after SPEC is concrete
 - Updates when SPEC changes significantly
 - Documents new patterns after human approval
-
-**SURGEON:**
-- Updates when surgical fix reveals new pattern
-- Documents edge cases discovered during fix
 
 **Secondary Agents (invoked by PRIMARY):**
 
@@ -292,74 +288,6 @@ Which pattern should be documented as canonical? This affects ARCHITECTURE.md.
 
 ---
 
-## For SURGEON (PRIMARY agent)
-
-### Your Responsibility
-When fixing complex issues, you may discover existing architectural patterns or contracts that weren't documented. Update ARCHITECTURE.md to reflect reality.
-
-### What to Document
-
-**Discovered patterns:**
-- Pattern you used that already exists in codebase
-- Contract you had to follow that wasn't documented
-
-**New patterns:**
-- If your fix introduces a new pattern that solves the problem better
-- Consult human first before introducing new pattern
-
-### When to Update
-
-**Document existing patterns:**
-- If you spent >5 minutes figuring out how something works
-- If the pattern isn't in ARCHITECTURE.md but should be
-
-**Consult before new patterns:**
-- If your fix requires architectural change
-- If new pattern would be used by other parts of codebase
-
-### Example Scenario
-
-**Problem:** Status bar not updating when files staged
-
-**Investigation reveals:**
-```cpp
-// Undocumented pattern: Event subscription
-// Found in 3 other components, but not in ARCHITECTURE.md
-events.Subscribe("files_staged", callback);
-```
-
-**SURGEON action:**
-1. Fix the bug using existing pattern
-2. Document pattern in ARCHITECTURE.md
-3. Write `[N]-SURGEON-PATTERN-DISCOVERED.md`
-
-**Architecture update:**
-```markdown
-## Pattern: Event Subscription
-
-**Used for:** Loose coupling between modules
-
-**Implementation location:** `Source/Events/EventBus.cpp`
-
-**Structure:**
-```cpp
-// Components subscribe to events
-events.Subscribe("event_name", callback);
-
-// Emitters publish events
-events.Emit("event_name", data);
-```
-
-**Key insight:** Discovered during bug fix. Already used by StatusBar, FileList, and SidePanel.
-
-**Call sites:**
-- `Source/StatusBar/StatusBar.cpp:89`
-- `Source/FileList/FileList.cpp:45`
-- `Source/SidePanel/SidePanel.cpp:112`
-```
-
----
-
 
 
 ## COUNSELOR: Documentation Responsibility
@@ -480,30 +408,6 @@ Which should I propose in ARCHITECTURE.md?
 - Documents patterns discovered during review
 - Reports audit results to COUNSELOR
 
-### SURGEON (PRIMARY) Delegation Flow
-
-**SURGEON delegates to subagents:**
-
-**Pathfinder** (ALWAYS FIRST)
-- Locates relevant code for bug/feature
-- Identifies affected modules and dependencies
-- Reports findings to SURGEON
-
-**Oracle**
-- Debugs complex issues
-- Analyzes root causes
-- Reports analysis to SURGEON
-
-**Machinist**
-- Polishes implementation (error handling, validation)
-- Applies patterns from ARCHITECTURE.md
-- Reports completion to SURGEON
-
-**Librarian**
-- Researches external libraries/solutions
-- Documents integration patterns
-- Reports findings to SURGEON
-
 ### Information Flow
 
 **Subagent → PRIMARY:**
@@ -551,16 +455,16 @@ Which should I propose in ARCHITECTURE.md?
 
 **ARCHITECTURE.md should be updated when:**
 
-**By PRIMARY agents (COUNSELOR, SURGEON):**
+**By PRIMARY agents (COUNSELOR):**
 1. **New module added** (COUNSELOR)
 2. **Design decision made** (Human architect, documented by COUNSELOR)
 3. **Threading rules change** (Human architect, documented by COUNSELOR)
-4. **Pattern discovered during fix** (SURGEON)
+4. **Pattern discovered during fix** (COUNSELOR)
 5. **SPEC changes** (COUNSELOR updates affected sections)
 
 **By subagents (invoked by PRIMARY):**
 6. **Pattern emerges** (3+ uses of same approach) (AUDITOR reports to PRIMARY)
-7. **Interface contract established** (MACHINIST reports to SURGEON, AUDITOR reports to COUNSELOR)
+7. **Interface contract established** (MACHINIST and AUDITOR report to COUNSELOR)
 8. **Anti-pattern avoided** (AUDITOR reports to PRIMARY)
 
 ---
@@ -606,13 +510,12 @@ ARCHITECTURE DECISION NEEDED
 2. **Fewer pattern violations** - Agents follow established patterns
 3. **Clearer code reviews** - AUDITOR can reference documented patterns
 4. **Reduced rework** - Agents build correctly first time
-5. **Better fixes** - SURGEON understands contracts before making changes
+5. **Better fixes** - agents understand contracts before making changes
 
 **Measure success by:**
 - Reduction in "How does X work?" questions
 - Decrease in pattern-violating code
 - Faster phase completion times
-- Fewer RESET contexts for SURGEON
 
 ---
 

@@ -35,7 +35,7 @@ Do not proceed.
 
 6. **After every entry has been individually gated and planned** → compile PLAN.md per existing PLAN.md protocol, OR hold the plan in COUNSELOR context if PLAN.md is not used.
 
-7. **Hand off** — sprint execution begins normally. Role switch to SURGEON happens at ARCHITECT's command, not automatically.
+7. **Hand off** — sprint execution begins normally. No automatic role switch — COUNSELOR sees the sprint through, role change requires explicit ARCHITECT command.
 
 **JRENG law (HARD RULE):** every entry on the ledger goes into the next sprint scope. No severity triage. No "defer this one." Sequencing and ordering are ARCHITECT-chosen (or, when delegated, COUNSELOR-proposed as bounded options); **selection is never a question — all debts are paid, in full, cash.**
 

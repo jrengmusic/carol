@@ -13,6 +13,7 @@ import sys, json, time
 d = json.load(sys.stdin)
 cw = d.get('context_window', {}) or {}
 pct = int(cw.get('used_percentage', 0) or 0)
+total_tokens = int(cw.get('total_input_tokens', 0) or 0)
 model = (d.get('model', {}) or {}).get('display_name', '') or ''
 model = model.replace(' (1M context)', '').strip()
 agent = (d.get('agent', {}) or {}).get('name', '') or ''
@@ -33,6 +34,7 @@ def fmt(window):
 rl_pct, remaining = fmt('five_hour')
 wk_pct, wk_remaining = fmt('seven_day')
 print(pct)
+print(total_tokens)
 print(model)
 print(agent.upper())
 print(rl_pct)
@@ -42,14 +44,16 @@ print(wk_remaining)
 " <<< "$data" 2>/dev/null)
 
 pct=$(sed -n '1p' <<< "$parsed")
-model=$(sed -n '2p' <<< "$parsed")
-agent=$(sed -n '3p' <<< "$parsed")
-rl_pct=$(sed -n '4p' <<< "$parsed")
-rl_remaining=$(sed -n '5p' <<< "$parsed")
-wk_pct=$(sed -n '6p' <<< "$parsed")
-wk_remaining=$(sed -n '7p' <<< "$parsed")
+total_tokens=$(sed -n '2p' <<< "$parsed")
+model=$(sed -n '3p' <<< "$parsed")
+agent=$(sed -n '4p' <<< "$parsed")
+rl_pct=$(sed -n '5p' <<< "$parsed")
+rl_remaining=$(sed -n '6p' <<< "$parsed")
+wk_pct=$(sed -n '7p' <<< "$parsed")
+wk_remaining=$(sed -n '8p' <<< "$parsed")
 
 pct=${pct:-0}
+total_tokens=${total_tokens:-0}
 model=${model:-""}
 agent=${agent:-""}
 rl_pct=${rl_pct:-0}
@@ -57,10 +61,26 @@ rl_remaining=${rl_remaining:-""}
 wk_pct=${wk_pct:-0}
 wk_remaining=${wk_remaining:-""}
 
-# Scale to 0-80% range (CC compacts at ~80%, so 80% = full bar)
+# Per-provider overrides (set by provider's env block in settings.json)
+# divisor=0 → trust CC's used_percentage; >0 → recompute from total_input_tokens
+# fill_percent → bar full at this percent of window (manual-compact signal)
+divisor=${CAROL_CONTEXT_DIVISOR:-0}
+fill_percent=${CAROL_CONTEXT_FILL_PERCENT:-80}
+case "$divisor"      in ''|*[!0-9]*) divisor=0      ;; esac
+case "$fill_percent" in ''|*[!0-9]*) fill_percent=80 ;; esac
+
+# Recompute percentage from total_input_tokens when divisor override is set
+# (CC's used_percentage is computed against its catalog default; for 3rd-party
+# models with no catalog entry, the divisor must come from the provider)
+if [ "$divisor" -gt 0 ] && [ "$total_tokens" -gt 0 ]; then
+    pct=$((total_tokens * 100 / divisor))
+    [ "$pct" -gt 100 ] && pct=100
+fi
+
+# Scale to 0-fill_percent range (bar full at fill_percent, not at 100% usage)
 # Clamp at 100 to handle any edge cases
 [ "$pct" -gt 100 ] && pct=100
-scaled=$((pct * 100 / 80))
+scaled=$((pct * 100 / fill_percent))
 [ "$scaled" -gt 100 ] && scaled=100
 
 # Palette from StyleSheet.xml
@@ -106,7 +126,6 @@ if [ -n "$agent" ]; then
     case "$agent" in
         ORACLE)       role_bg="\033[48;2;217;119;41m\033[38;2;9;13;18m" ;;  # oracle orange bg, bunker fg
         COUNSELOR)    role_bg="\033[48;2;0;200;216m\033[38;2;9;13;18m" ;;   # blueBikini bg, bunker fg
-        SURGEON)      role_bg="\033[48;2;252;112;76m\033[38;2;9;13;18m" ;;  # preciousPersimmon bg, bunker fg
         MACHINIST)    role_bg="\033[48;2;160;160;160m\033[38;2;9;13;18m" ;;  # grey bg, bunker fg
         *)            role_bg="\033[48;2;78;140;147m\033[38;2;9;13;18m" ;;  # paradiso bg, bunker fg
     esac
