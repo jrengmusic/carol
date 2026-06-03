@@ -922,14 +922,14 @@ cmd_run() {
 cmd_provider() {
     local provider="$1"
     local settings_src="$CAROL_ROOT/providers/${provider}.settings.json"
-    local settings_dst="$HOME/.claude/settings.json"
+    local settings_dst="$HOME/.config/claude/settings.json"
 
     if [ ! -f "$settings_src" ]; then
         printf 'carol: no settings file for provider "%s" at %s\n' "$provider" "$settings_src" >&2
         exit 1
     fi
 
-    cp "$settings_src" "$settings_dst"
+    ln -sf "$settings_src" "$settings_dst"
     printf 'provider: %s — restart Claude Code to activate\n' "$provider"
 }
 
