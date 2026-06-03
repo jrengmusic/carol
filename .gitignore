@@ -25,4 +25,7 @@ Thumbs.db
 # Don't ignore templates (they should be tracked)
 !/templates/
 
+# Provider settings contain API tokens — never tracked
+providers/*.settings.json
+
 
