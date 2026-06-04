@@ -21,3 +21,7 @@ Rules:
 - ALWAYS respect PROJECT DECISIONS (SPEC.md, PLAN.md, ARCHITECTURE.md).
 
 Read all three CONTRACT documents now. Then proceed with execution against the always-on CONTRACT.
+
+## Plan Tracking
+
+Locate the active plan; `TaskCreate` one task per step. Source priority: `PLAN.md` / `PLAN-*.md` at project root → agreement-based plan held in context (verbal with ARCHITECT this session, or `/pay` brief) → none (proceed without task list). Track via `TaskList` / `TaskOutput`. `TaskCreate` for mid-sprint additions. Never silently expand or drop tasks.
