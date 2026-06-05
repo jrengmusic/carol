@@ -9,7 +9,7 @@ carol_version=${carol_version:-"?"}
 
 # Parse context %, model name, agent role, and rate limit
 parsed=$(python3 -c "
-import sys, json, time
+import sys, json, time, os
 d = json.load(sys.stdin)
 cw = d.get('context_window', {}) or {}
 pct = int(cw.get('used_percentage', 0) or 0)
@@ -18,6 +18,10 @@ model = (d.get('model', {}) or {}).get('display_name', '') or ''
 model = model.replace(' (1M context)', '').strip()
 agent = (d.get('agent', {}) or {}).get('name', '') or ''
 rls = d.get('rate_limits', {}) or {}
+divisor = int(os.environ.get('CAROL_CONTEXT_DIVISOR', '0') or 0)
+fill_percent = int(os.environ.get('CAROL_CONTEXT_FILL_PERCENT', '80') or 80) or 80
+pct_f = min(total_tokens * 100.0 / divisor, 100.0) if divisor > 0 and total_tokens > 0 else float(min(pct, 100))
+scaled = min(int(round(pct_f * 100.0 / fill_percent)), 100)
 def fmt(window):
     w = rls.get(window, {}) or {}
     p = int(w.get('used_percentage', 0) or 0)
@@ -41,6 +45,7 @@ print(rl_pct)
 print(remaining)
 print(wk_pct)
 print(wk_remaining)
+print(scaled)
 " <<< "$data" 2>/dev/null)
 
 pct=$(sed -n '1p' <<< "$parsed")
@@ -51,6 +56,7 @@ rl_pct=$(sed -n '5p' <<< "$parsed")
 rl_remaining=$(sed -n '6p' <<< "$parsed")
 wk_pct=$(sed -n '7p' <<< "$parsed")
 wk_remaining=$(sed -n '8p' <<< "$parsed")
+scaled=$(sed -n '9p' <<< "$parsed")
 
 pct=${pct:-0}
 total_tokens=${total_tokens:-0}
@@ -60,28 +66,7 @@ rl_pct=${rl_pct:-0}
 rl_remaining=${rl_remaining:-""}
 wk_pct=${wk_pct:-0}
 wk_remaining=${wk_remaining:-""}
-
-# Per-provider overrides (set by provider's env block in settings.json)
-# divisor=0 → trust CC's used_percentage; >0 → recompute from total_input_tokens
-# fill_percent → bar full at this percent of window (manual-compact signal)
-divisor=${CAROL_CONTEXT_DIVISOR:-0}
-fill_percent=${CAROL_CONTEXT_FILL_PERCENT:-80}
-case "$divisor"      in ''|*[!0-9]*) divisor=0      ;; esac
-case "$fill_percent" in ''|*[!0-9]*) fill_percent=80 ;; esac
-
-# Recompute percentage from total_input_tokens when divisor override is set
-# (CC's used_percentage is computed against its catalog default; for 3rd-party
-# models with no catalog entry, the divisor must come from the provider)
-if [ "$divisor" -gt 0 ] && [ "$total_tokens" -gt 0 ]; then
-    pct=$((total_tokens * 100 / divisor))
-    [ "$pct" -gt 100 ] && pct=100
-fi
-
-# Scale to 0-fill_percent range (bar full at fill_percent, not at 100% usage)
-# Clamp at 100 to handle any edge cases
-[ "$pct" -gt 100 ] && pct=100
-scaled=$((pct * 100 / fill_percent))
-[ "$scaled" -gt 100 ] && scaled=100
+scaled=${scaled:-0}
 
 # Palette from StyleSheet.xml
 reset="\033[0m"
