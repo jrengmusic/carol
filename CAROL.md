@@ -536,14 +536,14 @@ Order of operations:
 3. Fall back to Grep/Glob only if the symbol is absent from the index
 
 Library doxygen locations:
-- JAM: `~/Documents/Poems/dev/jam/doxygen/xml/index.xml`
-- KANJUT: `~/Documents/Poems/kuassa/___lib___/doxygen/xml/index.xml`
-- CIUM: `~/Documents/Poems/iqala/___cium___/doxygen/xml/index.xml`
-- JUCE: `~/Documents/Poems/JUCE-docs/doxygen/xml/index.xml`
+- JAM: `~/Documents/Poems/dev/jam/docs/xml/index.xml`
+- KANJUT: `~/Documents/Poems/kuassa/___lib___/docs/xml/index.xml`
+- CIUM: `~/Documents/Poems/iqala/___cium___/docs/xml/index.xml`
+- JUCE: `~/Documents/Poems/JUCE/docs/xml/index.xml`
 
 Project doxygen: `{project_root}/doxygen/xml/index.xml`
 
-Regen library doxygen: `cd {library}/doxygen && doxygen Doxyfile`
+Regen library doxygen: `<leader>bd` in nvim (unified template, all libs identical)
 Regen project doxygen: `ninja doxygen` (requires `include(BuildDoxygen)` in project CMakeLists.txt)
 
 ---

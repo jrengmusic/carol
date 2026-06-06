@@ -185,7 +185,7 @@ auto w = "Hello " + w;           // Use implicit conversion
 - **Classes:** `MyClassName` (PascalCase)
 - **Use descriptive names,** not type-based names
 - **Avoid `JUCE_` prefix** (reserved for JUCE library)
-- **Enums:** Use `enum class`
+- **Enums:** Prefer `enum class`; plain `enum` permitted when required
 ```cpp
 enum class MyEnum
 {
@@ -729,7 +729,7 @@ tag scope. Write inline docs instead.
 ✓ Pre-increment in loops
 ✓ No `else` after `return`
 ✓ Narrow pointer scope with if-init
-✓ `enum class` over plain `enum`
+✓ Prefer `enum class` over plain `enum` when applicable
 ✓ `explicit` single-arg constructors
 ✓ Pass small types by value
 ✓ Use `std::` math functions
