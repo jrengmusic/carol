@@ -792,6 +792,7 @@ _launch_machinist() {
     echo -e "${GREY}✓ v${VERSION} MACHINIST mode — machine custodian${NC}"
     echo ""
 
+    export CAROL_ROLE=MACHINIST
     exec claude \
         --plugin-dir "$CAROL_ROOT" \
         --add-dir "$CAROL_ROOT" \
@@ -869,6 +870,7 @@ cmd_run() {
         else
             show_banner
         fi
+        export CAROL_ROLE="${requested_role:-COUNSELOR}"
         exec claude "${claude_args[@]}"
     fi
 
@@ -878,6 +880,7 @@ cmd_run() {
         requested_role="COUNSELOR"
         claude_args+=(--agent COUNSELOR)
     fi
+    export CAROL_ROLE="$requested_role"
 
     # Project roles (ORACLE, COUNSELOR): need project context
     if ! $in_project; then
