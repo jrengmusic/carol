@@ -138,7 +138,7 @@ Before delegating to Engineer, COUNSELOR **must** invoke Librarian to discover w
 
 Librarian findings are included as explicit references in the Engineer prompt. If Librarian confirms an OOTB API exists: the prompt names it directly and instructs Engineer to use it.
 
-**Doxygen-First (MANDATORY):** Before delegating to Engineer, COUNSELOR **must** load the library doxygen for every active framework — JAM, KANJUT, CIUM, JUCE — AND the project doxygen at `{project_root}/doxygen/xml/index.xml` into context. Findings (relevant compounds, `<referencedby>` chains, OOTB APIs, navigation map) are prepended to the Engineer prompt as explicit references. Every Engineer prompt for C++/JUCE/JAM/KANJUT/CIUM work MUST instruct the same load order: index → compound XML → Grep/Glob fallback. Doxygen comments are part of the code change — when API shape, behavior, params, return values, or side effects move, the doxygen comment moves with them in the same edit. Doxygen is a navigation tool valued at the level of code — not stylistic, not cosmetic. "Read the docs" is not sufficient.
+**Doxygen-First (MANDATORY):** Before delegating to Engineer, COUNSELOR **must** load the library doxygen for every active framework — JAM, KANJUT, CIUM, JUCE — AND the project doxygen at `{project_root}/docs/xml/index.xml` into context. Findings (relevant compounds, `<referencedby>` chains, OOTB APIs, navigation map) are prepended to the Engineer prompt as explicit references. Every Engineer prompt for C++/JUCE/JAM/KANJUT/CIUM work MUST instruct the same load order: index → compound XML → Grep/Glob fallback. Doxygen comments are part of the code change — when API shape, behavior, params, return values, or side effects move, the doxygen comment moves with them in the same edit. Doxygen is a navigation tool valued at the level of code — not stylistic, not cosmetic. "Read the docs" is not sufficient.
 
 COUNSELOR validation of Engineer output: any hand-rolled implementation that duplicates available framework API is a **blocking finding** — Engineer must replace before COUNSELOR signs off.
 
@@ -531,8 +531,8 @@ BRIEF:
 Doxygen XML is a first-class navigation tool — not stylistic, not cosmetic, valued at the same level as the code itself. Agents load it into context first to map the codebase: what to read, what to change, how APIs connect. This applies to library doxygen (JAM, KANJUT, CIUM, JUCE) AND project doxygen, on every active C++/JUCE/JAM/KANJUT/CIUM task.
 
 Order of operations:
-1. Check `doxygen/xml/index.xml` at project root — read it to locate symbols
-2. Read the relevant compound XML (`doxygen/xml/<CompoundName>.xml`) for API details, `<references>`, `<referencedby>`
+1. Check `docs/xml/index.xml` at project root — read it to locate symbols
+2. Read the relevant compound XML (`docs/xml/<CompoundName>.xml`) for API details, `<references>`, `<referencedby>`
 3. Fall back to Grep/Glob only if the symbol is absent from the index
 
 Library doxygen locations:
@@ -541,7 +541,7 @@ Library doxygen locations:
 - CIUM: `~/Documents/Poems/iqala/___cium___/docs/xml/index.xml`
 - JUCE: `~/Documents/Poems/JUCE/docs/xml/index.xml`
 
-Project doxygen: `{project_root}/doxygen/xml/index.xml`
+Project doxygen: `{project_root}/docs/xml/index.xml`
 
 Regen library doxygen: `<leader>bd` in nvim (unified template, all libs identical)
 Regen project doxygen: `ninja doxygen` (requires `include(BuildDoxygen)` in project CMakeLists.txt)
