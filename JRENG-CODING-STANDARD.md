@@ -194,6 +194,16 @@ enum class MyEnum
 };
 ```
 - **Template parameters:** Use descriptive names, not `T`
+- **No underscores in any variable name.** This includes trailing-underscore constructor
+  parameters in member initializer lists. Use a distinct camelCase name.
+
+```cpp
+// WRONG
+class Object (int parameter_) : parameter (parameter_) {}
+
+// CORRECT
+class Object (int newParameter) : parameter (newParameter) {}
+```
 
 ---
 
@@ -674,6 +684,26 @@ bool someCondition = false;           // Clear: bool
 
 ---
 
+## STRUCTURED BINDINGS
+
+Never access pair results via `.first` / `.second` at any level — including dereferenced
+map iterators. Chain structured bindings all the way through.
+All binding names must be descriptive. `_` and `it` are forbidden.
+
+```cpp
+// WRONG
+validators.try_emplace (treeType).first->second.insert_or_assign (...);
+auto [it, _] = validators.try_emplace (treeType);  // it and _ forbidden
+it->second.insert_or_assign (...);
+
+// CORRECT
+auto [treeEntry, inserted] = validators.try_emplace (treeType);
+auto& [treeKey, treeValidators] = *treeEntry;
+treeValidators.insert_or_assign (propertyName, std::move (validator));
+```
+
+---
+
 ## CRITICAL RULES (MANDATORY)
 
 - **Aggregate (brace) initialization is ALWAYS preferred** over copy assignment: `int x { 0 };` not `int x = 0;`
@@ -683,6 +713,8 @@ bool someCondition = false;           // Clear: bool
 - **Use C++ alternative tokens:** `not`, `and`, `or` — NEVER `!`, `&&`, `||`
 - **NO anonymous namespaces.** Use `static` linkage for translation-unit-local symbols.
 - **NO `namespace detail` (or equivalent implementation-hiding namespaces).** Use class `private:`, separate `.cpp` with `static`, or PIMPL.
+- **No underscores in any variable name** — including trailing-underscore constructor parameters.
+- **Structured bindings for all pair/tuple results** — chain through dereferences, all names descriptive, `_` and `it` forbidden.
 
 ---
 
@@ -740,6 +772,8 @@ tag scope. Write inline docs instead.
 ✓ **NO anonymous namespaces** — use `static` linkage instead
 ✓ **NO `namespace detail`** — use class `private:`, static file-local symbols, or PIMPL
 ✓ **Doxygen:** zero warnings, header-only docs, @param matches signature, escaped markup, no @copydoc to external targets
+✓ **No underscores in variable names** — including constructor parameter names in member initializer lists
+✓ **Structured bindings for pair/tuple results** — chain through dereferences, all names descriptive, `_` and `it` forbidden
 
 ---
 
