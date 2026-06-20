@@ -325,3 +325,17 @@ bool isPresetDirty() const noexcept;
 bool isEvaluating() const noexcept;
 bool shouldPromptLicense() const noexcept;
 ```
+
+---
+
+## Rule 6 — Forbidden Terms
+
+Certain names are banned because they are vague, borrowed from the wrong domain,
+or carry no semantic content. Use the exact semantic purpose instead.
+
+| Banned | Use instead | Rationale |
+|--------|-------------|-----------|
+| `graft` | `attach` | Botanical metaphor — not a software concept |
+| `node` | the actual tree type name | Exposes implementation detail, not domain meaning |
+| `seed` | *(banned outright)* | No defined meaning in this codebase |
+| `handler` | `callbacks`, `events`, `parameters`, or the exact dispatch purpose | Says nothing about *what* is handled — name the contract, not the mechanism |
