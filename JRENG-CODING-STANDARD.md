@@ -284,6 +284,25 @@ zeromem (&s, sizeof (s));  // Last resort
 memset (&s, 0, sizeof (s)) // AVOID
 ```
 
+**Never manually manage RAII objects:**
+```cpp
+// ALL WRONG — RAII objects self-destruct, any manual cleanup in a
+// destructor is cargo-cult code
+~MyClass()
+{
+    someObject.reset();     // unique_ptr — redundant
+    someObject = nullptr;   // same as reset()
+    someMap.clear();        // container — redundant
+    someStream.close();     // stream — redundant
+}
+
+// CORRECT
+~MyClass() = default;
+```
+
+RAII is unconditional. The object's own destructor is the cleanup. Manual
+intervention signals distrust of the type system and pollutes the codebase.
+
 ---
 
 ## OWNERSHIP
@@ -293,6 +312,26 @@ memset (&s, 0, sizeof (s)) // AVOID
 **Smart pointers:**
 - Prefer `std::unique_ptr` over `juce::ScopedPointer` (newer code)
 - JUCE codebase may still use `juce::ScopedPointer` (legacy)
+
+**No non-owning naked pointers as members:**
+```cpp
+// WRONG — raw pointer to sibling or parent object
+class Editor
+{
+    Processor* processor;  // non-owning, lifetime untracked, unenforceable
+};
+
+// CORRECT — inject at the call site, never store
+void Editor::update (Processor& processor)
+{
+    processor.doSomething();
+}
+```
+
+Non-owning naked pointers stored as members are a lifetime contract written in
+invisible ink. Ownership is not modeled, lifetime is not enforced, and the
+compiler cannot help. Redesign so the dependency is passed at the call site
+and never stored.
 
 ---
 
@@ -337,6 +376,18 @@ JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyClass)
 **Constructors:**
 - Mark single-argument constructors `explicit` unless implicit conversion is intended
 - Consider what implicit conversions you allow
+
+**No `friend` declarations:**
+```cpp
+// WRONG — exposes all private members, signals broken API boundary
+class Processor
+{
+    friend class Editor;
+};
+```
+
+`friend` is encapsulation bypass. If class A needs class B's internals,
+redesign B's public API. `friend` is forbidden.
 
 ---
 
@@ -715,6 +766,9 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **NO `namespace detail` (or equivalent implementation-hiding namespaces).** Use class `private:`, separate `.cpp` with `static`, or PIMPL.
 - **No underscores in any variable name** — including trailing-underscore constructor parameters.
 - **Structured bindings for all pair/tuple results** — chain through dereferences, all names descriptive, `_` and `it` forbidden.
+- **Never manually manage RAII objects in destructors** — `.reset()`, `= nullptr`, `.clear()`, `.close()`, or any equivalent. RAII is not opt-in.
+- **No non-owning naked pointers as members.** Pass dependencies at the call site — never store them.
+- **No `friend` declarations.** Redesign the public API instead.
 
 ---
 
@@ -774,6 +828,9 @@ tag scope. Write inline docs instead.
 ✓ **Doxygen:** zero warnings, header-only docs, @param matches signature, escaped markup, no @copydoc to external targets
 ✓ **No underscores in variable names** — including constructor parameter names in member initializer lists
 ✓ **Structured bindings for pair/tuple results** — chain through dereferences, all names descriptive, `_` and `it` forbidden
+✓ **No manual management of RAII objects in destructors** — `.reset()`, `= nullptr`, `.clear()`, `.close()`, or any equivalent
+✓ **No non-owning naked pointers as members** — inject at call site, never store
+✓ **No `friend` declarations** — redesign the public API
 
 ---
 
