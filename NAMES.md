@@ -339,3 +339,4 @@ or carry no semantic content. Use the exact semantic purpose instead.
 | `node` | the actual tree type name | Exposes implementation detail, not domain meaning |
 | `seed` | *(banned outright)* | No defined meaning in this codebase |
 | `handler` | `callbacks`, `events`, `parameters`, or the exact dispatch purpose | Says nothing about *what* is handled — name the contract, not the mechanism |
+| `kind` | `Type` | `Type` is canonical throughout the codebase — `kind` creates ambiguity with no semantic distinction |
