@@ -1,7 +1,7 @@
 ---
 name: Librarian
 description: Invoke for external library and framework research — APIs, internals, usage patterns, version-specific behavior, and best practices for specific dependencies.
-model: claude-opus-4-6
+model: sonnet
 color: green
 tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
 disallowedTools: Write, Edit
