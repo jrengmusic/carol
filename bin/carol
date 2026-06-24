@@ -323,9 +323,6 @@ cmd_init() {
 
     customize_templates "$project_path"
 
-    # Protocol auto-load: symlink CAROL.md as CLAUDE.md at project root
-    ln -sf "$CAROL_ROOT/CAROL.md" CLAUDE.md
-
     setup_global_permissions
     ensure_marketplace_added
     setup_statusline
@@ -350,11 +347,33 @@ cmd_update() {
     if [ -d "carol" ] || [ -d ".carol" ]; then
         info "Refreshing symlinks..."
         symlink_carol_assets
-        ln -sf "$CAROL_ROOT/CAROL.md" CLAUDE.md
         setup_statusline
     fi
 
     success "Update complete (v$VERSION)"
+}
+
+cmd_install() {
+    local claude_config="$HOME/.config/claude"
+    local global_claude_md="$claude_config/CLAUDE.md"
+    local harness_claude_md="$HOME/.claude/CLAUDE.md"
+
+    show_banner
+
+    if [ ! -f "$CAROL_ROOT/ARCHITECT.md" ]; then
+        error "~/.carol/ARCHITECT.md not found — create the ARCHITECT profile first"
+    fi
+
+    mkdir -p "$claude_config"
+    printf '@~/.carol/CAROL.md\n@~/.carol/ARCHITECT.md\n' > "$global_claude_md"
+    success "Global CLAUDE.md loader written (~/.config/claude/CLAUDE.md)"
+
+    mkdir -p "$HOME/.claude"
+    rm -f "$harness_claude_md"
+    ln -s "$global_claude_md" "$harness_claude_md"
+    success "~/.claude/CLAUDE.md → ~/.config/claude/CLAUDE.md"
+
+    success "Install complete"
 }
 
 cmd_version() {
@@ -416,6 +435,7 @@ cmd_help() {
     echo "  carol <command> [options]"
     echo ""
     echo -e "${MAGENTA}Commands:${NC}"
+    echo -e "  ${YELLOW}install${NC}        Set up global CLAUDE.md loader and ~/.claude symlink (run once per machine)"
     echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (plugin mode)"
     echo -e "  ${YELLOW}oracle${NC} [name]       Launch ORACLE session (research, RFC, analysis)"
     echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
@@ -941,6 +961,9 @@ case "${1:-run}" in
     init)
         shift
         cmd_init "$@"
+        ;;
+    install)
+        cmd_install
         ;;
     reset)
         cmd_reset

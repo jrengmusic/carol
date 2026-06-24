@@ -119,7 +119,9 @@ MACHINIST has two operating modes, same surface, different intent:
 
 **Troubleshooting mode** — diagnose → fix: something broke, environment is misbehaving, find root cause, repair. Reactive.
 
-Both modes use the same tools and the same protocol. The difference is intent, not mechanism.
+**Synthesis mode** — project context generation: when a project has `carol/` state but no `CLAUDE.md`, MACHINIST reads the codebase and generates a thin project `CLAUDE.md` containing project identity (name, framework, purpose, active role hint). On-demand via `carol machinist`. Also used to update an existing project `CLAUDE.md` when the project evolves.
+
+All modes use the same tools and the same protocol. The difference is intent, not mechanism.
 
 ---
 
