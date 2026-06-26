@@ -256,6 +256,42 @@ customize_templates() {
     fi
 }
 
+synth_claude_md() {
+    local project_path="$1"
+    local claude_md="$project_path/CLAUDE.md"
+    local synth_mode="new"
+
+    # Symlink → remove and treat as new
+    if [ -L "$claude_md" ]; then
+        rm -f "$claude_md"
+        synth_mode="replace"
+    elif [ -f "$claude_md" ]; then
+        # Full CAROL.md copy starts with "# CAROL"
+        if head -1 "$claude_md" | grep -q "^# CAROL"; then
+            synth_mode="replace"
+        else
+            synth_mode="update"
+        fi
+    fi
+
+    local instruction
+    if [ "$synth_mode" = "update" ]; then
+        instruction="MACHINIST synthesis — update check. Read CLAUDE.md, carol/SPRINT-LOG.md, and DEBT.md. If sprint state or active debt has drifted from what CLAUDE.md contains, update CLAUDE.md in place. If already current, do nothing."
+    else
+        instruction="MACHINIST synthesis — write. Read: CMakeLists.txt, ARCHITECTURE.md, SPEC.md, carol/SPRINT-LOG.md, DEBT.md (all if present). Write a thin project CLAUDE.md per MACHINIST synthesis protocol: project identity (name, type, stack, root, version), current state (last sprint, active ODE if present, active debt), layer order and key source dirs, key docs table, doxygen locations (project + active libs only — exclude unused frameworks), build note."
+    fi
+
+    info "Synthesizing CLAUDE.md ($synth_mode)..."
+    if claude -p \
+        --dangerously-skip-permissions \
+        --append-system-prompt-file "$CAROL_ROOT/CAROL.md" \
+        "$instruction"; then
+        success "CLAUDE.md synthesized"
+    else
+        echo -e "${RED}✗ CLAUDE.md synthesis failed — check claude availability${NC}" >&2
+    fi
+}
+
 cmd_init() {
     local project_path="."
 
@@ -327,6 +363,8 @@ cmd_init() {
     ensure_marketplace_added
     setup_statusline
 
+    synth_claude_md "$project_path"
+
     show_banner
     echo -e "${GREY}✓ v${VERSION} System initiated (plugin mode).${NC}"
     echo ""
@@ -348,6 +386,7 @@ cmd_update() {
         info "Refreshing symlinks..."
         symlink_carol_assets
         setup_statusline
+        synth_claude_md "$(pwd)"
     fi
 
     success "Update complete (v$VERSION)"
