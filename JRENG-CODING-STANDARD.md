@@ -769,6 +769,7 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **Never manually manage RAII objects in destructors** — `.reset()`, `= nullptr`, `.clear()`, `.close()`, or any equivalent. RAII is not opt-in.
 - **No non-owning naked pointers as members.** Pass dependencies at the call site — never store them.
 - **No `friend` declarations.** Redesign the public API instead.
+- **No `DBG` for diagnostics** — use `debug::Log` exclusively. `DBG` is forbidden.
 
 ---
 
@@ -797,6 +798,16 @@ must use `@code` / `@endcode`, not triple backticks.
 Do not use `@copydoc`, `@copybrief`, or `@copydetails` referencing
 JUCE or other external library symbols — they are not in the doxygen
 tag scope. Write inline docs instead.
+
+---
+
+## DIAGNOSTICS (MANDATORY)
+
+**`DBG` is forbidden** for diagnostic instrumentation — it is a JUCE macro that bypasses the structured log channel and leaves no file-based trace.
+
+**Use `debug::Log` exclusively** — each framework provides it in its own namespace.
+
+Diagnostic instrumentation is ephemeral — all log statements added during investigation are removed within the same sprint. See ODE.md §VI.
 
 ---
 
@@ -831,6 +842,7 @@ tag scope. Write inline docs instead.
 ✓ **No manual management of RAII objects in destructors** — `.reset()`, `= nullptr`, `.clear()`, `.close()`, or any equivalent
 ✓ **No non-owning naked pointers as members** — inject at call site, never store
 ✓ **No `friend` declarations** — redesign the public API
+✓ **No `DBG`** — use `debug::Log` exclusively for diagnostic instrumentation
 
 ---
 

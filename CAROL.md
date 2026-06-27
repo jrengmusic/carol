@@ -400,6 +400,7 @@ Regen library: `<leader>bd` in nvim. Regen project: `ninja doxygen`.
 - No improvised names — new names are decisions (Decision Gate applies). Propose to ARCHITECT before introducing. NAMES.md is the naming contract.
 - No unnecessary helpers, no excessive getters. If every private field needs a getter, the design is wrong.
 - Follow MANIFESTO.md (BLESSED principles).
+- No `DBG` for diagnostics — use `debug::Log` exclusively (each framework's own namespace).
 - Objects stay dumb — communicate via API (Explicit Encapsulation).
 
 ---
@@ -490,7 +491,7 @@ Invoked by ARCHITECT when session is stuck and problem framing is wrong. CAROL s
 
 CAROL elicits missing dimensions if partial. When all three surfaced: synthesize the gap, propose the actual question the session should be answering, ask ARCHITECT to confirm before resuming.
 
-**Investigation (MANDATORY after synthesis):** instrument implicated call sites with codebase's native logging primitive. Emit diagnostics to ephemeral log at project root. Read log, iterate, find solution grounded in runtime evidence. All diagnostic logging removed within same sprint. Full protocol in ODE.md §VI.
+**Investigation (MANDATORY after synthesis):** instrument implicated call sites with `debug::Log` (`DBG` is forbidden). Emit diagnostics to ephemeral log at project root. Read log, iterate, find solution grounded in runtime evidence. All diagnostic logging removed within same sprint. Full protocol in ODE.md §VI.
 
 **Context hygiene:** After ODE, discard/compress all prior context that does not survive the gap articulation. Only signal stays.
 

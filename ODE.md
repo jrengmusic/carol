@@ -147,7 +147,7 @@ After O/D/E are surfaced and the gap is named, CAROL enters investigation mode. 
 
 ### The method: ephemeral diagnostic logging
 
-1. **Instrument call sites** — add diagnostic log statements at the code locations implicated by the Divergence. Use the codebase's native logging primitive (`juce::Logger`, `std::cout`, `printf`, `fmt::print`, `log.Printf` — whatever is already in use). Never introduce a new logging framework for this.
+1. **Instrument call sites** — add diagnostic log statements at the code locations implicated by the Divergence. Use `debug::Log` exclusively — each framework provides it in its own namespace. `DBG` is forbidden — it bypasses the structured log channel and leaves no file-based trace.
 2. **Run the code** — diagnostics emit to an ephemeral log file at project root.
 3. **Read the log** — runtime evidence grounds the investigation. Written diagnostics override in-context recall and model intuition.
 4. **Iterate** — add or remove log points based on what the log reveals. This is a trace, not guesswork.
