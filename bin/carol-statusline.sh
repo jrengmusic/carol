@@ -2,6 +2,7 @@
 # CAROL Context Rot Meter — Claude Code status line
 
 data=$(cat)
+printf "%s" "$data" > /Users/jreng/.gemini/antigravity-cli/scratch/statusline_input.json
 
 # CAROL version from SSOT (/VERSION file at repo root)
 carol_version=$(tr -d '[:space:]' < "$(dirname "$0")/../VERSION" 2>/dev/null)
@@ -17,6 +18,16 @@ total_tokens = int(cw.get('total_input_tokens', 0) or 0)
 model = (d.get('model', {}) or {}).get('display_name', '') or ''
 model = model.replace(' (1M context)', '').strip()
 agent = (d.get('agent', {}) or {}).get('name', '') or ''
+if not agent:
+    agent = os.environ.get('CAROL_ROLE', '')
+    if not agent:
+        try:
+            with open('/Users/jreng/.carol/.carol-role', 'r') as rf:
+                agent = rf.read().strip()
+        except Exception:
+            pass
+    if not agent:
+        agent = 'COUNSELOR'
 rls = d.get('rate_limits', {}) or {}
 divisor = int(os.environ.get('CAROL_CONTEXT_DIVISOR', '0') or 0)
 fill_percent = int(os.environ.get('CAROL_CONTEXT_FILL_PERCENT', '80') or 80) or 80
