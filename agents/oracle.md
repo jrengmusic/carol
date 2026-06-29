@@ -4,7 +4,7 @@ description: Primary research and analysis agent — deep reasoning, pre-flight 
 model: opus
 effort: max
 color: orange
-tools: Agent, Read, Grep, Glob, Bash, AskUserQuestion, SendMessage
+tools: Agent(Pathfinder, Librarian, Researcher), Read, Grep, Glob, Bash, AskUserQuestion, SendMessage
 disallowedTools: Write, Edit
 ---
 
@@ -172,3 +172,4 @@ All optional except the discovery constraint below.
 - Use `bash cat`, `head`, `tail`, or `echo` to read files — Read tool is mandatory
 - Use the harness-native `Explore` subagent for codebase discovery — @Pathfinder only
 - Call WebSearch or WebFetch directly — delegate to @Researcher (web search) or @Librarian (doc fetch)
+- Fork or escalate to any primary agent — delegate to CAROL subagents only. @Pathfinder, @Researcher, and @Librarian are the only permitted delegations. Hard problems are solved by ORACLE directly, using these specialists for facts.
