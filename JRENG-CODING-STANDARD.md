@@ -391,6 +391,90 @@ redesign B's public API. `friend` is forbidden.
 
 ---
 
+## STRUCT DISCIPLINE (MANDATORY)
+
+### No local struct definitions inside function bodies
+
+```cpp
+// WRONG — struct deferred to point of use, logic drives type definition
+void renderGlyphs (...)
+{
+    struct GlyphQuad { float x, y, w, h; /* ... */ };
+    std::vector<GlyphQuad> quads;
+    // ...
+}
+
+// CORRECT — struct declared at class scope or dedicated header before use
+void renderGlyphs (...)
+{
+    std::vector<GlyphQuad> quads;
+    // ...
+}
+```
+
+A struct defined inside a function body is evidence that data design was deferred to the moment of use. Data structures dictate business logic — not the reverse. A locally-scoped struct cannot be shared across call sites, tested independently, or evolved without touching the function. It is a workaround with a type name.
+
+**Rule:** All `struct` and `class` definitions belong at class scope, file-local (`static`) scope, or a dedicated header. No struct definitions inside function or method bodies.
+
+---
+
+### No near-duplicate struct proliferation
+
+```cpp
+// WRONG — identical layout, two names
+struct GlyphFrameVB
+{
+    VkBuffer vertexBuffer { VK_NULL_HANDLE };
+    VmaAllocation vertexAlloc { VK_NULL_HANDLE };
+    void* vertexMapped { nullptr };
+    VkBuffer indexBuffer { VK_NULL_HANDLE };
+    VmaAllocation indexAlloc { VK_NULL_HANDLE };
+    void* indexMapped { nullptr };
+    int usedVertices { 0 };
+    int usedIndices { 0 };
+    int capacityVertices { 0 };
+    int capacityIndices { 0 };
+};
+
+struct PathFrameVB   // identical layout — forbidden
+{
+    VkBuffer vertexBuffer { VK_NULL_HANDLE };
+    VmaAllocation vertexAlloc { VK_NULL_HANDLE };
+    void* vertexMapped { nullptr };
+    VkBuffer indexBuffer { VK_NULL_HANDLE };
+    VmaAllocation indexAlloc { VK_NULL_HANDLE };
+    void* indexMapped { nullptr };
+    int usedVertices { 0 };
+    int usedIndices { 0 };
+    int capacityVertices { 0 };
+    int capacityIndices { 0 };
+};
+
+// CORRECT — one type, two members
+struct FrameVB
+{
+    VkBuffer vertexBuffer { VK_NULL_HANDLE };
+    VmaAllocation vertexAlloc { VK_NULL_HANDLE };
+    void* vertexMapped { nullptr };
+    VkBuffer indexBuffer { VK_NULL_HANDLE };
+    VmaAllocation indexAlloc { VK_NULL_HANDLE };
+    void* indexMapped { nullptr };
+    int usedVertices { 0 };
+    int usedIndices { 0 };
+    int capacityVertices { 0 };
+    int capacityIndices { 0 };
+};
+
+FrameVB glyphVB;
+FrameVB pathVB;
+```
+
+Two structs sharing the same field layout are not two concepts — they are one concept with two owners. Each proliferated variant is a DRY violation and a SSOT violation. Bugs must be fixed N times; every new use-case adds variant N+1. If parameterization is needed, use a template. Never add a near-duplicate struct — design the type once, name it for the concept, reuse everywhere.
+
+**Rule:** If two or more structs share the same field layout pattern, they are the same type. Unify them. Never add a near-duplicate struct variant.
+
+---
+
 ## NAMESPACES
 
 **NO anonymous namespaces allowed:**
@@ -770,6 +854,8 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **No non-owning naked pointers as members.** Pass dependencies at the call site — never store them.
 - **No `friend` declarations.** Redesign the public API instead.
 - **No `DBG` for diagnostics** — use `debug::Log` exclusively. `DBG` is forbidden.
+- **No local struct definitions inside function bodies** — data structures are SSOT; define at class scope, file-local `static`, or a dedicated header — never inside a function.
+- **No near-duplicate struct proliferation** — identical or near-identical field layouts must be unified into one named type. DRY applies to type definitions.
 
 ---
 
@@ -843,6 +929,8 @@ Diagnostic instrumentation is ephemeral — all log statements added during inve
 ✓ **No non-owning naked pointers as members** — inject at call site, never store
 ✓ **No `friend` declarations** — redesign the public API
 ✓ **No `DBG`** — use `debug::Log` exclusively for diagnostic instrumentation
+✓ **No local struct definitions inside function bodies** — define at class scope, file-local `static`, or dedicated header
+✓ **No near-duplicate struct proliferation** — same field layout = same type; unify and reuse
 
 ---
 
