@@ -65,6 +65,8 @@ The 3-branch rule is the sharpest. A lookup is clearer in intent, O(1), and addi
 
 Lean is about **quantity**. Balanced decomposition — distributing responsibilities correctly — is how you achieve Lean. Descriptor holds data. Manager holds logic. View holds composition. You decompose to keep each piece within bounds.
 
+**File-size is a smell detector, not a portability constraint.** Splitting a file only to reduce a line count — with no reduction in responsibility — is wrong decomposition, not compliance. If a class has one responsibility and decomposing it would only relocate the same lines across more files, the split does not serve Lean; it defeats it. Some classes are legitimately large as a single unit when kept that way for portability or to avoid unnecessary compile-dependency surface — see LANGUAGE.md for per-language specifics.
+
 **YAGNI — You Ain't Gonna Need It.** Do not build for a future that has not arrived. Speculative abstractions, "just in case" parameters, and future-proofing layers all add lines, branches, and complexity before they deliver any value. The cost is immediate; the benefit is hypothetical. When the need arrives, it rarely matches what was predicted — the speculative code becomes dead weight or, worse, a design constraint that fights the real requirement.
 
 YAGNI is Lean's temporal dimension: 300/30/3 bounds what exists now. YAGNI bounds what gets created at all.

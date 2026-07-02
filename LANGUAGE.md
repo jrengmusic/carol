@@ -18,7 +18,23 @@ MANIFESTO.md defines BLESSED as a language-agnostic contract. This document defi
 
 ## C++ / JUCE
 
-**Reference implementation.** MANIFESTO.md was written for C++/JUCE. No overrides. All principles enforced as written.
+**Reference implementation.** MANIFESTO.md was written for C++/JUCE. All principles enforced as written, with one adaptation below.
+
+---
+
+### L — Lean (Adapted)
+
+MANIFESTO says: *300 lines per file — file is too large, too many responsibilities. Split the object.*
+
+**C++/JUCE override:** the 300-line threshold is a smell detector for responsibility count, not a portability constraint. C++'s compilation model makes translation-unit splits costly — each `.cpp` is a separate compile unit with its own include graph, and splitting a single-responsibility class into header+source purely to shrink line count adds compile-dependency surface without reducing responsibility.
+
+**C++/JUCE contracts:**
+- **Single header with inline implementation is the preferred default for implementations around ~300 LOC (excluding doxygen).** Header-only keeps the class portable — drop-in, no build-graph wiring — and keeps compile dependencies clean, with no forward-declaration/PIMPL ceremony for a single-responsibility class.
+- **Split into a translation unit (.cpp) only when necessary** — to break a real circular or heavy include dependency, to reduce recompilation cost imposed on other translation units that include the header, or when the class is genuinely decomposed into separate responsibilities (not just relocated lines).
+- **A class that unavoidably exceeds 300 LOC to remain a single header stays a single header.** If decomposition would not reduce responsibility count — only distribute the same responsibility across more files — the split is wrong decomposition, not compliance. Classes of 1000+ LOC as a single header are accepted when the class has one responsibility and splitting would only relocate, not reduce, that responsibility.
+- **The other two Lean thresholds (30 lines/function, 3 branches/switch) apply unchanged** — file-size accommodation never excuses a god-function or a decision table hiding in `if/else`.
+
+**Violation signature:** A `.cpp` file created only to shrink a header below 300 lines, with no independent responsibility. A new header holding ~60 lines with no reason to exist except the line count. A god-function or branch pyramid justified by "the file was already big."
 
 ---
 
