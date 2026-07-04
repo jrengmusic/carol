@@ -900,6 +900,7 @@ cmd_run() {
     local session_name=""
     local requested_role=""
     local is_resume=false
+    local skip_synth=0
 
     # Separate claude flags from session name
     while [ $# -gt 0 ]; do
@@ -922,6 +923,10 @@ cmd_run() {
             --model)
                 claude_args+=("$1" "$2")
                 shift 2
+                ;;
+            --no-synth)
+                skip_synth=1
+                shift
                 ;;
             --*)
                 claude_args+=("$1")
@@ -961,7 +966,7 @@ cmd_run() {
     if $is_resume; then
         if ! $in_project && ! $inside_carol_root; then
             info "No CAROL project here — initializing before resume..."
-            cmd_init
+            [ $skip_synth -eq 1 ] && cmd_init --no-synth || cmd_init
         else
             show_banner
         fi
@@ -980,7 +985,7 @@ cmd_run() {
     # Project roles (ORACLE, COUNSELOR): need project context
     if ! $in_project; then
         info "No CAROL project here — initializing..."
-        cmd_init
+        [ $skip_synth -eq 1 ] && cmd_init --no-synth || cmd_init
     else
         show_banner
     fi
