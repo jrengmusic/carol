@@ -78,6 +78,18 @@ version_greater_than() {
     [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" != "$1" ]
 }
 
+format_thousands() {
+    awk -v n="$1" 'BEGIN{
+        sign=""; if (n<0){sign="-"; n=-n}
+        s=sprintf("%d", n); len=length(s); result=""; count=0
+        for (i=len; i>=1; i--) {
+            result = substr(s,i,1) result; count++
+            if (count%3==0 && i!=1) result = "," result
+        }
+        print sign result
+    }'
+}
+
 
 CAROL_PERMISSIONS='{
   "permissions": {
@@ -481,6 +493,7 @@ cmd_help() {
     echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
     echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/clear)"
     echo -e "  ${YELLOW}ledger${NC}         Show DEBT.md ledger"
+    echo -e "  ${YELLOW}loc${NC} [days]      Show git line-change stats for last N days (default 7)"
     echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
     echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
     echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
@@ -808,6 +821,28 @@ cmd_ledger() {
     done < DEBT.md
 }
 
+cmd_loc() {
+    local days="${1:-7}"
+    [[ "$days" =~ ^[0-9]+$ ]] || error "Invalid day count: $days. Usage: carol loc [days]"
+    git rev-parse --is-inside-work-tree >/dev/null 2>&1 || error "Not inside a git repository"
+
+    local added=0 deleted=0
+    while IFS=$'\t' read -r a d _; do
+        [[ "$a" =~ ^[0-9]+$ ]] && added=$((added + a))
+        [[ "$d" =~ ^[0-9]+$ ]] && deleted=$((deleted + d))
+    done < <(git log --since="${days} days ago" --numstat --pretty=tformat:)
+
+    local net=$((added - deleted)) net_sign="+" net_abs=$((added - deleted))
+    [ "$net" -lt 0 ] && net_sign="-" && net_abs=$((-net))
+
+    echo ""
+    echo -e "${CYAN}Last ${days} day(s):${NC}"
+    echo -e "  - ${GREEN}+$(format_thousands "$added") additions${NC}"
+    echo -e "  - ${RED}−$(format_thousands "$deleted") deletions${NC}"
+    echo -e "  - Net: ${net_sign}$(format_thousands "$net_abs") lines"
+    echo ""
+}
+
 cmd_debt_clear() {
     local id="$1"
     [ -z "$id" ] && error "Usage: carol debt clear <DEBT-id>"
@@ -1041,6 +1076,10 @@ case "${1:-run}" in
         ;;
     ledger)
         cmd_ledger
+        ;;
+    loc)
+        shift
+        cmd_loc "$@"
         ;;
     sessions|list)
         cmd_sessions

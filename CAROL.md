@@ -1,7 +1,7 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.20
+**Version:** 0.0.21
 **Last Updated:** 28 Jun 2026
 
 ---
@@ -505,7 +505,7 @@ CAROL elicits missing dimensions if partial. When all three surfaced: synthesize
 
 ---
 
-**End of CAROL v0.0.20**
+**End of CAROL v0.0.21**
 
 Rock 'n Roll!
 **JRENG!**
