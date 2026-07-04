@@ -310,7 +310,7 @@ cmd_init() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --no-synth)
+            --no-synth|no-synth)
                 skip_synth=1
                 shift
                 ;;
@@ -924,7 +924,7 @@ cmd_run() {
                 claude_args+=("$1" "$2")
                 shift 2
                 ;;
-            --no-synth)
+            --no-synth|no-synth)
                 skip_synth=1
                 shift
                 ;;
