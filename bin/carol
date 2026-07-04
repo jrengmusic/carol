@@ -306,11 +306,12 @@ synth_claude_md() {
 
 cmd_init() {
     local project_path="."
+    local skip_synth=0
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --symlink|--portable)
-                notice "Note: $1 is deprecated in v0.0.9+ — CAROL is now a Claude Code plugin"
+            --no-synth)
+                skip_synth=1
                 shift
                 ;;
             -*)
@@ -375,7 +376,7 @@ cmd_init() {
     ensure_marketplace_added
     setup_statusline
 
-    synth_claude_md "$project_path"
+    [ $skip_synth -eq 0 ] && synth_claude_md "$project_path"
 
     show_banner
     echo -e "${GREY}✓ v${VERSION} System initiated (plugin mode).${NC}"
@@ -487,7 +488,7 @@ cmd_help() {
     echo ""
     echo -e "${MAGENTA}Commands:${NC}"
     echo -e "  ${YELLOW}install${NC}        Set up global CLAUDE.md loader and ~/.claude symlink (run once per machine)"
-    echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (plugin mode)"
+    echo -e "  ${YELLOW}init${NC} [--no-synth]  Initialize CAROL in current project (optionally skip CLAUDE.md synthesis)"
     echo -e "  ${YELLOW}oracle${NC} [name]       Launch ORACLE session (research, RFC, analysis)"
     echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
     echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
