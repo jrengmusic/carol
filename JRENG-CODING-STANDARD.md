@@ -856,6 +856,8 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **No `DBG` for diagnostics** — use `debug::Log` exclusively. `DBG` is forbidden.
 - **No local struct definitions inside function bodies** — data structures are SSOT; define at class scope, file-local `static`, or a dedicated header — never inside a function.
 - **No near-duplicate struct proliferation** — identical or near-identical field layouts must be unified into one named type. DRY applies to type definitions.
+- **Consume the event payload.** A listener that receives WHICH child/property changed and re-derives it by walking/diffing state is forbidden — react to exactly what the event delivered.
+- **No identifier latitude in delegation.** Agents introduce ZERO names not verbatim in their task prompt — a name missing from the prompt is an unratified decision, and the task output is rejected, not amended.
 
 ---
 
@@ -931,6 +933,8 @@ Diagnostic instrumentation is ephemeral — all log statements added during inve
 ✓ **No `DBG`** — use `debug::Log` exclusively for diagnostic instrumentation
 ✓ **No local struct definitions inside function bodies** — define at class scope, file-local `static`, or dedicated header
 ✓ **No near-duplicate struct proliferation** — same field layout = same type; unify and reuse
+✓ **Consume the event payload** — react to exactly what the event delivered, never re-derive by walking/diffing state
+✓ **No identifier latitude in delegation** — agents introduce zero names not verbatim in their task prompt; violation rejects the output, not amends it
 
 ---
 
