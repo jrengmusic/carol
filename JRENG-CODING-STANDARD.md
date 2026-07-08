@@ -122,6 +122,8 @@ auto t = AffineTransform::translation (x, y)
 
 **Prefer `//` over `/* */`** for easier block commenting during debugging.
 
+**Content boundary:** comments document the code's implementation only — never PLAN.md, RFC.md, ARCHITECT's direction, sprint/task/chat discussion, or agent names. A comment must stand alone as a description of what the code does and why, structurally.
+
 **Alignment:**
 ```cpp
 // CORRECT
@@ -862,6 +864,9 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 ---
 
 ## DOXYGEN DISCIPLINE (MANDATORY)
+
+### Timing
+Doxygen blocks are authored LAST — after implementation is tested and audited, immediately before sprint log. Not during implementation. Not incrementally per-edit.
 
 ### Zero-warning policy
 Doxygen must produce zero warnings. Warnings are treated as build failures.

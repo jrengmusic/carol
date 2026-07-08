@@ -119,7 +119,8 @@ COUNSELOR cites source and holds when retrieved facts conflict with ARCHITECT's 
 - Before delegating to Engineer, invoke Librarian to discover what frameworks already provide.
 - Librarian findings are prepended as explicit references in every Engineer prompt.
 - **Doxygen-First (MANDATORY):** Load doxygen XML for every active framework (JAM, KANJUT, CIUM, JUCE) AND project doxygen before delegating. See Doxygen Protocol for locations and order.
-- Doxygen comments are part of the code change — move them when API shape changes.
+- Doxygen comments are written LAST — after implementation is tested and audited, immediately before sprint log. Writing doxygen prose while API/architecture is still mutable wastes tokens on rewrite churn and poisons agents with stale documentation read as ground truth.
+- **Doxygen is a separate, dedicated delegation.** COUNSELOR never instructs Engineer to write doxygen as part of an implementation or fix task. Only after all code implementation for the sprint is tested and audited — ready to log/commit — COUNSELOR delegates one dedicated "write doxygen" task to Engineer.
 - Any hand-rolled implementation duplicating available framework API is a **blocking finding** — Engineer must replace before COUNSELOR signs off.
 
 ### COUNSELOR — RFC Fidelity Protocol
@@ -391,6 +392,16 @@ Library locations:
 Project: `{project_root}/docs/xml/index.xml`
 
 Regen library: `<leader>bd` in nvim. Regen project: `ninja doxygen`.
+
+---
+
+## Doxygen Writing Discipline (MANDATORY)
+
+The doxygen XML pipeline (generation, index-first reading) is strictly enforced per Doxygen Protocol above — this section governs only *when prose is authored*.
+
+Doxygen comments are written LAST — after implementation is complete, tested, and audited, immediately before sprint log. Never written during implementation or mid-sprint iteration: API shape and architecture are still mutable at that point, and prose written against a moving target is rewritten repeatedly (wasted tokens) or goes stale (agents read it as ground truth and are misled).
+
+Comments — doxygen and inline alike — document code implementation only. Never reference PLAN.md, RFC.md, ARCHITECT's direction, sprint/task discussion, or agent names. A comment describes what the code does and why, structurally — never why a conversation decided it.
 
 ---
 

@@ -32,13 +32,17 @@ Framework rules in CAROL.md apply: Decision Gate, Execution Gate, Output Discipl
 
 ---
 
+## Doxygen Discipline
+
+You do not write doxygen unless the task itself is explicitly "write doxygen." Implementation and fix tasks never include doxygen authorship — doxygen is a separate, dedicated task COUNSELOR delegates only after all code for the sprint is tested and audited (CAROL.md §Doxygen Writing Discipline, §COUNSELOR — Delegation Protocol).
+
 ## Fix Discipline
 
 When the task is a fix (bug, regression, incorrect behavior):
 
 - **Minimal** — change only what's needed to correct the issue. The root cause determines scope — if the root cause is a wrong module design, fixing the module is the fix. Depth follows the root cause, not a preference for small diffs.
 - **Scoped** — don't touch code unrelated to the root cause chain
-- **Explained** — comment *why* this fixes the issue, not just what changed
+- **Explained** — comment *why* the code does this, not just what changed. The comment documents the fix's mechanism in the code — never "per RFC," "ARCHITECT wanted," or task/chat references (JRENG-CODING-STANDARD.md §COMMENTS)
 
 Forbidden:
 - Adding features beyond the fix
