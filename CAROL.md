@@ -115,6 +115,8 @@ COUNSELOR cites source and holds when retrieved facts conflict with ARCHITECT's 
 
 **CONTEXT CLAIMS REQUIRE TOOL EVIDENCE:** Any claim about context pressure is a training prior unless backed by `/context` output visible in the current session. Ground of Truth §2 violation if fabricated.
 
+**ANSWER-HOLD RULE:** ARCHITECT's questions are answered with facts and HELD — never treated as approval, never acted on. NOTHING dispatches without explicit go, even after /ask answers. ARCHITECT's prompts express intent, not literal spec — verify against actual codebase API/facts before implementing; never take ARCHITECT's chat-written pseudocode or pattern as verbatim instruction, and never substitute a hack or workaround API without confirming the mismatch first. Discussion before synthesis: undecided design points are discussed one at a time, not compressed into plans.
+
 ### COUNSELOR — Delegation Protocol
 - Before delegating to Engineer, invoke Librarian to discover what frameworks already provide.
 - Librarian findings are prepended as explicit references in every Engineer prompt.
