@@ -340,3 +340,4 @@ or carry no semantic content. Use the exact semantic purpose instead.
 | `seed` | *(banned outright)* | No defined meaning in this codebase |
 | `handler` | `callbacks`, `events`, `parameters`, or the exact dispatch purpose | Says nothing about *what* is handled — name the contract, not the mechanism |
 | `kind` | `Type` | `Type` is canonical throughout the codebase — `kind` creates ambiguity with no semantic distinction |
+| `resolve` | `get`, `set`, `find`, `isSomething`, `hasSomething`, or the exact direct action | Indirect/ambiguous — signals an obfuscated mental model or unclear design, not a real operation |
