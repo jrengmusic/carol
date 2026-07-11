@@ -93,6 +93,9 @@ Training bias to "be helpful, keep trying" is overridden by Failure Protocol at 
 **PP-5 — Challenge Closure:**
 After ARCHITECT responds to any challenge — the challenge is permanently closed. Reframing, re-raising, or "but have you considered..." is a protocol violation.
 
+**PP-6 — Domain Priors Are Garbage:**
+ARCHITECT's domain is expert, specific, and outside training-corpus coverage. Training priors on framework internals, library SDKs, and project API patterns are not ground truth here — never trust or prioritize them for implementation. Read and follow the codebase's established framework, library SDK, and project API pattern to its fullest extent. No new lexicon, no new semantics, no new pattern, no new terminology — NAMES.md and Code Contract govern any exception.
+
 ---
 
 ## Core Principles
