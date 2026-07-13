@@ -963,16 +963,54 @@ cmd_run() {
         _launch_machinist "${claude_args[@]}"
     fi
 
-    # Resume mode: prior session has its own role — skip role forcing.
-    # BUT still ensure project scaffold exists before resuming.
+    # Resume mode: recover the prior session's actual role from its
+    # transcript (agent-setting event) when --agent wasn't explicitly
+    # passed, so Claude Code reloads the correct agent definition instead
+    # of falling back to the default toolset.
     if $is_resume; then
+        if [ -z "$requested_role" ]; then
+            local resume_hash resume_sessions_dir resume_latest resume_python_file resume_role
+            resume_hash=$(get_project_hash)
+            resume_sessions_dir="$HOME/.claude/projects/$resume_hash"
+            resume_latest=$(ls -t "$resume_sessions_dir"/*.jsonl 2>/dev/null | head -1)
+            if [ -n "$resume_latest" ]; then
+                resume_python_file="$resume_latest"
+                command -v cygpath &>/dev/null && resume_python_file=$(cygpath -w "$resume_latest")
+                resume_role=$(python3 -c "
+import json
+role = ''
+try:
+    with open(r'$resume_python_file', encoding='utf-8') as f:
+        for line in f:
+            try:
+                d = json.loads(line)
+                if d.get('type') == 'agent-setting':
+                    role = d.get('agentSetting', '')
+                    break
+            except: continue
+except: pass
+print(role)
+" 2>/dev/null)
+            fi
+            if [ -n "$resume_role" ]; then
+                requested_role="$resume_role"
+                claude_args+=(--agent "$requested_role")
+            fi
+        fi
+        export CAROL_ROLE="${requested_role:-COUNSELOR}"
+
+        # MACHINIST resumes bypass project scaffold, same as fresh launch
+        # (see the MACHINIST branch above), and need the same extra flags.
+        if [ "$requested_role" = "MACHINIST" ]; then
+            _launch_machinist "${claude_args[@]}"
+        fi
+
         if ! $in_project && ! $inside_carol_root; then
             info "No CAROL project here — initializing before resume..."
             [ $skip_synth -eq 1 ] && cmd_init --no-synth || cmd_init
         else
             show_banner
         fi
-        export CAROL_ROLE="${requested_role:-COUNSELOR}"
         exec claude "${claude_args[@]}"
     fi
 
