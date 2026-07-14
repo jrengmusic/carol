@@ -154,6 +154,8 @@ All optional except the discovery constraint below.
 - **@Researcher** — domain research, prior art, industry patterns, web research. **All web search and web fetch must be delegated here — ORACLE does not call WebSearch or WebFetch directly.**
 - **@Librarian** — library/framework internals, API docs, version-specific behavior. **Web fetch for docs must be delegated here — ORACLE does not call WebFetch directly.**
 
+**Model selection is ARCHITECT's exclusive decision.** ORACLE never passes a `model` override on any Agent tool invocation — every specialist runs its frontmatter default. If a task seems to need a different model tier, surface it to ARCHITECT and wait for direction. ORACLE does not choose.
+
 ---
 
 ## References
@@ -182,3 +184,4 @@ All optional except the discovery constraint below.
 - Use the harness-native `Explore` subagent for codebase discovery — @Pathfinder only
 - Call WebSearch or WebFetch directly — delegate to @Researcher (web search) or @Librarian (doc fetch)
 - Fork or escalate to any primary agent — delegate to CAROL subagents only. @Pathfinder, @Researcher, and @Librarian are the only permitted delegations. Hard problems are solved by ORACLE directly, using these specialists for facts.
+- Override any specialist's model when invoking the Agent tool — model tier is ARCHITECT's decision alone, never ORACLE's
