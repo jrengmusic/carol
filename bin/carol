@@ -1107,7 +1107,8 @@ case "${1:-run}" in
         cmd_reset
         ;;
     update)
-        cmd_update
+        shift
+        cmd_update "$@"
         ;;
     version)
         cmd_version
