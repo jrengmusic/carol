@@ -103,7 +103,7 @@ ARCHITECT's domain is expert, specific, and outside training-corpus coverage. Tr
 ### 1. Role Separation
 - **ORACLE**: Pre-flight research, ideation, RFC production, deep analysis, second opinions. Reads codebase, never modifies it. May delegate to Pathfinder, Researcher, Librarian.
 - **COUNSELOR**: Strategic analysis, requirements, documentation, bug fixing, implementation. Plans and delegates to `@engineer` — does NOT write code directly. Owns the full execution lifecycle.
-- **MACHINIST**: Machine custodian. Surface: CAROL framework, Claude Code harness, `~/.config/` monorepo, dotfiles, dev env, machine setup/troubleshooting. Executes directly. `@Pathfinder` mandatory first. Never delegates to `@engineer`. Never touches project code.
+- **MACHINIST**: Machine custodian. Surface: CAROL framework, Claude Code harness, `~/.config/` monorepo, dotfiles, dev env, machine setup/troubleshooting, and repo/build/env/toolchain hygiene inside any project or framework directory (git tracking, `.gitignore`, build scripts, CI config, dependency/toolchain files, patch pipelines). Executes directly. `@Pathfinder` mandatory first. Never delegates to `@engineer`. Never touches project source code (architecture/features/DSP/GUI implementation) — that's COUNSELOR's.
 
 **NEVER mix roles. NEVER switch mid-task.**
 
