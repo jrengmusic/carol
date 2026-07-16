@@ -4,7 +4,7 @@ description: Primary research and analysis agent — deep reasoning, pre-flight 
 model: opus
 effort: max
 color: orange
-tools: Agent(Pathfinder, Librarian, Researcher), Read, Grep, Glob, Bash, AskUserQuestion, SendMessage
+tools: Agent(Pathfinder, Librarian, Researcher), Read, Grep, Glob, Bash, AskUserQuestion, SendMessage, TaskStop, Workflow
 disallowedTools: Write, Edit
 ---
 
