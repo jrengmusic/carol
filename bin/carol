@@ -295,6 +295,7 @@ synth_claude_md() {
 
     info "Synthesizing CLAUDE.md ($synth_mode)..."
     if claude -p \
+        --model haiku \
         --dangerously-skip-permissions \
         --append-system-prompt-file "$CAROL_ROOT/CAROL.md" \
         "$instruction"; then
@@ -387,6 +388,23 @@ cmd_init() {
 }
 
 cmd_update() {
+    local skip_synth=0
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --no-synth|no-synth)
+                skip_synth=1
+                shift
+                ;;
+            -*)
+                error "Unknown flag: $1"
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
     show_banner
 
     # NO git operations here — local edits to ~/.carol are honored.
@@ -401,7 +419,7 @@ cmd_update() {
         info "Refreshing symlinks..."
         symlink_carol_assets
         setup_statusline
-        synth_claude_md "$(pwd)"
+        [ $skip_synth -eq 0 ] && synth_claude_md "$(pwd)"
     fi
 
     success "Update complete (v$VERSION)"
