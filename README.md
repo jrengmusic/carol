@@ -176,4 +176,4 @@ Subagents invoke via Agent tool. Return BRIEF format to primary.
 
 ---
 
-*Rationale document for CAROL v0.0.21. Enforcement contract: ~/.carol/CAROL.md*
+*Rationale document for CAROL v0.0.22. Enforcement contract: ~/.carol/CAROL.md*
