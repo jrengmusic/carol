@@ -289,6 +289,8 @@ The same input must always yield the same output throughout the entire data flow
 
 Non-determinism is always a symptom, never a root cause.
 
+**Pessimistic and defensive programming are the same violation from opposite sides.** Pessimistic programming re-verifies an invariant at every use site instead of trusting what the owner already established. Defensive programming answers that same doubt with more guards, more asserts, more branches — treating the symptom instead of removing the doubt. Neither is permitted. The only correct fix is establishing the invariant once, at the owner, and letting every downstream use trust it unconditionally — no re-check, no extra guard, no extra branch. An assert at that single ownership boundary is verification of the fix; an assert anywhere else, or more than one assert for the same invariant, is the violation re-appearing in a different disguise.
+
 | Symptom | Likely violation |
 |---|---|
 | Hidden state producing different results | **S** (Stateless) |
@@ -321,6 +323,7 @@ Enforcement:
 | Shadow state / duplicate truth | **S** (SSOT) + **B** |
 | Bail-out guard | **E** (Explicit) |
 | Silent fail | **E** (Explicit) |
+| Pessimistic/defensive programming — doubting an invariant the owner already established, whether by re-checking it or by guarding against it | **D** + **E** (Explicit) |
 | Getter without proven caller | **E** (Encapsulation) |
 | Caller tracking state the object already represents | **S** (Stateless) + **E** (Encapsulation) |
 | Layer violation (`#include "HigherLayer.h"`) | **E** (Encapsulation) + **B** |

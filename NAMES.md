@@ -341,3 +341,4 @@ or carry no semantic content. Use the exact semantic purpose instead.
 | `handler` | `callbacks`, `events`, `parameters`, or the exact dispatch purpose | Says nothing about *what* is handled — name the contract, not the mechanism |
 | `kind` | `Type` | `Type` is canonical throughout the codebase — `kind` creates ambiguity with no semantic distinction |
 | `resolve` | `get`, `set`, `find`, `isSomething`, `hasSomething`, or the exact direct action | Indirect/ambiguous — signals an obfuscated mental model or unclear design, not a real operation |
+| `ensure` | `get`, `getOrCreate`, `cache`, or the exact unconditional action | Concedes the precondition might not hold — pessimistic by construction; the invariant belongs at the owner, asserted once, not re-doubted at every call site |
