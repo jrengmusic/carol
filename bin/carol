@@ -675,39 +675,57 @@ cmd_resume() {
     [ -z "$full_uuid" ] && full_uuid="$id"
 
     local model_flag=()
+    local agent_flag=()
     local meta_file="$sessions_dir/$full_uuid.meta"
     local session_file="$sessions_dir/$full_uuid.jsonl"
     if [ -f "$meta_file" ]; then
-        local meta_model
+        local meta_model meta_agent
         meta_model=$(grep '^model=' "$meta_file" | head -1 | sed 's/^model=//')
         if [ -n "$meta_model" ]; then
             model_flag=(--model "$meta_model")
         fi
+        meta_agent=$(grep '^agent=' "$meta_file" | head -1 | sed 's/^agent=//')
+        if [ -n "$meta_agent" ]; then
+            agent_flag=(--agent "$meta_agent")
+        fi
     elif [ -f "$session_file" ]; then
         local python_file="$session_file"
         command -v cygpath &>/dev/null && python_file=$(cygpath -w "$session_file")
-        local model
-        model=$(python3 -c "
+        local output model resumed_agent
+        output=$(python3 -c "
 import json
 model = ''
+agent = ''
 try:
     with open(r'$python_file', encoding='utf-8') as f:
-        for line in reversed(f.readlines()):
-            try:
-                d = json.loads(line)
-                if d.get('type') == 'assistant':
-                    m = (d.get('message') or {}).get('model', '')
-                    if m:
-                        model = m
-                        break
-            except: continue
+        lines = f.readlines()
+    for line in lines:
+        try:
+            d = json.loads(line)
+            if d.get('type') == 'agent-setting':
+                agent = d.get('agentSetting', '')
+                break
+        except: continue
+    for line in reversed(lines):
+        try:
+            d = json.loads(line)
+            if d.get('type') == 'assistant':
+                m = (d.get('message') or {}).get('model', '')
+                if m:
+                    model = m
+                    break
+        except: continue
 except: pass
 print(model)
+print(agent)
 " 2>/dev/null)
+        model=$(printf '%s' "$output" | sed -n '1p')
+        resumed_agent=$(printf '%s' "$output" | sed -n '2p')
         [ -n "$model" ] && model_flag=(--model "$model")
+        [ -n "$resumed_agent" ] && agent_flag=(--agent "$resumed_agent")
     fi
 
-    exec claude --resume "$full_uuid" "${model_flag[@]}"
+    exec claude --resume "$full_uuid" "${agent_flag[@]}" "${model_flag[@]}"
 }
 
 cmd_continue() {
