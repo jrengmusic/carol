@@ -43,7 +43,7 @@ show_banner() {
         echo -e "$line"
     done
     echo ""
-    echo -e "${CYAN}Cognitive Amplifier Role Orchestration for LLM agents${NC}"
+    echo -e "${CYAN}Cognitive Amplifier Role Orchestration for Large Language Model${NC}"
 }
 
 # Helper functions
