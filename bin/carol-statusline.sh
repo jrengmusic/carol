@@ -2,7 +2,8 @@
 # CAROL Context Rot Meter — Claude Code status line
 
 data=$(cat)
-printf "%s" "$data" > /Users/jreng/.gemini/antigravity-cli/scratch/statusline_input.json
+mkdir -p "$HOME/.carol/.tmp"
+printf "%s" "$data" > "$HOME/.carol/.tmp/statusline_input.json"
 
 # CAROL version from SSOT (/VERSION file at repo root)
 carol_version=$(tr -d '[:space:]' < "$(dirname "$0")/../VERSION" 2>/dev/null)
@@ -22,7 +23,7 @@ if not agent:
     agent = os.environ.get('CAROL_ROLE', '')
     if not agent:
         try:
-            with open('/Users/jreng/.carol/.carol-role', 'r') as rf:
+            with open(os.path.expanduser('~/.carol/.carol-role'), 'r') as rf:
                 agent = rf.read().strip()
         except Exception:
             pass

@@ -1112,6 +1112,27 @@ cmd_provider() {
     printf 'provider: %s — restart Claude Code to activate\n' "$provider"
 }
 
+CLI_PROXY_BIN="$HOME/.local/bin/cli-proxy-api.exe"
+CLI_PROXY_CONFIG="$HOME/.config/cli-proxy/config.yaml"
+
+cmd_launch_cli_proxy() {
+    if tasklist //FI "IMAGENAME eq cli-proxy-api.exe" //NH 2>/dev/null | grep -qi "cli-proxy-api.exe"; then
+        info "cli-proxy-api already running"
+    else
+        ("$CLI_PROXY_BIN" --config "$CLI_PROXY_CONFIG" > "$HOME/.cli-proxy-api/proxy.log" 2>&1 &)
+        success "cli-proxy-api launched"
+    fi
+}
+
+cmd_kill_cli_proxy() {
+    if tasklist //FI "IMAGENAME eq cli-proxy-api.exe" //NH 2>/dev/null | grep -qi "cli-proxy-api.exe"; then
+        taskkill //IM cli-proxy-api.exe //F >/dev/null 2>&1
+        success "cli-proxy-api stopped"
+    else
+        info "cli-proxy-api not running"
+    fi
+}
+
 # Main command dispatcher
 case "${1:-run}" in
     init)
@@ -1173,6 +1194,13 @@ case "${1:-run}" in
         ;;
     minimax)
         cmd_provider "minimax"
+        ;;
+    codex)
+        cmd_launch_cli_proxy
+        cmd_provider "codex"
+        ;;
+    kill)
+        cmd_kill_cli_proxy
         ;;
     anthropic)
         cmd_provider "anthropic"

@@ -20,6 +20,7 @@ Thumbs.db
 
 # Test artifacts
 /tmp/
+.tmp/
 *.test
 
 # Don't ignore templates (they should be tracked)
