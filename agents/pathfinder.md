@@ -2,7 +2,6 @@
 name: Pathfinder
 description: Invoke first before any planning or fix work to discover existing patterns, conventions, naming, and similar implementations in the codebase. Never skip this step.
 model: haiku
-effort: high
 color: yellow
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit
