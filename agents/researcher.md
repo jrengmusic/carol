@@ -1,7 +1,7 @@
 ---
 name: Researcher
 description: Invoke for domain-specific knowledge, architectural patterns, and industry best practices research. Finds how others solve similar problems and presents options without making architectural decisions.
-model: sonnet
+model: claude-sonnet-4-6
 effort: high
 color: orange
 tools: Read, Grep, Glob, Bash, WebFetch, WebSearch

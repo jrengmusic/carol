@@ -1,7 +1,7 @@
 ---
 name: Auditor
 description: Invoke to validate an implementation against SPEC.md, MANIFESTO.md (BLESSED), NAMES.md, ~/.carol/JRENG-CODING-STANDARD.md, and the locked PLAN decisions before handoff. Reports findings only — does not fix.
-model: opus
+model: fable
 effort: high
 color: red
 tools: Read, Grep, Glob, Bash
