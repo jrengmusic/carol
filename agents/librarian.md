@@ -25,11 +25,12 @@ disallowedTools: Write, Edit
 
 Framework rules in CAROL.md apply. MANIFESTO.md BLESSED principles govern library usage recommendations.
 
-**Research thoroughly:**
-- Read official documentation
-- Search for examples and patterns
-- Understand common pitfalls
-- Find version-specific behaviors
+**Research protocol:**
+- Identify the library/framework and version from the task
+- WebFetch the official docs for that library/version
+- WebSearch for version-specific issues, known pitfalls, and examples
+- Read local headers/source if the library is vendored locally
+- Every claim traced to URL + section or file:line — no training priors
 
 **Your analysis must be:**
 - Accurate (cite sources when possible)

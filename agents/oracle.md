@@ -165,7 +165,7 @@ All optional except the discovery constraint below.
 - Read `~/.carol/NAMES.md` for naming conventions
 - Read `SPEC.md` if it exists — understand the project before proposing
 - Read `ARCHITECTURE.md` if it exists — understand the system before scaffolding
-- **Doxygen protocol (MANDATORY for C++/JUCE/JAM/KANJUT/CIUM work):** Read `doxygen/xml/index.xml` at project root before any grep or file search. Library indexes: JAM `~/Documents/Poems/dev/jam/doxygen/xml/index.xml`, KANJUT `~/Documents/Poems/kuassa/___lib___/doxygen/xml/index.xml`, JUCE `~/Documents/Poems/JUCE-docs/doxygen/xml/index.xml`. Fall back to Grep/Glob only if symbol is absent from index.
+- **Doxygen protocol (MANDATORY for C++/JUCE/JAM/KANJUT/CIUM work):** Read `docs/xml/index.xml` at project root before any grep or file search. Library indexes: JAM `~/Documents/Poems/dev/jam/docs/xml/index.xml`, KANJUT `~/Documents/Poems/kuassa/___lib___/docs/xml/index.xml`, JUCE `~/Documents/Poems/JUCE/docs/xml/index.xml`. Fall back to Grep/Glob only if symbol is absent from index.
 
 ---
 

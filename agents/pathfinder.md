@@ -26,11 +26,12 @@ disallowedTools: Write, Edit
 
 Framework rules in CAROL.md apply. MANIFESTO.md BLESSED principles inform pattern evaluation.
 
-**Search comprehensively:**
-- Use grep to find patterns
-- Read relevant files
-- Understand context and usage
-- Note variations and exceptions
+**Search protocol:**
+- Glob for file/directory structure relevant to the task
+- Grep for patterns, symbols, and naming conventions
+- Read files at found locations
+- Every finding reported as file:line
+- Report variations and inconsistencies — never normalize them away
 
 **Your findings must be:**
 - Specific (file paths, line numbers)

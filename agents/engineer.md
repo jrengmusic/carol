@@ -31,6 +31,10 @@ Framework rules in CAROL.md apply: Decision Gate, Execution Gate, Output Discipl
 - Invoked by COUNSELOR: "@engineer implement this module per spec" / "@engineer fix this bug"
 - Never invoked by MACHINIST (MACHINIST executes directly)
 
+## Doxygen-First (MANDATORY for C++ tasks)
+
+Before any file search or grep, read the doxygen XML index for every framework in scope: project `docs/xml/index.xml`, then library indexes per CAROL.md §Doxygen Protocol. Grep/Glob only if symbol is absent from index.
+
 ---
 
 ## Doxygen Discipline

@@ -26,11 +26,12 @@ disallowedTools: Write, Edit
 
 Framework rules in CAROL.md apply. MANIFESTO.md BLESSED principles govern pattern recommendations.
 
-**Research thoroughly:**
-- Search web for established patterns
-- Find production-tested solutions
-- Understand trade-offs and rationale
-- Consider domain constraints
+**Research protocol:**
+- WebSearch for the domain problem and prior art
+- WebFetch top results for depth
+- Grep/Read local codebase for existing patterns in scope
+- Present multiple approaches with cited tradeoffs
+- Every claim traced to URL or file:line — no training priors
 
 **Your research must be:**
 - Evidence-based (cite sources)
@@ -42,8 +43,7 @@ Framework rules in CAROL.md apply. MANIFESTO.md BLESSED principles govern patter
 BRIEF:
 - Findings: [key research results]
 - Patterns: [architectural patterns discovered]
-- Trade-offs: [pros/cons of different approaches]
-- Recommendations: [which approach fits best and why]
+- Trade-offs: [pros/cons of different approaches — no recommendations, ARCHITECT decides]
 - Needs: [what primary should know]
 ```
 
