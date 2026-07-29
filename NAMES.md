@@ -77,6 +77,36 @@ using Descriptors = std::unordered_map<juce::String, Descriptor>;
 // Plural. A container that holds multiple Descriptor objects indexed by ID.
 ```
 
+**Verb Contract:**
+
+A verb prefix is a contract about what the call does to the world, not a decoration.
+The codebase's verb set is fixed and each verb means exactly one thing:
+
+| Verb | Contract |
+|---|---|
+| `get` | Returns the object. Does not store, does not mutate a container. |
+| `add` | Inserts into a container. The container is the subject. |
+| `set` | Replaces an existing value in place. |
+| `is` / `has` | Answers a question. Returns bool, changes nothing. |
+| `apply` | Pushes a computed result onto a target the caller supplies. |
+| `getOrCreate` | Returns the object, creating it when absent — the side effect is in the name. |
+
+A unit that both computes and stores is two units. Split it: `get` returns, the caller
+`add`s. When splitting produces a one-line call site, that is the correct shape — not a
+reason to fuse the verbs.
+
+```cpp
+// WRONG — get that stores
+static juce::String getSvg (const Array<Token>&, Document& element, int& index);
+
+// CORRECT — get returns, caller adds
+static juce::String getSvg (const Array<Token>&, CharPointerType source, int& index, int& offset);
+element.add<juce::String> (Id::svg, getSvg (tokens, source, index, offset));
+
+// CORRECT — add is named for the container it feeds, returns what the caller needs to advance
+static int addToken (kuassa::Array<Token>& tokens, CharPointerType cursor, Token::Type segmentType);
+```
+
 ---
 
 ## Rule 2 — Construct expression without data type statement
@@ -326,6 +356,30 @@ bool isEvaluating() const noexcept;
 bool shouldPromptLicense() const noexcept;
 ```
 
+**Nearest-sibling precedence.**
+When a new member joins an existing family — a class's reader set, a module's `add*`
+family, a file's dispatch tables — the family's established shape outranks any
+independently better name. Consistency is measured against the nearest surrounding
+set first, the module second, the framework third.
+
+**Rationale:**
+A name that is locally better but breaks its family costs every future reader a lookup
+to confirm the two members really do differ. The family shape is itself documentation.
+
+**Example:**
+
+```cpp
+// Existing family on Css::StyleDeclaration
+juce::String getPropertyValue (juce::StringRef) const;
+juce::String getPropertyPriority (juce::StringRef) const;
+
+// CORRECT — joins the family
+int getPropertyType (juce::StringRef) const;
+
+// WRONG — locally defensible (it reads Token::type), breaks the family
+int getType (juce::StringRef) const;
+```
+
 ---
 
 ## Rule 6 — Forbidden Terms
@@ -342,3 +396,79 @@ or carry no semantic content. Use the exact semantic purpose instead.
 | `kind` | `Type` | `Type` is canonical throughout the codebase — `kind` creates ambiguity with no semantic distinction |
 | `resolve` | `get`, `set`, `find`, `isSomething`, `hasSomething`, or the exact direct action | Indirect/ambiguous — signals an obfuscated mental model or unclear design, not a real operation |
 | `ensure` | `get`, `getOrCreate`, `cache`, or the exact unconditional action | Concedes the precondition might not hold — pessimistic by construction; the invariant belongs at the owner, asserted once, not re-doubted at every call site |
+| `emitter` | the produced thing (plain noun), or the real operation | Names the mechanism, not the contract — `handler`'s twin |
+
+**The agent-noun test.**
+A name ending in `-er` / `-ers` is permitted only when it performs a **real, named
+operation** that exists in the domain vocabulary. If the `-er` names a mechanism rather
+than a contract — *the thing that does the thing* — it is banned by the same reasoning
+that bans `handler`.
+
+| Candidate | Verdict | Why |
+|---|---|---|
+| `serializers` | permitted | serialization is a real named operation |
+| `fetchers` | permitted | fetching is a real named operation |
+| `emitters` | **banned** | "emit" names no operation in this domain — mechanism, not contract |
+| `handler` | **banned** *(already listed)* | says nothing about what is handled |
+| `manager` | case-by-case | permitted only where the managed domain is in the name (`StyleManager`, `ParameterManager`) |
+
+---
+
+## Rule 7 — Boundary Naming: name the output domain
+
+**Principle:**
+A unit that consumes vocabulary from domain A to produce vocabulary in domain B is named
+in **B's** terms — what it yields, never what it is keyed by or reads from.
+
+**Rationale:**
+Callers reach for a name by what they want out of it. Naming by the input or the key
+forces the reader to know the implementation before they can find the symbol, which
+inverts Rule 3 (semantic over literal): the key is an implementation fact, the output is
+the meaning.
+
+**Example:**
+
+```cpp
+// Css: keyed by Id::CssTokenType ordinal, named for the attribute it yields
+static const auto attributeSerializers { ... };   // inside getStringAttribute
+
+// Html: keyed by the same ordinal, yields element attributes on a style element
+static const auto styleAttributes { ... };        // inside addStyleAttributes
+
+// WRONG — names the key, not the product
+static const auto tokenTypeMap { ... };
+```
+
+Corollary: where the two domains have competing words for the same slot — CSS calls it a
+`property`, an element calls it an `attribute` — the containing function's own name
+settles it. `addStyleAttributes` yields attributes, so its table is named for attributes.
+
+---
+
+## Rule 8 — Dispatch Tables Are Nouns
+
+**Principle:**
+A lookup table replacing a branch chain (`kuassa::Function::Map` and equivalents) is named
+either as a plain noun for **what the table holds**, or as a verb-noun for **what it
+drives**. Never as an agent plural.
+
+**Rationale:**
+MANIFESTO L's 3-branch rule makes these tables the standard replacement for decision
+chains, so they now appear in every module — an unstated convention would drift within one
+sprint. The table is data; data takes noun names (Rule 1).
+
+**Examples:**
+
+```cpp
+// Plain noun — what the table holds
+static const auto selectors { ... };
+static const auto markupOperators { ... };
+static const auto styleAttributes { ... };
+
+// Verb-noun — what the table drives
+static const auto treeConstruction { ... };
+
+// WRONG — agent plural (Rule 6 agent-noun test)
+static const auto valueEmitters { ... };
+static const auto tokenHandlers { ... };
+```
