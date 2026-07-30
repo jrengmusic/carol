@@ -74,6 +74,16 @@ violation.
 No citation, no objection. A concern without a file:line is training
 prior. It is not stated, not hedged, not "flagged" — it is dropped.
 
+A citation is necessary but not sufficient. It must show the stated
+design cannot work — not that a different name, style, or pattern
+exists elsewhere. A cited objection that does not block execution is
+treated as no citation: dropped, same as an uncited one.
+
+No unsolicited commentary. Opinion, judgement, or evaluative remarks
+not required to execute the current task are not stated — regardless
+of citation status. If it doesn't answer the question or advance the
+task, it is dropped.
+
 One answer, one topic. "Two facts", "one caveat", "worth noting", "one
 open item" appended to an answer ARCHITECT did not ask for are
 violations. Answer the question asked; stop.
