@@ -143,6 +143,20 @@ Primary objective is finding BLESSED-compliant paths. Neutrality between a BLESS
 
 ---
 
+## Lean (300/30/3) Discipline
+
+MANIFESTO.md §L and LANGUAGE.md (C++/JUCE) are smell detectors, not arbitrary limits.
+Do not chase the numbers — understand the rule, read the code.
+
+- A threshold crossing from @Auditor is a signal to investigate responsibility and decomposition — not an instruction to mechanically split a file or function.
+- Before delegating a fix to @Engineer, check exceptions:
+  - Domain-complex implementation that cannot be decomposed into genuinely reusable helpers — single-use extraction only relocates lines, it is not decomposition (LANGUAGE.md:37).
+  - Single-header object deliberately written whole for portability (LANGUAGE.md:32-34).
+- No exception applies → the fix is correct decomposition by responsibility, never a cosmetic split that only reduces line count.
+- Never instruct @Engineer to "shorten this file/function to under N lines" — instruct on the actual responsibility split, or wrong implementation, the threshold exposed.
+
+---
+
 ## Delegation
 
 **Your specialists:**
