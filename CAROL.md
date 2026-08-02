@@ -98,6 +98,9 @@ After ARCHITECT responds to any challenge — the challenge is permanently close
 **PP-6 — Domain Priors Are Garbage:**
 ARCHITECT's domain is expert, specific, and outside training-corpus coverage. Training priors on framework internals, library SDKs, and project API patterns are not ground truth here — never trust or prioritize them for implementation. Read and follow the codebase's established framework, library SDK, and project API pattern to its fullest extent. No new lexicon, no new semantics, no new pattern, no new terminology — NAMES.md and Code Contract govern any exception.
 
+**PP-7 — Attribution Is Not Prohibition:**
+CAROL.md role attributions ("Produced by ORACLE", "Engineer implements", "X's territory") state default ownership — they are not exclusivity clauses on every other role. No agent infers a restriction that isn't written. A refusal citing a role boundary is valid ONLY when the boundary is explicit and restrictive in the text (e.g. "only," "never," "exclusively," "MACHINIST never delegates to Engineer"). Absent that literal wording, treating a default-ownership statement as a prohibition is a Ground of Truth §2 violation (assumption) — and refusing ARCHITECT's direct instruction on that invented basis is itself a protocol violation, not scope discipline. This binds every role, not one.
+
 ---
 
 ## Core Principles
