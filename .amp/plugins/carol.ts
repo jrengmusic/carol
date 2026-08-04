@@ -354,27 +354,56 @@ export default function (amp: PluginAPI) {
     amp.logger.log(`CAROL: registered ${frontmatter.name} subagent tool (${model})`)
   }
 
-  // ─── Status item — role badge near prompt editor ───────────────
+  // ─── Status items — role badge + version + thread title ────────
+
+  const carolVersion = existsSync(join(CAROL_ROOT, 'VERSION'))
+    ? readFileSync(join(CAROL_ROOT, 'VERSION'), 'utf8').trim()
+    : '?.?'
 
   const statusItem = createStatusItem('carol-role')
+  const versionItem = createStatusItem('carol-version')
   statusItem.update({ text: 'CAROL' })
+  versionItem.update({ text: `CAROL v${carolVersion}` })
 
-  // Track active thread's mode for status display
+  // Track active thread's mode + title for status display
   amp.activeThread.subscribe(async (thread) => {
     if (!thread) {
       statusItem.update({ text: 'CAROL' })
       return
     }
     try {
-      const agent = await thread.agent()
+      const fullThread = amp.threads.get(thread.id)
+      const agent = await fullThread.agent()
       const def = agent.definition as { kind: string; display?: { label?: string; color?: string }; mode?: string }
-      if (def?.kind === 'agent-definition' && def?.display?.label) {
-        statusItem.update({ text: def.display.label })
-      } else if (def?.kind === 'builtin-agent' && def?.mode) {
-        statusItem.update({ text: `CAROL · Amp ${def.mode}` })
-      } else {
-        statusItem.update({ text: 'CAROL' })
+
+      // Get thread title
+      let titleText = ''
+      try {
+        const title = await fullThread.title.get()
+        titleText = title ? ` · ${title}` : ''
+      } catch {
+        // Title not set yet
       }
+
+      if (def?.kind === 'agent-definition' && def?.display?.label) {
+        statusItem.update({ text: `${def.display.label}${titleText}` })
+      } else if (def?.kind === 'builtin-agent' && def?.mode) {
+        statusItem.update({ text: `CAROL · Amp ${def.mode}${titleText}` })
+      } else {
+        statusItem.update({ text: `CAROL${titleText}` })
+      }
+
+      // Subscribe to title changes (observable)
+      fullThread.title.subscribe((newTitle) => {
+        const t = newTitle ? ` · ${newTitle}` : ''
+        if (def?.kind === 'agent-definition' && def?.display?.label) {
+          statusItem.update({ text: `${def.display.label}${t}` })
+        } else if (def?.kind === 'builtin-agent' && def?.mode) {
+          statusItem.update({ text: `CAROL · Amp ${def.mode}${t}` })
+        } else {
+          statusItem.update({ text: `CAROL${t}` })
+        }
+      })
     } catch {
       statusItem.update({ text: 'CAROL' })
     }
