@@ -294,6 +294,13 @@ export default function (amp: PluginAPI) {
           ...(ctx.thread ? { parentThreadID: ctx.thread.id } : {}),
         })
 
+        // Rename thread to uppercase role (badge is lowercased by Amp)
+        try {
+          await amp.$`amp threads rename ${thread.id} ${frontmatter.name}`
+        } catch {
+          // Non-critical
+        }
+
         const activationMessage = handoffContext
           ? `${frontmatter.name}: Rock 'n Roll!\n\nYou are continuing from a previous session. Context below — read it, then wait for ARCHITECT direction.\n\n---\n\n${handoffContext}`
           : `${frontmatter.name}: Rock 'n Roll!`
@@ -418,6 +425,13 @@ export default function (amp: PluginAPI) {
 
       // Create COUNSELOR thread and make it active
       const newThread = await agent.createThread({ show: true })
+
+      // Rename thread to uppercase role (badge is lowercased by Amp)
+      try {
+        await amp.$`amp threads rename ${newThread.id} COUNSELOR`
+      } catch {
+        // Non-critical — thread still works
+      }
 
       const activationMessage = sprintLog
         ? `COUNSELOR: Rock 'n Roll!\n\nYou are continuing from a previous session. SPRINT-LOG below — read it, then wait for ARCHITECT direction.\n\n---\n\n## SPRINT-LOG\n\n${sprintLog}\n\n---\n\nARCHITECT's first message:\n${event.message}`
