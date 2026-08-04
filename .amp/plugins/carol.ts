@@ -380,61 +380,55 @@ export default function (amp: PluginAPI) {
     }
   })
 
-  // ─── Session start — auto-create COUNSELOR thread ──────────────
+  // ─── Agent start — intercept built-in threads, redirect to COUNSELOR ──
 
-  amp.on('session.start', async (event, ctx) => {
-    // If already in a CAROL custom agent thread, do nothing
+  amp.on('agent.start', async (event, ctx) => {
+    // If already in a CAROL custom agent thread, let it proceed
     try {
       const threadAgent = await ctx.thread.agent()
-      const def = threadAgent.definition as { kind?: string; display?: { label?: string }; mode?: string }
+      const def = threadAgent.definition as { kind?: string }
       if (def?.kind === 'agent-definition') return
     } catch {
-      // Can't determine agent — fall through to notification fallback
+      return
     }
 
-    // Check if this is a fresh empty thread (interactive startup)
-    // vs. execute mode / resume (has user messages)
+    // Only intercept the FIRST turn in a built-in thread.
+    // If there are already assistant messages, the user chose to stay here.
     try {
-      const messages = await ctx.thread.messages({ limit: 5 })
-      const hasUserMessage = messages.some((m: any) => m.role === 'user')
-      if (hasUserMessage) {
-        await ctx.ui.notify(
-          'CAROL PROTOCOL ACTIVE. Ctrl+O → "CAROL: New COUNSELOR Thread" to start in COUNSELOR role.'
-        )
-        return
-      }
+      const prior = await ctx.thread.messages({ limit: 1, roles: ['assistant'] })
+      if (prior.length > 0) return
     } catch {
-      // Can't read messages — fall through to auto-create attempt
+      // Can't read messages — let the built-in thread proceed
+      return
     }
 
-    // Fresh empty built-in thread — auto-create COUNSELOR
+    // First turn in a built-in thread — redirect to COUNSELOR
     const agent = counselorAgent
-    if (agent) {
-      try {
-        const sprintLogPath = join(CAROL_ROOT, 'carol', 'SPRINT-LOG.md')
-        const sprintLog = existsSync(sprintLogPath)
-          ? readFileSync(sprintLogPath, 'utf8').slice(0, 2000)
-          : ''
+    if (!agent) return
 
-        const newThread = await agent.createThread({ show: true })
+    try {
+      // Cancel the built-in thread's turn before it starts
+      await ctx.thread.cancel()
 
-        const activationMessage = sprintLog
-          ? `COUNSELOR: Rock 'n Roll!\n\nYou are continuing from a previous session. SPRINT-LOG below — read it, then wait for ARCHITECT direction.\n\n---\n\n## SPRINT-LOG\n\n${sprintLog}`
-          : `COUNSELOR: Rock 'n Roll!`
+      // Read SPRINT-LOG for handoff context
+      const sprintLogPath = join(CAROL_ROOT, 'carol', 'SPRINT-LOG.md')
+      const sprintLog = existsSync(sprintLogPath)
+        ? readFileSync(sprintLogPath, 'utf8').slice(0, 2000)
+        : ''
 
-        await newThread.append([{
-          type: 'user-message',
-          content: activationMessage,
-        }])
-      } catch {
-        await ctx.ui.notify(
-          'CAROL PROTOCOL ACTIVE. Ctrl+O → "CAROL: New COUNSELOR Thread" to start in COUNSELOR role.'
-        )
-      }
-    } else {
-      await ctx.ui.notify(
-        'CAROL PROTOCOL ACTIVE. Ctrl+O → "CAROL: New COUNSELOR Thread" to start in COUNSELOR role.'
-      )
+      // Create COUNSELOR thread and make it active
+      const newThread = await agent.createThread({ show: true })
+
+      const activationMessage = sprintLog
+        ? `COUNSELOR: Rock 'n Roll!\n\nYou are continuing from a previous session. SPRINT-LOG below — read it, then wait for ARCHITECT direction.\n\n---\n\n## SPRINT-LOG\n\n${sprintLog}\n\n---\n\nARCHITECT's first message:\n${event.message}`
+        : `COUNSELOR: Rock 'n Roll!\n\nARCHITECT's first message:\n${event.message}`
+
+      await newThread.append([{
+        type: 'user-message',
+        content: activationMessage,
+      }])
+    } catch {
+      // If redirect fails, the built-in thread continues with its turn
     }
   })
 }
