@@ -34,7 +34,7 @@ const MODELS: Record<string, string> = {
 
 const EFFORTS: Record<string, 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max'> = {
   oracle: 'high',
-  counselor: 'low',
+  counselor: 'medium',
   machinist: 'minimal',
   // Secondaries
   engineer: 'minimal',
@@ -46,10 +46,10 @@ const EFFORTS: Record<string, 'none' | 'minimal' | 'low' | 'medium' | 'high' | '
 
 // Amp-specific model overrides per role (takes priority over frontmatter model)
 const MODEL_OVERRIDES: Record<string, string> = {
-  counselor: 'amp/glm-5.2',
+  counselor: 'openai/gpt-5.6-sol',
   machinist: 'amp/glm-5.2',
   // Secondaries
-  engineer: 'amp/glm-5.2',
+  engineer: 'anthropic/claude-sonnet-4-6',
   pathfinder: 'amp/glm-5.2',
   librarian: 'amp/glm-5.2',
   researcher: 'amp/glm-5.2',
