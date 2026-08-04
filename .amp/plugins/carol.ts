@@ -369,7 +369,7 @@ export default function (amp: PluginAPI) {
       const agent = await thread.agent()
       const def = agent.definition as { kind: string; display?: { label?: string; color?: string }; mode?: string }
       if (def?.kind === 'agent-definition' && def?.display?.label) {
-        statusItem.update({ text: def.display.label })
+        statusItem.update({ text: def.display.label.toUpperCase() })
       } else if (def?.kind === 'builtin-agent' && def?.mode) {
         statusItem.update({ text: `CAROL · Amp ${def.mode}` })
       } else {
