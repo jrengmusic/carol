@@ -296,7 +296,8 @@ export default function (amp: PluginAPI) {
 
         // Rename thread to uppercase role (badge is lowercased by Amp)
         try {
-          await amp.$`amp threads rename ${thread.id} ${frontmatter.name}`
+          const ampBin = process.env.HOME + '/.local/bin/amp'
+          await amp.$`${ampBin} threads rename ${thread.id} ${frontmatter.name}`
         } catch {
           // Non-critical
         }
@@ -376,7 +377,7 @@ export default function (amp: PluginAPI) {
       const agent = await thread.agent()
       const def = agent.definition as { kind: string; display?: { label?: string; color?: string }; mode?: string }
       if (def?.kind === 'agent-definition' && def?.display?.label) {
-        statusItem.update({ text: def.display.label.toUpperCase() })
+        statusItem.update({ text: def.display.label })
       } else if (def?.kind === 'builtin-agent' && def?.mode) {
         statusItem.update({ text: `CAROL · Amp ${def.mode}` })
       } else {
@@ -428,7 +429,8 @@ export default function (amp: PluginAPI) {
 
       // Rename thread to uppercase role (badge is lowercased by Amp)
       try {
-        await amp.$`amp threads rename ${newThread.id} COUNSELOR`
+        const ampBin = process.env.HOME + '/.local/bin/amp'
+        await amp.$`${ampBin} threads rename ${newThread.id} COUNSELOR`
       } catch {
         // Non-critical — thread still works
       }
