@@ -34,7 +34,7 @@ const MODELS: Record<string, string> = {
 
 const EFFORTS: Record<string, 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max'> = {
   oracle: 'high',
-  counselor: 'medium',
+  counselor: 'low',
   machinist: 'minimal',
   // Secondaries
   engineer: 'minimal',
@@ -46,7 +46,7 @@ const EFFORTS: Record<string, 'none' | 'minimal' | 'low' | 'medium' | 'high' | '
 
 // Amp-specific model overrides per role (takes priority over frontmatter model)
 const MODEL_OVERRIDES: Record<string, string> = {
-  counselor: 'openai/gpt-5.6-sol',
+  counselor: 'amp/glm-5.2',
   machinist: 'amp/glm-5.2',
   // Secondaries
   engineer: 'amp/glm-5.2',
@@ -363,7 +363,7 @@ export default function (amp: PluginAPI) {
   const statusItem = createStatusItem('carol-role')
   const versionItem = createStatusItem('carol-version')
   statusItem.update({ text: 'CAROL' })
-  versionItem.update({ text: `CAROL v${carolVersion}` })
+  versionItem.update({ text: `v${carolVersion}` })
 
   // Track active thread's mode + title for status display
   amp.activeThread.subscribe(async (thread) => {
