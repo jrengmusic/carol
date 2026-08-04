@@ -2,7 +2,7 @@
 // @amp-agent-mode {"key":"counselor","label":"COUNSELOR"}
 // @amp-agent-mode {"key":"machinist","label":"MACHINIST"}
 
-import type { PluginAPI } from '@ampcode/plugin'
+import type { Agent, ExperimentalPluginAPI, PluginAPI } from '@ampcode/plugin'
 import { readFileSync, existsSync, readdirSync } from 'fs'
 import { join } from 'path'
 
@@ -46,7 +46,7 @@ const EFFORTS: Record<string, 'none' | 'minimal' | 'low' | 'medium' | 'high' | '
 
 // Amp-specific model overrides per role (takes priority over frontmatter model)
 const MODEL_OVERRIDES: Record<string, string> = {
-  counselor: 'openai/gpt-5.6-sol',
+  counselor: 'anthropic/claude-opus-4-6',
   machinist: 'amp/glm-5.2',
   // Secondaries
   engineer: 'anthropic/claude-sonnet-4-6',
@@ -71,6 +71,9 @@ const TOOL_SETS: Record<string, string[]> = {
 
 // Secondary roles registered as subagent tools
 const SECONDARIES = ['engineer', 'pathfinder', 'librarian', 'researcher', 'auditor'] as const
+const ROLES = ['oracle', 'counselor', 'machinist'] as const
+
+type PrimaryAgents = Map<typeof ROLES[number], { agent: Agent; name: string }>
 
 // ─── Frontmatter parser ───────────────────────────────────────────
 
@@ -204,17 +207,8 @@ function loadCommands(amp: PluginAPI) {
   }
 }
 
-export default function (amp: PluginAPI) {
-  if (!amp.experimental) {
-    amp.logger.log('CAROL plugin requires experimental API — agent modes not registered.')
-    return
-  }
-
-  const { createAgent, registerAgentMode, createStatusItem } = amp.experimental
-  const ROLES = ['oracle', 'counselor', 'machinist'] as const
-
-  // Keep counselor agent handle for session.start auto-create
-  let counselorAgent: ReturnType<typeof createAgent> | null = null
+function registerPrimaryAgents(amp: PluginAPI, experimental: ExperimentalPluginAPI): PrimaryAgents {
+  const primaryAgents: PrimaryAgents = new Map()
 
   // Register each CAROL primary as a custom agent mode + launch command
   for (const role of ROLES) {
@@ -224,7 +218,7 @@ export default function (amp: PluginAPI) {
     const reasoningEffort = EFFORTS[role]
     const tools = TOOL_SETS[role] ?? TOOL_SETS.counselor
 
-    const agent = createAgent({
+    const agent = experimental.createAgent({
       name: frontmatter.name,
       model,
       instructions,
@@ -233,9 +227,9 @@ export default function (amp: PluginAPI) {
       display: { label: frontmatter.name, color },
     })
 
-    if (role === 'counselor') counselorAgent = agent
+    primaryAgents.set(role, { agent, name: frontmatter.name })
 
-    registerAgentMode({
+    experimental.registerAgentMode({
       key: role,
       label: frontmatter.name,
       description: frontmatter.description,
@@ -308,12 +302,10 @@ export default function (amp: PluginAPI) {
     amp.logger.log(`CAROL: registered ${frontmatter.name} mode + command (${model})`)
   }
 
-  // ─── Slash commands — read from shared commands/ dir ────────────
+  return primaryAgents
+}
 
-  loadCommands(amp)
-
-  // ─── Secondary subagents — registered as delegation tools ──────
-
+function registerSecondaryAgents(amp: PluginAPI, experimental: ExperimentalPluginAPI) {
   for (const role of SECONDARIES) {
     const { frontmatter, instructions } = loadAgent(role)
     const model = MODEL_OVERRIDES[role] ?? MODELS[frontmatter.model] ?? MODELS.sonnet
@@ -321,7 +313,7 @@ export default function (amp: PluginAPI) {
     const reasoningEffort = EFFORTS[role]
     const tools = TOOL_SETS[role] ?? ['Read', 'shell_command', 'finder']
 
-    const subagent = createAgent({
+    const subagent = experimental.createAgent({
       name: frontmatter.name,
       model,
       instructions,
@@ -353,15 +345,15 @@ export default function (amp: PluginAPI) {
 
     amp.logger.log(`CAROL: registered ${frontmatter.name} subagent tool (${model})`)
   }
+}
 
-  // ─── Status items — role badge + version + thread title ────────
-
+function createStatusItems(amp: PluginAPI, experimental: ExperimentalPluginAPI) {
   const carolVersion = existsSync(join(CAROL_ROOT, 'VERSION'))
     ? readFileSync(join(CAROL_ROOT, 'VERSION'), 'utf8').trim()
     : '?.?'
 
-  const statusItem = createStatusItem('carol-role')
-  const versionItem = createStatusItem('carol-version')
+  const statusItem = experimental.createStatusItem('carol-role')
+  const versionItem = experimental.createStatusItem('carol-version')
   statusItem.update({ text: 'CAROL' })
   versionItem.update({ text: `v${carolVersion}` })
 
@@ -374,7 +366,7 @@ export default function (amp: PluginAPI) {
     try {
       const fullThread = amp.threads.get(thread.id)
       const agent = await fullThread.agent()
-      const def = agent.definition as { kind: string; display?: { label?: string; color?: string }; mode?: string }
+      const def = agent.definition
 
       // Get thread title
       let titleText = ''
@@ -408,56 +400,58 @@ export default function (amp: PluginAPI) {
       statusItem.update({ text: 'CAROL' })
     }
   })
+}
 
-  // ─── Agent start — intercept built-in threads, redirect to COUNSELOR ──
-
+function registerAgentStart(amp: PluginAPI, primaryAgents: PrimaryAgents) {
   amp.on('agent.start', async (event, ctx) => {
-    // If already in a CAROL custom agent thread, let it proceed
     try {
       const threadAgent = await ctx.thread.agent()
-      const def = threadAgent.definition as { kind?: string }
-      if (def?.kind === 'agent-definition') return
-    } catch {
-      return
-    }
+      const def = threadAgent.definition
+      if (def?.kind === 'builtin-agent') {
+        const explicitRole = ROLES.find((role) => {
+          const activation = `${primaryAgents.get(role)!.name}: Rock 'n Roll!`
+          return event.message === activation
+            || event.message.startsWith(`${activation}\n`)
+            || event.message.startsWith(`${activation}\r\n`)
+        })
+        const selectedPrimaryRole = explicitRole ?? 'counselor'
+        const selectedPrimaryAgent = primaryAgents.get(selectedPrimaryRole)!
 
-    // Only intercept the FIRST turn in a built-in thread.
-    // If there are already assistant messages, the user chose to stay here.
-    try {
-      const prior = await ctx.thread.messages({ limit: 1, roles: ['assistant'] })
-      if (prior.length > 0) return
-    } catch {
-      // Can't read messages — let the built-in thread proceed
-      return
-    }
+        // Cancel the built-in thread's turn before it starts
+        await ctx.thread.cancel()
 
-    // First turn in a built-in thread — redirect to COUNSELOR
-    const agent = counselorAgent
-    if (!agent) return
+        // Read SPRINT-LOG for handoff context
+        const sprintLogPath = join(CAROL_ROOT, 'carol', 'SPRINT-LOG.md')
+        const sprintLog = existsSync(sprintLogPath)
+          ? readFileSync(sprintLogPath, 'utf8').slice(0, 2000)
+          : ''
 
-    try {
-      // Cancel the built-in thread's turn before it starts
-      await ctx.thread.cancel()
+        const newThread = await selectedPrimaryAgent.agent.createThread({ show: true })
 
-      // Read SPRINT-LOG for handoff context
-      const sprintLogPath = join(CAROL_ROOT, 'carol', 'SPRINT-LOG.md')
-      const sprintLog = existsSync(sprintLogPath)
-        ? readFileSync(sprintLogPath, 'utf8').slice(0, 2000)
-        : ''
+        const activationMessage = sprintLog
+          ? `${selectedPrimaryAgent.name}: Rock 'n Roll!\n\nYou are continuing from a previous session. SPRINT-LOG below — read it, then wait for ARCHITECT direction.\n\n---\n\n## SPRINT-LOG\n\n${sprintLog}\n\n---\n\nARCHITECT's first message:\n${event.message}`
+          : `${selectedPrimaryAgent.name}: Rock 'n Roll!\n\nARCHITECT's first message:\n${event.message}`
 
-      // Create COUNSELOR thread and make it active
-      const newThread = await agent.createThread({ show: true })
-
-      const activationMessage = sprintLog
-        ? `COUNSELOR: Rock 'n Roll!\n\nYou are continuing from a previous session. SPRINT-LOG below — read it, then wait for ARCHITECT direction.\n\n---\n\n## SPRINT-LOG\n\n${sprintLog}\n\n---\n\nARCHITECT's first message:\n${event.message}`
-        : `COUNSELOR: Rock 'n Roll!\n\nARCHITECT's first message:\n${event.message}`
-
-      await newThread.append([{
-        type: 'user-message',
-        content: activationMessage,
-      }])
-    } catch {
-      // If redirect fails, the built-in thread continues with its turn
+        await newThread.append([{
+          type: 'user-message',
+          content: activationMessage,
+        }])
+      }
+    } catch (error) {
+      amp.logger.log(`CAROL: primary redirect failed: ${String(error)}`)
+      throw error
     }
   })
+}
+
+export default function (amp: PluginAPI) {
+  if (amp.experimental) {
+    const primaryAgents = registerPrimaryAgents(amp, amp.experimental)
+    loadCommands(amp)
+    registerSecondaryAgents(amp, amp.experimental)
+    createStatusItems(amp, amp.experimental)
+    registerAgentStart(amp, primaryAgents)
+  } else {
+    amp.logger.log('CAROL plugin requires experimental API — agent modes not registered.')
+  }
 }
