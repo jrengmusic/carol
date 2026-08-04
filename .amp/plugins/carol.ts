@@ -213,6 +213,9 @@ export default function (amp: PluginAPI) {
   const { createAgent, registerAgentMode, createStatusItem } = amp.experimental
   const ROLES = ['oracle', 'counselor', 'machinist'] as const
 
+  // Keep counselor agent handle for session.start auto-create
+  let counselorAgent: ReturnType<typeof createAgent> | null = null
+
   // Register each CAROL primary as a custom agent mode + launch command
   for (const role of ROLES) {
     const { frontmatter, instructions } = loadAgent(role)
@@ -229,6 +232,8 @@ export default function (amp: PluginAPI) {
       reasoningEffort,
       display: { label: frontmatter.name, color },
     })
+
+    if (role === 'counselor') counselorAgent = agent
 
     registerAgentMode({
       key: role,
@@ -293,10 +298,10 @@ export default function (amp: PluginAPI) {
           ? `${frontmatter.name}: Rock 'n Roll!\n\nYou are continuing from a previous session. Context below — read it, then wait for ARCHITECT direction.\n\n---\n\n${handoffContext}`
           : `${frontmatter.name}: Rock 'n Roll!`
 
-        await thread.appendUserMessage({
+        await thread.append([{
           type: 'user-message',
           content: activationMessage,
-        })
+        }])
       },
     )
 
@@ -375,17 +380,61 @@ export default function (amp: PluginAPI) {
     }
   })
 
-  // ─── Session start — protocol activation ───────────────────────
+  // ─── Session start — auto-create COUNSELOR thread ──────────────
 
   amp.on('session.start', async (event, ctx) => {
-    const sprintLogPath = join(CAROL_ROOT, 'carol', 'SPRINT-LOG.md')
-    const sprintLog = existsSync(sprintLogPath)
-      ? readFileSync(sprintLogPath, 'utf8').slice(0, 2000)
-      : ''
+    // If already in a CAROL custom agent thread, do nothing
+    try {
+      const threadAgent = await ctx.thread.agent()
+      const def = threadAgent.definition as { kind?: string; display?: { label?: string }; mode?: string }
+      if (def?.kind === 'agent-definition') return
+    } catch {
+      // Can't determine agent — fall through to notification fallback
+    }
 
-    await ctx.ui.notify(
-      `CAROL PROTOCOL ACTIVE. Ctrl+O → "CAROL: New COUNSELOR/ORACLE/MACHINIST Thread" to start in a CAROL role.` +
-      (sprintLog ? ' SPRINT-LOG loaded.' : '')
-    )
+    // Check if this is a fresh empty thread (interactive startup)
+    // vs. execute mode / resume (has user messages)
+    try {
+      const messages = await ctx.thread.messages({ limit: 5 })
+      const hasUserMessage = messages.some((m: any) => m.role === 'user')
+      if (hasUserMessage) {
+        await ctx.ui.notify(
+          'CAROL PROTOCOL ACTIVE. Ctrl+O → "CAROL: New COUNSELOR Thread" to start in COUNSELOR role.'
+        )
+        return
+      }
+    } catch {
+      // Can't read messages — fall through to auto-create attempt
+    }
+
+    // Fresh empty built-in thread — auto-create COUNSELOR
+    const agent = counselorAgent
+    if (agent) {
+      try {
+        const sprintLogPath = join(CAROL_ROOT, 'carol', 'SPRINT-LOG.md')
+        const sprintLog = existsSync(sprintLogPath)
+          ? readFileSync(sprintLogPath, 'utf8').slice(0, 2000)
+          : ''
+
+        const newThread = await agent.createThread({ show: true })
+
+        const activationMessage = sprintLog
+          ? `COUNSELOR: Rock 'n Roll!\n\nYou are continuing from a previous session. SPRINT-LOG below — read it, then wait for ARCHITECT direction.\n\n---\n\n## SPRINT-LOG\n\n${sprintLog}`
+          : `COUNSELOR: Rock 'n Roll!`
+
+        await newThread.append([{
+          type: 'user-message',
+          content: activationMessage,
+        }])
+      } catch {
+        await ctx.ui.notify(
+          'CAROL PROTOCOL ACTIVE. Ctrl+O → "CAROL: New COUNSELOR Thread" to start in COUNSELOR role.'
+        )
+      }
+    } else {
+      await ctx.ui.notify(
+        'CAROL PROTOCOL ACTIVE. Ctrl+O → "CAROL: New COUNSELOR Thread" to start in COUNSELOR role.'
+      )
+    }
   })
 }
