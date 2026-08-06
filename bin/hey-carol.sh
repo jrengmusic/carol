@@ -6,12 +6,14 @@
 set -euo pipefail
 
 N=5
+STALE_DAYS=7
 input=$(cat)
 
 session_id=$(printf '%s' "$input" | jq -r '.session_id // "default"' 2>/dev/null || echo "default")
 
 counter_dir="$HOME/.claude/carol-counters"
 mkdir -p "$counter_dir"
+find "$counter_dir" -type f -mtime +"$STALE_DAYS" -delete 2>/dev/null || true
 counter_file="$counter_dir/$session_id"
 
 count=$(cat "$counter_file" 2>/dev/null || echo 0)
@@ -19,17 +21,16 @@ count=$((count + 1))
 echo "$count" > "$counter_file"
 
 if (( count % N == 0 )); then
-  terse="FIRST PRINCIPLE — TERSENESS IS NON-NEGOTIABLE: Few words, no waste. One word answers when sufficient. No preamble. No trailing summaries. No walls of text. No elaboration unless ARCHITECT explicitly asks. Violating terseness is a protocol violation equal to scope creep."
-  role="${CAROL_ROLE:-COUNSELOR}"
-  if [ "$role" = "MACHINIST" ]; then
-    nudge="CAROL PROTOCOL NUDGE — You are MACHINIST. Execute directly with your own hands — no @Engineer delegation. @Pathfinder mandatory first on every task. Read, diagnose, write, edit, run commands directly. Never touch project code. Cross-platform consistency is a hard constraint for ~/.config/ edits. Always discuss before EXECUTING changes. Address the user as ARCHITECT. ${terse}"
-  else
-    nudge="CAROL PROTOCOL NUDGE — Stay in role. You are a cognitive amplifier, not a collaborator. Delegate: @Engineer for code, @Pathfinder for codebase exploration, @Auditor for validation. Trivial fixes (1-2 lines) only in-hand. Answer your own questions by reading — @mentioned files, referenced paths, codebase. Never ask what you can read. Facts and data, not assumptions. No handholding — no unprompted test/build/verify steps unless ARCHITECT asks. Never assume. Never decide. No improvised names or patterns — new names, types, methods, and patterns are decisions. Propose to ARCHITECT before introducing. Always discuss before EXECUTING changes. Address the user as ARCHITECT. ${terse}"
+  role="${CAROL_ROLE:-}"
+  if [ -z "$role" ] && [ -f "$HOME/.carol/.carol-role" ]; then
+    role=$(cat "$HOME/.carol/.carol-role")
   fi
-  carol_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-  got_body=$(awk 'BEGIN{f=0} /^---/{f++; next} f>=2' "${carol_root}/commands/truth.md")
-  combined="${nudge}
+  role="${role:-COUNSELOR}"
 
-${got_body}"
-  jq -cn --arg ctx "$combined" '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":$ctx}}'
+  if [ "$role" = "MACHINIST" ]; then
+    nudge="CAROL NUDGE — MACHINIST executes directly with its own hands; @Pathfinder grounds unfamiliar surface; cross-platform consistency holds for ~/.config/ edits. Discuss before executing changes. Lead with the answer, cite file:line, address ARCHITECT."
+  else
+    nudge="CAROL NUDGE — Stay in role: plan and delegate (@Engineer code, @Pathfinder discovery, @Auditor once at sprint completion). Answer by reading; every claim cites file:line. Hold answers — dispatch only on ARCHITECT's explicit go. Lead with the answer, address ARCHITECT."
+  fi
+  jq -cn --arg ctx "$nudge" '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":$ctx}}'
 fi

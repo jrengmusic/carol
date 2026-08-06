@@ -5,15 +5,52 @@ description: Write commit message (in chat), log sprint to carol/SPRINT-LOG.md, 
 Do all three, no approval gate between them:
 
 **1. Write commit message in CHAT ONLY.**
-- Draft a commit message for all current changes, following the repository's existing commit style (check recent `git log`).
+- Draft a commit message for all current changes, following the repository's existing
+  commit style (check recent `git log`).
 - Output the message directly in chat as a code block so ARCHITECT can copy it.
-- Do NOT write the commit message into SPRINT-LOG.md or any other file.
-- Do NOT run `git commit` yourself — ARCHITECT commits manually.
+- The commit message goes in chat only — never into SPRINT-LOG.md or any file.
+- ARCHITECT commits manually.
 
-**2. Append sprint entry to carol/SPRINT-LOG.md** using the format defined in CAROL.md (Sprint [N]: [Objective], Date, Duration, Agents Participated, Files Modified, Alignment Check, Problems Solved, Debts Paid, Debts Deferred). The sprint entry does NOT contain the commit message.
+**2. Append sprint entry to carol/SPRINT-LOG.md** (latest first, keep last 5). The
+sprint entry does NOT contain the commit message. A sprint ends when logged — work
+after logging is a new sprint.
+
+~~~markdown
+## Sprint [N]: [Objective] ✅
+
+**Date:** YYYY-MM-DD
+**Duration:** HH:MM
+
+### Agents Participated
+- [Role]: [Agent] — [What they did]
+
+### Files Modified ([X] total)
+- `path/file.cpp:line` — [specific change and rationale]
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [ ] *(if any unchecked, explain why)*
+
+### Problems Solved
+- [description and solution]
+
+### Debts Paid
+- `DEBT-YYYYMMDDTHHMMSS` — [one-line resolution]
+- *(or)* "None"
+
+### Debts Deferred
+- `DEBT-YYYYMMDDTHHMMSS` — [one-line summary]
+- *(or)* "None"
+~~~
+
+Zero-debt rule: all in-scope debt resolved before logging; ARCHITECT-commanded
+deferrals go to Debts Deferred.
 
 **3. Hygiene drain (MANDATORY, after SPRINT-LOG write).**
-- For each `DEBT-YYYYMMDDTHHMMSS` ID listed under *Debts Paid* in the sprint entry, run: `carol debt clear <id>`.
-- This removes the paid entry from project-root `DEBT.md`.
-- Order is mandatory: **SPRINT-LOG receipt first, then DEBT.md drain.** SPRINT-LOG is the receipt; DEBT.md is the working ledger. Do not drain before logging — if logging fails, the ledger must still reflect the unpaid state.
-- If *Debts Paid* is "None", skip this step.
+- For each `DEBT-YYYYMMDDTHHMMSS` ID under *Debts Paid*: `carol debt clear <id>`.
+- Order is mandatory: SPRINT-LOG receipt first, then DEBT.md drain — if logging
+  fails, the ledger must still reflect the unpaid state.
+- Drain criterion = what the sprint actually touched/fixed/diminished.
+- *Debts Paid* is "None" → skip this step.

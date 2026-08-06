@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="1400px" height="1000px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
     <rect x="0" y="0" width="1400" height="1000" style="fill:#090d12;"/>
-    <text x="627.554px" y="30px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:20px;fill:#b3f9f5;">CAROL v0.0.22</text>
+    <text x="627.554px" y="30px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:20px;fill:#b3f9f5;">CAROL v0.0.23</text>
     <text x="524.674px" y="50px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#699daa;">Cognitive Ampliﬁer Role Orchestration with LLM agents</text>
     <g>
         <g>
@@ -39,11 +39,12 @@
             <text x="250.823px" y="306.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#699daa;">Domain Speciﬁc Strategic Analysis</text>
             <text x="214.477px" y="331.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Write SPEC.md, PLAN.md, ARCHITECTURE.md</text>
             <text x="250.933px" y="351.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Plan features, ask questions</text>
-            <text x="214.477px" y="371.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Delegate: @Engineer, @Auditor, @Oracle</text>
+            <text x="204.477px" y="371.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Delegate: @Engineer, @Librarian, @Auditor</text>
         </g>
     </g>
     <g>
         <path d="M200,483L200,557C200,558.656 198.656,560 197,560L83,560C81.344,560 80,558.656 80,557L80,483C80,481.344 81.344,480 83,480L197,480C198.656,480 200,481.344 200,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
+        <path d="M340,483L340,557C340,558.656 338.656,560 337,560L223,560C221.344,560 220,558.656 220,557L220,483C220,481.344 221.344,480 223,480L337,480C338.656,480 340,481.344 340,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
         <path d="M480,483L480,557C480,558.656 478.656,560 477,560L363,560C361.344,560 360,558.656 360,557L360,483C360,481.344 361.344,480 363,480L477,480C478.656,480 480,481.344 480,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
         <path d="M620,483L620,557C620,558.656 618.656,560 617,560L503,560C501.344,560 500,558.656 500,557L500,483C500,481.344 501.344,480 503,480L617,480C618.656,480 620,481.344 620,483Z" style="fill:#112130;stroke:#67dfef;stroke-width:1.5px;"/>
     </g>
@@ -51,10 +52,13 @@
         <text x="112.617px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Pathﬁnder</text>
         <text x="118.355px" y="519.758px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">patterns</text>
         <text x="107.511px" y="545px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#519299;">ALWAYS FIRST</text>
+        <text x="252.900px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Librarian</text>
+        <text x="258.350px" y="519.758px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">research</text>
         <text x="395.627px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Engineer</text>
         <text x="398.278px" y="520.903px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">implement</text>
         <text x="539.028px" y="510px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#b3f9f5;">Auditor</text>
         <text x="538.355px" y="520.903px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#4a9fab;">validate</text>
+        <text x="524.011px" y="545px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:#519299;">ONCE, SPRINT END</text>
     </g>
     <g>
         <g>
@@ -89,6 +93,7 @@
     </g>
     <g>
         <path d="M260,390L260,430L140,430L140,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
+        <path d="M310,390L310,440L280,440L280,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
         <path d="M410,390L410,410L420,410L420,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
         <path d="M460,390L460,430L560,430L560,480" style="fill:none;stroke:#b3f9f5;stroke-width:1px;"/>
         <path d="M555,325L675,325L675,630" style="fill:none;stroke:#b3f9f5;stroke-width:2px;stroke-dasharray:5,5;"/>

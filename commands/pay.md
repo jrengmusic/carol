@@ -10,6 +10,12 @@ description: Drain DEBT.md ledger into the next sprint plan — COUNSELOR only, 
 
 Do not proceed.
 
+**Capture (context):** entries reach DEBT.md via `carol debt add` — ARCHITECT-initiated
+only; agents flag findings, ARCHITECT decides disposition. Three prompts in order
+(Observation / Divergence / Expectation); empty answer or Ctrl-C aborts cleanly — no
+partial entry. Completed entries are prepended with ID `DEBT-YYYYMMDDTHHMMSS` (UTC).
+DEBT.md lives at project root, created lazily, survives `carol reset`.
+
 **As COUNSELOR, on `/pay`:**
 
 1. **Read** project-root `DEBT.md` in full. If the file does not exist or contains no `## DEBT-` entries, report *"Ledger empty — nothing to pay."* and stop.

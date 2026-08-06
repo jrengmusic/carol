@@ -9,7 +9,7 @@ Primary must be active (COUNSELOR). Invoke `@Auditor` for a comprehensive audit 
 
 Audit scope — all of the following, no omissions:
 
-- **Contract docs violations** against `~/.carol/NAMES.md`, `~/.carol/JRENG-CODING-STANDARD.md`, `~/.carol/MANIFESTO.md` — **BLESSED violations introduced in prior sprints are NEVER ignored.** If Auditor encounters them anywhere in the discovered scope, they are in scope and must be resolved.
+- **Contract docs violations** against `~/.carol/NAMES.md`, `~/.carol/CODING.md`, `~/.carol/MANIFESTO.md` — **BLESSED violations introduced in prior sprints are NEVER ignored.** If Auditor encounters them anywhere in the discovered scope, they are in scope and must be resolved.
 - **Dead code removal** — unused code, garbage helpers, unnecessary forwarders/dispatchers, leftover diagnostics
 - **Refactoring opportunities** — eliminate redundancy, reduce recurring patterns, collapse to SSOT
 - **Stale documentation** — needs updating or adding, including inline documentation (doxygen, godoc, etc.)

@@ -9,10 +9,10 @@ description: Produce BLESSED-compliant incremental execution plan (consumes RFC.
 - `/goplan no RFC` (or `no-rfc`, `skip rfc`) — explicit override: DO NOT read any RFC file, objective comes from ARCHITECT's prompt only
 
 1. **Read RFC** at project root (`RFC.md` or `RFC-[objective].md`) — OPTIONAL. Skip entirely if ARCHITECT passed "no RFC". If present and not overridden, consume it. If absent, proceed using ARCHITECT's prompt as the objective source. Never invent an RFC, never block on a missing one.
-2. **Read ~/.carol/MANIFESTO.md** (BLESSED principles)
-3. **Read ~/.carol/NAMES.md** (naming philosophy — lexicon, identifiers)
-4. **Read ~/.carol/JRENG-CODING-STANDARD.md** (coding standards)
-5. **Read ~/.carol/LANGUAGE.md** — language-specific BLESSED adaptations and framework constraints
+2. **Read the CONTRACT docs targeted to the objective** — ~/.carol/MANIFESTO.md
+   (BLESSED principles), ~/.carol/NAMES.md (lexicon, identifiers), ~/.carol/CODING.md
+   (coding standards), ~/.carol/LANGUAGE.md (language/framework adaptations). Read the
+   sections relevant to the objective, not entire files front-to-back.
 6. **Read SPEC.md** if it exists — plan must align with spec
 7. **Invoke @Pathfinder** — thorough dependency and pattern inventory. Discover and enumerate:
    - Every framework/library dependency actually in use for this objective (e.g. Vulkan, Windows API, JUCE, KANJUT, JAM, CIUM — whichever apply to this project)
@@ -42,19 +42,17 @@ description: Produce BLESSED-compliant incremental execution plan (consumes RFC.
 [Established codebase pattern confirmed for identifiers/containers/helpers touched — cite file:line]
 
 ## Validation Gate
-Each step MUST be validated before proceeding to the next.
-Validation = @Auditor confirms step output complies with ALL documented contracts:
-- MANIFESTO.md (BLESSED principles)
-- NAMES.md (naming philosophy)
-- ~/.carol/JRENG-CODING-STANDARD.md (C++ coding standards)
-- The locked PLAN decisions agreed with ARCHITECT (no deviation, no scope drift)
+Each step is validated by COUNSELOR before proceeding to the next — against
+MANIFESTO.md (BLESSED), NAMES.md, ~/.carol/CODING.md, and the locked PLAN decisions
+(no deviation, no scope drift). @Auditor runs ONCE, after the final step, covering
+the whole sprint — never per step.
 
 ## Steps
 
 ### Step 1: [Title]
 **Scope:** [files/modules affected]
 **Action:** [precise instruction for @Engineer]
-**Validation:** [what @Auditor checks — must cover MANIFESTO.md, NAMES.md, ~/.carol/JRENG-CODING-STANDARD.md, and locked PLAN decisions]
+**Validation:** [what COUNSELOR checks — must cover MANIFESTO.md, NAMES.md, ~/.carol/CODING.md, and locked PLAN decisions]
 
 ### Step 2: [Title]
 ...
@@ -73,7 +71,7 @@ Validation = @Auditor confirms step output complies with ALL documented contract
 - Steps must be small and incremental — never choke the engineer
 - Each step must have explicit validation criteria
 - Objective name in filename derived from RFC title when RFC exists, otherwise from ARCHITECT's stated objective (kebab-case, e.g. `PLAN-session-management.md`)
-- Delegate to @Engineer for execution, @Auditor for validation — COUNSELOR tracks and orchestrates
+- Delegate to @Engineer for execution; COUNSELOR validates per step and orchestrates; @Auditor sweeps once at sprint completion
 - No manual hand-rolled methods where framework API already provides — no manual arithmetic, no manual string parsing, no manual state tracking
-- No magic numbers/variables — define constants per NAMES.md / JRENG-CODING-STANDARD.md
+- No magic numbers/variables — define constants per NAMES.md / CODING.md
 - No new semantics, no new pattern, no new foreign names — follow codebase-established pattern exactly

@@ -185,7 +185,7 @@ symlink_carol_assets() {
     # Symlink reference docs into carol/ so ARCHITECT can @mention them
     # SSOT: edits to ~/.carol/*.md reflect instantly, no copies.
     local ref_doc
-    for ref_doc in NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md JRENG-CODING-STANDARD.md LANGUAGE.md ODE.md ARCHITECT.md; do
+    for ref_doc in NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md CODING.md LANGUAGE.md ODE.md ARCHITECT.md; do
         [ -f "$CAROL_ROOT/$ref_doc" ] && ln -sf "$CAROL_ROOT/$ref_doc" "carol/$ref_doc"
     done
 
@@ -197,6 +197,18 @@ symlink_carol_assets() {
     # so `carol update` cleans up existing projects that were init'd under older
     # versions. Launched only via `carol machinist` → _launch_machinist.
     rm -f ".claude/agents/machinist.md"
+    # Stale names from pre-0.0.23 layouts: Researcher merged into Librarian,
+    # JRENG-CODING-STANDARD.md renamed to CODING.md.
+    rm -f ".claude/agents/researcher.md" "carol/JRENG-CODING-STANDARD.md"
+
+    # Skills resolve user-globally so every session sees them.
+    mkdir -p "$HOME/.claude/skills"
+    local skill_dir
+    if [ -d "$CAROL_ROOT/skills" ]; then
+        for skill_dir in "$CAROL_ROOT/skills"/*/; do
+            [ -d "$skill_dir" ] && ln -sfn "${skill_dir%/}" "$HOME/.claude/skills/$(basename "$skill_dir")"
+        done
+    fi
 
     local agent_file cmd_file
     if [ -d "$CAROL_ROOT/agents" ]; then
@@ -510,7 +522,7 @@ cmd_help() {
     echo -e "  ${YELLOW}install${NC}        Set up global CLAUDE.md loader and ~/.claude symlink (run once per machine)"
     echo -e "  ${YELLOW}init${NC} [--no-synth]  Initialize CAROL in current project (optionally skip CLAUDE.md synthesis)"
     echo -e "  ${YELLOW}oracle${NC} [name]       Launch ORACLE session (research, RFC, analysis)"
-    echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
+    echo -e "  ${YELLOW}counselor${NC} [fable|opus48|opus5] [name]  Launch COUNSELOR (model ladder, default fable)"
     echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
     echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/clear)"
     echo -e "  ${YELLOW}ledger${NC}         Show DEBT.md ledger"
@@ -905,16 +917,43 @@ cmd_debt_clear() {
     success "Drained $id"
 }
 
+set_counselor_model() {
+    # COUNSELOR model ladder: fable (primary) → opus48 (fallback) → opus5.
+    # Writes the exact model ID + effort into counselor.md frontmatter; cmd_run
+    # reads it back at launch.
+    local rung="$1"
+    local model effort
+    case "$rung" in
+        fable)  model="claude-fable-5";  effort="high" ;;
+        opus48) model="claude-opus-4-8"; effort="high" ;;
+        opus5)  model="claude-opus-5";   effort="high" ;;
+    esac
+    local def="$CAROL_ROOT/agents/counselor.md"
+    local tmp_def="$def.tmp.$$"
+    sed -e "s/^model: .*/model: $model/" -e "s/^effort: .*/effort: $effort/" "$def" > "$tmp_def"
+    mv "$tmp_def" "$def"
+    success "COUNSELOR seat: $model (effort: $effort)"
+}
+
 symlink_machinist_assets() {
     # MACHINIST + its team resolve as user-global agents so `carol machinist`
     # works anywhere (no project scaffold required). Lazy-created on launch.
     # Engineer deliberately excluded — MACHINIST executes directly.
     mkdir -p "$HOME/.claude/agents"
     local agent_file
-    for agent_file in machinist.md pathfinder.md oracle.md librarian.md researcher.md; do
+    rm -f "$HOME/.claude/agents/researcher.md"
+    for agent_file in machinist.md pathfinder.md oracle.md librarian.md; do
         [ -f "$CAROL_ROOT/agents/$agent_file" ] && \
             ln -sf "$CAROL_ROOT/agents/$agent_file" "$HOME/.claude/agents/$agent_file"
     done
+
+    mkdir -p "$HOME/.claude/skills"
+    local skill_dir
+    if [ -d "$CAROL_ROOT/skills" ]; then
+        for skill_dir in "$CAROL_ROOT/skills"/*/; do
+            [ -d "$skill_dir" ] && ln -sfn "${skill_dir%/}" "$HOME/.claude/skills/$(basename "$skill_dir")"
+        done
+    fi
 }
 
 _launch_machinist() {
@@ -926,6 +965,7 @@ _launch_machinist() {
     echo ""
 
     export CAROL_ROLE=MACHINIST
+    printf 'MACHINIST' > "$CAROL_ROOT/.carol-role"
     exec claude \
         --plugin-dir "$CAROL_ROOT" \
         --add-dir "$CAROL_ROOT" \
@@ -1034,6 +1074,7 @@ print(role)
             fi
         fi
         export CAROL_ROLE="${requested_role:-COUNSELOR}"
+        printf '%s' "$CAROL_ROLE" > "$CAROL_ROOT/.carol-role"
 
         # MACHINIST resumes bypass project scaffold, same as fresh launch
         # (see the MACHINIST branch above), and need the same extra flags.
@@ -1057,6 +1098,7 @@ print(role)
         claude_args+=(--agent COUNSELOR)
     fi
     export CAROL_ROLE="$requested_role"
+    printf '%s' "$CAROL_ROLE" > "$CAROL_ROOT/.carol-role"
 
     # Project roles (ORACLE, COUNSELOR): need project context
     if ! $in_project; then
@@ -1168,6 +1210,12 @@ case "${1:-run}" in
         ;;
     counselor|counsel)
         shift
+        case "${1:-}" in
+            fable|opus48|opus5)
+                set_counselor_model "$1"
+                shift
+                ;;
+        esac
         cmd_run --agent COUNSELOR "$@"
         ;;
     machinist|machine)

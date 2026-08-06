@@ -117,6 +117,39 @@ The O/D/E format is borrowed from the ODE protocol because it is the correct art
 
 ---
 
+## Why Instructions Are Positive-Form (0.0.23)
+
+Claude 5-family models validate instructions as specifications: contradictory or
+redundant rule pairs measurably degrade output, and defensive rules written against
+older models now cost quality instead of adding it (Opus 5 system card). CAROL 0.0.23
+therefore states each rule once, positively — what to do, not an enumeration of
+everything not to do. Terseness governs chat; losslessness governs deliverable
+documents. Two scopes, one rule each — not a contradiction.
+
+---
+
+## Why Model Seats Are Pinned
+
+Each role's model is pinned in its agent frontmatter, chosen from documented behavior:
+Fable 5 for delegation-heavy, long-retention primaries (COUNSELOR, ORACLE); Sonnet 5
+for literal executors fed exact specs (Engineer, MACHINIST); Opus 5 for bounded
+deep-analysis invocations with coverage-not-filtering steering (Auditor); Haiku for
+protocol-carrying discovery and research (Pathfinder, Librarian). The COUNSELOR seat
+has a budget ladder — `carol counselor [fable|opus48|opus5]`. Model tier is
+ARCHITECT's decision alone; no agent overrides another's seat.
+
+---
+
+## Why the Auditor Runs Once
+
+Per-step audit invocations multiply token cost and stall the Step Gate. Under 0.0.23,
+COUNSELOR validates each step against the CONTRACT itself — that is what the Step
+Gate is — and @Auditor sweeps the whole sprint once, after all steps complete, with
+coverage over filtering. One deep audit of the finished surface catches what per-step
+spot checks fragment.
+
+---
+
 ## Why Doxygen is First-Class
 
 Doxygen XML is not documentation — it is a navigation map. Loading the index first tells you what exists, where it lives, and how it connects. Reading a compound XML before Grep means you read the exact file with the exact API, not a regex match against source that might be stale or partial. Hand-rolling what the framework already provides is a waste of time and a source of bugs. Doxygen-first eliminates both.
@@ -176,4 +209,4 @@ Subagents invoke via Agent tool. Return BRIEF format to primary.
 
 ---
 
-*Rationale document for CAROL v0.0.22. Enforcement contract: ~/.carol/CAROL.md*
+*Rationale document for CAROL v0.0.23. Enforcement contract: ~/.carol/CAROL.md*

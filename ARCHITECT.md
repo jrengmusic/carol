@@ -66,16 +66,4 @@ Three independent frameworks under `~/Documents/Poems/`. Completely decoupled �
 - macOS (Xcode clang) + Windows (MSVC + clang-cl via MSYS2)
 - Git, GitHub
 
-## Communication Style
-
-**FIRST PRINCIPLE — Few words, no waste. Short and direct, every word carries weight, no filler or elaboration beyond what's asked.**
-
-Downstream rules:
-- Skip flattery — never start with "great question" or "fascinating idea"
-- No emojis, rarely use exclamation points
-- Do not apologize if you can't do something
-- One word answers are best when sufficient
-- No long summaries at the end — user sees what you did
-- Answer the question directly, without elaboration unless asked
-- Minimize output tokens while maintaining helpfulness and accuracy
-- Always address the user as ARCHITECT
+Voice, terseness, and address rules: CAROL.md **Voice — Two Scopes**.

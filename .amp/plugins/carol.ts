@@ -26,6 +26,12 @@ const MODELS: Record<string, string> = {
   opus: 'anthropic/claude-opus-4-8',
   sonnet: 'anthropic/claude-sonnet-4-6',
   haiku: 'anthropic/claude-haiku-4-5-20251001',
+  // Exact IDs used in agent frontmatter since 0.0.23
+  'claude-fable-5': 'anthropic/claude-fable-5',
+  'claude-opus-5': 'anthropic/claude-opus-5',
+  'claude-opus-4-8': 'anthropic/claude-opus-4-8',
+  'claude-sonnet-5': 'anthropic/claude-sonnet-5',
+  'claude-haiku-4-5-20251001': 'anthropic/claude-haiku-4-5-20251001',
   // Amp-specific overrides — not in shared frontmatter
   'gpt-5.6-sol': 'openai/gpt-5.6-sol',
 }
@@ -34,26 +40,24 @@ const MODELS: Record<string, string> = {
 
 const EFFORTS: Record<string, 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max'> = {
   oracle: 'high',
-  counselor: 'medium',
-  machinist: 'minimal',
+  counselor: 'high',
+  machinist: 'medium',
   // Secondaries
-  engineer: 'minimal',
+  engineer: 'medium',
   pathfinder: 'minimal',
   librarian: 'minimal',
-  researcher: 'minimal',
   auditor: 'high',
 }
 
 // Amp-specific model overrides per role (takes priority over frontmatter model)
 const MODEL_OVERRIDES: Record<string, string> = {
-  counselor: 'anthropic/claude-opus-4-6',
-  machinist: 'amp/glm-5.2',
+  counselor: 'anthropic/claude-opus-4-8',
+  machinist: 'anthropic/claude-sonnet-5',
   // Secondaries
-  engineer: 'anthropic/claude-sonnet-4-6',
+  engineer: 'anthropic/claude-sonnet-5',
   pathfinder: 'amp/glm-5.2',
   librarian: 'amp/glm-5.2',
-  researcher: 'amp/glm-5.2',
-  auditor: 'openai/gpt-5.6-sol',
+  auditor: 'anthropic/claude-opus-5',
 }
 
 const TOOL_SETS: Record<string, string[]> = {
@@ -65,12 +69,11 @@ const TOOL_SETS: Record<string, string[]> = {
   engineer: ['Read', 'shell_command', 'edit_file', 'create_file', 'apply_patch', 'finder'],
   pathfinder: ['Read', 'shell_command', 'finder'],
   librarian: ['Read', 'shell_command', 'read_web_page', 'web_search'],
-  researcher: ['Read', 'shell_command', 'read_web_page', 'web_search'],
   auditor: ['Read', 'shell_command', 'finder'],
 }
 
 // Secondary roles registered as subagent tools
-const SECONDARIES = ['engineer', 'pathfinder', 'librarian', 'researcher', 'auditor'] as const
+const SECONDARIES = ['engineer', 'pathfinder', 'librarian', 'auditor'] as const
 const ROLES = ['oracle', 'counselor', 'machinist'] as const
 
 type PrimaryAgents = Map<typeof ROLES[number], { agent: Agent; name: string }>
@@ -114,8 +117,7 @@ const AMP_PREAMBLE = `
 You are running in Amp, not Claude Code. CAROL.md is loaded as project instructions (Amp reads CLAUDE.md natively).
 - "AskUserQuestion tool" → ask the user directly in chat
 - "@Pathfinder" → use finder tool for codebase discovery
-- "@Librarian" → use librarian tool for library/framework research
-- "@Researcher" → use web_search and read_web_page for domain research
+- "@Librarian" → use librarian tool for research (library-mode and domain-mode)
 - "@Engineer" / "@Auditor" → use Task tool for delegation (proper delegate_* tools coming in follow-up)
 - "EnterPlanMode/ExitPlanMode" → not available. Write PLAN.md directly. Gate on ARCHITECT approval per CAROL.md Execution Gate.
 - "TodoWrite/TaskCreate/TaskList" → track tasks in context
@@ -148,7 +150,6 @@ const COMMAND_TRANSLATIONS: Array<[RegExp, string]> = [
   [/@Pathfinder/g, 'use finder tool for codebase discovery'],
   [/@Auditor/g, 'delegate to Auditor via Task tool'],
   [/@Machinist/g, 'delegate to MACHINIST via Task tool'],
-  [/@Researcher/g, 'use web_search and read_web_page'],
   [/@Librarian/g, 'use librarian tool'],
   [/@Oracle/g, 'use oracle tool'],
 ]
