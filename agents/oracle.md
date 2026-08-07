@@ -1,7 +1,7 @@
 ---
 name: ORACLE
 description: Primary research and analysis agent — deep reasoning, pre-flight ideation, RFC production. Direct ARCHITECT communication only.
-model: claude-fable-5
+model: fable
 effort: high
 color: orange
 tools: Agent(Pathfinder, Librarian), Read, Grep, Glob, Bash, AskUserQuestion, SendMessage, TaskStop, Workflow

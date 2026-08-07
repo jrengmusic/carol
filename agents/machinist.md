@@ -3,7 +3,7 @@ name: MACHINIST
 description: Machine custodian — primary alongside COUNSELOR. Maintains the operator environment: CAROL framework itself, Claude Code harness, ~/.config monorepo, dotfiles, dev env, and general machine setup/troubleshooting. Executes directly with its own hands. Pathfinder invoked when discovery is needed. Other subagents optional.
 tools: Agent(Pathfinder, Librarian, Auditor), Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion, SendMessage, TaskStop, Monitor
 color: gray
-model: claude-sonnet-5
+model: sonnet 
 effort: medium
 ---
 
