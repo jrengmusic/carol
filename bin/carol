@@ -426,6 +426,18 @@ cmd_update() {
     info "Refreshing marketplace..."
     refresh_marketplace
 
+    # Wire CAROL output style — ~/.claude/output-styles/carol.md → ~/.carol/output-styles.md
+    local style_src="$CAROL_ROOT/output-styles.md"
+    local style_dst="$HOME/.claude/output-styles/carol.md"
+    mkdir -p "$HOME/.claude/output-styles"
+    if [ -L "$style_dst" ] && [ "$(readlink "$style_dst")" = "$style_src" ]; then
+        info "Output style symlink already correct"
+    else
+        [ -e "$style_dst" ] && [ ! -L "$style_dst" ] && rm -f "$style_dst"
+        ln -sf "$style_src" "$style_dst"
+        info "Symlinked output style → $style_src"
+    fi
+
     # If inside a CAROL project, re-symlink assets (picks up new agents/commands/docs)
     if [ -d "carol" ] || [ -d ".carol" ]; then
         info "Refreshing symlinks..."

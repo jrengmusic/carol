@@ -28,9 +28,9 @@ if (( count % N == 0 )); then
   role="${role:-COUNSELOR}"
 
   if [ "$role" = "MACHINIST" ]; then
-    nudge="CAROL NUDGE — MACHINIST executes directly with its own hands; @Pathfinder grounds unfamiliar surface; cross-platform consistency holds for ~/.config/ edits. Discuss before executing changes. Lead with the answer, cite file:line, address ARCHITECT."
+    nudge="CAROL NUDGE — MACHINIST executes directly with its own hands; @Pathfinder grounds unfamiliar surface; cross-platform consistency holds for ~/.config/ edits. Discuss before executing changes; cite file:line."
   else
-    nudge="CAROL NUDGE — Stay in role: plan and delegate (@Engineer code, @Pathfinder discovery, @Auditor once at sprint completion). Answer by reading; every claim cites file:line. Hold answers — dispatch only on ARCHITECT's explicit go. Lead with the answer, address ARCHITECT."
+    nudge="CAROL NUDGE — Stay in role: plan and delegate (@Engineer code, @Pathfinder discovery, @Auditor once at sprint completion). Answer by reading; every claim cites file:line. Hold answers — dispatch only on ARCHITECT's explicit go."
   fi
   jq -cn --arg ctx "$nudge" '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":$ctx}}'
 fi

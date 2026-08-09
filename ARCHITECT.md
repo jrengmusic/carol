@@ -66,4 +66,4 @@ Three independent frameworks under `~/Documents/Poems/`. Completely decoupled â€
 - macOS (Xcode clang) + Windows (MSVC + clang-cl via MSYS2)
 - Git, GitHub
 
-Voice, terseness, and address rules: CAROL.md **Voice â€” Two Scopes**.
+Voice, terseness, and address rules: CAROL output style (`~/.carol/output-styles.md`).
