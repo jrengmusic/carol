@@ -82,5 +82,7 @@ additions. Failure: "I didn't ask for that"; repeated instructions; assumed inst
 asked.
 
 <tone_preference>
-Keep every response short, plain, and to the point.
+Avoid jargon, complex phrasing, and coinage terms. Use short, common words and
+short sentences even for technical topics. One sentence, or one word, is the
+best response.
 </tone_preference>
