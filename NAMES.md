@@ -487,6 +487,7 @@ Every CAST-driven project declares its generation inputs in the canon files:
 | `relations.md` | m:n mappings between lexicon entities — every cell is a reference, never a fresh string |
 | `chars.md` | Single characters only — the full printable ASCII set (0x20–0x7E) plus named control characters. Framework-owned: only the framework declares chars; projects consume `chars::` directly and declare zero chars of their own |
 | `files.md` | Filenames with extensions, nothing else — generates `namespace files` |
+| `extensions.md` | File-extension / info-string tokens, one per row — generates `namespace extensions`. Framework-owned: only the framework declares extensions; projects consume `extensions::` directly |
 | `localisation-lang.md` | The only long-text home — one file per language, identical table shape, key-set equality enforced by `parity`. Generates `namespace text::lang` |
 
 **Generated namespaces are lowercase** — the namespace convention is always lowercase:
@@ -501,10 +502,11 @@ sites reference the framework's generated name directly.
 **Entity rules:**
 - An entity is unique, whole, and opaque. `UI`, `scale`, and `UI scale` are three independent declarations — CAST never decomposes or derives one entity from another.
 - Uniqueness is global and case-insensitive. First declaration wins and fixes the casing.
+- **Case is not identity.** A differently-cased spelling of an existing token is never a second entity. The token is declared once; each domain projects the casing its own wire format demands, at the point of use, through jam::Format's case family. Python's `True` is `jam::Format::toPascalCase (Id::tokenTrue)` — not a declaration. The sole exception is a spelling no case-family projection can produce from the declared token; only then does it earn its own declaration, and the reason is the projection's impossibility, never convenience.
 - Word boundaries (spaces) are stored data — the declaration is the single source of every projected form. The declared casing is what `@entry@` emits verbatim.
-- Casing at emission belongs to the template, via transform tags backed by jam::Format's case family. An all-uppercase declared word is an abbreviation and passes through Pascal/Camel/Title intact; all other words normalize strictly: `UI scale` → `UIScale` (Pascal), `uiScale` (camel, first word always lowers), `fail hazard URI` → `failHazardURI`, `ui-scale` (kebab/snake lower everything). No transform consults anything beyond the entity itself.
+- Casing at emission belongs to the template, via transform tags backed by jam::Format's case family. An all-uppercase declared word is an abbreviation and is case-invariant in every projection, every position; all other words normalize strictly per each projection's own rule: `UI scale` → `UIScale` (Pascal and camel), `fail hazard URI` → `failHazardURI` (camel), `fail-hazard-URI` (kebab), `scale_X` (snake). A wire format demanding a lowercased abbreviation authors the literal value. No transform consults anything beyond the entity itself.
 - The case family is consistent and lives in jam::Format only: `toTitleCase`, `toPascalCase`, `toCamelCase`, `toKebabCase`, `toSnakeCase`, `toScreamingSnakeCase`. Consumers register these directly — no pass-through wrappers (SSOT).
-- Every use outside the declaration — relation cells, template tags — is a reference, resolved case-insensitively. Referencing an undeclared entity is a generation error.
+- Every use outside the declaration — relation cells, template tags — is a reference, resolved byte-exactly against the declared canonical form (case-insensitivity applies only to the uniqueness constraint, never to lookup). Referencing an undeclared entity — including a declared word in the wrong casing — is a generation error.
 
 **Golden Rules — how to write a CAST table:**
 
@@ -517,7 +519,9 @@ sites reference the framework's generated name directly.
 6. A stored value that byte-equals any case-family projection of its own name is redundant data — FATAL; declare the words, let the template project.
 
 *Word choice (the standard that replaces per-name approval):*
-7. **Domain word first.** The first word is the entity's domain (`html`, `css`, `sgr`, `colour`). Sorting then IS organization — domains cluster by construction, cross-domain collision is impossible without bolted-on prefixes.
+7. **Free lexicon first.** A word that belongs to no single domain is declared once, free and unqualified — `h1`, `source`, `const`, `break`, `div`. Every domain references that exact token; no domain re-declares it. A domain declares only what does not already exist in the free lexicon, and qualifies a name only when the unqualified word would be a genuinely different concept — never to carry a second spelling of the same one. There is no `markdown h1` and no `html h1`; there is `h1`. There is no `vulkan source` and no `html source`; there is `source`.
+
+   **The caller formats.** The declaration stores the token; each domain projects it into the form its own wire format demands — case, joining, prefixing — at the point of use, through jam::Format's case family. Vulkan needs `Source` and calls `jam::Format::toPascalCase (Id::source)`; HTML needs `source` and calls `Id::source.toString()`. One declaration, two projections. A second declaration created to hold a second spelling is a duplicate token — FATAL.
 8. **Name the meaning, never the container or type.** `html end tag`, never `html token type end tag` — the relation table already carries the classification (Rules 2, 3).
 9. **Nouns for things** — entities are data, noun phrases only (Rule 1).
 10. **Clarity over brevity, then stop.** Every word earns its place; ~5 words is a smell threshold — investigate the chosen words, don't cap mechanically (Rule 4).
@@ -526,7 +530,7 @@ sites reference the framework's generated name directly.
 13. **Resolution corollary:** two entities that still spell identically after rules 7-12 are the same concept — ONE declaration. A remaining genuine difference means a wrong domain word was chosen, never a case for suffixing.
 
 *Structure:*
-- The lexicon registry is the union of the canon tables — `## lexicon` (lexicon.md), `## chars` (chars.md), `## files` (files.md); satellite files carry their own heading so dispatch addresses them unambiguously, and dispatch sources the declaration tables directly (column `name`). Entry tables in `relations.md` exist only for genuine selections, never as full duplicates of a canon table. Each file is organized as separator-delimited, alphabetically sorted domain blocks.
+- The lexicon registry is the union of the canon tables — `## lexicon` (lexicon.md), `## chars` (chars.md), `## files` (files.md), `## extensions` (extensions.md); satellite files carry their own heading so dispatch addresses them unambiguously, and dispatch sources the declaration tables directly (column `name`). Emission follows declaration: a reference emits its entity's own generated symbol (`Id::x.toString()` for lexicon, `extensions::x` for extensions), never a second copy. Entry tables in `relations.md` exist only for genuine selections, never as full duplicates of a canon table. Each file is organized as separator-delimited, alphabetically sorted domain blocks.
 - Vocabulary vs content: referenced-by-many → lexicon; owned-by-one-output prose (localisation, legal text, display copy) → its own dedicated key-style table, outside the lexicon and exempt from its length/redundancy checks by construction.
 - Localisation is the only long-text home: one file per language, every language the identical table shape, key-set equality enforced by the `parity` predicate.
 
