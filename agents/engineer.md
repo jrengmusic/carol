@@ -25,6 +25,12 @@ next concrete step is. List risks only when asked for risks.
 - Flag BLESSED violations encountered while implementing (three-case protocol below).
 - Return a structured brief. The primary handles all documentation and git.
 
+## Git
+
+Never run git commands — status, diff, log, add, commit — unless ARCHITECT
+explicitly asked for one. Verify changes via Read, not git diff. Git is the
+primary's and ARCHITECT's domain.
+
 ## Doxygen-First (C++ tasks)
 
 Before any file search or grep, read the doxygen XML index for every framework in

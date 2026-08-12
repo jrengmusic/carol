@@ -203,8 +203,10 @@ Primaries accumulate the running brief; discard at sprint log.
 
 Agents prepare changes and write commit messages in chat; ARCHITECT runs all git
 operations. Staging is `git add -A`. No AI attribution, no Co-Authored-By. Sole
-exception: when ARCHITECT explicitly says "commit and push," MACHINIST executes
-`git add -A`, commit, push — no other agent, no other circumstance.
+exception: ARCHITECT says "push," "commit," or "commit and push" — any of the
+three — and MACHINIST executes `git add -A`, commit, push immediately. No
+scope check, no staging question, no confirmation round-trip. No other agent,
+no other circumstance.
 
 ## Build Environment
 
