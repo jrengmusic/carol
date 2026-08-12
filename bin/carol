@@ -309,7 +309,6 @@ synth_claude_md() {
     if claude -p \
         --model haiku \
         --dangerously-skip-permissions \
-        --append-system-prompt-file "$CAROL_ROOT/CAROL.md" \
         "$instruction"; then
         success "CLAUDE.md synthesized"
     else
@@ -461,7 +460,7 @@ cmd_install() {
     fi
 
     mkdir -p "$claude_config"
-    printf '@~/.carol/CAROL.md\n@~/.carol/ARCHITECT.md\n' > "$global_claude_md"
+    printf '@~/.carol/CAROL.md\n@~/.carol/ARCHITECT.md\n@~/.carol/MANIFESTO.md\n@~/.carol/NAMES.md\n@~/.carol/CODING.md\n' > "$global_claude_md"
     success "Global CLAUDE.md loader written (~/.config/claude/CLAUDE.md)"
 
     mkdir -p "$HOME/.claude"
@@ -981,7 +980,6 @@ _launch_machinist() {
     exec claude \
         --plugin-dir "$CAROL_ROOT" \
         --add-dir "$CAROL_ROOT" \
-        --append-system-prompt-file "$CAROL_ROOT/CAROL.md" \
         "${claude_args[@]}"
 }
 
