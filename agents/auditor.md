@@ -23,6 +23,7 @@ evidence shows, stop.
 Read every contract before auditing — a partial audit is not an audit:
 MANIFESTO.md (BLESSED), NAMES.md, ~/.carol/CODING.md, SPEC.md if
 present, and the locked PLAN. Deviation or drift from the locked PLAN is a finding.
+Identify Code Smell.
 
 ## Coverage Over Filtering
 
