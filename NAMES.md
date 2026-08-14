@@ -499,19 +499,6 @@ making `namespace id` illegal in `.mm` translation units.
 downstream — no project re-wraps, aliases, or re-types a framework constant. Call
 sites reference the framework's generated name directly.
 
-**Declaration type follows dominant consumption, and type is data.** An entity
-consumed as an Identifier (tree keys, property keys, table lookups) declares an
-Identifier-type token; an entity consumed as a string (delimiters, map keys, emitted
-text, cell comparisons) declares a String-type token. The mechanism is the lexicon
-`type` column — explicit on every row, holding an opaque token (`Identifier`,
-`String`, or whatever a target language names its types). CAST is language-agnostic:
-the engine never knows any type name — it delivers the cell to the `type` jack like
-any other column, and the project-owned template composes the declaration around it
-(`inline const juce:::::type::: …` is template knowledge, never engine knowledge).
-No engine default exists — a default would smuggle one language's type into the
-engine. A `.toString()` projection at nearly every call site is the violation
-signature — the declared type is wrong, not the call sites.
-
 **Entity rules:**
 - An entity is unique, whole, and opaque. `UI`, `scale`, and `UI scale` are three independent declarations — CAST never decomposes or derives one entity from another.
 - Uniqueness is global and case-insensitive. First declaration wins and fixes the casing.
@@ -528,7 +515,7 @@ signature — the declared type is wrong, not the call sites.
 2. No plain-number names, no leading digit, no special characters.
 3. Name ≤ 40 characters — longer is a symptom of a bad name, not a formatting problem.
 4. A row whose name cell is all dashes (`|---|`) is a visual separator — ignored by the engine everywhere.
-5. Ordinals are arbitrary data. Map-type tables are `key|value` and declare every ordinal explicitly — no value is ever derived from row position. The lexicon still stores no ordinals; map and relation tables do.
+5. Ordinal families derive `@value@` from relation row position (`@row:index@`) — the lexicon stores no ordinals.
 6. A stored value that byte-equals any case-family projection of its own name is redundant data — FATAL; declare the words, let the template project.
 
 *Word choice (the standard that replaces per-name approval):*
@@ -547,47 +534,8 @@ signature — the declared type is wrong, not the call sites.
 - Vocabulary vs content: referenced-by-many → lexicon; owned-by-one-output prose (localisation, legal text, display copy) → its own dedicated key-style table, outside the lexicon and exempt from its length/redundancy checks by construction.
 - Localisation is the only long-text home: one file per language, every language the identical table shape, key-set equality enforced by the `parity` predicate.
 
-**Manifest contract — how tables reach templates:**
-1. **`## index` declares every input file once** — `| name | path |`, mandatory in CAST.md. It is the file index: the engine parses exactly what `## index` declares — no directory scanning, no glob. Referencing an undeclared name is FATAL.
-2. **Output-shaped tables drive generation** — `| <body> | <wrapper>... | file |` are the mandatory bones; `file` is the only reserved column name. The body cell names the innermost fragment; each subsequent wrapper cell layers left→right through its `:::code:::` jack. `## output` is mandatory; further output-shaped tables follow the same bones with their own truthful column sets — a `struct` wrapper never sits under a column named `namespace`, so different nests are different tables, never folded.
-3. **Junctions are named jacks.** A table column is an output jack; a template placeholder is an input jack. Same name = same circuit — `:::value:::` draws from column `value`; region `:::list:begin:::` draws its rows from the column named `list`. No mapping syntax exists.
-4. **Table references are `name:table` qualified** — a list cell names its source as `<index name>:<heading>` (`lexicon:lexicon`, `template:template token type`, `CAST:output`). The colon is the syntax; resolution failure is FATAL — never a silent passthrough.
-5. **Separators wire by suffix** — the column `<region> lineBreak` names the fragment joining that region's rows. One reserved suffix word.
-6. **Selection is emergent.** A source row expands only when every jack its region references carries a signal (non-empty cell); an empty referenced cell drops the row. No filter grammar, no selection tables as a patch mechanism.
-7. **Parity is enforced.** Per output row, the placeholder union of its resolved fragments must equal its non-reserved columns; list-region interiors validate against their source table's columns. No match, no cigar — FATAL.
-8. **Extending is a cell or a column.** A new circuit is one column on the output-shaped table matched by one placeholder in its fragments — never a new mechanism, never a duplicated row.
-
-Transform tags project a jack's signal at emission — `:::column:transform:::` — through jam::Format's registered transforms; the jack name is always the column name, the suffix is always a registered transform, nothing else appears between delimiters.
-
-**Format ops project declarations, never references.** A transform tag is legal at exactly
-one boundary: the emission site of a declaration table (lexicon, chars, files, extensions,
-localisation), where the declared token is projected into the wire spelling that table's own
-output demands. Everything above the canon is reference, not projection: a cell in a grammar,
-relation, or manifest table writes the entity's name as a byte-exact literal, and emission
-derives the entity's own generated symbol (`chars::colon`, `Id::begin`,
-`map::Byte::regionOpen`) from its declaration. That derivation is exactly why the canon
-registries are globally UNIQUE — one declaration, one symbol, every reference emits it.
-Derivable data — generated files above all — never carries a format op; a transform tag
-applied to a reference is a conflation error, not a convenience.
-
-**The master include header is second-order.** Every scope's master
-(`(prefix)Generated.h`) is generated, never authored, by the optional
-`## output index` table — an output-shaped table whose list source is `## output`
-itself (`CAST:output`). The `file` column of `## output` IS the header list; no
-separate headers table exists (SSOT). The master is not an `## output` row — it is
-emitted after them, beside them, from them.
-
 **Division of labor:**
 Table is mapping. Template is cookie cutter — placeholder substitution only. Logic belongs at the engine.
-
-**Generation pipeline — documents build and write themselves.** The Model parses once
-(operational chain); each template parses once into a shared immutable grammar tree; each
-output row builds its own output document — a state tree resolved from the grammar tree
-against the Model at build, never at emission; each output document writes its own target
-file. Build and write are the only two operations. An engine component that scans a
-document's internals node-by-node to produce output is the violation signature — the
-document was asked, not told. No emission vocabulary exists beside the codebase's own
-verbs: a document is built, then written.
 
 **Rationale:**
 One declaration site per string makes collisions (`hash`/`cssHash`), container-encoded names (`UIScaleMap`), and case-only variants impossible by construction. The data structure dictates the logic — never the other way around.
