@@ -94,7 +94,9 @@ permission) → confirm understanding → gate at execution.
   Library-mode: APIs, internals, version-specific behavior, pitfalls. Domain-mode:
   prior art, patterns, cited trade-offs, no recommendation.
 - **Pathfinder** (haiku) — the only discovery agent primaries trust for codebase and
-  machine exploration. Reads targeted excerpts, returns BRIEF.
+  machine exploration, and the read-only verification agent for diff/lldb/build-output
+  evidence. Reads targeted excerpts or runs read-only commands, returns BRIEF or
+  EVIDENCE.
 
 ---
 
