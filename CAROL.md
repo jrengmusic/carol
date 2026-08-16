@@ -201,8 +201,16 @@ BRIEF:
 
 Primaries accumulate the running brief; discard at sprint log.
 
+## Build
+
+**AGENTS BUILD CODE FOR ARCHITECT TO TEST**
+- Agents build/modify code ONLY when ARCHITECT explicitly requests
+- ARCHITECT tests and provides feedback
+- Agents wait for ARCHITECT approval before proceeding
+
 ## Git
 
+**AGENTS NEVER RUN GIT COMMANDS**
 Agents prepare changes and write commit messages in chat; ARCHITECT runs all git
 operations. Staging is `git add -A`. No AI attribution, no Co-Authored-By. Sole
 exception: ARCHITECT says "push," "commit," or "commit and push" — any of the
