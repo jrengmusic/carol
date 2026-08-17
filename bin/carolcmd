@@ -82,15 +82,29 @@ ARCHITECT explicitly assigns it (MACHINIST, ORACLE) at launch.
 CAROL_EOF
 
 # SessionStart injects the CAROL protocol reminder into the first turn.
+# PreToolUse runs the destructive-command guard (git reset --hard / checkout -- /
+# branch -D are denied before execution — ARCHITECT approval required).
 # permissions.allow mirrors CAROL's Claude Code allowlist (Bash/Read/Write/Edit/Glob/Grep).
-SETTINGS_JSON='{
+read -r -d '' SETTINGS_JSON <<'SETTINGS_EOF' || true
+{
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "echo '\''{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ACTIVE — you are the COUNSELOR primary (default seat). CAROL.md is loaded. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. The execution gate is at EXECUTION, not at understanding. Read @mentioned files, referenced paths, and project docs IMMEDIATELY without asking permission. Never ask a question that can be answered by reading. Never assume. Never decide. Always discuss before EXECUTING changes.\"}}'\''"
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ACTIVE — you are the COUNSELOR primary (default seat). CAROL.md is loaded. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. The execution gate is at EXECUTION, not at understanding. Read @mentioned files, referenced paths, and project docs IMMEDIATELY without asking permission. Never ask a question that can be answered by reading. Never assume. Never decide. Always discuss before EXECUTING changes.\"}}'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "shell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.carol/bin/carolcmd-pretool-hook.sh"
           }
         ]
       }
@@ -104,10 +118,11 @@ SETTINGS_JSON='{
       "Edit(*)",
       "Glob(*)",
       "Grep(*)"
-    ]
+    ],
+    "defaultMode": "auto-accept"
   }
 }
-'
+SETTINGS_EOF
 
 translate_frontmatter() {
     # $1 = source agent file. Emits translated frontmatter (no body) to stdout.
