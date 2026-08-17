@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(ls -la ~/.commandcode/ 2>/dev/null; echo \"---AGENTS---\"; ls -la ~/.commandcode/agents/ 2>/dev/null; echo \"---TASTE---\"; ls -la ~/.commandcode/taste/ 2>/dev/null; echo \"---carol---\"; ls -la ~/.carol/)",
+      "Shell(echo \"=== ~/.carol/.commandcode ===\"; find ~/.carol/.commandcode/ -type f 2>/dev/null; echo \"=== ~/.carol/.claude ===\"; find ~/.carol/.claude/ -type f 2>/dev/null | head -20; echo \"=== taste dir ===\"; ls -la ~/.commandcode/taste/ 2>/dev/null; echo \"=== ~/.carol/output-styles.md head ===\"; head -40 ~/.carol/output-styles.md 2>/dev/null)",
+      "Shell(echo \"=== bin/ ===\"; ls -la ~/.carol/bin/; echo \"=== commandcode in carol ===\"; grep -rl \"commandcode\\|cmd \" ~/.carol/bin/ ~/.carol/commands/ ~/.carol/skills/ 2>/dev/null; echo \"=== ~/.commandcode structure ===\"; find ~/.commandcode/ -type f 2>/dev/null | head -20)",
+      "Shell(echo \"=== ~/.config/claude ===\"; ls -la ~/.config/claude/ 2>/dev/null; echo \"=== ~/.claude symlinks ===\"; ls -la ~/.claude/ 2>/dev/null | head -20; echo \"=== ~/.commandcode settings files ===\"; ls -la ~/.commandcode/settings.json 2>/dev/null || echo \"no ~/.commandcode/settings.json\"; echo \"=== CLAUDE.md in commandcode refs ===\"; grep -rl \"CLAUDE.md\" /opt/homebrew/lib/node_modules/command-code/dist/bundled/command-code-knowledge/reference/ 2>/dev/null)",
+      "Shell(cmd:*)",
+      "Shell(cat ~/.commandcode/config.json 2>/dev/null; echo \"=== whoami ===\"; cmd whoami 2>&1 | head -5; echo \"=== provider ===\"; cmd config get model --scope effective --json 2>&1 | head -5)",
+      "Shell(for:*)",
+      "Shell(do:*)",
+      "Shell(grep:*)",
+      "Shell(done:*)",
+      "Shell(chmod +x ~/.carol/bin/carolcmd && echo \"chmod ok\" && echo \"=== dry-run: translate counselor frontmatter only ===\" && source <(sed -n '/^translate_frontmatter()/,/^}/p' ~/.carol/bin/carolcmd | sed 's/^translate_frontmatter()/translate_frontmatter()/' | head -0) 2>/dev/null; bash -c 'source /dev/stdin <<'\"'\"'EOF'\"'\"' declare -A SEATS=( [counselor]=\"deepseek/deepseek-v4-pro\" ) declare -A TOOLS=( [Read]=\"read_file\" [Bash]=\"shell_command\" [Grep]=\"grep\" [Glob]=\"glob\" [TodoWrite]=\"todo_write\" [AskUserQuestion]=\"ask_user_question\" ) translate_frontmatter() { local src=\"$1\" local role name desc model role=$(basename \"$src\" .md) name=$(awk '\\''/^name:/{sub(/^name:[[:space:]]*/,\"\");print;exit}'\\'' \"$src\") desc=$(awk '\\''/^description:/{sub(/^description:[[:space:]]*/,\"\");print;exit}'\\'' \"$src\") model=\"${SEATS[$role]:-}\" local tools_line tools_line=$(awk '\\''/^tools:/{sub(/^tools:[[:space:]]*/,\"\");print;exit}'\\'' \"$src\") local out=() tok IFS='\\'' ,'\\'' read -r -a raw <<< \"$tools_line\" for tok in \"${raw[@]}\"; do [ -z \"$tok\" ] && continue [[ \"$tok\" == Agent* ]] && continue [[ \"$tok\" == *\")\"* ]] && continue local mapped=\"${TOOLS[$tok]:-}\" [ -n \"$mapped\" ] && out+=(\"$mapped\") done printf -- '\\''---\\n'\\'' printf '\\''name: %s\\n'\\'' \"$name\" printf '\\''description: %s\\n'\\'' \"$desc\" printf '\\''model: %s\\n'\\'' \"$model\" if [ ${#out[@]} -gt 0 ]; then printf '\\''tools: %s\\n'\\'' \"${out[*]}\"; fi printf -- '\\''---\\n'\\'' } translate_frontmatter ~/.carol/agents/counselor.md EOF')",
+      "Shell(CAROLCMD_DRY=1 bash ~/.carol/bin/carolcmd 2>&1)",
+      "Shell(bash --version | head -1; echo \"=== minimal test ===\"; bash -c 'set -euo pipefail declare -A SEATS=( [counselor]=\"x\" [oracle]=\"y\" ) role=\"counselor\" echo \"model=${SEATS[$role]}\" echo \"model2=${SEATS[$role]+${SEATS[$role]}}\" echo ok' 2>&1)",
+      "Shell(bash ~/.carol/bin/carolcmd 2>&1; echo \"=== result tree ===\"; find ~/.commandcode -maxdepth 2 -not -path '*/projects/*' 2>/dev/null | sort)",
+      "Shell(python3 -c import json; d=json.load(open('/.commandcode/settings.json')); print('valid JSON; keys:', list(d.keys())))",
+      "Shell(echo:*)",
+      "Shell(bash ~/.carol/bin/carolcmd 2>&1; echo \"=== effective model ===\"; cmd config get model --scope effective --json 2>&1 | head -5; echo \"=== AGENTS.md head ===\"; head -12 ~/.commandcode/AGENTS.md)",
+      "Shell(bash -n ~/.carol/bin/carolcmd && echo \"syntax OK\" && bash ~/.carol/bin/carolcmd 2>&1; echo \"=== effective model ===\"; cmd config get model --scope effective --json 2>&1 | head -5)",
+      "Shell(bash -n ~/.carol/bin/carolcmd && echo \"syntax OK\" && bash ~/.carol/bin/carolcmd 2>&1; echo \"=== effective model ===\"; cmd config get model --scope effective --json 2>&1 | head -5; echo \"=== AGENTS.md ===\"; cat ~/.commandcode/AGENTS.md)",
+      "Shell(bash ~/.carol/bin/carolcmd 2 >& 1)",
+      "Shell(git add -A && git commit -F - <<'EOF' && git push Add Command Code integration layer - bin/carolcmd: port script translating CAROL agents/commands/skills into ~/.commandcode with non-Anthropic seats and cmd tool ids - commands/machinist.md, commands/oracle.md: primary role slash commands - .commandcode/: Command Code agents, commands, skills, memory loader, SessionStart hook, and permission allowlist EOF)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

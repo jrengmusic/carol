@@ -1,0 +1,256 @@
+#!/usr/bin/env bash
+# carolcmd - CAROL thin layer for Command Code (temporary, replace with CLI subcommand later)
+#
+# Points Command Code at the CAROL SSOT without touching ~/.carol:
+#   1. agents    -> translated copies in ~/.commandcode/agents/   (frontmatter remapped)
+#   2. commands  -> symlinks in ~/.commandcode/commands/          (portable as-is)
+#   3. skills    -> symlinks in ~/.commandcode/skills/            (portable as-is)
+#   4. bootstrap -> AGENTS.md loader + settings.json if absent
+#
+# Idempotent. Re-run after `carol update` to refresh translations.
+set -euo pipefail
+
+CAROL_ROOT="${CAROL_ROOT:-$HOME/.carol}"
+CMD_ROOT="$HOME/.commandcode"
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
+error() { echo -e "${RED}Error: $1${NC}" >&2; exit 1; }
+info()  { echo -e "${YELLOW}→ $1${NC}"; }
+ok()    { echo -e "${GREEN}✓ $1${NC}"; }
+notice(){ echo -e "${BLUE}ℹ $1${NC}"; }
+
+# Per-role seat map (ARCHITECT-locked, 2026-08-17). No fallback ladder for cmd code:
+# each role ALWAYS runs its frontmatter seat.
+# (case, not declare -A — macOS ships bash 3.2, no associative arrays.)
+seat_for() {
+    case "$1" in
+        counselor)  echo "deepseek/deepseek-v4-pro" ;;
+        oracle)     echo "zai-org/glm-5.3" ;;
+        engineer)   echo "minimaxai/minimax-m3" ;;
+        auditor)    echo "zai-org/glm-5.3" ;;
+        librarian)  echo "xiaomi/mimo-v2.5-pro" ;;
+        pathfinder) echo "deepseek/deepseek-v4-flash" ;;
+        *)          echo "" ;;
+    esac
+}
+
+# Claude Code tool name -> Command Code tool id.
+# Agent(...) and tools with no cmd equivalent (SendMessage/Monitor/Workflow) are dropped.
+tool_for() {
+    case "$1" in
+        Read)             echo "read_file" ;;
+        Write)            echo "write_file" ;;
+        Edit)             echo "edit_file" ;;
+        Bash)             echo "shell_command" ;;
+        Glob)             echo "glob" ;;
+        Grep)             echo "grep" ;;
+        WebFetch)         echo "web_fetch" ;;
+        WebSearch)        echo "web_search" ;;
+        TodoWrite)        echo "todo_write" ;;
+        TaskCreate)       echo "task_create" ;;
+        TaskGet)          echo "task_get" ;;
+        TaskList)         echo "task_list" ;;
+        TaskUpdate)       echo "task_update" ;;
+        TaskStop)         echo "task_stop" ;;
+        TaskOutput)       echo "task_output" ;;
+        AskUserQuestion)  echo "ask_user_question" ;;
+        EnterPlanMode)    echo "enter_plan_mode" ;;
+        ExitPlanMode)     echo "exit_plan_mode" ;;
+        *)                echo "" ;;
+    esac
+}
+
+# CAROL output style rides in as memory (no output-styles mechanism in cmd code).
+# The Primary Role block makes COUNSELOR the default seat for every session:
+# ARCHITECT reassigns via explicit model + role override, never silently.
+read -r -d '' AGENTS_MD <<'CAROL_EOF' || true
+@~/.carol/CAROL.md
+@~/.carol/ARCHITECT.md
+@~/.carol/MANIFESTO.md
+@~/.carol/NAMES.md
+@~/.carol/CODING.md
+@~/.carol/output-styles.md
+
+## Primary Role
+
+You are the COUNSELOR primary by default — ARCHITECT's translator, context keeper,
+and machine-precision fact-checker. At session start, read ~/.carol/agents/counselor.md
+and adopt it fully. COUNSELOR is read-only for code: delegate implementation to
+@Engineer, discovery to @Pathfinder, research to @Librarian, QA to @Auditor (once per
+sprint). You are NOT a subagent — you are the session. Another role applies only when
+ARCHITECT explicitly assigns it (MACHINIST, ORACLE) at launch.
+CAROL_EOF
+
+# SessionStart injects the CAROL protocol reminder into the first turn.
+# permissions.allow mirrors CAROL's Claude Code allowlist (Bash/Read/Write/Edit/Glob/Grep).
+SETTINGS_JSON='{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '\''{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ACTIVE — you are the COUNSELOR primary (default seat). CAROL.md is loaded. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. The execution gate is at EXECUTION, not at understanding. Read @mentioned files, referenced paths, and project docs IMMEDIATELY without asking permission. Never ask a question that can be answered by reading. Never assume. Never decide. Always discuss before EXECUTING changes.\"}}'\''"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Shell(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)"
+    ]
+  }
+}
+'
+
+translate_frontmatter() {
+    # $1 = source agent file. Emits translated frontmatter (no body) to stdout.
+    local src="$1"
+    local role name desc model
+    role=$(basename "$src" .md)
+    name=$(awk '/^name:/{sub(/^name:[[:space:]]*/,"");print;exit}' "$src")
+    desc=$(awk '/^description:/{sub(/^description:[[:space:]]*/,"");print;exit}' "$src")
+    model="$(seat_for "$role")"
+
+    # Translate the tools line: drop Agent(...)/unknown, map known names.
+    local tools_line
+    tools_line=$(awk '/^tools:/{sub(/^tools:[[:space:]]*/,"");print;exit}' "$src")
+    local out=()
+    local tok
+    local raw=()
+    # Split on commas and whitespace; strip trailing parens (Agent(...) nests commas).
+    IFS=', ' read -r -a raw <<< "$tools_line"
+    for tok in "${raw[@]}"; do
+        [ -z "$tok" ] && continue
+        # Agent(Engineer, Pathfinder) or Agent(Pathfinder)
+        if [[ "$tok" == Agent* ]]; then
+            continue
+        fi
+        # A trailing "Foo)" fragment from Agent(...) nesting — drop it too.
+        [[ "$tok" == *")"* ]] && continue
+        local mapped
+        mapped="$(tool_for "$tok")"
+        if [ -n "$mapped" ]; then
+            out+=("$mapped")
+        fi
+        # Unknown tokens (SendMessage, Monitor, Workflow) are silently dropped.
+    done
+
+    # Dedupe, preserving order. (${seen[@]+...} guards the empty-array
+    # expansion that errors under `set -u` on bash 3.2.)
+    local seen=()
+    local final=()
+    local t
+    for t in "${out[@]}"; do
+        if ! printf '%s\n' ${seen[@]+"${seen[@]}"} | grep -qx "$t"; then
+            seen+=("$t"); final+=("$t")
+        fi
+    done
+
+    printf -- '---\n'
+    printf 'name: %s\n' "$name"
+    printf 'description: %s\n' "$desc"
+    printf 'model: %s\n' "$model"
+    if [ ${#final[@]} -gt 0 ]; then
+        printf 'tools: %s\n' "${final[*]}"
+    fi
+    printf -- '---\n'
+}
+
+sync_agents() {
+    local dest="$CMD_ROOT/agents"
+    mkdir -p "$dest"
+    local src
+    for src in "$CAROL_ROOT"/agents/*.md; do
+        local role
+        role=$(basename "$src" .md)
+        # MACHINIST is a primary session, not a subagent — never ported.
+        [ "$role" = "machinist" ] && continue
+        local out="$dest/$role.md"
+        {
+            translate_frontmatter "$src"
+            # Body verbatim from SSOT.
+            awk 'found{print} /^---$/{if(!seen){seen=1;next} if(found) exit; found=1}' "$src"
+        } > "$out"
+        ok "agent $role → $(basename "$out")"
+    done
+}
+
+sync_commands() {
+    local dest="$CMD_ROOT/commands"
+    mkdir -p "$dest"
+    local cmd
+    for cmd in "$CAROL_ROOT"/commands/*.md; do
+        ln -sf "$cmd" "$dest/$(basename "$cmd")"
+    done
+    ok "commands → $dest"
+}
+
+sync_skills() {
+    local dest="$CMD_ROOT/skills"
+    mkdir -p "$dest"
+    local d
+    for d in "$CAROL_ROOT"/skills/*/; do
+        [ -d "$d" ] && ln -sfn "$d" "$dest/$(basename "$d")"
+    done
+    ok "skills → $dest"
+}
+
+bootstrap() {
+    local agents_md="$CMD_ROOT/AGENTS.md"
+    local settings="$CMD_ROOT/settings.json"
+    mkdir -p "$CMD_ROOT"
+
+    # CAROL-owned files are always regenerated — they are pure references to
+    # ~/.carol SSOT, so overwriting is safe and keeps them current.
+    printf '%s' "$AGENTS_MD" > "$agents_md"
+    ok "wrote $agents_md"
+    printf '%s' "$SETTINGS_JSON" > "$settings"
+    ok "wrote $settings"
+}
+
+set_default_model() {
+    # Every session lands on the COUNSELOR seat unless ARCHITECT overrides.
+    local seat
+    seat="$(seat_for counselor)"
+    local current
+    current="$(cmd config get model --scope effective --json 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('value',''))" 2>/dev/null || echo "")"
+    if [ "$current" = "$seat" ]; then
+        notice "default model already $seat"
+    else
+        cmd config set model "$seat" --scope user >/dev/null 2>&1 && ok "default model → $seat" || notice "could not set default model — run: cmd config set model $seat --scope user"
+    fi
+}
+
+DRY="${CAROLCMD_DRY:-0}"
+
+main() {
+    info "CAROL → Command Code (${CMD_ROOT})"
+    if [ "$DRY" = "1" ]; then
+        info "DRY RUN — no writes. Previewing agent translations:"
+        local src
+        for src in "$CAROL_ROOT"/agents/*.md; do
+            local role
+            role=$(basename "$src" .md)
+            [ "$role" = "machinist" ] && continue
+            echo "──── $role ────"
+            translate_frontmatter "$src"
+            echo ""
+        done
+        return 0
+    fi
+    sync_agents
+    sync_commands
+    sync_skills
+    bootstrap
+    set_default_model
+    ok "Done. Restart cmd to pick up agents/commands/skills."
+}
+
+main "$@"
