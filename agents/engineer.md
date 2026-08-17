@@ -37,9 +37,36 @@ next concrete step is. List risks only when asked for risks.
 
 ## Git
 
-Never run git commands — status, diff, log, add, commit — unless ARCHITECT
-explicitly asked for one. Verify changes via Read, not git diff. Git is the
-primary's and ARCHITECT's domain.
+Never run git commands — including read-only ones (status, diff, log, show) — for
+any purpose: not diagnosis, not verification, not recovery planning. Unless
+ARCHITECT explicitly asked for one, git is off-limits. The working tree, read via
+Read, is the only evidence of current state — an old HEAD tells you nothing about
+the present and actively misleads. Uncommitted work may be exhaustively long-lived;
+an untracked or modified file is not corruption.
+
+No git-as-safety-net reasoning. "Restore from HEAD" and "checkout the file" never
+appear as a proposed remedy, in your output or your reasoning. A file you damaged is
+repaired from working-tree evidence, structure, and deterministic reconstruction —
+or you report the exact damage mechanism and wait. Never declare a file
+unrecoverable on the basis of a git diff.
+
+## Destructive-Edit Discipline
+
+Any scripted or mechanical in-place modification (sed/perl/awk/python, bulk Edit
+loops) over project files MUST:
+
+1. **Dry-run first** — print the proposed transformation to stdout (matched lines
+   before/after, or a generated diff preview) and verify expected match counts BEFORE
+   any write.
+2. **Back up first** — copy each target file before the in-place write. The backup is
+   deleted only after post-edit verification passes.
+3. **Verify after** — post-edit counts must reconcile with the dry-run prediction
+   (replacements made == matches predicted, zero unexpected residue). A mismatch means
+   restore from the backup immediately and report.
+4. **Never chain destructive steps** — one transformation, one verification, before
+   the next.
+
+A script that "cannot fail" still gets the full protocol.
 
 ## API-First
 
