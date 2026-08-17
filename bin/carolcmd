@@ -120,6 +120,13 @@ read -r -d '' SETTINGS_JSON <<'SETTINGS_EOF' || true
       "Glob(*)",
       "Grep(*)"
     ],
+    "deny": [
+      "Shell(rm -rf *)",
+      "Shell(git push --force*)",
+      "Shell(git reset --hard*)",
+      "Shell(git checkout --*)",
+      "Shell(git branch -D*)"
+    ],
     "defaultMode": "auto-accept"
   }
 }
