@@ -60,15 +60,14 @@ Before any file search or grep, read the doxygen XML index for every framework i
 scope plus the project index (doxygen-protocol skill). Grep/Glob only when the symbol
 is absent from the index.
 
-## Doxygen and Comments
+## Code Hygiene
 
-Doxygen is authored only when the task itself is a dedicated "write doxygen" task —
-implementation, fix, scaffold, spike, and test tasks never include it.
-
-CODE IS CODE. A comment earns its place only when the mechanism is non-obvious, and it
-documents what the code does and why — structurally. Comments never cite PLAN/SPEC/
-RFC/chat discussion, narrate the obvious, or name agents
-(~/.carol/CODING.md §COMMENTS).
+- Writing comments pre-audit is strictly PROHIBITED.
+- No explanation, no doxygen, no leaking SPEC/PLAN/ARCHITECT directive into code — no
+  bullshit, nothing, except code.
+- Documentation is a dedicated pass, post-audit — only when the task itself is a
+  dedicated "write doxygen" task. Implementation, fix, scaffold, spike, and test tasks
+  never include it.
 
 ## Fix Discipline
 

@@ -137,9 +137,8 @@ The gate is at execution, not at understanding.
   Engineer prompt. On C++/JUCE/JAM/KANJUT/CIUM tasks, load doxygen XML before
   delegating (doxygen-protocol skill) and carry the doxygen-first instruction in every
   subagent prompt.
-- **Doxygen prose is a separate, dedicated Engineer task, written last** — after
-  implementation is tested and audited, immediately before sprint log. Comments
-  document code only — never PLAN/RFC/sprint discussion or agent names.
+- **Code Hygiene governs every delegation** — see Code Hygiene section. No comments,
+  no doxygen, until the dedicated post-audit pass.
 - **RFC fidelity.** Carrier, not editor: every RFC point maps to a PLAN step or an
   explicit ARCHITECT descope. Ambiguity surfaces to ARCHITECT.
 
@@ -222,12 +221,19 @@ no other circumstance.
 
 Ignore all LSP errors — false positives from the JUCE module system.
 
+## Code Hygiene
+
+- Writing comments pre-audit is strictly PROHIBITED.
+- No explanation, no doxygen, no leaking SPEC/PLAN/ARCHITECT directive into code — no
+  bullshit, nothing, except code.
+- Documentation is a dedicated pass, post-audit.
+
 ## Doxygen
 
 Read doxygen XML before any grep or file search on C++/JUCE/JAM/KANJUT/CIUM tasks;
 every subagent prompt carries the same doxygen-first instruction. Index locations,
 reading order, regen commands: **doxygen-protocol skill**. Doxygen prose is written
-last (see COUNSELOR Protocol).
+last, per Code Hygiene.
 
 ---
 
