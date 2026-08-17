@@ -30,6 +30,7 @@ seat_for() {
         auditor)    echo "zai-org/glm-5.3" ;;
         librarian)  echo "xiaomi/mimo-v2.5-pro" ;;
         pathfinder) echo "deepseek/deepseek-v4-flash" ;;
+        machinist)  echo "deepseek/deepseek-v4-flash" ;;
         *)          echo "" ;;
     esac
 }
@@ -131,6 +132,7 @@ translate_frontmatter() {
     role=$(basename "$src" .md)
     name=$(awk '/^name:/{sub(/^name:[[:space:]]*/,"");print;exit}' "$src")
     desc=$(awk '/^description:/{sub(/^description:[[:space:]]*/,"");print;exit}' "$src")
+    desc="${desc//\'/\'\'}"
     model="$(seat_for "$role")"
 
     # Translate the tools line: drop Agent(...)/unknown, map known names.
@@ -170,7 +172,7 @@ translate_frontmatter() {
 
     printf -- '---\n'
     printf 'name: %s\n' "$name"
-    printf 'description: %s\n' "$desc"
+    printf 'description: '\''%s'\''\n' "$desc"
     printf 'model: %s\n' "$model"
     if [ ${#final[@]} -gt 0 ]; then
         printf 'tools: %s\n' "${final[*]}"
@@ -185,8 +187,6 @@ sync_agents() {
     for src in "$CAROL_ROOT"/agents/*.md; do
         local role
         role=$(basename "$src" .md)
-        # MACHINIST is a primary session, not a subagent — never ported.
-        [ "$role" = "machinist" ] && continue
         local out="$dest/$role.md"
         {
             translate_frontmatter "$src"
@@ -202,9 +202,22 @@ sync_commands() {
     mkdir -p "$dest"
     local cmd
     for cmd in "$CAROL_ROOT"/commands/*.md; do
+        local name
+        name=$(basename "$cmd" .md)
+        # Role activation is a mod command now (flips model+badge+prompt atomically).
+        case "$name" in
+            counselor|machinist|oracle) continue ;;
+        esac
         ln -sf "$cmd" "$dest/$(basename "$cmd")"
     done
     ok "commands → $dest"
+}
+
+sync_mods() {
+    local dest="$CMD_ROOT/mods"
+    mkdir -p "$dest"
+    ln -sf "$CAROL_ROOT/bin/carol-statusline.ts" "$dest/carol-statusline.ts"
+    ok "mods → $dest"
 }
 
 sync_skills() {
@@ -253,7 +266,6 @@ main() {
         for src in "$CAROL_ROOT"/agents/*.md; do
             local role
             role=$(basename "$src" .md)
-            [ "$role" = "machinist" ] && continue
             echo "──── $role ────"
             translate_frontmatter "$src"
             echo ""
@@ -263,6 +275,7 @@ main() {
     sync_agents
     sync_commands
     sync_skills
+    sync_mods
     bootstrap
     set_default_model
     ok "Done. Restart cmd to pick up agents/commands/skills."
