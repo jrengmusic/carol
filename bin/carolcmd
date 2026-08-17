@@ -24,7 +24,7 @@ notice(){ echo -e "${BLUE}ℹ $1${NC}"; }
 # (case, not declare -A — macOS ships bash 3.2, no associative arrays.)
 seat_for() {
     case "$1" in
-        counselor)  echo "deepseek/deepseek-v4-pro" ;;
+        counselor)  echo "zai-org/GLM-5.3" ;;
         oracle)     echo "zai-org/glm-5.3" ;;
         engineer)   echo "minimaxai/minimax-m3" ;;
         auditor)    echo "zai-org/glm-5.3" ;;

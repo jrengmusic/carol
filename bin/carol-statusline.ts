@@ -42,6 +42,8 @@ function commandBody(path: string): string {
 }
 
 export default function (cmd: ModApi): void {
+	let liveModel = '';
+
 	function modelSeat(role: string): string {
 		return frontmatterField(join(CMD_ROOT, 'agents', `${role.toLowerCase()}.md`), 'model');
 	}
@@ -54,7 +56,7 @@ export default function (cmd: ModApi): void {
 	function composeStatus(): string {
 		const version = read(join(CAROL_ROOT, 'VERSION')) || '?';
 		const role = (read(join(CAROL_ROOT, '.carol-role')) || 'COUNSELOR').toUpperCase();
-		const model = modelSeat(role);
+		const model = liveModel || modelSeat(role);
 		const badge = `\x1b[48;2;${roleColor(role)}m${BUNKER}${BOLD} ${role} ${RESET}`;
 		let out = `${LABEL}◈ CAROL v${version}${RESET}  ${badge}`;
 		if (model) out += `  ${DIM}${model}${RESET}`;
@@ -89,6 +91,11 @@ export default function (cmd: ModApi): void {
 			updateStatus();
 		},
 		onSessionEnd: () => cmd.ui.setStatus(null),
+	});
+
+	cmd.on('model_request_start', ({model}) => {
+		if (model) liveModel = model;
+		updateStatus();
 	});
 
 	cmd.on('turn_start', updateStatus);
