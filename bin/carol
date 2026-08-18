@@ -1153,6 +1153,7 @@ print(role)
 cmd_provider() {
     local provider="$1"
     local settings_src="$CAROL_ROOT/providers/${provider}.settings.json"
+    local secrets_file="$CAROL_ROOT/providers/secrets.json"
     local settings_dst="$HOME/.config/claude/settings.json"
 
     if [ ! -f "$settings_src" ]; then
@@ -1160,7 +1161,26 @@ cmd_provider() {
         exit 1
     fi
 
-    ln -sf "$settings_src" "$settings_dst"
+    if ! command -v jq &>/dev/null; then
+        error "jq is required to activate provider settings"
+    fi
+
+    local token=""
+    if [ -f "$secrets_file" ]; then
+        token=$(jq -r --arg provider "$provider" '.[$provider] // empty' "$secrets_file")
+    fi
+
+    # settings_dst may be a stale symlink from a prior activation — unlink
+    # first so the write below always creates a fresh regular file instead
+    # of following the link into the tracked source it points to.
+    rm -f "$settings_dst"
+
+    if [ -n "$token" ]; then
+        jq --arg token "$token" '.env.ANTHROPIC_AUTH_TOKEN = $token' "$settings_src" > "$settings_dst"
+    else
+        cp "$settings_src" "$settings_dst"
+    fi
+
     printf 'provider: %s — restart Claude Code to activate\n' "$provider"
 }
 
@@ -1234,6 +1254,9 @@ case "${1:-run}" in
         ;;
     deepseek)
         cmd_provider "deepseek"
+        ;;
+    cmd)
+        cmd_provider "cmd"
         ;;
     anthropic)
         cmd_provider "anthropic"

@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)"
+    ],
+    "deny": [
+      "Bash(git reset --hard*)",
+      "Bash(git checkout --*)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.carol/bin/carol-statusline.sh"
+  },
+  "enabledPlugins": {},
+  "effortLevel": "medium",
+  "promptSuggestionEnabled": false,
+  "awaySummaryEnabled": false,
+  "showTurnDuration": false,
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.commandcode.ai/provider/v1/messages",
+    "ANTHROPIC_AUTH_TOKEN": "__TOKEN__",
+    "API_TIMEOUT_MS": "3000000",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek/deepseek-v4-pro",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek/deepseek-v4-flash",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek/deepseek-v4-flash",
+    "CAROL_CONTEXT_FILL_PERCENT": "90",
+    "CAROL_CONTEXT_DIVISOR": "1000000"
+  }
+}
