@@ -1255,9 +1255,6 @@ case "${1:-run}" in
     deepseek)
         cmd_provider "deepseek"
         ;;
-    cmd)
-        cmd_provider "cmd"
-        ;;
     anthropic)
         cmd_provider "anthropic"
         ;;

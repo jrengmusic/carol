@@ -26,7 +26,7 @@ seat_for() {
     case "$1" in
         counselor)  echo "deepseek/deepseek-v4-pro" ;;
         oracle)     echo "zai-org/glm-5.3" ;;
-        engineer)   echo "minimaxai/minimax-m3" ;;
+        engineer)   echo "deepseek/deepseek-v4-flash" ;;
         auditor)    echo "zai-org/glm-5.3" ;;
         librarian)  echo "xiaomi/mimo-v2.5-pro" ;;
         pathfinder) echo "deepseek/deepseek-v4-flash" ;;
