@@ -12,6 +12,7 @@ carol_version=${carol_version:-"?"}
 # Parse context %, model name, agent role, and rate limit
 parsed=$(python3 -c "
 import sys, json, time, os
+from datetime import datetime, timezone
 d = json.load(sys.stdin)
 cw = d.get('context_window', {}) or {}
 pct = int(cw.get('used_percentage', 0) or 0)
@@ -49,6 +50,43 @@ def fmt(window):
     return p, rem
 rl_pct, remaining = fmt('five_hour')
 wk_pct, wk_remaining = fmt('seven_day')
+transcript_path = d.get('transcript_path', '') or ''
+CACHE_TTL_1H_SECONDS = 3600
+CACHE_TTL_5M_SECONDS = 300
+cache_pct = 0
+cache_remaining = ''
+if transcript_path and os.path.isfile(transcript_path):
+    anchor_time, ttl_seconds = None, None
+    with open(transcript_path, 'r') as tf:
+        for line in reversed(tf.readlines()):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+            except Exception:
+                continue
+            usage = (entry.get('message') or {}).get('usage') or {}
+            creation = int(usage.get('cache_creation_input_tokens', 0) or 0)
+            cached = int(usage.get('cache_read_input_tokens', 0) or 0)
+            if creation > 0 or cached > 0:
+                if anchor_time is None:
+                    anchor_time = entry.get('timestamp', '')
+                breakdown = usage.get('cache_creation') or {}
+                if int(breakdown.get('ephemeral_1h_input_tokens', 0) or 0) > 0:
+                    ttl_seconds = CACHE_TTL_1H_SECONDS
+                    break
+                if int(breakdown.get('ephemeral_5m_input_tokens', 0) or 0) > 0:
+                    ttl_seconds = CACHE_TTL_5M_SECONDS
+                    break
+    if anchor_time:
+        ttl_seconds = ttl_seconds or CACHE_TTL_1H_SECONDS
+        anchor_epoch = datetime.strptime(anchor_time, '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=timezone.utc).timestamp()
+        elapsed = max(0.0, time.time() - anchor_epoch)
+        cache_pct = min(int(elapsed * 100.0 / ttl_seconds), 100)
+        left_seconds = max(0, int(ttl_seconds - elapsed))
+        cache_m, cache_s = left_seconds // 60, left_seconds % 60
+        cache_remaining = f'{cache_m}m{cache_s:02d}s' if cache_pct < 100 else 'cold'
 print(pct)
 print(total_tokens)
 print(model)
@@ -58,6 +96,8 @@ print(remaining)
 print(wk_pct)
 print(wk_remaining)
 print(scaled)
+print(cache_pct)
+print(cache_remaining)
 " <<< "$data" 2>/dev/null)
 
 pct=$(sed -n '1p' <<< "$parsed")
@@ -69,6 +109,8 @@ rl_remaining=$(sed -n '6p' <<< "$parsed")
 wk_pct=$(sed -n '7p' <<< "$parsed")
 wk_remaining=$(sed -n '8p' <<< "$parsed")
 scaled=$(sed -n '9p' <<< "$parsed")
+cache_pct=$(sed -n '10p' <<< "$parsed")
+cache_remaining=$(sed -n '11p' <<< "$parsed")
 
 pct=${pct:-0}
 total_tokens=${total_tokens:-0}
@@ -79,6 +121,8 @@ rl_remaining=${rl_remaining:-""}
 wk_pct=${wk_pct:-0}
 wk_remaining=${wk_remaining:-""}
 scaled=${scaled:-0}
+cache_pct=${cache_pct:-0}
+cache_remaining=${cache_remaining:-""}
 
 # Palette from StyleSheet.xml
 reset="\033[0m"
@@ -152,6 +196,17 @@ if [ "$wk_pct" -gt 0 ]; then
     wk_left=$((100 - wk_pct))
 fi
 
+cache_color="$dim_color"
+cache_left=0
+if [ -n "$cache_remaining" ]; then
+    if   [ "$cache_pct" -ge 75 ]; then cache_color="\033[38;2;252;112;76m"
+    elif [ "$cache_pct" -ge 50 ]; then cache_color="\033[38;2;200;120;50m"
+    elif [ "$cache_pct" -ge 25 ]; then cache_color="\033[38;2;0;150;160m"
+    else                                cache_color="\033[38;2;51;83;91m"
+    fi
+    cache_left=$((100 - cache_pct))
+fi
+
 # Responsive tiers — measure actual component widths, pick highest that fits
 # Tier 1: role + ctx bar
 # Tier 2: + percent-only for session and weekly
@@ -163,10 +218,13 @@ cols=${cols:-120}
 # Pre-build rate limit bars (needed for tier 3+)
 RL_SEGMENTS=15
 WK_SEGMENTS=15
+CACHE_SEGMENTS=15
 rl_bar=""
 wk_bar=""
+cache_bar=""
 [ "$rl_pct" -gt 0 ] && rl_bar=$(build_bar $RL_SEGMENTS $((rl_pct * RL_SEGMENTS / 100)) "$rl_color")
 [ "$wk_pct" -gt 0 ] && wk_bar=$(build_bar $WK_SEGMENTS $((wk_pct * WK_SEGMENTS / 100)) "$wk_color")
+[ -n "$cache_remaining" ] && cache_bar=$(build_bar $CACHE_SEGMENTS $((cache_pct * CACHE_SEGMENTS / 100)) "$cache_color")
 
 # Calculate visible cell widths per component (emoji = 2 cells)
 role_w=0
@@ -187,13 +245,19 @@ if [ "$wk_pct" -gt 0 ]; then
     [ -n "$wk_remaining" ] && wk_full_w=$((wk_full_w + 1 + ${#wk_remaining}))
 fi
 
+cache_pct_w=0; cache_full_w=0
+if [ -n "$cache_remaining" ]; then
+    cache_pct_w=$((2 + 2 + ${#cache_left} + 1))
+    cache_full_w=$((2 + 2 + CACHE_SEGMENTS + 1 + ${#cache_left} + 1 + 1 + ${#cache_remaining}))
+fi
+
 ver_w=$((2 + ${#carol_version} + 9))                    # "◈ CAROL v" + version
 model_w=$((2 + ${#model}))                               # "  " + model
 
 t1=$((role_w + ctx_w))
-t2=$((t1 + rl_pct_w + wk_pct_w))
-t3=$((t1 + rl_full_w + wk_full_w))
-t4=$((ver_w + role_w + model_w + ctx_w + rl_full_w + wk_full_w))
+t2=$((t1 + rl_pct_w + wk_pct_w + cache_pct_w))
+t3=$((t1 + rl_full_w + wk_full_w + cache_full_w))
+t4=$((ver_w + role_w + model_w + ctx_w + rl_full_w + wk_full_w + cache_full_w))
 
 # Assemble: pick highest tier that fits
 if [ "$cols" -ge "$t4" ]; then
@@ -201,14 +265,17 @@ if [ "$cols" -ge "$t4" ]; then
     out="${out}${role_label}  ${dim_color}${model}${reset}  ${ctx_emoji}${bar}"
     [ "$rl_pct" -gt 0 ] && out="${out}  ${dim_color}🕔${reset}${rl_bar} ${rl_color}${rl_left}%%${reset}$([ -n "$rl_remaining" ] && printf " ${dim_color}${rl_remaining}${reset}")"
     [ "$wk_pct" -gt 0 ] && out="${out}  ${dim_color}📅${reset}${wk_bar} ${wk_color}${wk_left}%%${reset}$([ -n "$wk_remaining" ] && printf " ${dim_color}${wk_remaining}${reset}")"
+    [ -n "$cache_remaining" ] && out="${out}  ${dim_color}⏳${reset}${cache_bar} ${cache_color}${cache_left}%%${reset} ${dim_color}${cache_remaining}${reset}"
 elif [ "$cols" -ge "$t3" ]; then
     out="${role_label}  ${ctx_emoji}${bar}"
     [ "$rl_pct" -gt 0 ] && out="${out}  ${dim_color}🕔${reset}${rl_bar} ${rl_color}${rl_left}%%${reset}$([ -n "$rl_remaining" ] && printf " ${dim_color}${rl_remaining}${reset}")"
     [ "$wk_pct" -gt 0 ] && out="${out}  ${dim_color}📅${reset}${wk_bar} ${wk_color}${wk_left}%%${reset}$([ -n "$wk_remaining" ] && printf " ${dim_color}${wk_remaining}${reset}")"
+    [ -n "$cache_remaining" ] && out="${out}  ${dim_color}⏳${reset}${cache_bar} ${cache_color}${cache_left}%%${reset} ${dim_color}${cache_remaining}${reset}"
 elif [ "$cols" -ge "$t2" ]; then
     out="${role_label}  ${ctx_emoji}${bar}"
     [ "$rl_pct" -gt 0 ] && out="${out}  ${dim_color}🕔${reset}${rl_color}${rl_left}%%${reset}"
     [ "$wk_pct" -gt 0 ] && out="${out}  ${dim_color}📅${reset}${wk_color}${wk_left}%%${reset}"
+    [ -n "$cache_remaining" ] && out="${out}  ${dim_color}⏳${reset}${cache_color}${cache_left}%%${reset}"
 else
     out="${role_label}  ${ctx_emoji}${bar}"
 fi
