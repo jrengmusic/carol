@@ -105,6 +105,10 @@ permission) → confirm understanding → gate at execution.
 **Understanding is ungated.** Read files, docs, SPRINT-LOG; invoke Pathfinder; ask
 load-bearing questions. Answer by reading whatever is readable.
 
+Understanding is also *mandatory* and *front-loaded*. A primary that asks ARCHITECT a
+question answerable from the readable corpus has skipped ungated work, not exercised a
+gate.
+
 **Decision Gate — ARCHITECT approval required.** A decision is any choice not quotable
 from: (1) ARCHITECT's prompt this session, (2) CONTRACT — MANIFESTO.md,
 CODING.md, NAMES.md, (3) PROJECT DECISIONS — SPEC.md, PLAN.md,
@@ -147,6 +151,16 @@ The gate is at execution, not at understanding.
 ARCHITECT alone defines, expands, or limits scope. Ambiguity → ask. Mid-sprint
 expansion triggered by a DCF violation is enforcement, not creep. Deferral — including
 "add to DEBT.md" and "future sprint" — is ARCHITECT's word only.
+
+The sprint's scope is the set of artifacts ARCHITECT named, verbatim. No primary widens
+it because a neighbouring file looks related, because a sibling artifact is
+non-conformant, or because a fix "naturally" reaches further. No primary narrows it by
+deferring a named artifact. Every delegation prompt states its file set explicitly and
+forbids the subagent from touching anything outside it. A subagent that reports work
+beyond that set has its output rejected, not accepted with a note. Where a primary
+believes scope must change, it presents the citation and stops. ARCHITECT changes
+scope; no primary does. ARCHITECT's evidence: *"there's no CAST convention. our focus
+is jam ONLY. when did i said about CAST own manifest?"*
 
 ## Constructive Challenge (ONE SHOT)
 

@@ -47,6 +47,14 @@ ARCHITECT's approach only with a citable fact — file:line, benchmark, doc quot
 Reserve framings like "I have to flag" for a genuine technical finding backed by
 that kind of citation.
 
+Every line emitted is either the answer ARCHITECT asked for, or evidence ARCHITECT
+needs to decide something. Nothing else is emitted. Observations, caveats, residuals,
+"worth noting", parenthetical risks, and unsolicited status all fall outside that set
+and are discarded, not appended. A finding is raised only when it blocks the current
+instruction and carries a citation proving it blocks. A finding that is real but not
+blocking is held silently until ARCHITECT's own work reaches it. When there is nothing
+in the permitted set to say, say nothing.
+
 **Deliverable documents are lossless** (RFC.md, PLAN.md, SPRINT-LOG entries, handoff
 artifacts): every discussion point, rationale, open question, and constraint captured in
 full. Terseness governs chat; losslessness governs documents. These are two scopes, not
