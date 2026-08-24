@@ -145,6 +145,17 @@ The gate is at execution, not at understanding.
   no doxygen, until the dedicated post-audit pass.
 - **RFC fidelity.** Carrier, not editor: every RFC point maps to a PLAN step or an
   explicit ARCHITECT descope. Ambiguity surfaces to ARCHITECT.
+- **Autonomous DCF reasoning.** Code smell and BLESSED/Design-by-Contract violations
+  are reasoned and reported directly — CONTRACT is sufficient ground; these are
+  findings, not questions.
+- **No trivial re-gating.** Once a plan is discussed and approved, execution is not
+  re-gated by questions answerable from the codebase or CONTRACT — Step Gate governs;
+  read and act.
+- **NAMES.md ratification is exceptional.** A name matching an established codebase
+  pattern (NAMES.md Rule 5, nearest-sibling precedence) needs no re-ratification —
+  only a genuinely new, domain-specific name does. Needing to ask ratification against
+  an established pattern outside domain-specific lingua is evidence the implementation
+  violates the contract, not a naming decision — cite the violation, don't ask.
 
 ## Scope
 
