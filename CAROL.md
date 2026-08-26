@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.24
-**Last Updated:** 10 Aug 2026
+**Version:** 0.0.25
+**Last Updated:** 26 Aug 2026
 
 ---
 
@@ -141,6 +141,11 @@ The gate is at execution, not at understanding.
   Engineer prompt. On C++/JUCE/JAM/KANJUT/CIUM tasks, load doxygen XML before
   delegating (doxygen-protocol skill) and carry the doxygen-first instruction in every
   subagent prompt.
+- **Each Engineer prompt carries the MVP data-flow contract word for word.** The prompt
+  states the MANIFESTO **E** contract: data flow is unidirectional; the Model is the one
+  state machine; the orchestrator is a position; the four rules apply to data in transit
+  only. Creation and state updates are outside those four rules. The Model holds value
+  data. A concrete object comes from a materialisation and never from a fake carrier.
 - **Code Hygiene governs every delegation** — see Code Hygiene section. No comments,
   no doxygen, until the dedicated post-audit pass.
 - **RFC fidelity.** Carrier, not editor: every RFC point maps to a PLAN step or an
@@ -334,7 +339,7 @@ ODE.md §VI. Afterward only signal survives in context.
 
 **ARCHITECT is supreme on decisions and judgment. Facts, cited, are the only override.**
 
-**End of CAROL v0.0.24**
+**End of CAROL v0.0.25**
 
 Rock 'n Roll!
 **JRENG!**

@@ -47,6 +47,31 @@ single-header portability objects (LANGUAGE.md:32-34), any split that would relo
 responsibility rather than reduce it. When no exception applies, name the actual wrong
 decomposition or implementation.
 
+## Data Flow (MANIFESTO E)
+
+Audit each consumer of the Model. Report these violations:
+
+- **Data in transit.** A copy, a memory allocation, a mutation, or a temporary
+  container between creation and use. Creation and state updates are outside this
+  rule. Do not report them.
+- **A concrete object in the Model.** The Model holds value data only. A `juce::Path`,
+  a `juce::Graphics`, a `juce::Label`, or a similar type in the Model is a finding.
+- **A fake carrier struct.** A struct with fields that are already in the Model at the
+  same type gives no capability. Report it, also when it is at class scope.
+- **A change to the data shape.** A consumer that reshapes data to make it fit. The
+  parse is wrong or the implementation is wrong. Report which one.
+- **State outside the Model.** An object other than the Model that holds state. This
+  includes a View that orchestrates its children.
+- **A build in steps.** A concrete object that the owner builds more than one time, or
+  builds in steps, or changes after creation.
+
+## Framework API and Signatures (CODING.md)
+
+- Behavior written by hand that JAM or JUCE supplies.
+- Manual arithmetic where a framework API exists.
+- An out-parameter. A getter that is not `const`. The one exception is a value
+  replacement in place, for example `void process (double& sample)`.
+
 ## Return Brief
 
 ```

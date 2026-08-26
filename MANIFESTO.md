@@ -2,7 +2,7 @@
 ## BLESSED — The Contract
 
 **For:** ARCHITECT and CAROL agents.
-**Version:** 0.1 — April 2026
+**Version:** 0.1 — August 2026
 
 ---
 
@@ -218,7 +218,7 @@ The booleans are the smell. They mean the orchestrator is doing the object's thi
 
 ## E — Encapsulation
 
-**Clear single responsibility. No poking internals. Tell, don't ask. Unidirectional layer flow.**
+**Clear single responsibility. No poking internals. Tell, don't ask. Unidirectional layer and data flow.**
 
 Objects are ignorant by design. They know nothing about the world outside their one job. The orchestrator tells — it never inspects an object's state to make decisions on its behalf.
 
@@ -231,16 +231,82 @@ Objects are ignorant by design. They know nothing about the world outside their 
 
 **Layer topology is strictly unidirectional.** Lower layers never know about higher layers. No `#include "HigherLayer.h"` in a lower layer. No reverse dependencies. Communication flows through explicit APIs only.
 
-**Concrete example — ProcessorChain:**
+**Data flow is strictly unidirectional.** The rule above applies at compile time. This rule applies at run time. Data moves one way through the topology. No object operates on the data during the movement. Dependency direction and data direction are the same law at two times.
+
+### MVP — Model, View, Processor
+
+The Model holds the state. The View composes. The Processor holds the business logic. This is the project-level architecture for deterministic applications with critical performance. The architecture applies to all application types. The chain below is one instance of the architecture. It is not the subject of the architecture.
+
+**The Model is absolute.** There is one state machine at each scale. Almost no other object holds state.
+
+**The orchestrator is a position. It is not a type.** The top layer of a subtree orchestrates that subtree. A layered View that controls its children holds this position. The position gives no state to the View. A View that orchestrates is still not a Model.
+
+### Complete at Creation
+
+A unit is complete when it comes into existence. A parse operation gives a complete AST. A view unit is complete when the owner builds it. Each consumer downstream receives complete data.
+
+**Creation is not mutation.** Creation can be complex. Creation can use multiple passes, look-ahead, reverse steps, work buffers, and memory allocation. Creation does not change a complete object, because no complete object exists yet. The contract starts at the end of creation.
+
+**A state update is not mutation.** A complete state replaces a complete state. Add and remove operations are state updates. The program builds and deletes view units as it runs. Each view unit is complete. Thus the creation and the deletion of a view unit are state updates.
+
+**The law applies to data in transit.** Data is in transit between creation and use. These operations on data in transit are forbidden:
+
+- **No copy** — read the data in its location
+- **No allocation** — the data exists, so build nothing
+- **No mutation** — do not change the data during the movement
+- **No temporary container** — do not stage the data, because a stage makes shadow state (refer to **S — Single Source of Truth**)
+
+These four rules are one rule: **do no operation on data in transit.** Each violation is a consumer that builds again what creation made.
+
+**The diagnostic:** At each call site, ask this question. Is this operation a creation, a state update, or transit? Creation and state updates have no limit. The four rules apply to transit.
+
+**The verdict:** If the data does not fit the implementation, the parse is wrong or the implementation is wrong. It is never both. It is never neither. To change the shape of the data in transit is the violation. It is not the correction.
+
+**Transient state applies to creation.** **S — Stateless** permits transient state: *"Transient state only — calculation buffers, intermediate values, anything that lives and dies within a single operation"*. That permission applies to creation. The four rules apply to transit. The two scopes do not intersect. One scope does not relax the other.
+
+### Materialisation of Concrete Objects
+
+The Model contains value data. Value data is numbers, unions, `const char* const`, and strings. Value data holds a value and does no other operation. Value data can allocate memory one time, at creation. It does not allocate memory again.
+
+**The Model must not contain a concrete object.** A concrete object is a type with a capability. Examples are `juce::Path`, `juce::Graphics`, `juce::Label`, and `juce::AttributedString`. These types draw, measure, or operate in the framework. The Model contains the string `"M 57 d 55 Z"`. The Model does not contain the `juce::Path`.
+
+**Materialisation is the only permitted derivation.** The owner builds a concrete object from value data in the Model. The owner builds the concrete object only when it needs the capability. This operation is a creation, thus it can allocate memory. The owner builds the concrete object one time and the object is then complete. Do not build a concrete object in steps. Do not build it again. Do not change it. When the Model state updates, the owner replaces the full concrete object.
+
+```cpp
+// CORRECT — materialisation gives a capability that value data does not have
+struct AttributeGraphics
+{
+    juce::Path path;
+    juce::Rectangle<float> bounds;
+};
+
+// WRONG — fake carrier holds again what the Model holds
+struct GlyphQuad
+{
+    float x, y, w, h;
+};
+```
+
+**The test:** What operation can this type do that value data cannot do? If the answer is a capability, the type is a materialisation. Capabilities are draw, hit-test, transform, and measure. If the answer is *"it holds values together for transfer"*, the type is a fake carrier. Convenience is not a capability.
+
+**The structural check:** If each field is already in the Model with the same type, the type materialises nothing. `"M 57 d 55 Z"` to `juce::Path` is a derivation. `x, y, w, h` to `x, y, w, h` is shadow state.
+
+**A struct is a design decision. A struct is not a convenience.** Do not make a struct to move values between call sites. This always makes a fake carrier. A struct that only carries data is a failure.
+
+**A materialisation is not a temporary container.** The four rules apply to data in transit. They do not prevent the owner from a materialisation of a capability. A concrete object that its owner builds one time is a unit. The unit is complete at creation. The owner replaces the unit at a state update. A struct that moves Model values between call sites is data in transit and is forbidden.
+
+**Concrete instance — ProcessorChain (audio):**
 
 ```
 PluginProcessor   →   owns ProcessorChain
 ProcessorChain    →   owns DSP Processors, listens to parameterChanged, tells processors to calculate
 DSP Processors    →   dumb, calculate on tell, store only calculation inputs
-APVTS             →   the actual state machine, single source of truth
+APVTS             →   the actual state machine — the Model
 ```
 
 ProcessorChain listens to `parameterChanged`, tells each processor to recalculate, and replaces samples on `processBlock`. Each DSP processor is dumb — it stores parameter values as calculation inputs only, always synced top-down from APVTS. No processor ever asks ProcessorChain anything. No ProcessorChain ever asks PluginProcessor anything.
+
+The same shape holds where nothing is audio: Model is whatever owns state, Processor whatever owns logic, View whatever composes.
 
 **On established patterns — for agents and junior devs:**
 If the architecture uses listeners, use listeners. If parameters flow through APVTS, do not invent a parallel channel. A manual boolean flag, a manual callback, or a helper invented where a listener pattern already exists is not a solution — it is a symptom of not reading the architecture. Find the established pattern. Extend it. A new pattern where one already exists is always wrong.
@@ -327,6 +393,12 @@ Enforcement:
 | Getter without proven caller | **E** (Encapsulation) |
 | Caller tracking state the object already represents | **S** (Stateless) + **E** (Encapsulation) |
 | Layer violation (`#include "HigherLayer.h"`) | **E** (Encapsulation) + **B** |
+| Copy, allocation, mutation, or temporary container in transit | **E** (Encapsulation) + **S** (Stateless) |
+| Consumer changes the data shape in place of a correction to the parse or the implementation | **E** (Encapsulation) + **D** |
+| An object other than the Model holds state | **S** (Stateless) + **S** (SSOT) |
+| A View that orchestrates holds state | **S** (Stateless) + **E** (Encapsulation) |
+| Concrete object in the Model | **E** (Encapsulation) + **S** (SSOT) |
+| Fake carrier struct — holds again what the Model holds | **S** (SSOT) + **S** (Stateless) |
 | Defensive guard with no named threat | **B** |
 | Magic value / unnamed constant | **E** (Explicit) + **S** (SSOT) |
 | Hardcoded value appearing more than once | **S** (SSOT) |
@@ -342,4 +414,4 @@ Enforcement:
 **JRENG!**
 
 ---
-*Version 0.1 — April 2026*
+*Version 0.1 — August 2026*

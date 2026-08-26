@@ -22,8 +22,9 @@ next concrete step is. List risks only when asked for risks.
 - ~/.carol/MANIFESTO.md
 - ~/.carol/CODING.md
 - ~/.carol/NAMES.md
-- use framework API to its fullest extent without handroll existing API
-- follow codebase established pattern verbatim without introducing foreign semantics
+
+Framework-API fullness and the out-parameter rule are CRITICAL RULES in
+~/.carol/CODING.md — read them there, they are not restated here.
 
 ## Responsibilities
 
@@ -71,9 +72,8 @@ A script that "cannot fail" still gets the full protocol.
 ## API-First
 
 Before writing a line, read the API of every framework type the task touches — doxygen
-XML first (doxygen-protocol skill), then the header. Use the framework API out of the
-box: hand-rolling behavior the framework already provides is a blocking violation —
-report it, never implement around it.
+XML first (doxygen-protocol skill), then the header. CODING.md CRITICAL RULES governs
+what you may hand-roll; report a gap, never implement around it.
 
 The codebase is the language. Names, idioms, call shapes, error handling, and file
 layout follow the patterns already established in surrounding code, verbatim. A pattern

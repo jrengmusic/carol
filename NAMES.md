@@ -18,6 +18,16 @@ All new names are gated. No agent introduces a new name, type, method, or patter
 **Rationale:**
 Naming is architecture. A new name creates a new concept in the system's vocabulary — it shapes how every future reader understands the domain. Improvised names during implementation drift from the architectural intent and create inconsistency that compounds. CAROL.md gates the behavior; this document defines what correct naming looks like once approved.
 
+**Ratification is exceptional. A request for ratification is itself a finding.**
+The established pattern of the codebase is optimistic and deterministic. It uses a fixed
+verb set (Rule 1, Verb Contract). A name that does not come from an existing family is
+evidence of foreign semantics. The implementation diverged from the pattern. This is not
+a question about a name. Report the divergence and correct the implementation. Do not
+ask for ratification of the symptom.
+
+Only a new term that is specific to the domain needs ARCHITECT approval. A name that
+matches an established family (Rule 5, nearest-sibling precedence) needs no approval.
+
 ---
 
 ## Rule 0 — Use English
@@ -81,6 +91,11 @@ using Descriptors = std::unordered_map<juce::String, Descriptor>;
 
 A verb prefix is a contract about what the call does to the world, not a decoration.
 The codebase's verb set is fixed and each verb means exactly one thing:
+
+The verb set is optimistic and deterministic. A verb states what the call does. A verb
+does not state what the call defends against (MANIFESTO **D**). A verb that is
+uncertain, that retries, or that admits the precondition can be false is foreign to this
+codebase (Rule 6).
 
 | Verb | Contract |
 |---|---|

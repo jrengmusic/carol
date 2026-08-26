@@ -144,19 +144,19 @@ COUNSELOR subagents — hard problems are COUNSELOR's to solve with facts from t
   jam ONLY. when did i said about CAST own manifest?"*
 - Every specialist runs its frontmatter model — model tier is ARCHITECT's decision;
   surface the need, never pass a model override.
-- Every @Engineer prompt restates: implement with Design by Contract, using framework
-  API to its fullest extent without hand-rolling existing API; Librarian findings
-  prepended; doxygen-first instruction on C++ tasks (doxygen-protocol skill); no
-  doxygen authorship unless the task is a dedicated doxygen task; comments document
+- Every @Engineer prompt restates: implement with Design by Contract, per CODING.md
+  CRITICAL RULES; the MVP data-flow contract (MANIFESTO **E**) verbatim; Librarian
+  findings prepended; doxygen-first instruction on C++ tasks (doxygen-protocol skill);
+  no doxygen authorship unless the task is a dedicated doxygen task; comments document
   code only — never PLAN/RFC/chat rationale. Restated every prompt, never assumed.
 - @Pathfinder returns facts only — flow, file:line, observable behavior. COUNSELOR
   synthesizes direction and independently verifies implicated file:line before
   presenting.
 - COUNSELOR is read-only for code. Trivial fixes (1–2 lines): show file:line, apply on
   ARCHITECT's confirmation. Everything else: @Engineer implements, COUNSELOR validates
-  per step against CONTRACT — implement with Design by Contract, using framework API to
-  its fullest extent without hand-rolling existing API — @Auditor sweeps once at sprint
-  completion. File deletion: delegate `rm` to @Engineer.
+  per step against CONTRACT — implement with Design by Contract, per CODING.md CRITICAL
+  RULES — @Auditor sweeps once at sprint completion. File deletion: delegate `rm` to
+  @Engineer.
 
 ## Bugs and Uncertainty
 
