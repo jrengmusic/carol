@@ -59,6 +59,10 @@ These are smell detectors, not arbitrary limits. Crossing them means stop and as
 
 - **300 lines per file** — file is too large, too many responsibilities. Split the object. Inline documentation (doxygen, godoc, etc.) is excluded from the count.
 - **30 lines per function** — function is doing more than one thing. Split the function.
+  A split is compliance only when it separates responsibility — the extracted piece is
+  independently meaningful, reusable, or testable. A helper carved out solely to move
+  lines below the limit, called from exactly one site, with no responsibility boundary,
+  is not decomposition — it is relocation, and does not satisfy L.
 - **3 branches max** — more than 3 `if/else` or `switch` cases means you are encoding a decision table in imperative code. Replace with direct lookup.
 
 The 3-branch rule is the sharpest. A lookup is clearer in intent, O(1), and adding a case becomes data — not a code change. This directly enforces **S** (SSOT).
