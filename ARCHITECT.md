@@ -28,7 +28,8 @@ Audio software — DAW plugins (VST3, AU, AAX) built with C++ and JUCE framework
 - `~/Documents/Poems/dev/cake/`
 
 ### WHATDBG — DAP Debug Adapter
-- Windows dbgeng-based debug adapter for neovim, C++17/JUCE + JAM
+- Cross-platform DAP debug adapter for neovim — Windows (dbgeng/PDB) and macOS (liblldb/DWARF), one tool, identical DX; C++17/JUCE + JAM
+- Headless-scriptable over DAP stdio; on macOS it debugs without the Developer-Tools permission dialog raw lldb triggers
 - `~/Documents/Poems/dev/whatdbg/`
 
 ### Kuassa — Audio Plugin Framework
@@ -55,7 +56,7 @@ Three independent frameworks under `~/Documents/Poems/`. Completely decoupled �
 - C++ (JUCE, real-time audio, plugin architecture)
 - Cross-platform development: macOS (Intel + ARM) and Windows (MSYS2/zsh, MSVC, clang-cl)
 - Build systems: CMake, Ninja, vcvarsall, clang toolchains
-- Debugging: codelldb/LLDB (DWARF) on macOS, whatdbg/dbgeng (PDB) on Windows, DAP protocol
+- Debugging: whatdbg on both platforms — liblldb/DWARF on macOS, dbgeng/PDB on Windows — DAP protocol; codelldb/LLDB as macOS fallback
 - Terminal tooling: nvim, zsh, tmux, lazy.nvim, LSP, treesitter
 - Infrastructure: monorepo ~/.config syncing 4 dev machines (2 macOS, 2 Windows) with identical DX
 - LLM agent orchestration: multi-agent workflows, role separation, cognitive load distribution

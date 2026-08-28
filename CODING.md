@@ -758,6 +758,46 @@ A translation unit (`.cpp`) should include only what its declarations require.
 
 ---
 
+## TEMPLATE, CONSTEXPR, AND TRANSLATION UNIT PLACEMENT (MANDATORY)
+
+Applies to modular C++17 libraries of non-trivial size (JUCE-scale, JAM/KANJUT/CIUM).
+Hybrid placement is mandatory — pure header-only and pure split both fail at scale.
+
+### Header-only (required)
+- Class / function / variable templates
+- `constexpr` functions and variables (including `static constexpr`)
+- `inline` and `static inline` functions
+- Concepts, requires-clauses, and constraints participating in overload resolution
+- Type traits and metafunctions
+- Trivial, pure utility functions that benefit from inlining
+- Code-generated `static constexpr` / `static inline` surface
+
+### Split — header + `.cpp` (required)
+- Non-template member function bodies (unless trivial and explicitly `inline`)
+- Non-template free functions that are not `inline` / `constexpr`
+- Detail/internal implementation not participating in template instantiation
+- Static data with dynamic (non-`constexpr`) initialization
+- Any body that can change without forcing recompilation of all consumers
+
+### Decision table
+
+| Construct | Placement |
+|---|---|
+| Template (class/function) | Header |
+| `constexpr` / `static constexpr` | Header |
+| `inline` / `static inline` | Header |
+| Non-template member function body | `.cpp` |
+| Non-template free function | `.cpp` (unless inline) |
+| Detail implementation | `.cpp` |
+| Code-generated pure constexpr/inline | Header |
+| Closed set of template instantiations | Optional explicit instantiation in `.cpp` |
+
+**Rule:** never place a non-trivial, non-template function body in a header for
+convenience. Public headers hold declarations, template definitions, and the thin
+`constexpr`/`inline` surface only — non-template implementation moves to the `.cpp`.
+
+---
+
 ## PASS BY VALUE VS REFERENCE
 
 **Pass by value for small types:**
@@ -903,6 +943,7 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **Use the framework API fully.** Use JAM first, then JUCE. Do not write again a behavior that the framework supplies. This is a blocking violation. Do not do manual arithmetic when a framework API exists.
 - **No out-parameters.** Return the value. A getter is `const` and takes no out-parameter. The one exception is a value replacement in place — `void process (double& sample)`.
 - **No fake-carrier structs.** A struct must give a capability that the Model's value data does not have. A struct that only carries data is forbidden.
+- **Template/constexpr/inline surface stays in headers; non-template implementation moves to `.cpp`.** No non-trivial non-template function body in a header for convenience.
 
 ---
 
@@ -986,6 +1027,7 @@ Diagnostic instrumentation is ephemeral — all log statements added during inve
 ✓ **Use the framework API fully** — JAM first, then JUCE; do not write again what the framework supplies; no manual arithmetic when an API exists
 ✓ **No out-parameters** — return the value; a getter is `const`; one exception is a value replacement in place (`void process (double& sample)`)
 ✓ **No fake-carrier structs** — a struct must give a capability that value data does not have; a struct that only carries data is forbidden
+✓ **Template/constexpr/inline stay in headers; non-template implementation moves to `.cpp`** — no non-trivial non-template body in a header for convenience
 
 ---
 
