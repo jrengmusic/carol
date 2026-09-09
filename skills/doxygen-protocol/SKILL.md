@@ -15,7 +15,7 @@ absent from the index.
 | Library | Index |
 |---------|-------|
 | JAM | `~/Documents/Poems/dev/jam/docs/xml/index.xml` |
-| KANJUT | `~/Documents/Poems/kuassa/___lib___/docs/xml/index.xml` |
+| KANJUT | `~/Documents/Poems/kuassa/user_modules/docs/xml/index.xml` |
 | CIUM | `~/Documents/Poems/iqala/___cium___/docs/xml/index.xml` |
 | JUCE | `~/Documents/Poems/JUCE/docs/xml/index.xml` |
 | Project | `{project_root}/docs/xml/index.xml` |

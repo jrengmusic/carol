@@ -209,6 +209,43 @@ class Object (int newParameter) : parameter (newParameter) {}
 
 ---
 
+## SCOPE AND OWNERSHIP OF VALUES (MANDATORY)
+
+Before adding any name, constant, or configuration call:
+
+1. **Read the owner first.** The component, LookAndFeel, or framework type that
+   consumes the value owns its default and its API. If a default or setter already
+   exists there, use it — do not restate it in project code.
+2. **Narrowest scope that holds every use.** A value or type used by one function
+   lives inside that function (enum, `static constexpr`, lambda-local). It moves to
+   class scope only when two members need it, to file scope only when two functions
+   need it, to a header only when two translation units need it. Never hoist "for
+   tidiness."
+3. **Project code configures only the difference.** A registration or config call
+   that passes the framework default is dead code. Project constants exist only for
+   values that differ from the owner's default and that no data lane (CSS metrics,
+   markdown tables, identifiers) already carries.
+
+```cpp
+// WRONG — framework default restated in the project, hoisted to file scope
+static constexpr float analyzerMinDecibels { -90.0f };   // Analyzer already defaults to -90
+…
+analyzer->setDecibelRange (analyzerMinDecibels, analyzerMaxDecibels);
+
+// WRONG — single-use enum hoisted out of its only user
+enum class VariChild { … };                              // file scope
+r.registerConfig<VariComponent> (…, [] (VariComponent* v) { … VariChild::textBox … });
+
+// CORRECT — the owner keeps the default; the enum lives where it is used
+r.registerConfig<VariComponent> (…, [] (VariComponent* v)
+{
+    enum class VariChild { … };
+    …
+});
+```
+
+---
+
 ## CONST AND CONSTEXPR
 
 - **Make everything `const` that can be `const`**
@@ -941,6 +978,8 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **Consume the event payload.** A listener that receives WHICH child/property changed and re-derives it by walking/diffing state is forbidden — react to exactly what the event delivered.
 - **No identifier latitude in delegation.** Agents introduce ZERO names not verbatim in their task prompt — a name missing from the prompt is an unratified decision, and the task output is rejected, not amended.
 - **Use the framework API fully.** Use JAM first, then JUCE. Do not write again a behavior that the framework supplies. This is a blocking violation. Do not do manual arithmetic when a framework API exists.
+- **Owner first, narrowest scope, configure only the difference.** Read the consuming type for an existing default or API before adding any name or value; place what is new in the smallest scope that holds every use; project code never restates a framework default.
+- **No `==` / `!=` on strings.** A string compared with `==` is a branch on text. Dispatch by key instead (`Function::Map`, `HashMap`, `Bimap`, `juce::Identifier` equality — an Identifier compare is a pointer compare, not a string compare). Where a genuine text comparison is unavoidable, use `juce::String::compare (…) == 0`; a chain of more than three text tests is a lookup table, never `if`/`else if`.
 - **No out-parameters.** Return the value. A getter is `const` and takes no out-parameter. The one exception is a value replacement in place — `void process (double& sample)`.
 - **No fake-carrier structs.** A struct must give a capability that the Model's value data does not have. A struct that only carries data is forbidden.
 - **Template/constexpr/inline surface stays in headers; non-template implementation moves to `.cpp`.** No non-trivial non-template function body in a header for convenience.
@@ -1025,6 +1064,8 @@ Diagnostic instrumentation is ephemeral — all log statements added during inve
 ✓ **Consume the event payload** — react to exactly what the event delivered, never re-derive by walking/diffing state
 ✓ **No identifier latitude in delegation** — agents introduce zero names not verbatim in their task prompt; violation rejects the output, not amends it
 ✓ **Use the framework API fully** — JAM first, then JUCE; do not write again what the framework supplies; no manual arithmetic when an API exists
+✓ **Owner first, narrowest scope, configure only the difference** — read the owner for an existing default/API; smallest scope that holds every use; never restate a framework default in project code
+✓ **No `==`/`!=` on strings** — dispatch by key (Function::Map / HashMap / Bimap / Identifier); `juce::String::compare (…) == 0` only where text comparison is unavoidable; > 3 text tests = lookup table
 ✓ **No out-parameters** — return the value; a getter is `const`; one exception is a value replacement in place (`void process (double& sample)`)
 ✓ **No fake-carrier structs** — a struct must give a capability that value data does not have; a struct that only carries data is forbidden
 ✓ **Template/constexpr/inline stay in headers; non-template implementation moves to `.cpp`** — no non-trivial non-template body in a header for convenience
