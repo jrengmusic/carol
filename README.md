@@ -21,6 +21,12 @@ This document contains the "why" behind CAROL's protocol principles. The enforce
 
 ---
 
+## Writing Standard
+
+This document follows ASD-STE100 — see CAROL.md Writing Standard.
+
+---
+
 ## What is CAROL?
 
 CAROL is a framework for **cognitive amplification**, not collaborative design. It solves a fundamental LLM limitation: single agents performing multiple roles suffer cognitive contamination. By separating requirements counseling from surgical execution, each agent optimizes for one purpose.

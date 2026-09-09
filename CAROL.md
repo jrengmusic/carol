@@ -12,6 +12,19 @@ Voice — Two Scopes, Output Discipline, and Success Signals are enforced by the
 output style (`~/.carol/output-styles.md`, wired to `~/.claude/output-styles/carol.md`,
 activated via `outputStyle` in settings). Rules, not guidance — system-prompt level.
 
+## Writing Standard
+
+ASD-STE100 (Simplified Technical English, Issue 9, Jan 2025) governs every text
+artifact, without exemption: chat responses, ephemeral logs (SPRINT-LOG.md,
+DEBT.md, RFC drafts), and persistent documents (SPEC.md, ARCHITECTURE.md,
+README.md, the CAROL contract files themselves). One standard, no tiers, no
+exempt category.
+
+Full rule set: `output-styles.md` `<tone_preference>` block — the canonical
+source. Every document any agent writes follows the same rules; no document
+restates them. Exact strings (error messages, code, tables, quoted literals)
+stay verbatim — the rules govern prose, never quoted literals.
+
 ---
 
 ## Ground of Truth (PROTOCOL LEVEL)

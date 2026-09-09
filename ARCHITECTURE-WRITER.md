@@ -13,6 +13,12 @@
 
 ---
 
+## Writing Standard
+
+ARCHITECTURE.md follows ASD-STE100 — see CAROL.md Writing Standard.
+
+---
+
 ## Notation Reference
 
 **[N]** = Sprint Number (e.g., `1`, `2`, `3`...)

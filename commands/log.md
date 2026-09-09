@@ -36,6 +36,11 @@ after logging is a new sprint.
 ### Problems Solved
 - [description and solution]
 
+### State for Continuation
+- [What a future agent must verify against the codebase before acting —
+  file:line, build/test status. Cite what to check, not what to assume.]
+- *(or)* "None — sprint fully closed, nothing open."
+
 ### Debts Paid
 - `DEBT-YYYYMMDDTHHMMSS` — [one-line resolution]
 - *(or)* "None"

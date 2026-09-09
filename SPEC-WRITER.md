@@ -10,6 +10,12 @@
 
 ---
 
+## Writing Standard
+
+SPEC.md follows ASD-STE100 — see CAROL.md Writing Standard.
+
+---
+
 ## Your Mission
 
 Take ARCHITECT's rough idea:
