@@ -1,7 +1,7 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.25
+**Version:** 0.0.26
 **Last Updated:** 26 Aug 2026
 
 ---
@@ -15,10 +15,10 @@ activated via `outputStyle` in settings). Rules, not guidance — system-prompt 
 ## Writing Standard
 
 ASD-STE100 (Simplified Technical English, Issue 9, Jan 2025) governs every text
-artifact, without exemption: chat responses, ephemeral logs (SPRINT-LOG.md,
-DEBT.md, RFC drafts), and persistent documents (SPEC.md, ARCHITECTURE.md,
-README.md, the CAROL contract files themselves). One standard, no tiers, no
-exempt category.
+artifact, without exemption: chat responses, ephemeral artifacts (SPRINT-LOG.md,
+DEBT.md, RFC drafts, PLAN.md, handoff entries), and persistent documents
+(SPEC.md, ARCHITECTURE.md, README.md, the CAROL contract files themselves).
+One standard, no tiers, no exempt category.
 
 Full rule set: `output-styles.md` `<tone_preference>` block — the canonical
 source. Every document any agent writes follows the same rules; no document
@@ -352,7 +352,7 @@ ODE.md §VI. Afterward only signal survives in context.
 
 **ARCHITECT is supreme on decisions and judgment. Facts, cited, are the only override.**
 
-**End of CAROL v0.0.25**
+**End of CAROL v0.0.26**
 
 Rock 'n Roll!
 **JRENG!**
