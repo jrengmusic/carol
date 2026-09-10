@@ -157,7 +157,7 @@ build_bar() {
 }
 
 # Context bar — 20 segments
-CTX_SEGMENTS=15
+CTX_SEGMENTS=10
 ctx_filled=$((scaled * CTX_SEGMENTS / 100))
 bar=$(build_bar $CTX_SEGMENTS $ctx_filled "$color")
 
@@ -216,9 +216,9 @@ cols=${COLUMNS:-$(stty size < /dev/tty 2>/dev/null | cut -d' ' -f2)}
 cols=${cols:-120}
 
 # Pre-build rate limit bars (needed for tier 3+)
-RL_SEGMENTS=15
-WK_SEGMENTS=15
-CACHE_SEGMENTS=15
+RL_SEGMENTS=10
+WK_SEGMENTS=10
+CACHE_SEGMENTS=10
 rl_bar=""
 wk_bar=""
 cache_bar=""
