@@ -172,7 +172,7 @@ Every concept, piece of logic, and data structure is defined in exactly one plac
 ```cpp
 bool isActive;       // mirrors what Model already knows
 int currentIndex;    // duplicates what the container owns
-float cachedGain;    // shadows the APVTS parameter
+float cachedGain;    // shadows the Model's gain parameter
 ```
 
 Shadow state feels helpful until the two copies disagree. It is almost always a symptom of not trusting the Model (**S2** violation) or ambiguous ownership (**B** violation).
@@ -201,7 +201,7 @@ Objects execute what they are told. They do not hold opinions about the system, 
 - Orchestrator tells, never tracks — Control says *"process this"*, not *"are you ready? what was your last state? ok now process"*
 - State belongs exclusively to the Model. View and machinery are pure.
 
-DSP processor parameters *look* like state but are not machinery state — they are **calculation inputs**, always a deterministic reflection of APVTS downward. APVTS is the one truth. Processor values are a synced working copy for performance.
+DSP processor parameters *look* like state but are not machinery state — they are **calculation inputs**, always a deterministic reflection of the Model downward. The Model is the one truth. Processor values are a synced working copy for performance.
 
 **The violation pattern:**
 
@@ -249,6 +249,8 @@ The Model holds the state. The View composes. The Processor holds the business l
 
 A unit is complete when it comes into existence. A parse operation gives a complete AST. A view unit is complete when the owner builds it. Each consumer downstream receives complete data.
 
+**Concrete instances.** A parsed document tree is complete the instant its build operation returns; no downstream consumer mutates it, copies its fields into a working buffer, or re-derives what that operation already produced. A resource-identity registry — index, handle, or slot — is the same law at a different scale: identity is assigned and released through the registry's own API, never computed by hand, and the registry never allocates, copies, or re-indexes outside that API. Both are one Model, built once, read in place.
+
 **Creation is not mutation.** Creation can be complex. Creation can use multiple passes, look-ahead, reverse steps, work buffers, and memory allocation. Creation does not change a complete object, because no complete object exists yet. The contract starts at the end of creation.
 
 **A state update is not mutation.** A complete state replaces a complete state. Add and remove operations are state updates. The program builds and deletes view units as it runs. Each view unit is complete. Thus the creation and the deletion of a view unit are state updates.
@@ -272,7 +274,7 @@ These four rules are one rule: **do no operation on data in transit.** Each viol
 
 The Model contains value data. Value data is numbers, unions, `const char* const`, and strings. Value data holds a value and does no other operation. Value data can allocate memory one time, at creation. It does not allocate memory again.
 
-**The Model must not contain a concrete object.** A concrete object is a type with a capability. Examples are `juce::Path`, `juce::Graphics`, `juce::Label`, and `juce::AttributedString`. These types draw, measure, or operate in the framework. The Model contains the string `"M 57 d 55 Z"`. The Model does not contain the `juce::Path`.
+**The Model must not contain a concrete object.** A concrete object is a type with a capability. Examples are a geometry/path object, a paint context, a text-layout component, and a styled-text object. These types draw, measure, or operate on the value data. The Model contains the string `"M 57 d 55 Z"`. The Model does not contain the geometry object that string draws.
 
 **Materialisation is the only permitted derivation.** The owner builds a concrete object from value data in the Model. The owner builds the concrete object only when it needs the capability. This operation is a creation, thus it can allocate memory. The owner builds the concrete object one time and the object is then complete. Do not build a concrete object in steps. Do not build it again. Do not change it. When the Model state updates, the owner replaces the full concrete object.
 
@@ -280,8 +282,8 @@ The Model contains value data. Value data is numbers, unions, `const char* const
 // CORRECT — materialisation gives a capability that value data does not have
 struct AttributeGraphics
 {
-    juce::Path path;
-    juce::Rectangle<float> bounds;
+    Geometry path;
+    Rectangle bounds;
 };
 
 // WRONG — fake carrier holds again what the Model holds
@@ -293,27 +295,31 @@ struct GlyphQuad
 
 **The test:** What operation can this type do that value data cannot do? If the answer is a capability, the type is a materialisation. Capabilities are draw, hit-test, transform, and measure. If the answer is *"it holds values together for transfer"*, the type is a fake carrier. Convenience is not a capability.
 
-**The structural check:** If each field is already in the Model with the same type, the type materialises nothing. `"M 57 d 55 Z"` to `juce::Path` is a derivation. `x, y, w, h` to `x, y, w, h` is shadow state.
+**The structural check:** If each field is already in the Model with the same type, the type materialises nothing. `"M 57 d 55 Z"` to a geometry object is a derivation. `x, y, w, h` to `x, y, w, h` is shadow state.
 
 **A struct is a design decision. A struct is not a convenience.** Do not make a struct to move values between call sites. This always makes a fake carrier. A struct that only carries data is a failure.
 
 **A materialisation is not a temporary container.** The four rules apply to data in transit. They do not prevent the owner from a materialisation of a capability. A concrete object that its owner builds one time is a unit. The unit is complete at creation. The owner replaces the unit at a state update. A struct that moves Model values between call sites is data in transit and is forbidden.
 
-**Concrete instance — ProcessorChain (audio):**
+**A stateful runtime object is itself the materialisation.** A view object that positions or paints itself from the Model's positional and appearance value-data is the materialisation of that data — it holds no position, size, or colour field of its own. It reads the Model to place or paint itself; it does not keep a running copy to answer a later question. A member field that duplicates a Model value the object could read on demand is shadow state (**S** — SSOT wearing a materialisation's name), not materialisation.
+
+**Materialisation is not a license.** Calling a struct a materialisation does not exempt it from the capability test. A struct that holds values for a later read, performing no capability on them, is a fake carrier regardless of the label. Materialise only where the call site uses a concrete capability now — not speculatively, not "to be safe."
+
+**Concrete instance — orchestrator over dumb workers:**
 
 ```
-PluginProcessor   →   owns ProcessorChain
-ProcessorChain    →   owns DSP Processors, listens to parameterChanged, tells processors to calculate
-DSP Processors    →   dumb, calculate on tell, store only calculation inputs
-APVTS             →   the actual state machine — the Model
+Owner          →   owns Orchestrator
+Orchestrator   →   owns Workers, listens to Model change notifications, tells workers to calculate
+Workers        →   dumb, calculate on tell, store only calculation inputs
+Model          →   the actual state machine
 ```
 
-ProcessorChain listens to `parameterChanged`, tells each processor to recalculate, and replaces samples on `processBlock`. Each DSP processor is dumb — it stores parameter values as calculation inputs only, always synced top-down from APVTS. No processor ever asks ProcessorChain anything. No ProcessorChain ever asks PluginProcessor anything.
+The Orchestrator listens for Model change notifications, tells each Worker to recalculate, and replaces output on each processing pass. Each Worker is dumb — it stores input values as calculation inputs only, always synced top-down from the Model. No Worker ever asks the Orchestrator anything. No Orchestrator ever asks the Owner anything.
 
 The same shape holds where nothing is audio: Model is whatever owns state, Processor whatever owns logic, View whatever composes.
 
 **On established patterns — for agents and junior devs:**
-If the architecture uses listeners, use listeners. If parameters flow through APVTS, do not invent a parallel channel. A manual boolean flag, a manual callback, or a helper invented where a listener pattern already exists is not a solution — it is a symptom of not reading the architecture. Find the established pattern. Extend it. A new pattern where one already exists is always wrong.
+If the architecture uses listeners, use listeners. If state flows through the Model, do not invent a parallel channel. A manual boolean flag, a manual callback, or a helper invented where a listener pattern already exists is not a solution — it is a symptom of not reading the architecture. Find the established pattern. Extend it. A new pattern where one already exists is always wrong.
 
 ```cpp
 // WRONG — invented state, parallel channel, orchestrator poking
@@ -327,7 +333,7 @@ class Component
         session.shutdown();
     }
 
-    void resized()
+    void onResize()
     {
         if (! shuttingDown)
             if (session.isRunning())
@@ -340,9 +346,9 @@ class Component
 {
     ~Component() = default;
 
-    void resized()
+    void onResize()
     {
-        session.resized (cols, rows);
+        session.resize (cols, rows);
     }
 };
 ```

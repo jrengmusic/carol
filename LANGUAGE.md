@@ -18,7 +18,7 @@ MANIFESTO.md defines BLESSED as a language-agnostic contract. This document defi
 
 ## C++ / JUCE
 
-**Reference implementation.** MANIFESTO.md was written for C++/JUCE. All principles enforced as written, with one adaptation below.
+MANIFESTO.md is framework-agnostic. All principles enforced as written, with one adaptation below. Concrete C++/JUCE illustration of MANIFESTO's language-agnostic principles lives in CODING.md, which is scoped to C++ code generation.
 
 ---
 

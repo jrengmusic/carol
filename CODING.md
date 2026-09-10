@@ -548,6 +548,11 @@ A struct is a design decision. A struct is not a convenience. Do not make a stru
 move values between call sites. Do not use prior patterns to make a struct for
 convenience. This always makes a fake carrier and is a failure.
 
+A stateful runtime object (a `Component` with geometry, a `Component` with
+`LookAndFeel`) is the materialisation itself — it must not also carry a shadow copy of
+the Model metadata (`x`, `y`, `w`, `h`, colour) it materialises from. Refer to
+MANIFESTO **E** — Materialisation of Concrete Objects.
+
 **Rule:** A struct must give a capability that the Model's value data does not have.
 A struct that only carries data is forbidden. Refer to MANIFESTO **E** —
 Materialisation of Concrete Objects.
@@ -977,7 +982,7 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **No near-duplicate struct proliferation** — identical or near-identical field layouts must be unified into one named type. DRY applies to type definitions.
 - **Consume the event payload.** A listener that receives WHICH child/property changed and re-derives it by walking/diffing state is forbidden — react to exactly what the event delivered.
 - **No identifier latitude in delegation.** Agents introduce ZERO names not verbatim in their task prompt — a name missing from the prompt is an unratified decision, and the task output is rejected, not amended.
-- **Use the framework API fully.** Use JAM first, then JUCE. Do not write again a behavior that the framework supplies. This is a blocking violation. Do not do manual arithmetic when a framework API exists.
+- **Use the framework API fully.** Use the project's in-house framework first — JAM, KANJUT, or CIUM, whichever the project is built on — then its dependency framework (e.g. JUCE) as the building block beneath it. Do not write again a behavior that the framework supplies. This is a blocking violation. Do not do manual arithmetic when a framework API exists — a resource registry that assigns and releases its own identity (index, handle, slot) is the framework API; a hand-computed offset or index next to it is the violation.
 - **Owner first, narrowest scope, configure only the difference.** Read the consuming type for an existing default or API before adding any name or value; place what is new in the smallest scope that holds every use; project code never restates a framework default.
 - **No `==` / `!=` on strings.** A string compared with `==` is a branch on text. Dispatch by key instead (`Function::Map`, `HashMap`, `Bimap`, `juce::Identifier` equality — an Identifier compare is a pointer compare, not a string compare). Where a genuine text comparison is unavoidable, use `juce::String::compare (…) == 0`; a chain of more than three text tests is a lookup table, never `if`/`else if`.
 - **No out-parameters.** Return the value. A getter is `const` and takes no out-parameter. The one exception is a value replacement in place — `void process (double& sample)`.
@@ -1063,7 +1068,7 @@ Diagnostic instrumentation is ephemeral — all log statements added during inve
 ✓ **No near-duplicate struct proliferation** — same field layout = same type; unify and reuse
 ✓ **Consume the event payload** — react to exactly what the event delivered, never re-derive by walking/diffing state
 ✓ **No identifier latitude in delegation** — agents introduce zero names not verbatim in their task prompt; violation rejects the output, not amends it
-✓ **Use the framework API fully** — JAM first, then JUCE; do not write again what the framework supplies; no manual arithmetic when an API exists
+✓ **Use the framework API fully** — the project's in-house framework (JAM/KANJUT/CIUM) first, then its dependency framework (e.g. JUCE); do not write again what the framework supplies; no manual arithmetic when an API exists
 ✓ **Owner first, narrowest scope, configure only the difference** — read the owner for an existing default/API; smallest scope that holds every use; never restate a framework default in project code
 ✓ **No `==`/`!=` on strings** — dispatch by key (Function::Map / HashMap / Bimap / Identifier); `juce::String::compare (…) == 0` only where text comparison is unavoidable; > 3 text tests = lookup table
 ✓ **No out-parameters** — return the value; a getter is `const`; one exception is a value replacement in place (`void process (double& sample)`)
