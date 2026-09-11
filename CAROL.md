@@ -295,6 +295,15 @@ protocol.
 
 Ignore all LSP errors — false positives from the JUCE module system.
 
+## Debugging
+
+Headless debugging of native binaries uses whatdbg over DAP stdio — never raw lldb.
+Raw lldb opens the macOS Developer-Tools permission dialog, and a missed click stops the
+process for ever. whatdbg debugs without that dialog and is fully scriptable.
+`whatdbg --help` gives the protocol: DAP framing, launch and attach examples, the event
+flow, and crash triage. `tests/smoke/dap_client.lua` in the whatdbg repository is the
+reference client.
+
 ## Code Hygiene
 
 - Writing comments pre-audit is strictly PROHIBITED.
