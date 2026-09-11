@@ -199,10 +199,10 @@ fi
 cache_color="$dim_color"
 cache_left=0
 if [ -n "$cache_remaining" ]; then
-    if   [ "$cache_pct" -ge 75 ]; then cache_color="\033[38;2;252;112;76m"
-    elif [ "$cache_pct" -ge 50 ]; then cache_color="\033[38;2;200;120;50m"
-    elif [ "$cache_pct" -ge 25 ]; then cache_color="\033[38;2;0;150;160m"
-    else                                cache_color="\033[38;2;51;83;91m"
+    if   [ "$cache_pct" -ge 75 ]; then cache_color="\033[38;2;51;83;91m"
+    elif [ "$cache_pct" -ge 50 ]; then cache_color="\033[38;2;0;150;160m"
+    elif [ "$cache_pct" -ge 25 ]; then cache_color="\033[38;2;200;120;50m"
+    else                                cache_color="\033[38;2;252;112;76m"
     fi
     cache_left=$((100 - cache_pct))
 fi
