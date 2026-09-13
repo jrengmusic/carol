@@ -30,5 +30,6 @@
   "effortLevel": "high",
   "promptSuggestionEnabled": false,
   "awaySummaryEnabled": false,
-  "showTurnDuration": false
+  "showTurnDuration": false,
+  "outputStyle": "CAROL"
 }
