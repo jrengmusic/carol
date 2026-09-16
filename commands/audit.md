@@ -1,5 +1,5 @@
 ---
-description: Comprehensive audit of the last N sprints via @Auditor — contract violations, dead code, refactors, stale docs, clean sweep
+description: Comprehensive audit of the last N sprints via @Auditor — code smells, contract violations, dead code, refactors, stale docs, clean sweep, then /log
 argument-hint: [N sprints, default 1]
 ---
 
@@ -9,11 +9,14 @@ Primary must be active (COUNSELOR). Invoke `@Auditor` for a comprehensive audit 
 
 Audit scope — all of the following, no omissions:
 
-- **Contract docs violations** against `~/.carol/NAMES.md`, `~/.carol/CODING.md`, `~/.carol/MANIFESTO.md` — **BLESSED violations introduced in prior sprints are NEVER ignored.** If Auditor encounters them anywhere in the discovered scope, they are in scope and must be resolved.
-- **Dead code removal** — unused code, garbage helpers, unnecessary forwarders/dispatchers, leftover diagnostics
-- **Refactoring opportunities** — eliminate redundancy, reduce recurring patterns, collapse to SSOT
-- **Stale documentation** — needs updating or adding, including inline documentation (doxygen, godoc, etc.)
-- **Project root docs sync** — `DEBT.md`, `ARCHITECTURE.md`, `SPEC.md`, `README.md` must reflect current codebase state (codebase is SSOT): update stale references, signatures, paths, component names, data-flow descriptions; add missing documentation for new code; delete `PLAN-*.md` files whose objective is complete
-- **Clean sweep** — every Auditor finding MUST be resolved before the next sprint is logged. Nothing deferred. No finding ignored, regardless of which sprint introduced it or how broad the entanglement (per CAROL: Auditor findings are NEVER ignored).
+- **Code smells** — find smell signatures: god objects, long functions, deep conditional chains, magic values, shadow state. Cite the MANIFESTO.md rule each smell breaks.
+- **Refactoring opportunities** — find repetition and redundancy. Find SSOT contract violations. Collapse duplicate truth into one definition.
+- **BLESSED compliance / design-by-contract adherence** against `~/.carol/MANIFESTO.md`, `~/.carol/CODING.md`, `~/.carol/NAMES.md` — **violations introduced in prior sprints are NEVER ignored.** If Auditor encounters them anywhere in the discovered scope, they are in scope and must be resolved.
+- **Dead code removal** — unused code, garbage helpers, unnecessary forwarders/dispatchers, leftover diagnostics.
+- **Stale documentation** — needs updating or adding, including inline documentation (doxygen, godoc, etc.).
+- **Project root docs sync** — `DEBT.md`, `ARCHITECTURE.md`, `SPEC.md`, `README.md` must reflect current codebase state (codebase is SSOT): update stale references, signatures, paths, component names, data-flow descriptions; add missing documentation for new code; delete `PLAN-*.md` files whose objective is complete.
+- **Clean sweep** — resolve every Auditor finding before the next sprint is logged. No deferral. No gate. No ratification needed to act on a confirmed finding. Check each finding and claim against BLESSED / Design by Contract before you accept it. Resolve a claim as a real violation only when it cites a contract clause.
 
-Auditor reports findings to the active primary, who processes and resolves them before the next sprint is logged.
+Auditor reports findings to the active primary (COUNSELOR), who processes and resolves them. Auditor never runs `/log` — that command belongs to COUNSELOR only.
+
+Once the active primary resolves every finding, the primary runs `/log` to close the sprint.
