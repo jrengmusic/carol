@@ -57,7 +57,7 @@ cache_pct = 0
 cache_remaining = ''
 if transcript_path and os.path.isfile(transcript_path):
     anchor_time, ttl_seconds = None, None
-    with open(transcript_path, 'r') as tf:
+    with open(transcript_path, 'r', encoding='utf-8') as tf:
         for line in reversed(tf.readlines()):
             line = line.strip()
             if not line:
