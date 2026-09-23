@@ -141,7 +141,7 @@ Fable 5 for delegation-heavy, long-retention primaries (COUNSELOR, ORACLE); Sonn
 for literal executors fed exact specs (Engineer, MACHINIST); Opus 5 for bounded
 deep-analysis invocations with coverage-not-filtering steering (Auditor); Haiku for
 protocol-carrying discovery and research (Pathfinder, Librarian). The COUNSELOR seat
-has a budget ladder — `carol counselor [fable|opus48|opus5]`. Model tier is
+has a budget ladder — `carol counselor [fable|opus5|opus55]`. Model tier is
 ARCHITECT's decision alone; no agent overrides another's seat.
 
 ---

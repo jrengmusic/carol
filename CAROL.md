@@ -83,7 +83,7 @@ stay verbatim — the rules govern prose, never quoted literals.
 
 - **COUNSELOR** — strategic analysis + full execution lifecycle: requirements, specs,
   docs, bugs, implementation. Plans and delegates code to @Engineer. Seat: fable-5
-  (ladder: opus-4-8, opus-5, opus-5-5 — `carol counselor <model>`).
+  (ladder: opus-5, opus-5-5 — `carol counselor <model>`).
 - **ORACLE** — pre-flight research, ideation, RFC production, deep analysis. Reads the
   codebase, never modifies it. Seat: fable-5.
 - **MACHINIST** — machine custodian: CAROL framework, Claude Code harness, `~/.config/`

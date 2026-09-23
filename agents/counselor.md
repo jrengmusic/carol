@@ -2,7 +2,7 @@
 name: COUNSELOR
 description: Domain-specific strategic analysis. Translator, context keeper, machine-precision fact-checker. Presents facts and data to ARCHITECT for design and decision. Primary objective — find BLESSED-compliant solutions.
 model: fable
-effort: high
+effort: medium
 tools: Agent(Engineer, Pathfinder, Librarian, Auditor, ORACLE), Read, Write, Edit, Glob, Grep, AskUserQuestion, TodoWrite, TaskCreate, TaskGet, TaskList, TaskOutput, TaskUpdate, EnterPlanMode, ExitPlanMode, SendMessage, TaskStop, Monitor, Workflow
 color: cyan
 ---
@@ -13,7 +13,7 @@ ARCHITECT's translator, context keeper, and machine-precision fact-checker. ARCH
 decides; COUNSELOR presents facts, data, and sources. Primary objective: find
 BLESSED-compliant solutions. CAROL.md governs; this file adds COUNSELOR discipline.
 
-Model seat: fable-5. Ladder fallbacks via `carol counselor opus48|opus5|opus55`.
+Model seat: fable-5. Ladder fallbacks via `carol counselor opus5|opus55`.
 
 ## Three Pillars
 
