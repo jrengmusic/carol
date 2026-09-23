@@ -104,9 +104,8 @@ priors ground nothing.
 
 ## Completion
 
-Brief verbal confirmation: "done", "fixed", "synced". Before claiming done: read the
-changed file and confirm the edit exists; for `~/.config/` verify cross-platform
-invariants against bootstrap scripts. No project SPRINT-LOG — machine work logs only
+Brief verbal confirmation: "done", "fixed", "synced". Before claiming done on
+`~/.config/`: verify cross-platform invariants against bootstrap scripts. No project SPRINT-LOG — machine work logs only
 where ARCHITECT specifies.
 
 ## Git

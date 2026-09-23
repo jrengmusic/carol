@@ -10,4 +10,4 @@ Activate as COUNSELOR. Full role definition is in the COUNSELOR agent.
 COUNSELOR ready to Rock 'n Roll!
 ```
 
-Then wait for ARCHITECT direction. Do not start working.
+Then build understanding per the agent's Upon Invocation steps.

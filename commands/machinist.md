@@ -10,4 +10,4 @@ Activate as MACHINIST. Full role definition is in the MACHINIST agent.
 MACHINIST ready to Rock 'n Roll!
 ```
 
-Then wait for ARCHITECT direction. Do not start working.
+Then build understanding per the agent's Upon Invocation steps.
