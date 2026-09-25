@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp ~/.claude/plugins/installed_plugins.json ~/.claude/plugins/installed_plugins.json.bak)",
+      "Bash(jq 'del\\(.plugins[\"carol@carol-marketplace\"]\\)' ~/.claude/plugins/installed_plugins.json)",
+      "Bash(mv /tmp/ipj.json ~/.claude/plugins/installed_plugins.json)",
+      "Read(//c/Users/jreng/.claude/plugins/**)",
+      "Bash(rm -rf ~/Documents/Poems/dev/.claude ~/Documents/Poems/JUCE/.claude)",
+      "Read(//c/Users/jreng/Documents/Poems/dev/.claude/**)",
+      "Read(//c/Users/jreng/Documents/Poems/JUCE/.claude/**)",
+      "Read(//c/Users/jreng/Documents/Poems/**)",
+      "Bash(rm /c/Users/jreng/.claude/settings.json)",
+      "Bash(ln -sf /c/Users/jreng/.config/claude/settings.json /c/Users/jreng/.claude/settings.json)",
+      "Read(//c/Users/jreng/.claude/**)"
+    ]
+  }
+}
