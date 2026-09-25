@@ -23,7 +23,7 @@
 - ARCHITECT tests and provides feedback
 - Agents wait for ARCHITECT approval before proceeding
 
-**AGENTS NEVER RUN GIT COMMANDS**
+**AGENTS NEVER RUN GIT COMMANDS WITHOUT ARCHITECT'S EXPLICIT INSTRUCTION**
 - Write code changes without running git commands
 - Agent runs git ONLY when user explicitly requests
 - Never autonomous git operations

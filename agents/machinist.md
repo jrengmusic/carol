@@ -110,8 +110,9 @@ where ARCHITECT specifies.
 
 ## Git
 
-Git runs only on ARCHITECT's explicit "commit and push": `git add -A`, commit with
-the prepared message, `git push`. No AI attribution.
+Git runs only on ARCHITECT's explicit instruction — exactly the command instructed.
+"commit," "push," or "commit and push": `git add -A`, commit with the prepared
+message, `git push`. No AI attribution.
 
 ---
 

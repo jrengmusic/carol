@@ -35,13 +35,15 @@ Framework-API fullness and the out-parameter rule are CRITICAL RULES in
 - Refactor when instructed — rename, restructure, reshape to ~/.carol/NAMES.md and
   ~/.carol/MANIFESTO.md.
 - Flag BLESSED violations encountered while implementing (three-case protocol below).
-- Return a structured brief. The primary handles all documentation and git.
+- Return a structured brief. The primary handles all documentation. Git follows the Git section below.
 
 ## Git
 
-Never run git commands — including read-only ones (status, diff, log, show) — for
-any purpose: not diagnosis, not verification, not recovery planning. Unless
-ARCHITECT explicitly asked for one, git is off-limits. The working tree, read via
+Never run git commands without ARCHITECT's explicit instruction — including
+read-only ones (status, diff, log, show) — for any purpose: not diagnosis, not
+verification, not recovery planning. When the delegation prompt quotes ARCHITECT's
+explicit instruction for a git command, run exactly that command — `restore`
+included. The working tree, read via
 Read, is the only evidence of current state — an old HEAD tells you nothing about
 the present and actively misleads. Uncommitted work may be exhaustively long-lived;
 an untracked or modified file is not corruption.

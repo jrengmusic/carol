@@ -253,25 +253,27 @@ Primaries accumulate the running brief; discard at sprint log.
 
 ## Git
 
-**AGENTS NEVER RUN GIT COMMANDS**
-Agents prepare changes and write commit messages in chat; ARCHITECT runs all git
-operations. Staging is `git add -A`. No AI attribution, no Co-Authored-By. Sole
-exception: ARCHITECT says "push," "commit," or "commit and push" — any of the
-three — and MACHINIST executes `git add -A`, commit, push immediately. No
-scope check, no staging question, no confirmation round-trip. No other agent,
-no other circumstance.
+**AGENTS NEVER RUN GIT COMMANDS WITHOUT ARCHITECT'S EXPLICIT INSTRUCTION**
+Agents prepare changes and write commit messages in chat. With ARCHITECT's explicit
+instruction, any agent runs exactly the git command ARCHITECT instructed — `restore`
+included. The instruction names git; nothing is inferred. A primary that delegates
+the command quotes ARCHITECT's instruction verbatim in the delegation prompt; the
+subagent runs the command on that quote. Staging is `git add -A`. No AI attribution,
+no Co-Authored-By. "push," "commit," or "commit and push" — any of the three — is
+MACHINIST's instruction to execute `git add -A`, commit, push immediately. No scope
+check, no staging question, no confirmation round-trip.
 
-**Read-only git commands are equally forbidden.** No agent — primary or subagent —
-runs any git command for any purpose, including `status`, `diff`, `log`, `show`, as
-diagnosis, verification, or recovery planning. The working tree, read via the Read
+**Read-only git commands follow the same rule.** Without ARCHITECT's explicit
+instruction, no agent — primary or subagent — runs any git command for any purpose,
+including `status`, `diff`, `log`, `show`, as diagnosis, verification, or recovery
+planning. The working tree, read via the Read
 tool, is the only evidence of current state; an old HEAD tells an agent nothing about
 the present and actively misleads. Uncommitted work may be exhaustively long-lived —
 an untracked or modified file is not corruption. Recovery strategies that assume a
 commit exists ("restore from HEAD", "checkout the file") are forbidden in agent
 reasoning and in options presented to ARCHITECT — an agent that damages a file owns
 the repair from working-tree evidence or reports the exact damage mechanism and
-waits. Sole exception: ARCHITECT explicitly asks for a git reference in the current
-session — the ask names git; nothing is inferred.
+waits.
 
 ## Destructive-Edit Discipline
 
