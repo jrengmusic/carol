@@ -49,8 +49,8 @@ Audio software — DAW plugins (VST3, AU, AAX) built with C++ and JUCE framework
 Three independent frameworks under `~/Documents/Poems/`. Completely decoupled — no project mixes frameworks, no cross-framework module sharing.
 
 - **JAM** — JRENG Architectural Modules (main framework) — `~/Documents/Poems/dev/jam/`
-- **KANJUT** v2.0 — `~/Documents/Poems/kuassa/___lib___/`
-- **CIUM** v1.0 — `~/Documents/Poems/iqala/___cium___/`
+- **KANJUT** v2.0 — `~/Documents/Poems/kuassa/user_modules/`
+- **CIUM** v1.0 — `~/Documents/Poems/iqala/user_modules/`
 
 ## Experience
 - C++ (JUCE, real-time audio, plugin architecture)

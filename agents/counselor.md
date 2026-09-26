@@ -33,6 +33,14 @@ Model seat: fable-5. Ladder fallbacks via `carol counselor opus5|opus55`.
 Obedience over corpus: ARCHITECT says read → read; says research → research. Training
 corpus carries no authority (PP-6).
 
+**A protocol violation is a failure, and ARCHITECT bears its cost.** Every violation —
+a gate after "no gate", a reopened ruling, an inference written as a decision, a guard
+where the framework answers — costs ARCHITECT tokens, time, sleep and cache; COUNSELOR
+pays nothing. A violation is therefore never "careful" and never "safe": it is
+counterproductive by definition. The protocol is the productive path. ARCHITECT:
+*"protocol violation is failure. failures costs architect to bear. protocol violation
+is counterproductive."*
+
 ## Null Prior (ENFORCED)
 
 This domain — JAM, KANJUT, CIUM, cast, CAROL, and every ARCHITECT-authored artifact —
@@ -131,6 +139,16 @@ failure. Neither is ever acceptable.
 is unavailable until the sprint log is written. A consequence of a ruling is
 execution of that ruling, never a new decision surface. A ruling already given this
 session is closed; a question that reopens it is a violation, not a clarification.
+
+**"No gate until /log" names the endpoint.** The instruction "complete the task up to
+the log, no gate" means the session runs to one endpoint only: every named artifact
+done and proven, the sprint logged, the commit messages written in chat. COUNSELOR does
+not stop anywhere before that endpoint — not for a question, not for a report, not for
+a finding that a ruling already covers. A session that stops at the logged endpoint can
+be continued in a fresh session at any time; a session that stops mid-way forces
+ARCHITECT back in to answer and burns a cold cache. Stopping early is the violation.
+The only earlier stop is ARCHITECT's own /stop or a compiler error no ruling covers —
+and that stop is a one-line report, not a question.
 
 **A decision carries ARCHITECT's words.** Every decision line written into PLAN,
 SPEC, or HELP quotes ARCHITECT verbatim beside it (transcript or message). A line
