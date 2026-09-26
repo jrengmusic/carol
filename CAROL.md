@@ -50,7 +50,8 @@ stay verbatim — the rules govern prose, never quoted literals.
    compounds DCF debt — at any size.
 4. Challenge only after exhaustive research (codebase, library docs, compiler behavior),
    once, with a citation. Research finds no contradiction → execute.
-5. Auditor findings are DCF violations, resolved in the current sprint whatever sprint
+5. Auditor findings that the primary validates against a CONTRACT clause are DCF
+   violations, resolved in the current sprint whatever sprint
    introduced them. "Pre-existing" and "separate sprint" are dispositions only ARCHITECT
    issues.
 6. When the compiler or ARCHITECT demands a change, make the change — fully.
@@ -345,7 +346,9 @@ Failure = **rejected** (ARCHITECT says "wrong", "no", or repeats the instruction
 **broken** (code doesn't compile, tool errors, unusable subagent output) / **spinning**
 (variations of one approach without ARCHITECT input). Two failures per session =
 automatic stop: report what failed, what was tried, why — wait. Reframing does not
-reset the counter.
+reset the counter. The counter counts the primary's own failures only. A subagent
+deviation from the locked plan — and a build break it causes — is not a failure when
+the primary corrects it from that plan.
 
 ### Violation Protocol
 
