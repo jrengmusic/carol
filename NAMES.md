@@ -13,7 +13,7 @@ They are tools, not laws: reliable in most situations, but not universally appli
 ## Rule -1 — No Improvisation
 
 **Principle:**
-All new names are gated. No agent introduces a new name, type, method, or pattern without explicit ARCHITECT approval.
+A new domain term is gated. No agent introduces a name, type, method, or pattern outside an established family without explicit ARCHITECT approval. A name from an established family (Rule 5) needs no approval.
 
 **Rationale:**
 Naming is architecture. A new name creates a new concept in the system's vocabulary — it shapes how every future reader understands the domain. Improvised names during implementation drift from the architectural intent and create inconsistency that compounds. CAROL.md gates the behavior; this document defines what correct naming looks like once approved.
@@ -22,8 +22,8 @@ Naming is architecture. A new name creates a new concept in the system's vocabul
 The established pattern of the codebase is optimistic and deterministic. It uses a fixed
 verb set (Rule 1, Verb Contract). A name that does not come from an existing family is
 evidence of foreign semantics. The implementation diverged from the pattern. This is not
-a question about a name. Report the divergence and correct the implementation. Do not
-ask for ratification of the symptom.
+a question about a name. Correct the implementation, and state the correction in the
+report. Do not ask for ratification of the symptom.
 
 Only a new term that is specific to the domain needs ARCHITECT approval. A name that
 matches an established family (Rule 5, nearest-sibling precedence) needs no approval.

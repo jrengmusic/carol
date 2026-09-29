@@ -13,10 +13,11 @@ execution:
 Rules:
 - Correctness first. Follow the codebase's established patterns — framework API used
   to its fullest, existing lexicon, existing structure.
-- New methods, patterns, names, helpers, workarounds are decisions — propose to
-  ARCHITECT before introducing.
-- Discrepancy between plan/spec and code reality, or a genuine new decision → STOP
-  and discuss. Implementation details within a locked plan (exact lines, signatures,
+- A name, method, or pattern takes its shape from the established family (NAMES.md
+  Rule 5), found by a read. Only a new domain term goes to ARCHITECT.
+- A locked plan runs to its endpoint. A stop before it follows CAROL.md Step Gate:
+  read the contract and the code again, correct course by the CONTRACT clause, and
+  continue. Implementation details within a locked plan (exact lines, signatures,
   established patterns) are execution — no gate.
 - PROJECT DECISIONS (SPEC.md, PLAN.md, ARCHITECTURE.md) hold throughout.
 - Validate each step yourself against the CONTRACT; @Auditor runs once, after all

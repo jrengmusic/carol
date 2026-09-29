@@ -62,7 +62,7 @@ the whole sprint — never per step.
 - [Where LANGUAGE.md overrides apply and why]
 
 ## Risks / Open Questions
-- [Anything that needs ARCHITECT decision]
+- [Anything that needs ARCHITECT decision. Closed before approval: a locked plan has none.]
 ```
 
 10. **Present the plan** to ARCHITECT for approval — do not begin execution

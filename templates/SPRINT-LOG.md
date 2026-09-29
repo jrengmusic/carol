@@ -21,7 +21,6 @@
 **AGENTS BUILD CODE FOR ARCHITECT TO TEST**
 - Agents build/modify code ONLY when ARCHITECT explicitly requests
 - ARCHITECT tests and provides feedback
-- Agents wait for ARCHITECT approval before proceeding
 
 **AGENTS NEVER RUN GIT COMMANDS WITHOUT ARCHITECT'S EXPLICIT INSTRUCTION**
 - Write code changes without running git commands

@@ -129,11 +129,37 @@ from: (1) ARCHITECT's prompt this session, (2) CONTRACT — MANIFESTO.md,
 CODING.md, NAMES.md, (3) PROJECT DECISIONS — SPEC.md, PLAN.md,
 ARCHITECTURE.md. About to write, edit, delegate, or commit to an approach on any other
 basis → stop and ask. Discrepancy between those documents and code → stop and discuss.
-Writing SPEC.md, PLAN.md, or ARCHITECTURE.md is gated.
+Writing SPEC.md, PLAN.md, or ARCHITECTURE.md is gated. The Decision Gate governs until
+the plan locks. After the lock, the Step Gate governs.
 
 **Step Gate — locked plan executes to completion.** Validate each step against CONTRACT
-yourself — no ARCHITECT round-trip, no Auditor round-trip. Stop only on discrepancy,
-new decision, or genuine uncertainty. Auditor runs once, at sprint completion.
+yourself — no ARCHITECT round-trip, no Auditor round-trip. Auditor runs once, at sprint
+completion.
+
+A stop before the endpoint is evidence that CONTRACT was not read at that point. It is
+not a decision point. A stop is a question, an `AskUserQuestion` call, a plan-mode call,
+or a turn that ends with text only. Do these steps instead:
+
+1. Read MANIFESTO.md, CODING.md and NAMES.md again, with the Read tool.
+2. Read the implicated code again at file:line: the owner API (doxygen first), the
+   nearest sibling, the call chain. A read is a Read call. A partial check is not a read.
+3. Name the discrepancy with both citations. Correct course with the CONTRACT clause
+   that covers it. This is execution.
+4. If no discrepancy with two citations exists, the stop was artificial. Do the next step.
+
+The stop set is closed. Only these stop a locked plan before its endpoint:
+
+- ARCHITECT's /stop.
+- Two ARCHITECT rulings, or a ruling and CONTRACT, that cannot both hold after the
+  re-read. Report both quotes in one line.
+- A scope change (Scope section).
+- A new domain term that no NAMES.md family covers (NAMES.md Rule -1).
+- Failure Protocol.
+
+Git and Destructive-Edit Discipline keep their own gates. The reason for the closed set:
+a stop mid-plan pulls ARCHITECT back in to answer what CONTRACT already answers, and the
+session resumes on a cold cache. A plan that runs to its endpoint can continue in a fresh
+session at any time.
 
 The gate is at execution, not at understanding.
 
@@ -151,7 +177,8 @@ The gate is at execution, not at understanding.
 - **ANSWER-HOLD.** Answers to ARCHITECT's questions are held — nothing dispatches
   without explicit go. ARCHITECT's prompts express intent: verify chat-written
   pseudocode against the actual codebase API before implementing, and confirm any
-  mismatch before substituting. Discuss undecided design points one at a time.
+  mismatch before substituting. Before the plan locks, discuss undecided design points
+  one at a time.
 - **Delegation.** Librarian first — framework coverage findings are prepended to every
   Engineer prompt. On C++/JUCE/JAM/KANJUT/CIUM tasks, load doxygen XML before
   delegating (doxygen-protocol skill) and carry the doxygen-first instruction in every
@@ -206,7 +233,8 @@ paragraph — risk, evidence, one alternative. PP-5 closes it.
 - Constants over magic numbers. Named namespaces. No manual boolean flags, unnecessary
   helpers, or excessive getters — if every private field needs a getter, the design is
   wrong.
-- New names are decisions: propose to ARCHITECT first. NAMES.md is the naming contract.
+- NAMES.md is the naming contract. A name takes its shape from the established family
+  (Rule 5), found by a read. Only a new domain term goes to ARCHITECT (Rule -1).
 - MANIFESTO.md (BLESSED) governs. `debug::Log` for diagnostics — each framework's own
   namespace; DBG never. Objects stay dumb — communicate via API (Explicit
   Encapsulation).
@@ -222,7 +250,8 @@ status-quo preservation, and "clean up last" are forbidden patterns.
 ## Documentation
 
 - No intermediate summary files. Brief verbal confirmation: "done", "fixed".
-- **carol/SPRINT-LOG.md** — COUNSELOR writes on explicit "log sprint" only; format and
+- **carol/SPRINT-LOG.md** — COUNSELOR writes on explicit "log sprint" only. "No gate
+  until /log" is that instruction, given in advance: the log is the run's endpoint. Format and
   drain procedure in `/log`. Zero-debt rule: all in-scope debt resolved before logging;
   ARCHITECT-commanded deferrals go to Debts Deferred. A sprint ends when logged.
 - **DEBT.md** — inter-sprint ledger at project root. Capture: `carol debt add`
@@ -250,7 +279,6 @@ Primaries accumulate the running brief; discard at sprint log.
 **AGENTS BUILD CODE FOR ARCHITECT TO TEST**
 - Agents build/modify code ONLY when ARCHITECT explicitly requests
 - ARCHITECT tests and provides feedback
-- Agents wait for ARCHITECT approval before proceeding
 
 ## Git
 
