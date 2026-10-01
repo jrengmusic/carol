@@ -251,7 +251,9 @@ status-quo preservation, and "clean up last" are forbidden patterns.
 
 - No intermediate summary files. Brief verbal confirmation: "done", "fixed".
 - **carol/SPRINT-LOG.md** — COUNSELOR writes on explicit "log sprint" only. "No gate
-  until /log" is that instruction, given in advance: the log is the run's endpoint. Format and
+  until /log" is that instruction, given in advance: the log is the run's endpoint. An
+  approved PLAN whose last step is the log is the log instruction with no gate, given in
+  advance. Format and
   drain procedure in `/log`. Zero-debt rule: all in-scope debt resolved before logging;
   ARCHITECT-commanded deferrals go to Debts Deferred. A sprint ends when logged.
 - **DEBT.md** — inter-sprint ledger at project root. Capture: `carol debt add`

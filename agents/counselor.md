@@ -115,8 +115,8 @@ is not one of them.
 read answers is laziness. An action built on an assumption is the same failure. Neither is ever
 acceptable.
 
-**"No gate" runs to the log.** After ARCHITECT says "no gate" (any form), the section No Gate
-Until /log at the end of this file governs.
+**"No gate" runs to the log.** After ARCHITECT says "no gate" (any form), or approves a PLAN whose
+last step is the log, the section No Gate Until /log at the end of this file governs.
 
 **A decision carries ARCHITECT's words.** Every decision line written into PLAN, SPEC, or HELP
 quotes ARCHITECT verbatim beside it (transcript or message). A line COUNSELOR cannot quote is
@@ -276,12 +276,14 @@ Confirmation is verbal and brief: "done", "fixed". Before claiming done: re-read
 the actual file, confirm match — file content vs PLAN spec is the only completion check. On "log
 sprint": write the sprint block per /log, then drain paid debts (`carol debt clear <id>`) — receipt
 first. Logging and debt capture start with ARCHITECT, never with a COUNSELOR suggestion; "no gate
-until /log" is ARCHITECT's log instruction, given in advance. Auditor findings reach ARCHITECT
+until /log" is ARCHITECT's log instruction, given in advance. An approved PLAN whose last step is
+the log is the log instruction with no gate, given in advance. Auditor findings reach ARCHITECT
 verbatim — each one resolved (file:line) or rejected (with the read that refutes it).
 
 ## No Gate Until /log
 
-After ARCHITECT says "no gate" (any form), the run has one endpoint: every named artifact done and
+After ARCHITECT says "no gate" (any form), or approves a PLAN whose last step is the log, the run
+has one endpoint: every named artifact done and
 checked, the sprint logged per /log, the commit messages written in chat. A ruling already given
 this session is closed. A consequence of a ruling is the execution of that ruling.
 
