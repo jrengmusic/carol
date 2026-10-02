@@ -173,6 +173,50 @@ int myInteger = 9;
 double sampleRate = 48000.0;
 ```
 
+**Exception — initializer of the same container type:** use parentheses.
+List initialization tries initializer-list constructors first. A JUCE
+container (`juce::Array`, `juce::OwnedArray`, …) has a template
+`initializer_list` constructor (`juce_Array.h:138`). On the Windows build
+(clang-cl), the compiler deduced the element type from the initializer, so
+`{ x }` selected that constructor and tried to make a container that holds `x`
+as its only element. It did not copy or move `x`, and the build failed.
+
+```cpp
+// WRONG — clang-cl selects Array<File> (std::initializer_list<Array<File>>); the build fails
+auto descendants { item.findChildFiles (juce::File::findFilesAndDirectories, true) };
+
+// CORRECT — copy or move construction
+auto descendants (item.findChildFiles (juce::File::findFilesAndDirectories, true));
+```
+
+### Platform macro names
+
+Do not use a Windows SDK macro name as an identifier. The SDK uses `#define`
+for these names. The preprocessor replaces the identifier before the compiler
+reads it, so the code compiles on macOS and fails on Windows.
+
+| Name | Windows SDK definition |
+|---|---|
+| `pascal` | `minwindef.h` — `__stdcall` |
+| `cdecl` | `minwindef.h` — `_cdecl`, or empty |
+| `near`, `far` | `minwindef.h` — empty |
+| `NEAR`, `FAR` | `minwindef.h` — `near`, `far` |
+| `IN`, `OUT`, `OPTIONAL` | `minwindef.h` — empty |
+| `CALLBACK` | `minwindef.h` — `__stdcall` |
+| `min`, `max` | `minwindef.h` — function-like macros, unless `NOMINMAX` |
+| `small` | `rpcndr.h` — `char` |
+| `interface` | `combaseapi.h` — `struct` |
+| `ERROR` | `wingdi.h` — `0` |
+| `DELETE` | `winnt.h` — `(0x00010000L)` |
+
+```cpp
+// WRONG — becomes juce::MemoryBlock __stdcall (...) on Windows
+juce::MemoryBlock pascal { static_cast<size_t> (size), true };
+
+// CORRECT
+juce::MemoryBlock pascalString { static_cast<size_t> (size), true };
+```
+
 **String construction:**
 ```cpp
 String w ("World");              // Best
@@ -965,7 +1009,8 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 
 ## CRITICAL RULES (MANDATORY)
 
-- **Aggregate (brace) initialization is ALWAYS preferred** over copy assignment: `int x { 0 };` not `int x = 0;`
+- **Aggregate (brace) initialization is ALWAYS preferred** over copy assignment: `int x { 0 };` not `int x = 0;` — except when the initializer is the same container type: `auto files (getFiles());`, never `auto files { getFiles() };`
+- **No Windows SDK macro names as identifiers** — no name in the *Platform macro names* table.
 - **No bail-out guards.** Preconditions use an assert (STL, JUCE, or project-specific) — NEVER `if (not valid) return;`. Result returns (value determined at that point) are correct and preferred.
 - **ALWAYS use nested positive checks:** `if (valid) { if (ready) { doWork(); } }` — NEVER `if (not valid) return;`
 - **Use `.at()` for container access where the container provides it** — NEVER raw `[]` when a bounds-checked accessor exists. Fail Fast principle: invalid index throws immediately.
@@ -1051,7 +1096,8 @@ Diagnostic instrumentation is ephemeral — all log statements added during inve
 ✓ `explicit` single-arg constructors
 ✓ Pass small types by value
 ✓ Use `std::` math functions
-✓ Aggregate (brace) initialization always
+✓ Aggregate (brace) initialization always — parentheses when the initializer is the same container type
+✓ No Windows SDK macro names as identifiers — no name in the *Platform macro names* table
 ✓ No bail-out guards — assert (project-appropriate) for preconditions, nested positive checks for conditional execution, result returns correct and preferred
 ✓ **Use `.at()` where the container provides it** — bounds-checked accessor always preferred over raw `[]`
 ✓ **ALWAYS use `not`, `and`, `or`** alternative tokens
