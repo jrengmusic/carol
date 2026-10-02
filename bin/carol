@@ -103,9 +103,15 @@ CAROL_PERMISSIONS='{
       "WebFetch(*)",
       "WebSearch(*)"
     ],
+    "ask": [
+      "Bash(git restore*)"
+    ],
     "deny": [
-      "Bash(git reset --hard*)",
-      "Bash(git checkout --*)",
+      "Bash(git checkout*)",
+      "Bash(git switch*)",
+      "Bash(git reset*)",
+      "Bash(git stash*)",
+      "Bash(git clean*)",
       "Bash(git branch -D*)"
     ]
   },

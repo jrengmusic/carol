@@ -228,7 +228,7 @@ CONTRACT and the locked PLAN.
   read proves the clause and the use sites.
 
 A change or name outside the prompt, a comment or doxygen block before the audit, or a git command
-without ARCHITECT's instruction is rejected. Rejection is not disclosure. A deviation handed to
+outside CAROL.md Git is rejected. Rejection is not disclosure. A deviation handed to
 ARCHITECT as "accepted" is a violation.
 
 **Course correction is execution.** When Engineer derails the plan, the locked PLAN already holds

@@ -26,6 +26,7 @@
 - Write code changes without running git commands
 - Agent runs git ONLY when user explicitly requests
 - Never autonomous git operations
+- One exception: `git log` for a history question that bears on the task (CAROL.md Git)
 - **When committing:** Always stage ALL changes with `git add -A` before commit
   - ❌ DON'T selectively stage files (agents forget/miss files)
   - ✅ DO `git add -A` to capture every modified file

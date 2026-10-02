@@ -284,27 +284,42 @@ Primaries accumulate the running brief; discard at sprint log.
 
 ## Git
 
-**AGENTS NEVER RUN GIT COMMANDS WITHOUT ARCHITECT'S EXPLICIT INSTRUCTION**
-Agents prepare changes and write commit messages in chat. With ARCHITECT's explicit
-instruction, any agent runs exactly the git command ARCHITECT instructed — `restore`
-included. The instruction names git; nothing is inferred. A primary that delegates
-the command quotes ARCHITECT's instruction verbatim in the delegation prompt; the
-subagent runs the command on that quote. Staging is `git add -A`. No AI attribution,
-no Co-Authored-By. "push," "commit," or "commit and push" — any of the three — is
-MACHINIST's instruction to execute `git add -A`, commit, push immediately. No scope
-check, no staging question, no confirmation round-trip.
+**AGENTS NEVER RUN GIT COMMANDS WITHOUT ARCHITECT'S EXPLICIT INSTRUCTION.** This
+includes read-only commands: `status`, `diff`, `show`, `blame`. The one exception is
+`git log`.
 
-**Read-only git commands follow the same rule.** Without ARCHITECT's explicit
-instruction, no agent — primary or subagent — runs any git command for any purpose,
-including `status`, `diff`, `log`, `show`, as diagnosis, verification, or recovery
-planning. The working tree, read via the Read
-tool, is the only evidence of current state; an old HEAD tells an agent nothing about
-the present and actively misleads. Uncommitted work may be exhaustively long-lived —
-an untracked or modified file is not corruption. Recovery strategies that assume a
-commit exists ("restore from HEAD", "checkout the file") are forbidden in agent
-reasoning and in options presented to ARCHITECT — an agent that damages a file owns
-the repair from working-tree evidence or reports the exact damage mechanism and
+**Instructed commands.** Agents prepare changes and write commit messages in chat. The
+instruction names git; infer nothing. Run exactly the command instructed, `restore`
+included. A primary that delegates the command quotes ARCHITECT's instruction verbatim
+in the delegation prompt. Staging is `git add -A`. No AI attribution, no
+Co-Authored-By. "push", "commit", or "commit and push" tells MACHINIST to run
+`git add -A`, commit, and push at once. No scope check, no staging question, no
+confirmation round-trip.
+
+**ARCHITECT-only commands.** Only ARCHITECT runs `checkout`, `switch`, `reset`,
+`stash`, `clean`, and `branch -D`. They rewrite the tree, the index, or the refs. The
+settings deny list blocks them, instructed or not. The settings ask list prompts
+ARCHITECT on each `restore`.
+
+**Working tree.** The working tree, read with the Read tool, is the only evidence of
+current state. An old HEAD misleads. Uncommitted work can live for a long time. An
+untracked or modified file is not corruption. Never reason or propose recovery from a
+commit ("restore from HEAD", "checkout the file"). An agent that damages a file
+repairs it from working-tree evidence, or reports the exact damage mechanism and
 waits.
+
+**Why.** Training gives agents a git reflex: hack, patch, fail, checkout, retry. Each
+loop spends tokens. Failure Protocol names this spinning. CAROL replaces the reflex:
+read thoroughly, inventory the context, scrutinize it, then implement with care. A
+mistake made from a high-signal context is small and fast to repair.
+
+**`git log`.** Any agent runs `git log`, with any flag, without instruction, only for
+a history question the current task needs: when a change came in, why, what changed,
+commit-message style. Its output is a fact under Ground of Truth — read it, do not
+guess. It describes the past, never the present. The author field is not evidence:
+every commit carries ARCHITECT's username. Never run `git log` as a routine step or
+before work starts. Engineer's context is the delegation prompt and the code.
+COUNSELOR delegates `git log` to Pathfinder by preference.
 
 ## Destructive-Edit Discipline
 

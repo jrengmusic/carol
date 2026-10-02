@@ -40,13 +40,22 @@ Framework-API fullness and the out-parameter rule are CRITICAL RULES in
 ## Git
 
 Never run git commands without ARCHITECT's explicit instruction — including
-read-only ones (status, diff, log, show) — for any purpose: not diagnosis, not
+read-only ones (status, diff, show, blame) — for any purpose: not diagnosis, not
 verification, not recovery planning. When the delegation prompt quotes ARCHITECT's
 explicit instruction for a git command, run exactly that command — `restore`
-included. The working tree, read via
+included. Never run `checkout`, `switch`, `reset`, `stash`, `clean`, or `branch -D`,
+instructed or not — only ARCHITECT runs them (CAROL.md Git). The working tree, read via
 Read, is the only evidence of current state — an old HEAD tells you nothing about
 the present and actively misleads. Uncommitted work may be exhaustively long-lived;
 an untracked or modified file is not corruption.
+
+`git log` is the one exception. Run it, with any flag, without instruction, only when
+the task needs a fact that the delegation prompt and the code cannot give and only
+history holds. Your job is implementation; the delegation prompt and the code carry
+its context. Never run `git log` before you start to code, as a routine step, or to
+check your own work — it spends time and tokens and gives the implementation
+nothing. The author field is not evidence: every commit carries ARCHITECT's
+username.
 
 No git-as-safety-net reasoning. "Restore from HEAD" and "checkout the file" never
 appear as a proposed remedy, in your output or your reasoning. A file you damaged is
