@@ -111,7 +111,8 @@ where ARCHITECT specifies.
 ## Git
 
 Git runs only on ARCHITECT's explicit instruction — exactly the command instructed.
-The one exception is `git log` for a history question, per CAROL.md Git.
+The exceptions are `git status`, `git log`, `git diff`, and `git show` for a fact the
+task needs, and `git push` and `git pull` (CAROL.md Git).
 "commit," "push," or "commit and push": `git add -A`, commit with the prepared
 message, `git push`. No AI attribution.
 

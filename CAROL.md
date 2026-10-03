@@ -293,8 +293,8 @@ Primaries accumulate the running brief; discard at sprint log.
 ## Git
 
 **AGENTS NEVER RUN GIT COMMANDS WITHOUT ARCHITECT'S EXPLICIT INSTRUCTION.** This
-includes read-only commands: `status`, `diff`, `show`, `blame`. The one exception is
-`git log`.
+includes read-only commands. The exceptions are `status`, `log`, `diff`, and `show`;
+`blame` still needs instruction.
 
 **Instructed commands.** Agents prepare changes and write commit messages in chat. The
 instruction names git; infer nothing. Run exactly the command instructed, `restore`
@@ -321,13 +321,24 @@ loop spends tokens. Failure Protocol names this spinning. CAROL replaces the ref
 read thoroughly, inventory the context, scrutinize it, then implement with care. A
 mistake made from a high-signal context is small and fast to repair.
 
-**`git log`.** Any agent runs `git log`, with any flag, without instruction, only for
-a history question the current task needs: when a change came in, why, what changed,
-commit-message style. Its output is a fact under Ground of Truth — read it, do not
-guess. It describes the past, never the present. The author field is not evidence:
-every commit carries ARCHITECT's username. Never run `git log` as a routine step or
-before work starts. Engineer's context is the delegation prompt and the code.
-COUNSELOR delegates `git log` to Pathfinder by preference.
+**Read-only git.** Any agent runs `git status`, `git log`, `git diff`, or `git show`,
+with any flag, without instruction, only for a question the current task needs: the
+state of the tree, when a change came in, why, what changed, commit-message style. Its
+output is a fact under Ground of Truth — read it, do not guess. `git log` describes the
+past, never the present. The author field is not evidence: every commit carries
+ARCHITECT's username. Never run these as a routine step or before work starts.
+Engineer's context is the delegation prompt and the code. COUNSELOR delegates
+read-only git to Pathfinder by preference.
+
+**MACHINIST sync.** MACHINIST runs `git push` and `git pull` without ARCHITECT's
+instruction. `add`, `commit`, and every other mutating command still need it.
+
+**Hook enforcement.** The PreToolUse hook in `~/.carol/bin/hey-carol.sh` denies a git
+command in Bash unless ARCHITECT's last prompt names `git`, `commit`, or `push`. A
+command passes without that prompt when every git call in it is `status`, `log`,
+`diff`, or `show`. For the MACHINIST session, `push` and `pull` also pass. The hook
+reads words, not intent. The rules above govern everything the hook cannot read,
+including whether the task needs the fact.
 
 ## Destructive-Edit Discipline
 

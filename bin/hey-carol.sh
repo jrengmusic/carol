@@ -6,7 +6,7 @@
 #   On an Agent call, deny a model that differs from the definition's model: line.
 #   On a Bash call, deny an in-place sed, perl or awk edit. Deny git unless the last
 #   prompt names git, commit or push, or every git call is status, log, diff or show
-#   (MACHINIST also push or pull) and the caller is not Engineer.
+#   (the MACHINIST session also push or pull).
 # Stop: in an armed COUNSELOR run, block one end of turn before the sprint log.
 # Per-session state lives in ~/.claude/carol-counters/<session_id>[.nogate|.git].
 set -euo pipefail
@@ -20,13 +20,11 @@ GIT_INVOCATION_PREFIX='(^|[[:space:];&|(`/])git([[:space:]]+(-C[[:space:]]+[^[:s
 GIT_INVOCATION_SUFFIX='([[:space:];&|)]|$)'
 GIT_READ_ONLY_PATTERN="${GIT_INVOCATION_PREFIX}(status|log|diff|show)${GIT_INVOCATION_SUFFIX}"
 GIT_SYNC_PATTERN="${GIT_INVOCATION_PREFIX}(push|pull)${GIT_INVOCATION_SUFFIX}"
-GIT_BARRED_AGENT_TYPE='Engineer'
 GIT_SYNC_AGENT_TYPE='MACHINIST'
 IN_PLACE_PATTERN='(^|[[:space:];&|(`/])(sed|perl)[[:space:]]+([^|;&]*[[:space:]])?(-[A-Za-z]*i[A-Za-z.]*|--in-place)([[:space:]=]|$)|awk[[:space:]]+-i[[:space:]]+inplace'
 SPRINT_LOG='carol/SPRINT-LOG.md'
 AGENTS_DIR="$HOME/.carol/agents"
 GIT_GATE="This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed, and MACHINIST also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
-ENGINEER_GIT_GATE="Engineer runs no git without ARCHITECT's explicit instruction, read-only git included (CAROL.md Git). Build context by reading the working tree and the docs. Report a missing historical fact to the primary."
 IN_PLACE_GATE="An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
 STEP_GATE='No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with the Read tool, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
 
@@ -112,11 +110,7 @@ on_git() {
     permitted_invocations=$((permitted_invocations + $(count_matches "$GIT_SYNC_PATTERN" "$1")))
   fi
 
-  if [ "$invocations" -eq "$permitted_invocations" ]; then
-    [ "$agent_type" != "$GIT_BARRED_AGENT_TYPE" ] || deny_tool "$ENGINEER_GIT_GATE"
-  else
-    deny_tool "$GIT_GATE"
-  fi
+  [ "$invocations" -eq "$permitted_invocations" ] || deny_tool "$GIT_GATE"
 }
 
 on_bash() {

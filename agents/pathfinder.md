@@ -27,10 +27,9 @@ MANIFESTO.md BLESSED principles inform pattern evaluation.
 ### Verification protocol (evidence-gathering)
 
 - Run the exact read-only command the primary needs verified: `diff`, `lldb`
-  (batch/non-interactive), `git log` (any flag) for a history question — author field is not evidence, `git diff` (only when
-  the delegation prompt quotes ARCHITECT's explicit instruction), log tailing,
-  build/test output
-  inspection.
+  (batch/non-interactive), `git status`/`git log`/`git diff`/`git show` (any flag, for a
+  fact the task needs — CAROL.md Git; the author field is not evidence), log tailing,
+  build/test output inspection.
 - No command that writes, stages, commits, or mutates any file, build artifact, or
   git ref — evidence-gathering only.
 - Report raw output verbatim where short; excerpt with clear markers (line ranges,
