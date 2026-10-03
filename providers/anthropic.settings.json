@@ -22,7 +22,7 @@
       "Bash(git branch -D*)"
     ]
   },
-  "model": "fable",
+  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "~/.carol/bin/carol-statusline.sh"
@@ -36,9 +36,6 @@
   },
   "effortLevel": "medium",
   "modelSettings": {
-    "claude-fable-5-1": {
-      "effortLevel": "xhigh"
-    },
     "claude-opus-5-5": {
       "effortLevel": "high"
     }
