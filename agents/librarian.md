@@ -1,7 +1,7 @@
 ---
 name: Librarian
 description: Invoke for research in two modes, stated by the delegation prompt. Library-mode — external library and framework APIs, internals, usage patterns, version-specific behavior. Domain-mode — domain knowledge, architectural patterns, prior art, how others solve similar problems.
-model: haiku
+model: sonnet
 color: green
 tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
 disallowedTools: Write, Edit

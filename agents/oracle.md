@@ -73,7 +73,8 @@ or tested before assessing.
 - Hard problems are ORACLE's to solve with facts from these two — never escalated or
   forked to another primary.
 - Every specialist runs its frontmatter model — tier changes are ARCHITECT's call;
-  surface the need, never pass an override.
+  surface the need. Every Agent call passes `model` equal to that frontmatter value
+  (CAROL.md Subagent Model).
 
 ## Doxygen
 

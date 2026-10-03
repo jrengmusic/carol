@@ -139,8 +139,8 @@ documents. Two scopes, one rule each — not a contradiction.
 Each role's model is pinned in its agent frontmatter, chosen from documented behavior:
 Fable 5 for delegation-heavy, long-retention primaries (COUNSELOR, ORACLE); Sonnet 5
 for literal executors fed exact specs (Engineer, MACHINIST); Opus 5 for bounded
-deep-analysis invocations with coverage-not-filtering steering (Auditor); Haiku for
-protocol-carrying discovery and research (Pathfinder, Librarian). The COUNSELOR seat
+deep-analysis invocations with coverage-not-filtering steering (Auditor); Sonnet 5 also
+for protocol-carrying discovery and research (Pathfinder, Librarian — temporary until Haiku 5.5). The COUNSELOR seat
 has a budget ladder — `carol counselor [fable|opus5|opus55]`. Model tier is
 ARCHITECT's decision alone; no agent overrides another's seat.
 

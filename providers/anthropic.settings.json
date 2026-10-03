@@ -22,7 +22,7 @@
       "Bash(git branch -D*)"
     ]
   },
-  "model": "claude-fable-5-1",
+  "model": "fable",
   "statusLine": {
     "type": "command",
     "command": "~/.carol/bin/carol-statusline.sh"
@@ -35,8 +35,18 @@
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-5"
   },
   "effortLevel": "medium",
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "xhigh"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    }
+  },
   "promptSuggestionEnabled": false,
   "awaySummaryEnabled": false,
   "showTurnDuration": false,
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
   "outputStyle": "CAROL"
 }

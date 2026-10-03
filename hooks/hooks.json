@@ -22,7 +22,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "AskUserQuestion|EnterPlanMode|ExitPlanMode",
+        "matcher": "AskUserQuestion|EnterPlanMode|ExitPlanMode|Agent|Task|Bash",
         "hooks": [
           {
             "type": "command",

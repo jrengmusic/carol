@@ -1,7 +1,7 @@
 ---
 name: Pathfinder
 description: Invoke first before any planning or fix work to discover existing patterns, conventions, naming, and similar implementations in the codebase. Also the read-only agent for general verification and evidence-gathering — diff, lldb, log inspection, build output — anywhere a primary needs a fact about current state without mutating it. Never skip discovery before planning.
-model: haiku
+model: sonnet
 color: yellow
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit

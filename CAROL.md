@@ -105,10 +105,10 @@ permission) → confirm understanding → gate at execution.
   after all steps complete. Reports every finding — coverage over filtering; COUNSELOR
   resolves all findings before sprint log.
 - **Oracle** (fable-5) — deep analysis, root cause, debugging, second opinions.
-- **Librarian** (haiku) — research agent, mode set by the delegation prompt.
+- **Librarian** (sonnet-5) — research agent, mode set by the delegation prompt.
   Library-mode: APIs, internals, version-specific behavior, pitfalls. Domain-mode:
   prior art, patterns, cited trade-offs, no recommendation.
-- **Pathfinder** (haiku) — the only discovery agent primaries trust for codebase and
+- **Pathfinder** (sonnet-5) — the only discovery agent primaries trust for codebase and
   machine exploration, and the read-only verification agent for diff/lldb/build-output
   evidence. Reads targeted excerpts or runs read-only commands, returns BRIEF or
   EVIDENCE.
@@ -264,6 +264,14 @@ status-quo preservation, and "clean up last" are forbidden patterns.
   rarely), PLAN.md (ephemeral, may live in context), ARCHITECTURE.md. CAROL.md is the
   behavior SSOT; carol/SPRINT-LOG.md is cross-session memory.
 
+## Subagent Model
+
+Every Agent call passes `model`. The value equals the `model:` line in that subagent's
+definition (`~/.carol/agents/<name>.md`). The PreToolUse hook in
+`~/.carol/bin/hey-carol.sh` reads the definition and denies a missing or different
+value. A model tier change is ARCHITECT's edit to the definition, never a change in
+the call.
+
 ## Subagent Return Format
 
 ```
@@ -339,6 +347,11 @@ loops) over project files MUST:
 
 Overconfidence is the named threat: a script that "cannot fail" still gets the full
 protocol.
+
+**Hook enforcement.** For a Bash edit, run `carol apply --expect N 'sed-expression'
+file...`. The command does steps 1 to 3 in one run and restores on a mismatch. The
+PreToolUse hook in `~/.carol/bin/hey-carol.sh` denies `sed -i`, `perl -i`, and
+`awk -i inplace`. Bulk `Edit` loops and Python writers stay under this rule alone.
 
 ## Build Environment
 

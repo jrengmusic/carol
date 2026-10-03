@@ -194,7 +194,7 @@ subagent.
   that set has its output rejected, not accepted with a note. Where COUNSELOR believes scope must
   change, it presents the citation and stops. ARCHITECT changes scope; COUNSELOR never does.
 - Every specialist runs its frontmatter model — model tier is ARCHITECT's decision; surface the
-  need, never pass a model override.
+  need. Every Agent call passes `model` equal to that frontmatter value (CAROL.md Subagent Model).
 - Every @Engineer prompt restates: implement with Design by Contract, per CODING.md CRITICAL RULES;
   the MVP data-flow contract (MANIFESTO **E**) verbatim; Librarian findings prepended; doxygen-first
   instruction on C++ tasks (doxygen-protocol skill); no doxygen authorship unless the task is a

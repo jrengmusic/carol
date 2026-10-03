@@ -313,7 +313,7 @@ synth_claude_md() {
 
     info "Synthesizing CLAUDE.md ($synth_mode)..."
     if claude -p \
-        --model haiku \
+        --model sonnet \
         --dangerously-skip-permissions \
         "$instruction"; then
         success "CLAUDE.md synthesized"
@@ -544,6 +544,7 @@ cmd_help() {
     echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/clear)"
     echo -e "  ${YELLOW}ledger${NC}         Show DEBT.md ledger"
     echo -e "  ${YELLOW}loc${NC} [days]      Show git line-change stats for last N days (default 7)"
+    echo -e "  ${YELLOW}apply${NC} --expect N <sed-expr> <file>...  Back up, preview, check changed-line count, apply, verify (restores on mismatch)"
     echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
     echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
     echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
@@ -934,6 +935,110 @@ cmd_debt_clear() {
     success "Drained $id"
 }
 
+APPLY_USAGE="Usage: carol apply --expect N 'sed-expression' file..."
+
+count_changed_lines() {
+    diff "$1" "$2" | grep -c '^<'
+}
+
+verify_apply() {
+    local work_dir="$1"
+    local expected_count="$2"
+    shift 2
+
+    local index=0
+    local applied=0
+    local file
+    for file in "$@"; do
+        cmp -s "$file" "$work_dir/planned.$index" || return 1
+        applied=$((applied + $(count_changed_lines "$work_dir/backup.$index" "$file")))
+        index=$((index + 1))
+    done
+
+    [ "$applied" -eq "$expected_count" ]
+}
+
+restore_apply() {
+    local work_dir="$1"
+    shift
+
+    local index=0
+    local failures=0
+    local file
+    for file in "$@"; do
+        cat "$work_dir/backup.$index" > "$file" || failures=$((failures + 1))
+        index=$((index + 1))
+    done
+
+    [ "$failures" -eq 0 ]
+}
+
+cmd_apply() {
+    local expected_count=""
+    local expression=""
+    local files=()
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --expect)
+                expected_count="$2"
+                shift 2
+                ;;
+            *)
+                if [ -z "$expression" ]; then
+                    expression="$1"
+                else
+                    files+=("$1")
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    [[ "$expected_count" =~ ^[0-9]+$ ]] || error "$APPLY_USAGE"
+    [ -n "$expression" ] || error "$APPLY_USAGE"
+    [ ${#files[@]} -gt 0 ] || error "$APPLY_USAGE"
+
+    local file
+    for file in "${files[@]}"; do
+        [ -f "$file" ] || error "Not a file: $file"
+    done
+
+    local work_dir
+    work_dir=$(mktemp -d)
+    local index=0
+    local predicted=0
+    for file in "${files[@]}"; do
+        sed -E -e "$expression" "$file" > "$work_dir/planned.$index" || { rm -rf "$work_dir"; error "sed rejected the expression"; }
+        echo -e "${CYAN}$file${NC}"
+        diff -u -L "$file" -L "$file (after)" "$file" "$work_dir/planned.$index"
+        predicted=$((predicted + $(count_changed_lines "$file" "$work_dir/planned.$index")))
+        index=$((index + 1))
+    done
+
+    [ "$predicted" -eq "$expected_count" ] || { rm -rf "$work_dir"; error "Dry run changes $predicted lines, expected $expected_count. Nothing written."; }
+
+    index=0
+    for file in "${files[@]}"; do
+        cp "$file" "$work_dir/backup.$index"
+        index=$((index + 1))
+    done
+
+    index=0
+    for file in "${files[@]}"; do
+        cat "$work_dir/planned.$index" > "$file"
+        index=$((index + 1))
+    done
+
+    if verify_apply "$work_dir" "$expected_count" "${files[@]}"; then
+        rm -rf "$work_dir"
+        success "Applied $expected_count changed lines in ${#files[@]} file(s)"
+    else
+        restore_apply "$work_dir" "${files[@]}" || error "Verification failed and a restore failed. Backups kept in $work_dir"
+        error "Verification failed. Files restored. Backups kept in $work_dir"
+    fi
+}
+
 set_counselor_model() {
     # COUNSELOR model ladder: fable (primary) → opus5 → opus55.
     # Writes the exact model ID + effort into counselor.md frontmatter; cmd_run
@@ -1248,6 +1353,10 @@ case "${1:-run}" in
     loc)
         shift
         cmd_loc "$@"
+        ;;
+    apply)
+        shift
+        cmd_apply "$@"
         ;;
     sessions|list)
         cmd_sessions
