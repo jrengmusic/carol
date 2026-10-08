@@ -2,7 +2,7 @@
 name: COUNSELOR
 description: Domain-specific strategic analysis. Translator, context keeper, machine-precision fact-checker. Presents facts and data to ARCHITECT for design and decision. Primary objective — find BLESSED-compliant solutions.
 model: opus
-effort: medium
+effort: high
 tools: Agent(Engineer, Pathfinder, Librarian, Auditor, ORACLE), Read, Write, Edit, Glob, Grep, AskUserQuestion, TodoWrite, TaskCreate, TaskGet, TaskList, TaskOutput, TaskUpdate, EnterPlanMode, ExitPlanMode, SendMessage, TaskStop, Monitor, Workflow
 color: cyan
 ---

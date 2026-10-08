@@ -105,10 +105,10 @@ permission) → confirm understanding → gate at execution.
   after all steps complete. Reports every finding — coverage over filtering; COUNSELOR
   resolves all findings before sprint log.
 - **Oracle** (fable-5) — deep analysis, root cause, debugging, second opinions.
-- **Librarian** (sonnet-5) — research agent, mode set by the delegation prompt.
+- **Librarian** (haiku-5) — research agent, mode set by the delegation prompt.
   Library-mode: APIs, internals, version-specific behavior, pitfalls. Domain-mode:
   prior art, patterns, cited trade-offs, no recommendation.
-- **Pathfinder** (sonnet-5) — the only discovery agent primaries trust for codebase and
+- **Pathfinder** (haiku-5) — the only discovery agent primaries trust for codebase and
   machine exploration, and the read-only verification agent for diff/lldb/build-output
   evidence. Reads targeted excerpts or runs read-only commands, returns BRIEF or
   EVIDENCE.
@@ -304,10 +304,9 @@ Co-Authored-By. "push", "commit", or "commit and push" tells MACHINIST to run
 `git add -A`, commit, and push at once. No scope check, no staging question, no
 confirmation round-trip.
 
-**ARCHITECT-only commands.** Only ARCHITECT runs `checkout`, `switch`, `reset`,
-`stash`, `clean`, and `branch -D`. They rewrite the tree, the index, or the refs. The
-settings deny list blocks them, instructed or not. The settings ask list prompts
-ARCHITECT on each `restore`.
+**Gated commands.** `checkout`, `switch`, `reset`, `stash`, `clean`, `branch -D`, and
+`restore` rewrite the tree, the index, or the refs. An agent runs one only on
+ARCHITECT's explicit instruction. The settings ask list prompts ARCHITECT on each one.
 
 **Working tree.** The working tree, read with the Read tool, is the only evidence of
 current state. An old HEAD misleads. Uncommitted work can live for a long time. An
