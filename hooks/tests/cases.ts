@@ -47,6 +47,7 @@ export default [
   { name: 'no-gate empty role file defaults to COUNSELOR denied', prompts: ['no gate'], roleFile: '', tool: 'AskUserQuestion', expect: 'deny' },
   { name: 'no-gate COUNSELOR Bash allowed', prompts: ['no gate'], role: 'COUNSELOR', tool: 'Bash', command: 'echo hi', expect: 'allow' },
   { name: 'no-gate disarmed by next prompt', prompts: ['no gate', 'ok'], role: 'COUNSELOR', tool: 'AskUserQuestion', expect: 'allow' },
-  { name: 'nudge absent on 4th prompt', prompts: ['a', 'b', 'c', 'd'], role: 'MACHINIST', tool: 'Bash', command: 'echo hi', expect: 'allow', nudgeOnLastPrompt: false },
-  { name: 'nudge present on 5th prompt', prompts: ['a', 'b', 'c', 'd', 'e'], role: 'MACHINIST', tool: 'Bash', command: 'echo hi', expect: 'allow', nudgeOnLastPrompt: true },
+  { name: 'nudge absent on 4th prompt, read directive present', prompts: ['a', 'b', 'c', 'd'], role: 'MACHINIST', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 1 },
+  { name: 'nudge present on 5th prompt, with read directive', prompts: ['a', 'b', 'c', 'd', 'e'], role: 'MACHINIST', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 2 },
+  { name: 'read directive present on 1st prompt for ORACLE', prompts: ['a'], role: 'ORACLE', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 1 },
 ]

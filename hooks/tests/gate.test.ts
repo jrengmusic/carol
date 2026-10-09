@@ -44,8 +44,8 @@ for (const testCase of cases as any[]) {
 
     const outcome: any = await $.tool.call(getToolInput(testCase))
     expect(outcome.deny === undefined ? 'allow' : 'deny').toBe(testCase.expect)
-    if (testCase.nudgeOnLastPrompt !== undefined) {
-      expect((lastContext ?? []).length > 0).toBe(testCase.nudgeOnLastPrompt)
+    if (testCase.contextLinesOnLastPrompt !== undefined) {
+      expect((lastContext ?? []).length).toBe(testCase.contextLinesOnLastPrompt)
     }
   })
 }

@@ -5,7 +5,7 @@ tools: Agent(Pathfinder, Librarian, Auditor), Read, Write, Edit, Bash, Glob, Gre
 color: gray
 model: sonnet
 
-effort: medium
+effort: high
 ---
 
 ## Role: MACHINIST

@@ -443,7 +443,7 @@ cmd_help() {
     echo -e "  ${YELLOW}install${NC}        Set up global CLAUDE.md loader and ~/.claude symlink (run once per machine)"
     echo -e "  ${YELLOW}init${NC} [--no-synth]  Initialize CAROL in current project (optionally skip CLAUDE.md synthesis)"
     echo -e "  ${YELLOW}oracle${NC} [name]       Launch ORACLE session (research, RFC, analysis)"
-    echo -e "  ${YELLOW}counselor${NC} [fable|opus5|opus55] [name]  Launch COUNSELOR (model ladder, default fable)"
+    echo -e "  ${YELLOW}counselor${NC} [opus5|opus55] [name]        Launch COUNSELOR (model ladder, default opus55)"
     echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
     echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/clear)"
     echo -e "  ${YELLOW}ledger${NC}         Show DEBT.md ledger"
@@ -944,15 +944,14 @@ cmd_apply() {
 }
 
 set_counselor_model() {
-    # COUNSELOR model ladder: fable (primary) → opus5 → opus55.
+    # COUNSELOR model ladder: opus55 (primary) → opus5.
     # Writes the exact model ID + effort into counselor.md frontmatter; cmd_run
     # reads it back at launch.
     local rung="$1"
     local model effort
     case "$rung" in
-        fable)  model="claude-fable-5-1"; effort="medium" ;;
         opus5)  model="claude-opus-5";    effort="high" ;;
-        opus55) model="claude-opus-5-5";  effort="medium" ;;
+        opus55) model="claude-opus-5-5";  effort="high" ;;
     esac
     local def="$CAROL_ROOT/agents/counselor.md"
     local tmp_def="$def.tmp.$$"
@@ -1207,7 +1206,7 @@ case "${1:-run}" in
     counselor|counsel)
         shift
         case "${1:-}" in
-            fable|opus5|opus55)
+            opus5|opus55)
                 set_counselor_model "$1"
                 shift
                 ;;

@@ -1,7 +1,7 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.26
+**Version:** 0.0.27
 **Last Updated:** 26 Aug 2026
 
 ---
@@ -83,8 +83,8 @@ stay verbatim — the rules govern prose, never quoted literals.
 ### Primaries — one role per session; calling is assignment
 
 - **COUNSELOR** — strategic analysis + full execution lifecycle: requirements, specs,
-  docs, bugs, implementation. Plans and delegates code to @Engineer. Seat: fable-5
-  (ladder: opus-5, opus-5-5 — `carol counselor <model>`).
+  docs, bugs, implementation. Plans and delegates code to @Engineer. Seat: opus-5-5,
+  effort high (`carol counselor <model>`).
 - **ORACLE** — pre-flight research, ideation, RFC production, deep analysis. Reads the
   codebase, never modifies it. Seat: fable-5.
 - **MACHINIST** — machine custodian: CAROL framework, Claude Code harness, `~/.config/`
@@ -435,7 +435,7 @@ ODE.md §VI. Afterward only signal survives in context.
 
 **ARCHITECT is supreme on decisions and judgment. Facts, cited, are the only override.**
 
-**End of CAROL v0.0.26**
+**End of CAROL v0.0.27**
 
 Rock 'n Roll!
 **JRENG!**
