@@ -14,6 +14,15 @@ CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/.." >/dev/null 2>&1 && pwd )"
 VERSION="$(cat "$CAROL_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')"
 [ -z "$VERSION" ] && VERSION="unknown"
 
+CAROL_NATIVE_ROOT="$CAROL_ROOT"
+if command -v cygpath &>/dev/null; then
+    CAROL_NATIVE_ROOT="$(cygpath -m "$CAROL_ROOT")"
+fi
+CAROL_LAUNCH=(env "CAROL_ROOT=$CAROL_NATIVE_ROOT" claude --plugin-dir "$CAROL_NATIVE_ROOT")
+if [ -f "$CAROL_ROOT/providers/generated/token.settings.json" ]; then
+    CAROL_LAUNCH+=(--settings "$CAROL_NATIVE_ROOT/providers/generated/token.settings.json")
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -91,86 +100,6 @@ format_thousands() {
 }
 
 
-CAROL_PERMISSIONS='{
-  "permissions": {
-    "allow": [
-      "Bash(*)",
-      "Read(*)",
-      "Write(*)",
-      "Edit(*)",
-      "Glob(*)",
-      "Grep(*)",
-      "WebFetch(*)",
-      "WebSearch(*)"
-    ],
-    "ask": [
-      "Bash(git restore*)"
-    ],
-    "deny": [
-      "Bash(git checkout*)",
-      "Bash(git switch*)",
-      "Bash(git reset*)",
-      "Bash(git stash*)",
-      "Bash(git clean*)",
-      "Bash(git branch -D*)"
-    ]
-  },
-  "showTurnDuration": false
-}'
-
-CAROL_CLAUDE_SETTINGS='{
-  "statusLine": {
-    "type": "command",
-    "command": "~/.carol/bin/carol-statusline.sh"
-  }
-}'
-
-setup_statusline() {
-    local settings=".claude/settings.json"
-    mkdir -p .claude
-
-    if [ ! -f "$settings" ]; then
-        echo "$CAROL_CLAUDE_SETTINGS" > "$settings"
-        success "Statusline configured"
-        return 0
-    fi
-
-    if ! command -v jq &>/dev/null; then
-        warning "Install jq to auto-configure statusLine, or merge manually from $CAROL_ROOT/.claude-plugin/plugin.json"
-        return 0
-    fi
-
-    local tmp
-    tmp=$(jq --argjson carol "$CAROL_CLAUDE_SETTINGS" '. * $carol' "$settings")
-    echo "$tmp" > "$settings"
-    success "Statusline configured"
-}
-
-setup_global_statusline() {
-    # MACHINIST runs without project scaffold, so statusLine must live in
-    # user-global settings. Idempotent — skips if already present.
-    local settings="$HOME/.claude/settings.json"
-    mkdir -p "$HOME/.claude"
-
-    if [ ! -f "$settings" ]; then
-        echo "$CAROL_CLAUDE_SETTINGS" > "$settings"
-        return 0
-    fi
-
-    if grep -q '"statusLine"' "$settings"; then
-        return 0
-    fi
-
-    if ! command -v jq &>/dev/null; then
-        warning "Install jq to auto-configure global statusLine"
-        return 0
-    fi
-
-    local tmp
-    tmp=$(jq --argjson carol "$CAROL_CLAUDE_SETTINGS" '. * $carol' "$settings")
-    echo "$tmp" > "$settings"
-}
-
 CAROL_MARKETPLACE_NAME="carol-marketplace"
 CAROL_PLUGIN_ID="carol@${CAROL_MARKETPLACE_NAME}"
 
@@ -230,32 +159,6 @@ symlink_carol_assets() {
     fi
 }
 
-setup_global_permissions() {
-    local settings="$HOME/.claude/settings.json"
-    mkdir -p "$HOME/.claude"
-
-    if [ ! -f "$settings" ]; then
-        echo "$CAROL_PERMISSIONS" > "$settings"
-        success "Global Claude Code permissions configured"
-        return 0
-    fi
-
-    if grep -q '"permissions"' "$settings"; then
-        notice "Global permissions already set — skipping"
-        return 0
-    fi
-
-    if command -v jq &>/dev/null; then
-        local tmp
-        tmp=$(jq --argjson perms "$CAROL_PERMISSIONS" '. + $perms' "$settings")
-        echo "$tmp" > "$settings"
-        success "Global Claude Code permissions merged into settings.json"
-    else
-        warning "~/.claude/settings.json exists but has no permissions block"
-        warning "Install jq or add permissions manually"
-    fi
-}
-
 customize_templates() {
     local project_path="$1"
     local project_name=$(basename "$project_path")
@@ -312,7 +215,7 @@ synth_claude_md() {
     fi
 
     info "Synthesizing CLAUDE.md ($synth_mode)..."
-    if claude -p \
+    if "${CAROL_LAUNCH[@]}" -p \
         --model haiku \
         --dangerously-skip-permissions \
         "$instruction"; then
@@ -392,9 +295,7 @@ cmd_init() {
 
     customize_templates "$project_path"
 
-    setup_global_permissions
     ensure_marketplace_added
-    setup_statusline
 
     [ $skip_synth -eq 0 ] && synth_claude_md "$project_path"
 
@@ -447,7 +348,6 @@ cmd_update() {
     if [ -d "carol" ] || [ -d ".carol" ]; then
         info "Refreshing symlinks..."
         symlink_carol_assets
-        setup_statusline
         [ $skip_synth -eq 0 ] && synth_claude_md "$(pwd)"
     fi
 
@@ -473,6 +373,10 @@ cmd_install() {
     rm -f "$harness_claude_md"
     ln -s "$global_claude_md" "$harness_claude_md"
     success "~/.claude/CLAUDE.md → ~/.config/claude/CLAUDE.md"
+
+    if [ ! -f "$claude_config/settings.json" ]; then
+        cmd_provider anthropic
+    fi
 
     success "Install complete"
 }
@@ -755,7 +659,7 @@ print(agent)
         [ -n "$resumed_agent" ] && agent_flag=(--agent "$resumed_agent")
     fi
 
-    exec claude --resume "$full_uuid" "${agent_flag[@]}" "${model_flag[@]}"
+    exec "${CAROL_LAUNCH[@]}" --resume "$full_uuid" "${agent_flag[@]}" "${model_flag[@]}"
 }
 
 cmd_continue() {
@@ -1081,14 +985,13 @@ symlink_machinist_assets() {
 _launch_machinist() {
     local claude_args=("$@")
     symlink_machinist_assets
-    setup_global_statusline
     show_banner
     echo -e "${GREY}✓ v${VERSION} MACHINIST mode — machine custodian${NC}"
     echo ""
 
     export CAROL_ROLE=MACHINIST
     printf 'MACHINIST' > "$CAROL_ROOT/.carol-role"
-    exec claude \
+    exec "${CAROL_LAUNCH[@]}" \
         --add-dir "$CAROL_ROOT" \
         "${claude_args[@]}"
 }
@@ -1208,7 +1111,7 @@ print(role)
         else
             show_banner
         fi
-        exec claude "${claude_args[@]}"
+        exec "${CAROL_LAUNCH[@]}" "${claude_args[@]}"
     fi
 
     # Bare carol = COUNSELOR, always. cwd is always a project.
@@ -1239,9 +1142,9 @@ print(role)
         ts_file=$(mktemp)
         local launch_sessions_dir="$HOME/.claude/projects/$(get_project_hash)"
         if [ -n "$session_name" ]; then
-            MSYS_NO_PATHCONV=1 claude "${claude_args[@]}" "/rename $session_name"
+            MSYS_NO_PATHCONV=1 "${CAROL_LAUNCH[@]}" "${claude_args[@]}" "/rename $session_name"
         else
-            claude "${claude_args[@]}"
+            "${CAROL_LAUNCH[@]}" "${claude_args[@]}"
         fi
         local new_session
         new_session=$(find "$launch_sessions_dir" -name "*.jsonl" -newer "$ts_file" 2>/dev/null | sort | tail -1)
@@ -1253,45 +1156,17 @@ print(role)
         rm -f "$ts_file"
     else
         if [ -n "$session_name" ]; then
-            MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "/rename $session_name"
+            MSYS_NO_PATHCONV=1 exec "${CAROL_LAUNCH[@]}" "${claude_args[@]}" "/rename $session_name"
         else
-            exec claude "${claude_args[@]}"
+            exec "${CAROL_LAUNCH[@]}" "${claude_args[@]}"
         fi
     fi
 }
 
 cmd_provider() {
     local provider="$1"
-    local settings_src="$CAROL_ROOT/providers/${provider}.settings.json"
-    local secrets_file="$CAROL_ROOT/providers/secrets.json"
-    local hooks_file="$CAROL_ROOT/hooks/hooks.json"
-    local settings_dst="$HOME/.config/claude/settings.json"
 
-    if [ ! -f "$settings_src" ]; then
-        printf 'carol: no settings file for provider "%s" at %s\n' "$provider" "$settings_src" >&2
-        exit 1
-    fi
-
-    if ! command -v jq &>/dev/null; then
-        error "jq is required to activate provider settings"
-    fi
-
-    local token=""
-    if [ -f "$secrets_file" ]; then
-        token=$(jq -r --arg provider "$provider" '.[$provider] // empty' "$secrets_file")
-    fi
-
-    # settings_dst may be a stale symlink from a prior activation — unlink
-    # first so the write below always creates a fresh regular file instead
-    # of following the link into the tracked source it points to.
-    rm -f "$settings_dst"
-
-    if [ -n "$token" ]; then
-        jq --arg token "$token" --slurpfile carol "$hooks_file" \
-            '.env.ANTHROPIC_AUTH_TOKEN = $token | .hooks = $carol[0].hooks' "$settings_src" > "$settings_dst"
-    else
-        jq --slurpfile carol "$hooks_file" '.hooks = $carol[0].hooks' "$settings_src" > "$settings_dst"
-    fi
+    (cd "$CAROL_ROOT/cast" && cast spell.md "--$provider") || error "cast failed — provider settings unchanged"
 
     printf 'provider: %s — restart Claude Code to activate\n' "$provider"
 }

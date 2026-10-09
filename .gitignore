@@ -27,7 +27,13 @@ Thumbs.db
 !/templates/
 
 # Provider secrets contain API tokens — never tracked
-providers/secrets.json
+providers/secrets.md
+
+# Generated provider settings carry the token overlay — never tracked
+providers/generated/
+
+# Claude Code writes this editor config into a plugin dir loaded with --plugin-dir
+/tsconfig.json
 
 
 .carol-role

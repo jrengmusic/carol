@@ -1,45 +1,4 @@
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ACTIVE — CAROL.md is loaded. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. Read @mentioned files, referenced paths, and project docs immediately, without asking. Never ask a question that a read can answer. Never assume. Never decide — correct course against CONTRACT. Before the plan locks, discuss before executing changes. After the lock, execute to the endpoint; a stop before it triggers CAROL.md Step Gate.\"}}'"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.carol/bin/hey-carol.sh"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "AskUserQuestion|EnterPlanMode|ExitPlanMode|Agent|Task|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.carol/bin/hey-carol.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.carol/bin/hey-carol.sh"
-          }
-        ]
-      }
-    ]
-  }
+  "description": "CAROL protocol gates",
+  "modules": ["./register.js"]
 }

@@ -1,0 +1,74 @@
+```[no-banner]settings
+{
+    "permissions": {
+:::[list]:::
+        "allow": [
+:::[list]:::
+        ],
+        "ask": [
+:::[list]:::
+        ]
+    },
+:::[list]:::
+:::model-settings:::
+    "statusLine": {
+        "type": "command",
+        "command": "~/.carol/bin/carol-statusline.sh"
+    },
+    "enabledPlugins": {},
+    "effortLevel": "medium",
+    "promptSuggestionEnabled": false,
+    "awaySummaryEnabled": false,
+    "showTurnDuration": false,
+    "hooks": {
+        "SessionStart": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ACTIVE — CAROL.md is loaded. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. Read @mentioned files, referenced paths, and project docs immediately, without asking. Never ask a question that a read can answer. Never assume. Never decide — correct course against CONTRACT. Before the plan locks, discuss before executing changes. After the lock, execute to the endpoint; a stop before it triggers CAROL.md Step Gate.\"}}'"
+                    }
+                ]
+            }
+        ]
+    },
+    "env": {
+:::[list]:::
+    },
+    "outputStyle": "CAROL"
+}
+```
+
+```member
+    :::key::: : :::value:::,
+```
+
+```rule
+:::name:::
+```
+
+```entry
+:::key::: : :::value:::
+```
+
+```model-settings
+    "modelSettings": {
+:::[list]:::
+    },
+```
+
+```model-setting
+        :::name::: : { "effortLevel": :::effortLevel::: }
+```
+
+```[no-banner]token-settings
+{
+    "env": {
+:::[list]:::
+    }
+}
+```
+
+```token-entry
+        "ANTHROPIC_AUTH_TOKEN": :::token:::
+```

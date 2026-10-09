@@ -267,8 +267,8 @@ status-quo preservation, and "clean up last" are forbidden patterns.
 ## Subagent Model
 
 Every Agent call passes `model`. The value equals the `model:` line in that subagent's
-definition (`~/.carol/agents/<name>.md`). The PreToolUse hook in
-`~/.carol/bin/hey-carol.sh` reads the definition and denies a missing or different
+definition (`~/.carol/agents/<name>.md`). The `tool.call` hook in
+`~/.carol/hooks/register.js` reads the definition and denies a missing or different
 value. A model tier change is ARCHITECT's edit to the definition, never a change in
 the call.
 
@@ -332,7 +332,7 @@ read-only git to Pathfinder by preference.
 **MACHINIST sync.** MACHINIST runs `git push` and `git pull` without ARCHITECT's
 instruction. `add`, `commit`, and every other mutating command still need it.
 
-**Hook enforcement.** The PreToolUse hook in `~/.carol/bin/hey-carol.sh` denies a git
+**Hook enforcement.** The `tool.call` hook in `~/.carol/hooks/register.js` denies a git
 command in Bash unless ARCHITECT's last prompt names `git`, `commit`, or `push`. A
 command passes without that prompt when every git call in it is `status`, `log`,
 `diff`, or `show`. For the MACHINIST session, `push` and `pull` also pass. The hook
@@ -360,7 +360,7 @@ protocol.
 
 **Hook enforcement.** For a Bash edit, run `carol apply --expect N 'sed-expression'
 file...`. The command does steps 1 to 3 in one run and restores on a mismatch. The
-PreToolUse hook in `~/.carol/bin/hey-carol.sh` denies `sed -i`, `perl -i`, and
+`tool.call` hook in `~/.carol/hooks/register.js` denies `sed -i`, `perl -i`, and
 `awk -i inplace`. Bulk `Edit` loops and Python writers stay under this rule alone.
 
 ## Build Environment

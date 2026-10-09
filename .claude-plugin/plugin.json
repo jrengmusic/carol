@@ -11,5 +11,6 @@
   "license": "MIT",
   "keywords": ["carol", "agents", "protocol", "cognitive-amplifier", "orchestration", "blessed"],
   "commands": [],
-  "agents": []
+  "agents": [],
+  "types": "./hooks/types/index.d.ts"
 }
