@@ -313,7 +313,7 @@ synth_claude_md() {
 
     info "Synthesizing CLAUDE.md ($synth_mode)..."
     if claude -p \
-        --model sonnet \
+        --model haiku \
         --dangerously-skip-permissions \
         "$instruction"; then
         success "CLAUDE.md synthesized"
