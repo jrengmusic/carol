@@ -3,7 +3,7 @@ name: Engineer
 description: Invoke for code implementation. Executes exactly what the primary agent instructs — working, BLESSED-compliant code on first pass. Refactors when instructed. Flags pre-existing BLESSED violations encountered during implementation.
 model: sonnet
 
-effort: high
+effort: medium
 color: blue
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
