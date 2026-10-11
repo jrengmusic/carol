@@ -10,7 +10,7 @@ const ROLE_FILE = ROOT + '/.carol-role'
 const definitions = new Map<string, string>([
   [ROOT + '/agents/pathfinder.md', '---\nname: Pathfinder\nmodel: haiku\n---\n'],
   [ROOT + '/agents/engineer.md', '---\nname: Engineer\nmodel: sonnet\n---\n'],
-  [ROOT + '/agents/auditor.md', '---\nname: Auditor\nmodel: fable\n---\n'],
+  [ROOT + '/agents/auditor.md', '---\nname: Auditor\nmodel: opus\n---\n'],
 ])
 
 function getToolInput(testCase: any) {

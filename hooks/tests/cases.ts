@@ -37,7 +37,7 @@ export default [
   { name: 'agent wrong model denied', prompts: ['hello'], tool: 'Agent', subagentType: 'Pathfinder', model: 'opus', expect: 'deny' },
   { name: 'agent missing model denied', prompts: ['hello'], tool: 'Agent', subagentType: 'Pathfinder', expect: 'deny' },
   { name: 'agent engineer sonnet allowed', prompts: ['hello'], tool: 'Agent', subagentType: 'Engineer', model: 'sonnet', expect: 'allow' },
-  { name: 'agent auditor fable allowed', prompts: ['hello'], tool: 'Agent', subagentType: 'Auditor', model: 'fable', expect: 'allow' },
+  { name: 'agent auditor opus allowed', prompts: ['hello'], tool: 'Agent', subagentType: 'Auditor', model: 'opus', expect: 'allow' },
   { name: 'agent without definition allowed', prompts: ['hello'], tool: 'Agent', subagentType: 'general-purpose', expect: 'allow' },
   { name: 'no-gate COUNSELOR AskUserQuestion denied', prompts: ['no gate'], role: 'COUNSELOR', tool: 'AskUserQuestion', expect: 'deny' },
   { name: 'no-gate hyphen EnterPlanMode denied', prompts: ['do it, no-gate'], role: 'COUNSELOR', tool: 'EnterPlanMode', expect: 'deny' },
