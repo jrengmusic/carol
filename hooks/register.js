@@ -24,7 +24,8 @@ const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT'
 const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
 const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with the Read tool, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
 const READ_DIRECTIVE = "If your reasoning still leaves an open end to fill in, read again thoroughly with the Read tool. Find the answer as a citable fact from the codebase, checked against ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md, and from the agreed rulings in the RFC and the PLAN. Above all, use ARCHITECT's explicit discussion recorded in the chat history. Never fill in a gap. Never leave an open end that reading can answer. Respond only with a citable fact."
-const OPEN_END_PATTERN = /\b(?:not read yet|(?:still )?needs? to (?:be )?verif(?:y|ied)|not yet verified)\b/i
+const OPEN_END_PATTERN = /\b(?:not read yet|(?:still )?needs? to (?:be )?verif(?:y|ied)|not yet verified|(?:have|has|had)(?: not|n't) (?:read|seen|checked|verified)|unread|do not know)\b/i
+const USER_ORIGIN_KINDS = ['composer', 'bridge']
 const NUDGE_MACHINIST ='CAROL NUDGE — MACHINIST executes directly with its own hands; @Pathfinder grounds unfamiliar surface; cross-platform consistency holds for ~/.config/ edits. Discuss before executing changes; cite file:line.'
 const NUDGE_DEFAULT = "CAROL NUDGE — Stay in role: plan and delegate (@Engineer code, @Pathfinder discovery, @Auditor once at sprint completion). Answer by reading; every claim cites file:line. Before the plan locks, hold answers until ARCHITECT's go. After the lock, execute to the endpoint per CAROL.md Step Gate."
 
@@ -44,6 +45,18 @@ async function getRole($) {
   const roleFile = (await $.env.get('CAROL_ROOT')) + ROLE_FILE
   const fileRole = (await $.fs.exists(roleFile)) ? (await $.fs.read(roleFile)).trim() : ''
   return fileRole || DEFAULT_ROLE
+}
+
+async function armNoGate($) {
+  const armedAt = await $.clock.now()
+  await update($, isNoGateArmed, () => true)
+  await update($, armedAtMs, () => armedAt)
+}
+
+function getFeedbackText(outcome) {
+  if (outcome.isError === true) return outcome.text ?? ''
+  const { answers = {}, response = '' } = outcome.result ?? {}
+  return [response, ...Object.values(answers)].join('\n')
 }
 
 async function isNoGateRun($) {
@@ -86,13 +99,10 @@ export function register(on) {
   })
 
   on('prompt.submit', async ($, e, next) => {
-    const isArmed = NO_GATE_PATTERN.test(e.text)
-    await update($, isNoGateArmed, () => isArmed)
-    if (isArmed) {
-      const armedAt = await $.clock.now()
-      await update($, armedAtMs, () => armedAt)
+    if (USER_ORIGIN_KINDS.includes(e.origin.kind)) {
+      if (NO_GATE_PATTERN.test(e.text)) await armNoGate($)
+      await update($, isGitInstructed, () => GIT_INSTRUCTION_PATTERN.test(e.text))
     }
-    await update($, isGitInstructed, () => GIT_INSTRUCTION_PATTERN.test(e.text))
     await update($, promptCount, (count) => count + 1)
     const context = [...(e.context ?? []), READ_DIRECTIVE]
     if ((await read($, promptCount)) % NUDGE_INTERVAL === 0) {
@@ -117,7 +127,9 @@ export function register(on) {
 
   on('tool.call', { tool: ['AskUserQuestion', 'EnterPlanMode', 'ExitPlanMode'] }, async ($, e, next) => {
     if (await isNoGateRun($)) return { deny: STEP_GATE }
-    return next(e)
+    const outcome = await next(e)
+    if (NO_GATE_PATTERN.test(getFeedbackText(outcome))) await armNoGate($)
+    return outcome
   }).catch(failClosed)
 
   on('tool.call', { tool: ['Agent', 'Task'] }, async ($, e, next) => {

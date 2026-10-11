@@ -3,6 +3,8 @@ import cases from './cases'
 
 const ROOT = '/carol-root'
 const ALLOWED_RESULT = 'ALLOWED'
+const USER_ORIGIN_KIND = 'composer'
+const ARMED_AT_MS = 1000
 const ROLE_FILE = ROOT + '/.carol-role'
 
 const definitions = new Map<string, string>([
@@ -23,6 +25,7 @@ function getToolInput(testCase: any) {
 
 for (const testCase of cases as any[]) {
   test(testCase.name, async ($, on) => {
+    mock.clock(on, { now: ARMED_AT_MS })
     mock.env(on, { CAROL_ROOT: ROOT, ...(testCase.role ? { CAROL_ROLE: testCase.role } : {}) })
     const files = new Map(definitions)
     if (testCase.roleFile !== undefined) files.set(ROLE_FILE, testCase.roleFile)
@@ -34,12 +37,18 @@ for (const testCase of cases as any[]) {
       lastContext = e.context
       return { text: e.text }
     })
-    on('tool.call', () => ({ result: ALLOWED_RESULT }))
+    on('tool.call', ($, e) => testCase.toolOutcomes?.[e.tool] ?? { result: ALLOWED_RESULT })
 
     for (const prompt of testCase.prompts) {
+      const text = typeof prompt === 'string' ? prompt : prompt.text
+      const originKind = typeof prompt === 'string' ? USER_ORIGIN_KIND : prompt.origin
       lastContext = undefined
-      await $.classic.UserPromptSubmit({ session_id: 't', hook_event_name: 'UserPromptSubmit', prompt, agent_type: testCase.agentType ?? '' })
-      await $.prompt.submit({ text: prompt, wait: false, origin: { kind: 'user' } })
+      await $.classic.UserPromptSubmit({ session_id: 't', hook_event_name: 'UserPromptSubmit', prompt: text, agent_type: testCase.agentType ?? '' })
+      await $.prompt.submit({ text, wait: false, origin: { kind: originKind } })
+    }
+
+    for (const priorTool of testCase.priorTools ?? []) {
+      await $.tool.call({ tool: priorTool, questions: [] })
     }
 
     const outcome: any = await $.tool.call(getToolInput(testCase))
