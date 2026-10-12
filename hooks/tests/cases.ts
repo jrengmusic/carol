@@ -61,4 +61,10 @@ export default [
   { name: 'nudge absent on 4th prompt, read directive present', prompts: ['a', 'b', 'c', 'd'], role: 'MACHINIST', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 1 },
   { name: 'nudge present on 5th prompt, with read directive', prompts: ['a', 'b', 'c', 'd', 'e'], role: 'MACHINIST', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 2 },
   { name: 'read directive present on 1st prompt for ORACLE', prompts: ['a'], role: 'ORACLE', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 1 },
+  { name: 'subagent background bash denied', prompts: ['hello'], subagent: true, background: true, tool: 'Bash', command: 'sleep 1', expect: 'deny' },
+  { name: 'subagent foreground bash allowed', prompts: ['hello'], subagent: true, tool: 'Bash', command: 'echo hi', expect: 'allow' },
+  { name: 'main session background bash allowed', prompts: ['hello'], background: true, tool: 'Bash', command: 'sleep 1', expect: 'allow' },
+  { name: 'subagent background read-only git denied', prompts: ['hello'], subagent: true, background: true, tool: 'Bash', command: 'git status', expect: 'deny' },
+  { name: 'subagent monitor denied', prompts: ['hello'], subagent: true, tool: 'Monitor', command: 'tail -f x', expect: 'deny' },
+  { name: 'main session monitor allowed', prompts: ['hello'], tool: 'Monitor', command: 'tail -f x', expect: 'allow' },
 ]

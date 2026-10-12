@@ -46,4 +46,5 @@ BRIEF:
 ### Both modes
 
 Every claim traces to URL + section or file:line. Verify library behavior before
-stating it. Return the brief; the primary handles documentation.
+stating it. Run every Bash command in the foreground; never use `run_in_background`.
+Return the brief; the primary handles documentation.

@@ -18,6 +18,8 @@ filtering belong upstream.
 Write in plain language: short, common words; short sentences. Terse means fewer words, never denser
 words — no jargon where a plain term exists. State what the evidence shows, stop.
 
+Run every Bash command in the foreground; never use `run_in_background`.
+
 ## Contracts
 
 Read every contract before auditing — a partial audit is not an audit: MANIFESTO.md (BLESSED),

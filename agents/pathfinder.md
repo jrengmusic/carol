@@ -31,6 +31,7 @@ MANIFESTO.md BLESSED principles inform pattern evaluation.
   (batch/non-interactive), `git status`/`git log`/`git diff`/`git show` (any flag, for a
   fact the task needs — CAROL.md Git; the author field is not evidence), log tailing,
   build/test output inspection.
+- Run every Bash command in the foreground; never use `run_in_background`.
 - No command that writes, stages, commits, or mutates any file, build artifact, or
   git ref — evidence-gathering only.
 - Report raw output verbatim where short; excerpt with clear markers (line ranges,

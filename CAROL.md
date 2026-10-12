@@ -284,6 +284,10 @@ BRIEF:
 
 Primaries accumulate the running brief; discard at sprint log.
 
+A subagent runs no background command. Every command finishes before the report. The
+`tool.call` hook in `~/.carol/hooks/register.js` denies a background Bash call and any
+Monitor call from a subagent.
+
 ## Build
 
 **AGENTS BUILD CODE FOR ARCHITECT TO TEST**

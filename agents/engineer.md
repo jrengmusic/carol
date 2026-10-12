@@ -36,6 +36,7 @@ Framework-API fullness and the out-parameter rule are CRITICAL RULES in
   ~/.carol/MANIFESTO.md.
 - Flag BLESSED violations encountered while implementing (three-case protocol below).
 - Return a structured brief. The primary handles all documentation. Git follows the Git section below.
+- Run every Bash command in the foreground; never use `run_in_background`.
 
 ## Git
 

@@ -15,7 +15,15 @@ const definitions = new Map<string, string>([
 
 function getToolInput(testCase: any) {
   if (testCase.tool === 'Bash') {
-    return { tool: 'Bash', command: testCase.command, ...(testCase.subagent ? { agentId: 'sub1' } : {}) }
+    return {
+      tool: 'Bash',
+      command: testCase.command,
+      ...(testCase.subagent ? { agentId: 'sub1' } : {}),
+      ...(testCase.background ? { run_in_background: true } : {}),
+    }
+  }
+  if (testCase.tool === 'Monitor') {
+    return { tool: 'Monitor', command: testCase.command, ...(testCase.subagent ? { agentId: 'sub1' } : {}) }
   }
   if (testCase.tool === 'Agent') {
     return { tool: 'Agent', subagent_type: testCase.subagentType, ...(testCase.model ? { model: testCase.model } : {}) }

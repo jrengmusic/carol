@@ -22,6 +22,7 @@ const IN_PLACE_PATTERN = new RegExp(COMMAND_HEAD + '(?:(?:sed|perl)\\s+(?:[^|;&]
 
 const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed, and MACHINIST also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
 const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
+const BACKGROUND_GATE = 'A subagent runs no background command (CAROL.md Subagent Return Format: the report is the final output). Run this command in the foreground, wait for it to finish, and put its result in your report.'
 const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with the Read tool, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
 const READ_DIRECTIVE = "If your reasoning still leaves an open end to fill in, read again thoroughly with the Read tool. Find the answer as a citable fact from the codebase, checked against ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md, and from the agreed rulings in the RFC and the PLAN. Above all, use ARCHITECT's explicit discussion recorded in the chat history. Never fill in a gap. Never leave an open end that reading can answer. Respond only with a citable fact."
 const OPEN_END_PATTERN = /\b(?:not read yet|(?:still )?needs? to (?:be )?verif(?:y|ied)|not yet verified|(?:have|has|had)(?: not|n't) (?:read|seen|checked|verified)|unread|do not know)\b/i
@@ -79,7 +80,8 @@ function getPermittedInvocations(command, isSyncPermitted) {
   return isSyncPermitted ? readOnly + countMatches(GIT_SYNC_PATTERN, command) : readOnly
 }
 
-async function getBashVerdict($, command, isMainSession) {
+async function getBashVerdict($, command, isMainSession, isBackground) {
+  if (!isMainSession && isBackground) return { deny: BACKGROUND_GATE }
   if (IN_PLACE_PATTERN.test(command)) return { deny: IN_PLACE_GATE }
   const invocations = countMatches(GIT_COMMAND_PATTERN, command)
   if (invocations === 0 || (await read($, isGitInstructed))) return undefined
@@ -143,7 +145,11 @@ export function register(on) {
   }).catch(failClosed)
 
   on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
-    const verdict = await getBashVerdict($, e.command, e.agentId === undefined)
+    const verdict = await getBashVerdict($, e.command, e.agentId === undefined, e.run_in_background === true)
     return verdict === undefined ? next(e) : verdict
+  }).catch(failClosed)
+
+  on('tool.call', { tool: 'Monitor' }, async ($, e, next) => {
+    return e.agentId === undefined ? next(e) : { deny: BACKGROUND_GATE }
   }).catch(failClosed)
 }
