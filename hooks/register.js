@@ -3,6 +3,7 @@ import { atom, read, update } from 'claude-code'
 const NUDGE_INTERVAL = 5
 const DEFAULT_ROLE = 'COUNSELOR'
 const MACHINIST_ROLE = 'MACHINIST'
+const READ_ONLY_GIT_AGENT = 'pathfinder'
 const ROLE_FILE = '/.carol-role'
 const AGENTS_DIRECTORY = '/agents/'
 const SPRINT_LOG = 'carol/SPRINT-LOG.md'
@@ -20,7 +21,7 @@ const GIT_READ_ONLY_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(
 const GIT_SYNC_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(?:push|pull)' + GIT_SUFFIX, 'g')
 const IN_PLACE_PATTERN = new RegExp(COMMAND_HEAD + '(?:(?:sed|perl)\\s+(?:[^|;&]*\\s)?(?:-[A-Za-z]*i[A-Za-z.]*|--in-place)(?:[\\s=]|$)|awk\\s+-i\\s+inplace)')
 
-const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed, and MACHINIST also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
+const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
 const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
 const BACKGROUND_GATE = 'A subagent runs no background command (CAROL.md Subagent Return Format: the report is the final output). Run this command in the foreground, wait for it to finish, and put its result in your report.'
 const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with the Read tool, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
@@ -75,18 +76,25 @@ async function isSprintLogNewer($, sprintLog) {
   return (await $.fs.exists(sprintLog)) && (await $.fs.stat(sprintLog)).mtimeMs > (await read($, armedAtMs))
 }
 
-function getPermittedInvocations(command, isSyncPermitted) {
-  const readOnly = countMatches(GIT_READ_ONLY_PATTERN, command)
+async function getSubagentType($, agentId) {
+  const agents = await $.agent.list()
+  return (agents.find((agent) => agent.id === agentId)?.type ?? '').toLowerCase()
+}
+
+async function getPermittedInvocations($, command, agentId) {
+  const isMainSession = agentId === undefined
+  const isReadOnlyPermitted = isMainSession || (await getSubagentType($, agentId)) === READ_ONLY_GIT_AGENT
+  const isSyncPermitted = isMainSession && (await read($, sessionAgentType)) === MACHINIST_ROLE
+  const readOnly = isReadOnlyPermitted ? countMatches(GIT_READ_ONLY_PATTERN, command) : 0
   return isSyncPermitted ? readOnly + countMatches(GIT_SYNC_PATTERN, command) : readOnly
 }
 
-async function getBashVerdict($, command, isMainSession, isBackground) {
-  if (!isMainSession && isBackground) return { deny: BACKGROUND_GATE }
+async function getBashVerdict($, command, agentId, isBackground) {
+  if (agentId !== undefined && isBackground) return { deny: BACKGROUND_GATE }
   if (IN_PLACE_PATTERN.test(command)) return { deny: IN_PLACE_GATE }
   const invocations = countMatches(GIT_COMMAND_PATTERN, command)
   if (invocations === 0 || (await read($, isGitInstructed))) return undefined
-  const isSyncPermitted = isMainSession && (await read($, sessionAgentType)) === MACHINIST_ROLE
-  return invocations === getPermittedInvocations(command, isSyncPermitted) ? undefined : { deny: GIT_GATE }
+  return invocations === (await getPermittedInvocations($, command, agentId)) ? undefined : { deny: GIT_GATE }
 }
 
 async function failClosed($, e, next) {
@@ -145,7 +153,7 @@ export function register(on) {
   }).catch(failClosed)
 
   on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
-    const verdict = await getBashVerdict($, e.command, e.agentId === undefined, e.run_in_background === true)
+    const verdict = await getBashVerdict($, e.command, e.agentId, e.run_in_background === true)
     return verdict === undefined ? next(e) : verdict
   }).catch(failClosed)
 

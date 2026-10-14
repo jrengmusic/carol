@@ -26,15 +26,16 @@ MANIFESTO.md is framework-agnostic. All principles enforced as written, with one
 
 MANIFESTO says: *300 lines per file — file is too large, too many responsibilities. Split the object.*
 
-**C++/JUCE override:** the 300-line threshold is a smell detector for responsibility count, not a portability constraint. C++'s compilation model makes translation-unit splits costly — each `.cpp` is a separate compile unit with its own include graph, and splitting a single-responsibility class into header+source purely to shrink line count adds compile-dependency surface without reducing responsibility.
+**C++/JUCE override:** the 300-line threshold is a smell detector for responsibility count. It is not a rule for file placement. The translation-unit rule is in CODING.md, section *TEMPLATE, CONSTEXPR, AND TRANSLATION UNIT PLACEMENT*. That section is the single source. This section only states how the rule relates to Lean.
+
+ARCHITECT's ruling: *"the most important against the consideration of the above is CONSISTENCY. split? split ALL CORRECTLY. NEVER POLLUTE codebase with scattered cpp with small implementation to statisfy 300-30-3 GUIDE. Guide to rethink the design. GUIDE adherence isnt about the number, but CORRECT MENTAL MODEL DESIGN BY CONTRACT."*
 
 **C++/JUCE contracts:**
-- **Single header with inline implementation is the preferred default for implementations around ~300 LOC (excluding doxygen).** Header-only keeps the class portable — drop-in, no build-graph wiring — and keeps compile dependencies clean, with no forward-declaration/PIMPL ceremony for a single-responsibility class.
-- **Split into a translation unit (.cpp) only when necessary** — to break a real circular or heavy include dependency, to reduce recompilation cost imposed on other translation units that include the header, or when the class is genuinely decomposed into separate responsibilities (not just relocated lines).
-- **A class that unavoidably exceeds 300 LOC to remain a single header stays a single header.** If decomposition would not reduce responsibility count — only distribute the same responsibility across more files — the split is wrong decomposition, not compliance. Classes of 1000+ LOC as a single header are accepted when the class has one responsibility and splitting would only relocate, not reduce, that responsibility.
-- **The other two Lean thresholds (30 lines/function, 3 branches/switch) apply unchanged** — file-size accommodation never excuses a god-function or a decision table hiding in `if/else`.
+- **One object, one translation unit.** An object is one header and one `.cpp`, or one header only when portability is its purpose. The size of the object does not change this.
+- **Never split one object over more `.cpp` files to meet 300/30/3.** A threshold crossing tells you to rethink the design. If the object has more than one responsibility, decompose it into objects. Each new object is again one header and one `.cpp`.
+- **The other two Lean thresholds (30 lines/function, 3 branches/switch) apply unchanged.** File size never excuses a god-function or a decision table in `if/else`.
 
-**Violation signature:** A `.cpp` file created only to shrink a header below 300 lines, with no independent responsibility. A new header holding ~60 lines with no reason to exist except the line count. A god-function or branch pyramid justified by "the file was already big."
+**Violation signature:** One object with its member bodies in two or more `.cpp` files. A `.cpp` file that exists only to shrink another file. A non-template body in a header that every consumer translation unit includes, when portability is not the purpose of that header.
 
 ---
 

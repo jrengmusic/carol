@@ -297,7 +297,8 @@ Monitor call from a subagent.
 ## Git
 
 **AGENTS NEVER RUN GIT COMMANDS WITHOUT ARCHITECT'S EXPLICIT INSTRUCTION.** This
-includes read-only commands. The exceptions are `status`, `log`, `diff`, and `show`;
+includes read-only commands. The exceptions are `status`, `log`, `diff`, and `show`,
+for the main session and for Pathfinder only. Every other subagent has no exception.
 `blame` still needs instruction.
 
 **Instructed commands.** Agents prepare changes and write commit messages in chat. The
@@ -324,14 +325,16 @@ loop spends tokens. Failure Protocol names this spinning. CAROL replaces the ref
 read thoroughly, inventory the context, scrutinize it, then implement with care. A
 mistake made from a high-signal context is small and fast to repair.
 
-**Read-only git.** Any agent runs `git status`, `git log`, `git diff`, or `git show`,
-with any flag, without instruction, only for a question the current task needs: the
+**Read-only git.** The main session and Pathfinder run `git status`, `git log`,
+`git diff`, or `git show`, with any flag, without instruction, only for a question the
+current task needs: the
 state of the tree, when a change came in, why, what changed, commit-message style. Its
 output is a fact under Ground of Truth — read it, do not guess. `git log` describes the
 past, never the present. The author field is not evidence: every commit carries
 ARCHITECT's username. Never run these as a routine step or before work starts.
-Engineer's context is the delegation prompt and the code. COUNSELOR delegates
-read-only git to Pathfinder by preference.
+Engineer's context is the delegation prompt and the code. Engineer, Auditor,
+Librarian, and every other subagent run no git without ARCHITECT's instruction.
+COUNSELOR delegates read-only git to Pathfinder.
 
 **MACHINIST sync.** MACHINIST runs `git push` and `git pull` without ARCHITECT's
 instruction. `add`, `commit`, and every other mutating command still need it.
@@ -339,7 +342,9 @@ instruction. `add`, `commit`, and every other mutating command still need it.
 **Hook enforcement.** The `tool.call` hook in `~/.carol/hooks/register.js` denies a git
 command in Bash unless ARCHITECT's last prompt names `git`, `commit`, or `push`. A
 command passes without that prompt when every git call in it is `status`, `log`,
-`diff`, or `show`. For the MACHINIST session, `push` and `pull` also pass. The hook
+`diff`, or `show`, and the call comes from the main session or from a Pathfinder
+subagent. A call from any other subagent is denied. For the MACHINIST session, `push`
+and `pull` also pass. The hook
 reads words, not intent. The rules above govern everything the hook cannot read,
 including whether the task needs the fact.
 

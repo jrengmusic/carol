@@ -846,24 +846,62 @@ A translation unit (`.cpp`) should include only what its declarations require.
 
 ## TEMPLATE, CONSTEXPR, AND TRANSLATION UNIT PLACEMENT (MANDATORY)
 
-Applies to modular C++17 libraries of non-trivial size (JUCE-scale, JAM/KANJUT/CIUM).
-Hybrid placement is mandatory — pure header-only and pure split both fail at scale.
+Applies to modular C++17 libraries of any size (JUCE-scale, JAM/KANJUT/CIUM). This
+section is the single source for file placement. LANGUAGE.md refers to it.
 
-### Header-only (required)
-- Class / function / variable templates
+ARCHITECT's ruling, verbatim:
+
+> *"PORTABILITY against COMPILE TIME. it does not matter, trivial vs non trivial. a single
+> header can contains thousands of LOC, for portability."*
+>
+> *"a split cpp is preferable to reduce DUPLICATION of inclusion at build time, hence SSOT
+> object COMPILE time is the the FIRST and FOREMOST PRIORITY. Compile time SHOULD NEVER
+> slowed down by redundant headers inclusion. Single Source of Truth of TU do reduce
+> compile time, as FASTEST time to compile is NON-Negotiable, MANDATORY"*
+>
+> *"the most important against the consideration of the above is CONSISTENCY. split?
+> split ALL CORRECTLY. NEVER POLLUTE codebase with scattered cpp with small
+> implementation to statisfy 300-30-3 GUIDE. Guide to rethink the design. GUIDE
+> adherence isnt about the number, but CORRECT MENTAL MODEL DESIGN BY CONTRACT."*
+
+### The trade-off: portability against compile time
+
+A function body in a header compiles again in each translation unit that includes the
+header. In the JUCE module system, every consumer translation unit includes the module
+header, and through it every submodule header. A body in a `.cpp` compiles one time, in
+the module's unity `.cpp`.
+
+The size of a body does not decide its placement. A trivial body and a non-trivial body
+follow the same rule.
+
+### Priorities, in order
+
+1. **Compile time.** Compile time is the first priority and is not negotiable. A
+   non-template body goes to the object's `.cpp`, so that it compiles one time. The
+   object's `.cpp` is the single source of its implementation.
+2. **Consistency.** An object is split completely, or it is not split. One object is one
+   header and one `.cpp`. Never put the member bodies of one object in two or more
+   `.cpp` files. Never make a small `.cpp` to meet 300/30/3. A threshold crossing tells
+   you to rethink the design: decompose a multi-responsibility object into objects, and
+   each object is again one header and one `.cpp`.
+3. **Portability.** An object can be header-only, of any size, only when portability is
+   its purpose: a drop-in header with no build-graph wiring. In a module, the module
+   gives portability, so a module object is split.
+
+### What stays in the header
+- Class, function, and variable templates
 - `constexpr` functions and variables (including `static constexpr`)
-- `inline` and `static inline` functions
-- Concepts, requires-clauses, and constraints participating in overload resolution
+- Concepts, requires-clauses, and constraints in overload resolution
 - Type traits and metafunctions
-- Trivial, pure utility functions that benefit from inlining
 - Code-generated `static constexpr` / `static inline` surface
+- Declarations of everything else
 
-### Split — header + `.cpp` (required)
-- Non-template member function bodies (unless trivial and explicitly `inline`)
-- Non-template free functions that are not `inline` / `constexpr`
-- Detail/internal implementation not participating in template instantiation
+### What goes to the object's `.cpp`
+- Every non-template member function body, whatever its size
+- Every non-template free function
 - Static data with dynamic (non-`constexpr`) initialization
-- Any body that can change without forcing recompilation of all consumers
+- An explicit instantiation for each member of a closed set of template arguments,
+  when the template definition is in the `.cpp`
 
 ### Decision table
 
@@ -871,16 +909,15 @@ Hybrid placement is mandatory — pure header-only and pure split both fail at s
 |---|---|
 | Template (class/function) | Header |
 | `constexpr` / `static constexpr` | Header |
-| `inline` / `static inline` | Header |
-| Non-template member function body | `.cpp` |
-| Non-template free function | `.cpp` (unless inline) |
-| Detail implementation | `.cpp` |
+| Non-template member function body | The object's one `.cpp` |
+| Non-template free function | The object's one `.cpp` |
 | Code-generated pure constexpr/inline | Header |
-| Closed set of template instantiations | Optional explicit instantiation in `.cpp` |
+| Closed set of template instantiations | Definition and explicit instantiations in the object's `.cpp` |
+| Header-only object whose purpose is portability | Header |
 
-**Rule:** never place a non-trivial, non-template function body in a header for
-convenience. Public headers hold declarations, template definitions, and the thin
-`constexpr`/`inline` surface only — non-template implementation moves to the `.cpp`.
+**Rule:** one object, one translation unit. A non-template body is in the object's
+`.cpp`, whatever its size. The member bodies of one object are never in two or more
+`.cpp` files.
 
 ---
 
@@ -1032,7 +1069,7 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **No `==` / `!=` on strings.** A string compared with `==` is a branch on text. Dispatch by key instead (`Function::Map`, `HashMap`, `Bimap`, `juce::Identifier` equality — an Identifier compare is a pointer compare, not a string compare). Where a genuine text comparison is unavoidable, use `juce::String::compare (…) == 0`; a chain of more than three text tests is a lookup table, never `if`/`else if`.
 - **No out-parameters.** Return the value. A getter is `const` and takes no out-parameter. The one exception is a value replacement in place — `void process (double& sample)`.
 - **No fake-carrier structs.** A struct must give a capability that the Model's value data does not have. A struct that only carries data is forbidden.
-- **Template/constexpr/inline surface stays in headers; non-template implementation moves to `.cpp`.** No non-trivial non-template function body in a header for convenience.
+- **One object, one translation unit.** Templates and `constexpr` stay in the header. Every non-template body, whatever its size, is in the object's one `.cpp` (compile time first). Never put one object's bodies in two or more `.cpp` files (consistency). Header-only only when portability is the object's purpose.
 
 ---
 
@@ -1119,7 +1156,7 @@ Diagnostic instrumentation is ephemeral — all log statements added during inve
 ✓ **No `==`/`!=` on strings** — dispatch by key (Function::Map / HashMap / Bimap / Identifier); `juce::String::compare (…) == 0` only where text comparison is unavoidable; > 3 text tests = lookup table
 ✓ **No out-parameters** — return the value; a getter is `const`; one exception is a value replacement in place (`void process (double& sample)`)
 ✓ **No fake-carrier structs** — a struct must give a capability that value data does not have; a struct that only carries data is forbidden
-✓ **Template/constexpr/inline stay in headers; non-template implementation moves to `.cpp`** — no non-trivial non-template body in a header for convenience
+✓ **One object, one translation unit** — templates/constexpr in the header; every non-template body in the object's one `.cpp`; never one object over several `.cpp` files; header-only only for portability
 
 ---
 

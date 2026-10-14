@@ -6,6 +6,8 @@ const ALLOWED_RESULT = 'ALLOWED'
 const USER_ORIGIN_KIND = 'composer'
 const ARMED_AT_MS = 1000
 const ROLE_FILE = ROOT + '/.carol-role'
+const SUBAGENT_ID = 'sub1'
+const DEFAULT_SUBAGENT_TYPE = 'Engineer'
 
 const definitions = new Map<string, string>([
   [ROOT + '/agents/pathfinder.md', '---\nname: Pathfinder\nmodel: haiku\n---\n'],
@@ -18,12 +20,12 @@ function getToolInput(testCase: any) {
     return {
       tool: 'Bash',
       command: testCase.command,
-      ...(testCase.subagent ? { agentId: 'sub1' } : {}),
+      ...(testCase.subagent ? { agentId: SUBAGENT_ID } : {}),
       ...(testCase.background ? { run_in_background: true } : {}),
     }
   }
   if (testCase.tool === 'Monitor') {
-    return { tool: 'Monitor', command: testCase.command, ...(testCase.subagent ? { agentId: 'sub1' } : {}) }
+    return { tool: 'Monitor', command: testCase.command, ...(testCase.subagent ? { agentId: SUBAGENT_ID } : {}) }
   }
   if (testCase.tool === 'Agent') {
     return { tool: 'Agent', subagent_type: testCase.subagentType, ...(testCase.model ? { model: testCase.model } : {}) }
@@ -40,6 +42,7 @@ for (const testCase of cases as any[]) {
     on('fs.exists', ($, e) => ({ value: files.has(e.path) }))
     on('fs.read', ($, e) => ({ value: files.get(e.path) }))
     on('classic.UserPromptSubmit', () => ({}))
+    on('agent.list', () => ({ value: [{ id: SUBAGENT_ID, type: testCase.subagentType ?? DEFAULT_SUBAGENT_TYPE }] }) as any)
     let lastContext: string[] | undefined
     on('prompt.submit', ($, e) => {
       lastContext = e.context
