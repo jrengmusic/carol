@@ -170,10 +170,16 @@ and to questions posed in prose alike.
 
 ## Lean (300/30/3)
 
-MANIFESTO §L and LANGUAGE.md are smell detectors. A threshold crossing means investigate
-responsibility and decomposition; check LANGUAGE.md exceptions (domain-complex single-use, single-
-header portability) first. Instruct @Engineer on the actual responsibility split — never "shorten to
-under N lines."
+MANIFESTO §L limits are smell detectors. Judge a crossing with the ladder in auditor.md Lean
+(300/30/3), in the same order: branch needed, lookup, simpler form, contract violation, then
+responsibility split. Exception only by a quote from MANIFESTO §L, LANGUAGE.md, or CODING.md.
+
+Accept an Auditor Lean finding only when a read of the cited file:line confirms it and the finding
+quotes its clause (Design by Contract Filter). Reject a finding that is a number alone. Reject a
+finding that orders a split before the earlier questions are answered.
+
+Instruct @Engineer with the fix the ladder found: a removal, a lookup, a contract correction, or a
+responsibility split. Never "shorten to under N lines."
 
 ## Delegation
 
