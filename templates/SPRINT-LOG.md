@@ -111,55 +111,8 @@
 
 ## SPRINT HISTORY
 
-<!-- Example sprint entry (delete this after first real sprint) -->
-
-## Sprint 1: Project Setup and Initial Planning ✅
-
-**Date:** 2026-01-11  
-**Duration:** 14:00 - 16:30 (2.5 hours)
-
-### Agents Participated
-- **COUNSELOR:** Kimi-K2 — Wrote SPEC.md and ARCHITECTURE.md
-- **ENGINEER** (invoked by COUNSELOR) — Created project structure
-- **AUDITOR** (invoked by COUNSELOR) — Verified spec compliance
-
-### Files Modified (8 total)
-- `SPEC.md:1-200` — Complete feature specification with all flows
-- `ARCHITECTURE.md:1-150` — Initial architecture patterns documented
-- `src/core/module.cpp:10-45` — Core module scaffolding with proper initialization
-- `src/core/module.h:1-30` — Core module header with explicit dependencies
-- `tests/core_test.cpp:1-50` — Test scaffolding following Testable principle
-- `CMakeLists.txt:1-25` — Build configuration with explicit targets
-- `README.md:1-20` — Project overview
-
-### Alignment Check
-- [x] BLESSED principles followed (Bound, Lean, Explicit, SSOT, Stateless, Encapsulation, Deterministic)
-- [x] NAMES.md adhered (semantic names, verb-noun functions, no type encoding)
-- [x] MANIFESTO.md principles applied (no layer violations, explicit dependencies)
-- [x] No early returns used
-- [x] Fail-fast error handling implemented
-
-### Problems Solved
-- Established project foundation following domain-specific patterns
-- Defined clear module boundaries preventing layer violations
-
-### State for Continuation
-- `src/core/module.cpp:10-45` — compiles. tests/core_test.cpp scaffolds only,
-  no assertions yet. Verify current test run before extending.
-
-### Debts Paid
-- `DEBT-20260111T101530` — Resolved missing module.h include in core_test.cpp (see Files Modified)
-- *(or)* "None" if sprint did not touch any DEBT.md entries
-
-### Debts Deferred
-- `DEBT-20260111T143022` — Performance benchmarking suite (deferred by ARCHITECT command — out of scope for setup sprint)
-- *(or)* "None" if no items pushed to DEBT.md during this sprint
-
-**Status:** ✅ APPROVED - All files compile, tests scaffold in place
-
----
-
-<!-- Actual sprint entries go here, written by PRIMARY agents -->
+<!-- The entry format is in /log (commands/log.md). It is the only source. -->
+<!-- Sprint entries go here, written by PRIMARY agents -->
 
 ---
 

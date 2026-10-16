@@ -1,7 +1,7 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.27
+**Version:** 0.0.28
 **Last Updated:** 26 Aug 2026
 
 ---
@@ -261,7 +261,8 @@ status-quo preservation, and "clean up last" are forbidden patterns.
   `carol debt clear <id>` — SPRINT-LOG receipt first, then drain. JRENG law: every
   ledger entry enters the next sprint scope.
 - **Documents live at project root:** RFC.md (ORACLE), SPEC.md (written once, updated
-  rarely), PLAN.md (ephemeral, may live in context), ARCHITECTURE.md. CAROL.md is the
+  rarely), PLAN.md (ephemeral, may live in context), ARCHITECTURE.md, CHANGELOG.md
+  (`/changelog`, replaced whole in each run, format in the `changelog-writer` skill). CAROL.md is the
   behavior SSOT; carol/SPRINT-LOG.md is cross-session memory.
 
 ## Subagent Model
@@ -301,7 +302,8 @@ includes read-only commands. The exceptions are `status`, `log`, `diff`, and `sh
 for the main session and for Pathfinder only. Every other subagent has no exception.
 `blame` still needs instruction.
 
-**Instructed commands.** Agents prepare changes and write commit messages in chat. The
+**Instructed commands.** Agents prepare changes and write commit messages in chat,
+per the `commit-writer` skill. The
 instruction names git; infer nothing. Run exactly the command instructed, `restore`
 included. A primary that delegates the command quotes ARCHITECT's instruction verbatim
 in the delegation prompt. Staging is `git add -A`. No AI attribution, no
@@ -328,7 +330,7 @@ mistake made from a high-signal context is small and fast to repair.
 **Read-only git.** The main session and Pathfinder run `git status`, `git log`,
 `git diff`, or `git show`, with any flag, without instruction, only for a question the
 current task needs: the
-state of the tree, when a change came in, why, what changed, commit-message style. Its
+state of the tree, when a change came in, why, what changed. Its
 output is a fact under Ground of Truth — read it, do not guess. `git log` describes the
 past, never the present. The author field is not evidence: every commit carries
 ARCHITECT's username. Never run these as a routine step or before work starts.
@@ -382,8 +384,8 @@ Headless debugging of native binaries uses whatdbg over DAP stdio — never raw 
 Raw lldb opens the macOS Developer-Tools permission dialog, and a missed click stops the
 process for ever. whatdbg debugs without that dialog and is fully scriptable.
 `whatdbg --help` gives the protocol: DAP framing, launch and attach examples, the event
-flow, and crash triage. `tests/smoke/dap_client.lua` in the whatdbg repository is the
-reference client.
+flow, and crash triage. The whatdbg-trace skill (`~/.carol/skills/whatdbg-trace/`) is the
+CAROL driver: COUNSELOR writes the trace spec, Pathfinder runs the driver and reports.
 
 ## Code Hygiene
 
@@ -444,7 +446,7 @@ ODE.md §VI. Afterward only signal survives in context.
 
 **ARCHITECT is supreme on decisions and judgment. Facts, cited, are the only override.**
 
-**End of CAROL v0.0.27**
+**End of CAROL v0.0.28**
 
 Rock 'n Roll!
 **JRENG!**

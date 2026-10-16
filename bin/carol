@@ -473,6 +473,7 @@ cmd_help() {
     echo -e "  ${YELLOW}/counselor${NC}   Activate COUNSELOR (default on init)"
     echo -e "  ${YELLOW}/pay${NC}         Drain DEBT.md ledger into next sprint plan (COUNSELOR only)"
     echo -e "  ${YELLOW}/log${NC}         Log sprint, drain paid debts (COUNSELOR)"
+    echo -e "  ${YELLOW}/changelog${NC}   Write CHANGELOG.md from the sprints since the last one (COUNSELOR)"
     echo -e "  ${YELLOW}/stop${NC}        Emergency brake — cease all execution"
     echo -e "  ${YELLOW}/ode${NC}         ODE to Joy — reframe the problem"
     echo ""

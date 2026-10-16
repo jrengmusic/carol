@@ -5,14 +5,15 @@ description: Write commit message (in chat), log sprint to carol/SPRINT-LOG.md, 
 Do all three, no approval gate between them:
 
 **1. Write commit message in CHAT ONLY.**
-- Draft a commit message for all current changes, following the repository's existing
-  commit style (check recent `git log`).
+- Load the `commit-writer` skill. Draft a commit message for all current changes,
+  following the skill exactly.
 - Output the message directly in chat as a code block so ARCHITECT can copy it.
 - The commit message goes in chat only — never into SPRINT-LOG.md or any file.
 - ARCHITECT commits manually.
 
 **2. Append sprint entry to carol/SPRINT-LOG.md** (latest first, keep last 5). The
-sprint entry does NOT contain the commit message. A sprint ends when logged — work
+sprint entry does NOT contain the commit message. N = the latest logged sprint number + 1,
+read from the working-tree `carol/SPRINT-LOG.md`. A sprint ends when logged — work
 after logging is a new sprint.
 
 ~~~markdown

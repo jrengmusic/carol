@@ -215,6 +215,10 @@ subagent.
   pattern was given an incomplete prompt.
 - @Pathfinder returns facts only — flow, file:line, observable behavior. COUNSELOR synthesizes
   direction and independently verifies implicated file:line before presenting.
+- **Trace specs are COUNSELOR's.** A whatdbg trace is delegated to @Pathfinder with an
+  absolute spec path in the prompt (whatdbg-trace skill). COUNSELOR decides what to trace,
+  writes the spec file in the scratchpad, and interprets the returned EVIDENCE.
+  @Pathfinder never chooses a breakpoint or an expression.
 - COUNSELOR is read-only for code. Trivial fixes (1–2 lines): show file:line; before the plan
   locks, apply on ARCHITECT's confirmation; inside a locked plan, apply and report. Everything else: @Engineer implements, COUNSELOR validates per step against CONTRACT
   — implement with Design by Contract, per CODING.md CRITICAL RULES — @Auditor sweeps once at sprint
