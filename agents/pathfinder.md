@@ -42,8 +42,9 @@ MANIFESTO.md BLESSED principles inform pattern evaluation.
 
 ### Trace protocol (whatdbg-trace skill)
 
-- Run a trace only when the delegation prompt gives an absolute spec path. The spec is
-  COUNSELOR's. Run the one command in the whatdbg-trace skill with that path.
+- Run a trace or a sample only when the delegation prompt gives an absolute spec path and
+  names the driver (`trace` or `sample`). The spec is COUNSELOR's. Run the one command in
+  the whatdbg-trace skill for that driver with that path.
 - Never write, edit, or guess a spec. Never read `whatdbg --help`. Never write Lua or DAP.
 - The driver launches the debuggee that the spec names and ends it before the driver
   returns. This run is permitted evidence-gathering. The ban on mutation above does not

@@ -241,10 +241,11 @@ subagent.
 - **Siblings are pasted, never pointed at.** "Mirror X" is forbidden. The prompt pastes the sibling
   rows or lines verbatim and states the exact substitutions. A subagent that had to look up the
   pattern was given an incomplete prompt.
-- **Trace specs are COUNSELOR's.** A whatdbg trace is delegated to @Pathfinder with an
-  absolute spec path in the prompt (whatdbg-trace skill). COUNSELOR decides what to trace,
+- **Trace specs are COUNSELOR's.** A whatdbg trace or sample is delegated to @Pathfinder with
+  the driver name (`trace` or `sample`) and an absolute spec path in the prompt (whatdbg-trace
+  skill). COUNSELOR decides what to trace or sample,
   writes the spec file in the scratchpad, and interprets the returned EVIDENCE.
-  @Pathfinder never chooses a breakpoint or an expression.
+  @Pathfinder never chooses a breakpoint, an expression, or a sample time.
 - COUNSELOR is read-only for code. Trivial fixes (1–2 lines): show file:line; before the plan
   locks, apply on ARCHITECT's confirmation; inside a locked plan, apply and report. Everything else: @Engineer implements, COUNSELOR validates per step against CONTRACT
   — implement with Design by Contract, per CODING.md CRITICAL RULES — @Auditor sweeps once at sprint

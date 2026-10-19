@@ -6,6 +6,11 @@ local pollIntervalMs = 20
 local closeTimeoutMs = 3000
 local headerTerminator = "\r\n\r\n"
 local headerTerminatorLength = 4
+local nanosecondsPerMillisecond = 1000000
+
+function Dap.getNowMs ()
+    return vim.uv.hrtime () / nanosecondsPerMillisecond
+end
 
 local function encodeFrame (body)
     local content = vim.json.encode (body)
@@ -54,6 +59,7 @@ function Dap:drainMessages ()
     local message, remaining = extractFrame (self.buffer)
 
     while message ~= nil do
+        message.arrivedMs = Dap.getNowMs ()
         table.insert (self.messages, message)
         self.buffer = remaining
         message, remaining = extractFrame (self.buffer)
