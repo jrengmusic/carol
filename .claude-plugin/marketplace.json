@@ -12,7 +12,7 @@
     {
       "name": "carol",
       "source": "./",
-      "description": "CAROL framework: ORACLE, COUNSELOR, MACHINIST primaries with Engineer/Pathfinder/Auditor/Librarian/Researcher secondaries, plus hooks and slash commands.",
+      "description": "CAROL framework: ORACLE, COUNSELOR, MACHINIST primaries with Engineer/Pathfinder/Auditor/Librarian secondaries, plus hooks and slash commands.",
       "version": "0.0.28",
       "category": "orchestration",
       "tags": ["carol", "agents", "protocol", "orchestration", "blessed", "cognitive-amplifier"]

@@ -230,8 +230,8 @@ regular, transparent, bannered, and nothing you would step through lives there.
 
 When ARCHITECT directs generation for a new domain or a new stack:
 
-1. **Read the tool first** (PP-6: the pattern lives in the codebase, not the
-   corpus). Run `cast --help`. @Pathfinder at least one reference manifest (§0):
+1. **Read the tool first** (PP-6: the pattern lives in the codebase, not in
+   training data). Run `cast --help`. @Pathfinder at least one reference manifest (§0):
    `spell.md`, its data files, its `.cast` templates, and the generated output.
 2. **Identify the declarative residue** in the target system and its current drift
    surfaces. Count the copies: code, docs, comments.

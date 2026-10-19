@@ -1,6 +1,6 @@
 ---
 name: doxygen-protocol
-description: Doxygen-first symbol lookup for C++/JUCE/JAM/KANJUT/CIUM work. Use at the start of any task touching these codebases, before any grep or file search, to resolve symbols, classes, and APIs from doxygen XML indexes. Provides index locations, reading order, and regeneration commands.
+description: Doxygen-first symbol lookup for C++ work on every framework in the Index locations table. Use at the start of any task touching these codebases, before any grep or file search, to resolve symbols, classes, and APIs from doxygen XML indexes. Provides index locations, reading order, and regeneration commands.
 ---
 
 # Doxygen Protocol

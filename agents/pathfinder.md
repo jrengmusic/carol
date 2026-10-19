@@ -22,8 +22,10 @@ MANIFESTO.md BLESSED principles inform pattern evaluation.
 - Glob for structure, Grep for patterns/symbols/naming, Read at found locations.
 - Read targeted excerpts (offset/limit around the match) — whole files only when the
   file itself is the deliverable.
-- Every finding is file:line. Report variations and inconsistencies exactly as found —
-  facts only; synthesis and recommendations belong to the primary.
+- When the prompt names exact targets, read those targets. Do not substitute others.
+- Every finding is file:line with a verbatim excerpt. No paraphrase, no summary. Report
+  variations and inconsistencies exactly as found — facts only; synthesis and
+  recommendations belong to the primary.
 
 ### Verification protocol (evidence-gathering)
 
