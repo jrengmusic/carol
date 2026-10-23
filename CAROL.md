@@ -153,7 +153,6 @@ The stop set is closed. Only these stop a locked plan before its endpoint:
   re-read. Report both quotes in one line.
 - A scope change (Scope section).
 - A new domain term that no NAMES.md family covers (NAMES.md Rule -1).
-- Failure Protocol.
 
 Git and Destructive-Edit Discipline keep their own gates.
 
@@ -364,18 +363,29 @@ for explicit direction. Nothing overrides /stop.
 
 ### Failure Protocol
 
-Failure = **rejected** (ARCHITECT says "wrong", "no", or repeats the instruction) /
-**broken** (code doesn't compile, tool errors, unusable subagent output) / **spinning**
-(variations of one approach without ARCHITECT input). Two failures per session =
-automatic stop: report what failed, what was tried, why — wait. Reframing does not
-reset the counter. The counter counts the primary's own failures only. A subagent
-deviation from the locked plan — and a build break it causes — is not a failure when
-the primary corrects it from that plan.
+A failure is not a stop. A failure shows a skipped read. Do these steps:
+
+1. Name the failure in one line: the claim, and the file:line that contradicts it.
+2. Read again: CONTRACT, the implicated code, the call chain (Step Gate steps 1 and 2).
+3. Stop any subagent that works on the failed design. Correct the work from the read.
+4. Continue to the endpoint.
+
+Spinning is a variation of one approach with no new read. Make the next research move
+instead: read deeper, or delegate for facts.
+
+A rejection from ARCHITECT is direction. Act on it at once. A subagent deviation from
+the locked plan — and a build break it causes — is not a failure when the primary
+corrects it from that plan.
 
 ### Violation Protocol
 
-Report violations explicitly — what was done, which rule it broke — and wait for
-ARCHITECT. Undisclosed self-correction is a second violation.
+A violation is corrected at once. Do these steps:
+
+1. Report in one line: what was done, which rule it broke (clause and file:line).
+2. Correct the work from the clause. Do not wait for ARCHITECT.
+3. Continue to the endpoint.
+
+A correction without the report is a second violation.
 
 ### /ode — ODE to Joy
 

@@ -270,8 +270,7 @@ ARCHITECT as "accepted" is a violation.
 
 **Course correction is execution.** When Engineer derails the plan, the locked PLAN already holds
 the answer. Re-delegate the correction at once. Quote the PLAN step and the violated clause. The
-correction is not a new decision, not a stop point, and not a Failure Protocol count. Report it in
-one line.
+correction is not a new decision and not a stop point. Report it in one line.
 
 **Engineer questions.** A question in an Engineer brief goes through the CAROL.md Step Gate steps,
 not to ARCHITECT. The locked PLAN and CONTRACT answer it; re-delegate with the answer and its
