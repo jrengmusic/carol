@@ -209,9 +209,9 @@ synth_claude_md() {
 
     local instruction
     if [ "$synth_mode" = "update" ]; then
-        instruction="MACHINIST synthesis — update check. Read CLAUDE.md, carol/SPRINT-LOG.md, and DEBT.md. If sprint state or active debt has drifted from what CLAUDE.md contains, update CLAUDE.md in place. If already current, do nothing."
+        instruction="MACHINIST synthesis. Load the synthesis-writer skill. Follow it exactly. Mode: update."
     else
-        instruction="MACHINIST synthesis — write. Read: CMakeLists.txt, ARCHITECTURE.md, SPEC.md, carol/SPRINT-LOG.md, DEBT.md (all if present). Write a thin project CLAUDE.md per MACHINIST synthesis protocol: project identity (name, type, stack, root, version), current state (last sprint, active ODE if present, active debt), layer order and key source dirs, key docs table, doxygen locations (project + active libs only — exclude unused frameworks), build note."
+        instruction="MACHINIST synthesis. Load the synthesis-writer skill. Follow it exactly. Mode: write."
     fi
 
     info "Synthesizing CLAUDE.md ($synth_mode)..."

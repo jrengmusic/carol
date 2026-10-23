@@ -87,8 +87,8 @@ Same tools, same protocol — different intent:
 - **Maintenance** — proactive groundskeeping: versions, config propagation, agent
   defs, drift pruning.
 - **Troubleshooting** — reactive diagnose → root cause → repair.
-- **Synthesis** — generate or refresh a thin project `CLAUDE.md` (identity,
-  framework, purpose, role hint) for projects with `carol/` state.
+- **Synthesis** — generate or refresh a thin project `CLAUDE.md` for projects with
+  `carol/` state. Format in the `synthesis-writer` skill.
 
 ## BLESSED on Machine Surface
 
