@@ -251,7 +251,7 @@ A unit is complete when it comes into existence. A parse operation gives a compl
 
 **Concrete instances.** A parsed document tree is complete the instant its build operation returns; no downstream consumer mutates it, copies its fields into a working buffer, or re-derives what that operation already produced. A resource-identity registry — index, handle, or slot — is the same law at a different scale: identity is assigned and released through the registry's own API, never computed by hand, and the registry never allocates, copies, or re-indexes outside that API. Both are one Model, built once, read in place.
 
-**Creation is not mutation.** Creation can be complex. Creation can use multiple passes, look-ahead, reverse steps, work buffers, and memory allocation. Creation does not change a complete object, because no complete object exists yet. The contract starts at the end of creation.
+**Creation is not mutation.** Creation can be complex. Creation can use multiple passes, look-ahead, reverse steps, work buffers, and memory allocation, except on a deadline thread. Creation does not change a complete object, because no complete object exists yet. The contract starts at the end of creation.
 
 **A state update is not mutation.** A complete state replaces a complete state. Add and remove operations are state updates. The program builds and deletes view units as it runs. Each view unit is complete. Thus the creation and the deletion of a view unit are state updates.
 
@@ -264,7 +264,24 @@ A unit is complete when it comes into existence. A parse operation gives a compl
 
 These four rules are one rule: **do no operation on data in transit.** Each violation is a consumer that builds again what creation made.
 
-**The diagnostic:** At each call site, ask this question. Is this operation a creation, a state update, or transit? Creation and state updates have no limit. The four rules apply to transit.
+**The 0 rules.** Data in transit has 0 allocation, 0 copy, 0 mutation, 0 temporary container, 0 new struct, and 0 shadow state.
+
+**Deadline threads.** A thread with a hard deadline, such as the audio thread or a clock thread, does not allocate, lock, wait, or make a blocking call. This applies to creation and to transit. The owner sizes every buffer of that thread in `prepare`, off the deadline thread. On a deadline thread, *"creation and state updates have no limit"* does not apply.
+
+**Published data is immutable.** The producer writes a slot completely before the release. The consumer reads the slot only after the acquire. No thread changes the slot after the publish. A state update replaces the slot. It does not edit it.
+
+**Permitted copies (closed list).** Each permitted copy goes into a preallocated destination. Each one has a bound on its size. Each one copies a byte once per boundary.
+
+1. **OS or device boundary.** `read` or `write` into the buffer of the owner.
+2. **Ownership handoff between threads.** One copy into a slot that the consumer owns, when the producer continues to change its Model. The copy replaces a lock or a wait. The plain copy of a seqlock reader is not permitted, because it is a data race (`[intro.races]`).
+3. **Look-ahead in a parse.** The bytes of one cut token, carried so that the tokens stay views over one contiguous buffer.
+4. **Coalescing or layout conversion at creation.** One copy that makes each later read contiguous or aligned. A measurement must show the gain.
+
+**Not a copy.** A scalar, a handle, or a view passed by value does not copy the data it names. The ABI sets its cost. For example, on Windows x64 a 16-byte argument is passed by reference.
+
+**Still forbidden.** A second copy of the same complete data. A copy per consumer. A copy per hop. A copy "to be safe".
+
+**The diagnostic:** At each call site, ask this question. Is this operation a creation, a state update, or transit? Creation and state updates have no limit, except on a deadline thread. The four rules apply to transit.
 
 **The verdict:** If the data does not fit the implementation, the parse is wrong or the implementation is wrong. It is never both. It is never neither. To change the shape of the data in transit is the violation. It is not the correction.
 
@@ -415,6 +432,10 @@ Enforcement:
 | Inventing a new pattern where one exists | **E** (Encapsulation) |
 | Raw owning pointer / manual cleanup | **B** |
 | Cross-thread direct call | **B** |
+| Allocation, lock, wait, or blocking call on a deadline thread | **B** + **D** |
+| A change to a slot after its publish | **E** (Encapsulation) + **D** |
+| A copy outside the closed list of permitted copies | **E** (Encapsulation) + **S** (Stateless) |
+| A plain (non-atomic) read that races a write, such as a seqlock reader's copy | **D** |
 
 ---
 

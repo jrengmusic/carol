@@ -1070,6 +1070,7 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **No out-parameters.** Return the value. A getter is `const` and takes no out-parameter. The one exception is a value replacement in place — `void process (double& sample)`.
 - **No fake-carrier structs.** A struct must give a capability that the Model's value data does not have. A struct that only carries data is forbidden.
 - **One object, one translation unit.** Templates and `constexpr` stay in the header. Every non-template body, whatever its size, is in the object's one `.cpp` (compile time first). Never put one object's bodies in two or more `.cpp` files (consistency). Header-only only when portability is the object's purpose.
+- **Deadline threads.** A thread with a hard deadline, such as the audio thread or a clock thread, does not allocate, lock, wait, or make a blocking call. This applies to creation and to transit. The owner sizes every buffer of that thread in `prepare`, off the deadline thread. Refer to MANIFESTO **E** — Complete at Creation.
 
 ---
 
@@ -1157,6 +1158,7 @@ Diagnostic instrumentation is ephemeral — all log statements added during inve
 ✓ **No out-parameters** — return the value; a getter is `const`; one exception is a value replacement in place (`void process (double& sample)`)
 ✓ **No fake-carrier structs** — a struct must give a capability that value data does not have; a struct that only carries data is forbidden
 ✓ **One object, one translation unit** — templates/constexpr in the header; every non-template body in the object's one `.cpp`; never one object over several `.cpp` files; header-only only for portability
+✓ **Deadline threads** — no allocation, lock, wait, or blocking call on the audio or clock thread, in creation or in transit; the owner sizes every buffer in `prepare`
 
 ---
 
