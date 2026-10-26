@@ -8,7 +8,6 @@
 
 | key                                 | value  |
 | ----------------------------------- | ------ |
-| `model`                             | `opus` |
 | `inputNeededNotifEnabled`           | true   |
 | `agentPushNotifEnabled`             | true   |
 | `skipDangerousModePermissionPrompt` | true   |

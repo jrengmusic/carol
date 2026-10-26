@@ -3,7 +3,8 @@
 
 data=$(cat)
 mkdir -p "$HOME/.carol/.tmp"
-printf "%s" "$data" > "$HOME/.carol/.tmp/statusline_input.json"
+session_id=$(sed -n 's/.*"session_id" *: *"\([^"]*\)".*/\1/p' <<< "$data")
+printf "%s" "$data" > "$HOME/.carol/.tmp/statusline_input.${session_id}.json"
 
 # CAROL version from SSOT (/VERSION file at repo root)
 carol_version=$(tr -d '[:space:]' < "$(dirname "$0")/../VERSION" 2>/dev/null)
