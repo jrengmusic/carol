@@ -326,8 +326,16 @@ Headless debugging of native binaries uses whatdbg over DAP stdio — never raw 
 Raw lldb opens the macOS Developer-Tools permission dialog, and a missed click stops the
 process for ever. whatdbg debugs without that dialog and is fully scriptable.
 `whatdbg --help` gives the protocol: DAP framing, launch and attach examples, the event
-flow, and crash triage. The whatdbg-trace skill (`~/.carol/skills/whatdbg-trace/`) is the
+flow, and crash triage. The trace skill (`~/.carol/skills/trace/`) is the
 CAROL driver.
+
+## Profiling
+
+Measurement of code uses `scout` — never a hand-written harness. One manifest names the
+benchmarks, the epochs, and the baseline. One run writes one generated report with the
+median, the spread, and the change from the baseline. The profile skill
+(`~/.carol/skills/profile/`) holds the protocol, the manifest grammar, and the report
+grammar.
 
 ## Code Hygiene
 

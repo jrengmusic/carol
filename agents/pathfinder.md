@@ -29,8 +29,8 @@ MANIFESTO.md BLESSED principles inform pattern evaluation.
 
 ### Verification protocol (evidence-gathering)
 
-- Run the exact read-only command the primary needs verified: `diff`, the whatdbg-trace
-  driver (Trace protocol below), `git status`/`git log`/`git diff`/`git show` (any flag, for a
+- Run the exact read-only command the primary needs verified: `diff`, the trace
+  skill driver (Trace protocol below), the `scout` run (Profile protocol below), `git status`/`git log`/`git diff`/`git show` (any flag, for a
   fact the task needs — CAROL.md Git; the author field is not evidence), log tailing,
   build/test output inspection.
 - Run every Bash command in the foreground; never use `run_in_background`.
@@ -40,17 +40,28 @@ MANIFESTO.md BLESSED principles inform pattern evaluation.
   timestamps, frame numbers) where long. Facts only — no interpretation, no fix
   proposal.
 
-### Trace protocol (whatdbg-trace skill)
+### Trace protocol (trace skill)
 
 - Run a trace or a sample only when the delegation prompt gives an absolute spec path and
   names the driver (`trace` or `sample`). The spec is COUNSELOR's. Run the one command in
-  the whatdbg-trace skill for that driver with that path.
+  the trace skill for that driver with that path.
 - Never write, edit, or guess a spec. Never read `whatdbg --help`. Never write Lua or DAP.
 - The driver launches the debuggee that the spec names and ends it before the driver
   returns. This run is permitted evidence-gathering. The ban on mutation above does not
   cover what the debuggee does.
 - Return the driver output verbatim in EVIDENCE. When the spec path is missing or the
   driver prints `SPEC ERROR`, report it under `Needs` and stop.
+
+### Profile protocol (profile skill)
+
+- Run `scout` only when the delegation prompt gives an absolute manifest path. The
+  manifest is COUNSELOR's. Run the one command in the profile skill with that path.
+- Never write, edit, or guess a manifest. Never build `scout`. Never write a benchmark.
+- `scout` writes the report file that the manifest names. This run is permitted
+  evidence-gathering. The ban on mutation above does not cover that report.
+- Return the exit code, the stderr, and the report file verbatim in EVIDENCE. When the
+  manifest path is missing, or `scout` prints a validation diagnostic, report it under
+  `Needs` and stop.
 
 ### Findings must be
 

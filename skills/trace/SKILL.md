@@ -1,9 +1,9 @@
 ---
-name: whatdbg-trace
+name: trace
 description: Run one deterministic whatdbg debug run from a spec file and report the result. Two drivers — trace (breakpoints, crash triage) and sample (stack at chosen moments, wall time, aggregate profile). Use when COUNSELOR delegates a trace or a sample to Pathfinder for a native binary. Pathfinder runs the named driver with the given spec path and reports the output verbatim. Pathfinder never writes the spec and never writes DAP or Lua.
 ---
 
-# whatdbg-trace
+# trace
 
 whatdbg is the debugger (CAROL.md Debugging). This skill holds the drivers for it.
 
@@ -32,8 +32,8 @@ under `Needs` and stops.
 ## Command
 
 ```
-nvim --headless -l ~/.claude/skills/whatdbg-trace/trace.lua <absolute-spec-path>
-nvim --headless -l ~/.claude/skills/whatdbg-trace/sample.lua <absolute-spec-path>
+nvim --headless -l ~/.claude/skills/trace/trace.lua <absolute-spec-path>
+nvim --headless -l ~/.claude/skills/trace/sample.lua <absolute-spec-path>
 ```
 
 Run it in the foreground. The run is bounded by `timeoutMs` in the spec.
