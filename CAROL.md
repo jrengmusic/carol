@@ -209,8 +209,9 @@ status-quo preservation, and "clean up last" are forbidden patterns.
   (ARCHITECT-initiated). Planning: `/pay` (COUNSELOR only). Drain at log time:
   `carol debt clear <id>` — SPRINT-LOG receipt first, then drain. JRENG law: every
   ledger entry enters the next sprint scope.
-- **Documents live at project root:** RFC.md (ORACLE), SPEC.md (written once, updated
-  rarely), PLAN.md (ephemeral, may live in context), ARCHITECTURE.md, CHANGELOG.md
+- **Documents live at project root:** RFC.md (primarily ORACLE's output; any role may
+  write an RFC when ARCHITECT asks, and the RFC is then valid with the same standing),
+  SPEC.md (written once, updated rarely), PLAN.md (ephemeral, may live in context), ARCHITECTURE.md, CHANGELOG.md
   (`/changelog`, replaced whole in each run, format in the `changelog-writer` skill). CAROL.md is the
   behavior SSOT; carol/SPRINT-LOG.md is cross-session memory.
 

@@ -201,7 +201,7 @@ Subagents invoke via Agent tool. Return BRIEF format to primary.
 
 ## Document Lifecycle
 
-**RFC.md** — ORACLE produces it. One RFC per pre-flight session. COUNSELOR reads it and writes PLAN.md. RFC is never edited by COUNSELOR — it is a carrier document, not a living document.
+**RFC.md** — ORACLE primarily produces it. Any role may write an RFC when ARCHITECT asks, with the same standing. One RFC per pre-flight session. COUNSELOR reads it and writes PLAN.md. RFC is never edited by COUNSELOR — it is a carrier document, not a living document.
 
 **SPEC.md** — Written once per project. Updated only when project scope changes. If it exists, do not rewrite it. It defines *what* to build.
 
