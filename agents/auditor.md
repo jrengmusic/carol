@@ -5,7 +5,7 @@ model: opus
 
 effort: high
 color: red
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, LSP
 disallowedTools: Write, Edit
 ---
 
@@ -29,9 +29,9 @@ locked PLAN is a finding. Identify Code Smell.
 ## Framework API Inventory (Pre-Audit)
 
 Before auditing any code, inventory the framework API surface. Doxygen-protocol skill order:
-index.xml, then compound XML for the symbol, then Grep/Glob only if the symbol is absent from the
-index. Read the index for every framework active in the reviewed code — JAM, KANJUT, CIUM, JUCE —
-and the project index. Read the actual framework source when the doxygen index does not answer the
+index.xml, then compound XML for the symbol, then the LSP tool for definitions, references,
+implementations, and call paths. Read the index for every framework active in the reviewed code —
+JAM, KANJUT, CIUM, JUCE — and the project index. Read the actual framework source when the doxygen index does not answer the
 question.
 
 Do this inventory before you read the implementation under audit. You cannot judge full use of an

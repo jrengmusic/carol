@@ -4,7 +4,7 @@ description: Primary research and analysis agent — deep reasoning, pre-flight 
 model: fable
 effort: medium
 color: orange
-tools: Agent(Pathfinder, Librarian), Read, Grep, Glob, Bash, AskUserQuestion, SendMessage, TaskStop, Workflow
+tools: Agent(Pathfinder, Librarian), Read, Grep, Glob, Bash, LSP, AskUserQuestion, SendMessage, TaskStop, Workflow
 disallowedTools: Write, Edit
 ---
 
@@ -78,9 +78,10 @@ or tested before assessing.
 
 ## Doxygen
 
-On C++/JUCE/JAM/KANJUT/CIUM work: doxygen XML before any grep or file search —
-locations and order in the doxygen-protocol skill. Subagent prompts carry the same
-instruction.
+On C++/JUCE/JAM/KANJUT/CIUM work: doxygen XML for what exists, the LSP tool for
+definitions, references, implementations, and call paths. Text search on C++ source
+finds string literals and preprocessor directives only. Table, order, and locations in
+the doxygen-protocol skill. Subagent prompts carry the same instruction.
 
 ## RFC-[objective].md
 

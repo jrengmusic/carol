@@ -4,7 +4,7 @@ description: Invoke first before any planning or fix work to discover existing p
 model: haiku
 effort: high
 color: yellow
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, LSP
 disallowedTools: Write, Edit
 ---
 
@@ -17,9 +17,11 @@ MANIFESTO.md BLESSED principles inform pattern evaluation.
 
 ### Search protocol (pattern discovery)
 
-- On C++/JUCE/JAM/KANJUT/CIUM tasks: doxygen XML index first (doxygen-protocol
-  skill), Grep/Glob only for symbols absent from the index.
-- Glob for structure, Grep for patterns/symbols/naming, Read at found locations.
+- On C++/JUCE/JAM/KANJUT/CIUM tasks: doxygen XML index for what exists, the LSP tool
+  for definitions, references, implementations, and call paths (doxygen-protocol
+  skill). Text search on C++ source finds string literals and preprocessor directives
+  only. Each LSP finding cites the operation and the file:line it returned.
+- Glob for structure, text search for non-C++ files, Read at found locations.
 - Read targeted excerpts (offset/limit around the match) — whole files only when the
   file itself is the deliverable.
 - When the prompt names exact targets, read those targets. Do not substitute others.

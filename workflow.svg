@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="1400px" height="1000px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
     <rect x="0" y="0" width="1400" height="1000" style="fill:#090d12;"/>
-    <text x="627.554px" y="30px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:20px;fill:#b3f9f5;">CAROL v0.0.28</text>
+    <text x="627.554px" y="30px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:20px;fill:#b3f9f5;">CAROL v0.0.30</text>
     <text x="524.674px" y="50px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#699daa;">Cognitive Ampliﬁer Role Orchestration with LLM agents</text>
     <g>
         <g>
@@ -39,7 +39,7 @@
             <text x="250.823px" y="306.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:#699daa;">Domain Speciﬁc Strategic Analysis</text>
             <text x="214.477px" y="331.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Write SPEC.md, PLAN.md, ARCHITECTURE.md</text>
             <text x="250.933px" y="351.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Plan features, ask questions</text>
-            <text x="204.477px" y="371.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Delegate: @Engineer, @Librarian, @Auditor</text>
+            <text x="164.600px" y="371.602px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#8cc9d9;">- Delegate: @Pathfinder, @Engineer, @Librarian, @Auditor</text>
         </g>
     </g>
     <g>

@@ -20,9 +20,14 @@ const GIT_COMMAND_PATTERN = new RegExp(COMMAND_HEAD + 'git(?:\\s|$)', 'g')
 const GIT_READ_ONLY_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(?:status|log|diff|show)' + GIT_SUFFIX, 'g')
 const GIT_SYNC_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(?:push|pull)' + GIT_SUFFIX, 'g')
 const IN_PLACE_PATTERN = new RegExp(COMMAND_HEAD + '(?:(?:sed|perl)\\s+(?:[^|;&]*\\s)?(?:-[A-Za-z]*i[A-Za-z.]*|--in-place)(?:[\\s=]|$)|awk\\s+-i\\s+inplace)')
+const CPP_EXTENSION = '\\.(?:h|hh|hpp|hxx|inl|c|cc|cpp|cxx|m|mm)'
+const TEXT_SEARCH_PATTERN = new RegExp(COMMAND_HEAD + '(?:grep|egrep|fgrep|rg|ag|ack)(?:\\s|$)')
+const CPP_TARGET_PATTERN = new RegExp('(?:--type[= ]|-t\\s*)(?:c|cpp|objc|objcpp)\\b|(?:-g|--glob|--include|-i?name)[= ]\\s*[\'"]?[^\\s\'"]*' + CPP_EXTENSION + '\\b|(?:^|\\s)[^\\s\'"|;&]*' + CPP_EXTENSION + '(?=$|[\\s|;&)])')
+const LITERAL_SEARCH_PATTERN = /\\"|'[^']*"[^']*'|['"]#/
 
 const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
 const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
+const TEXT_SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the LSP tool to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
 const BACKGROUND_GATE = 'A subagent runs no background command (CAROL.md Subagent Return Format: the report is the final output). Run this command in the foreground, wait for it to finish, and put its result in your report.'
 const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with the Read tool, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
 const READ_DIRECTIVE = "If your reasoning still leaves an open end to fill in, read again thoroughly with the Read tool. Find the answer as a citable fact from the codebase, checked against ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md, and from the agreed rulings in the RFC and the PLAN. Above all, use ARCHITECT's explicit discussion recorded in the chat history. Never fill in a gap. Never leave an open end that reading can answer. Respond only with a citable fact."
@@ -92,6 +97,7 @@ async function getPermittedInvocations($, command, agentId) {
 async function getBashVerdict($, command, agentId, isBackground) {
   if (agentId !== undefined && isBackground) return { deny: BACKGROUND_GATE }
   if (IN_PLACE_PATTERN.test(command)) return { deny: IN_PLACE_GATE }
+  if (TEXT_SEARCH_PATTERN.test(command) && CPP_TARGET_PATTERN.test(command) && !LITERAL_SEARCH_PATTERN.test(command)) return { deny: TEXT_SEARCH_GATE }
   const invocations = countMatches(GIT_COMMAND_PATTERN, command)
   if (invocations === 0 || (await read($, isGitInstructed))) return undefined
   return invocations === (await getPermittedInvocations($, command, agentId)) ? undefined : { deny: GIT_GATE }

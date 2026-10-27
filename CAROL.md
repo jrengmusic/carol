@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.28
-**Last Updated:** 26 Aug 2026
+**Version:** 0.0.30
+**Last Updated:** 28 Oct 2026
 
 ---
 
@@ -347,10 +347,13 @@ grammar.
 
 ## Doxygen
 
-Read doxygen XML before any grep or file search on C++/JUCE/JAM/KANJUT/CIUM tasks;
-every subagent prompt carries the same doxygen-first instruction. Index locations,
-reading order, regen commands: **doxygen-protocol skill**. Doxygen prose is written
-last, per Code Hygiene.
+On C++/JUCE/JAM/KANJUT/CIUM tasks, doxygen XML gives what exists, and the LSP tool
+(clangd) gives definitions, references, implementations, and call paths. Text search on
+C++ source finds string literals and preprocessor directives only; it never proves
+absence or gives the blast radius. Every subagent prompt carries the same instruction.
+Question-to-source table, reading order, index locations, regen commands:
+**doxygen-protocol skill**. The `tool.call` hook in `~/.carol/hooks/register.js` denies
+a text search that names a C++ target. Doxygen prose is written last, per Code Hygiene.
 
 ---
 
@@ -408,7 +411,7 @@ ODE.md §VI. Afterward only signal survives in context.
 
 **ARCHITECT is supreme on decisions and judgment. Facts, cited, are the only override.**
 
-**End of CAROL v0.0.28**
+**End of CAROL v0.0.30**
 
 Rock 'n Roll!
 **JRENG!**

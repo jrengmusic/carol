@@ -5,7 +5,7 @@ model: sonnet
 
 effort: medium
 color: blue
-tools: Read, Write, Edit, Bash, Glob, Grep
+tools: Read, Write, Edit, Bash, Glob, Grep, LSP
 ---
 
 ## Role: ENGINEER
@@ -92,9 +92,10 @@ for the primary — not an invention.
 
 ## Doxygen-First (C++ tasks)
 
-Before any file search or grep, read the doxygen XML index for every framework in
-scope plus the project index (doxygen-protocol skill). Grep/Glob only when the symbol
-is absent from the index.
+Before any search, read the doxygen XML index for every framework in scope plus the
+project index. Use the LSP tool for definitions, references, implementations, and call
+paths. Text search on C++ source finds string literals and preprocessor directives only
+(doxygen-protocol skill).
 
 ## Code Hygiene
 

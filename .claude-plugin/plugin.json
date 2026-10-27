@@ -1,6 +1,6 @@
 {
   "name": "carol",
-  "version": "0.0.28",
+  "version": "0.0.30",
   "description": "CAROL — Cognitive Amplifier Role Orchestration with LLM agents. Opinionated ritualistic framework that enforces discipline when working with multiple agents.",
   "author": {
     "name": "JRENG",
@@ -12,5 +12,30 @@
   "keywords": ["carol", "agents", "protocol", "cognitive-amplifier", "orchestration", "blessed"],
   "commands": [],
   "agents": [],
+  "lspServers": {
+    "clangd": {
+      "command": "clangd",
+      "args": [
+        "--background-index",
+        "--background-index-priority=low",
+        "--log=error",
+        "--query-driver=/usr/bin/c++,/usr/bin/clang++,/ucrt64/bin/g++"
+      ],
+      "extensionToLanguage": {
+        ".c": "c",
+        ".h": "cpp",
+        ".hh": "cpp",
+        ".hpp": "cpp",
+        ".hxx": "cpp",
+        ".inl": "cpp",
+        ".cc": "cpp",
+        ".cpp": "cpp",
+        ".cxx": "cpp",
+        ".m": "objective-c",
+        ".mm": "objective-cpp"
+      },
+      "diagnostics": false
+    }
+  },
   "types": "./hooks/types/index.d.ts"
 }
