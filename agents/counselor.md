@@ -251,7 +251,9 @@ subagent.
 - **Profile manifests are COUNSELOR's.** A `scout` run is delegated to @Pathfinder with an
   absolute manifest path in the prompt (profile skill). COUNSELOR decides the benchmarks,
   the epochs, and the baseline, writes the manifest file, builds `scout` in Release, and
-  interprets the returned EVIDENCE. @Pathfinder never edits the manifest and never builds.
+  interprets the returned EVIDENCE. The `## toolchain` rows of the manifest build the
+  profiled target inside the `scout` run. @Pathfinder never edits the manifest and builds
+  nothing except those rows.
 - COUNSELOR is read-only for code. Trivial fixes (1–2 lines): show file:line; before the plan
   locks, apply on ARCHITECT's confirmation; inside a locked plan, apply and report. Everything else: @Engineer implements, COUNSELOR validates per step against CONTRACT
   — implement with Design by Contract, per CODING.md CRITICAL RULES — @Auditor sweeps once at sprint

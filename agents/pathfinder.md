@@ -61,6 +61,9 @@ MANIFESTO.md BLESSED principles inform pattern evaluation.
 - Never write, edit, or guess a manifest. Never build `scout`. Never write a benchmark.
 - `scout` writes the report file that the manifest names. This run is permitted
   evidence-gathering. The ban on mutation above does not cover that report.
+- `scout` first runs the `## toolchain` rows of the manifest. These rows build the
+  profiled target. ARCHITECT: *"profiling with scout is granted with build permission"*.
+  The ban on mutation above does not cover this build. Run no other build command.
 - Return the exit code, the stderr, and the report file verbatim in EVIDENCE. When the
   manifest path is missing, or `scout` prints a validation diagnostic, report it under
   `Needs` and stop.

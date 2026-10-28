@@ -81,7 +81,7 @@ the samples file.
 
 | Exit code | Cause |
 |---|---|
-| `EXIT_SUCCESS` | Help, version, or every step passed. |
+| `EXIT_SUCCESS` | Help, version, every step passed, or a manifest with no `## toolchain` and no `## run` table (no output). |
 | `EXIT_FAILURE` | Missing manifest: the guide, then `scout: not found: <manifest file name>`. |
 | `EXIT_FAILURE` | Validation failure: the diagnostic goes to stderr. |
 | `EXIT_FAILURE` | Toolchain column missing: `scout: <path>:<line> (toolchain): toolchain column not declared`. |
@@ -318,6 +318,11 @@ This work is COUNSELOR's. It is not part of a Pathfinder run.
   system, 10.561 s total. The `user` and `system` rows include the time of EVE itself, so
   this comparison does not isolate `seq`. Whether `RUSAGE_CHILDREN` includes the `seq`
   grandchild is still not verified.
+- The profile build of EVE can trap at start: exit 133 (SIGTRAP), `BUG IN CLIENT OF
+  LIBDISPATCH: Release of a suspended object`, in `jam::TerminalUnixTTY::open`. Each
+  trap raises a macOS "EVE quit unexpectedly" dialog. The scout run then fails with
+  `<command path>: command failed`. Evidence and fix status: `eve/HANDOFF-profiling.md`.
+  Run one EVE at a time.
 - The profiler has 64 thread slots (`jam_Profiler.h:111`) and 65536 entries per ring. An
   entry that finds no slot or a full ring adds 1 to the `dropped` row. A `dropped` value
   above 0 means the zone sums are low.

@@ -27,3 +27,4 @@
 | `ANTHROPIC_DEFAULT_FABLE_MODEL`  | `claude-fable-5-1`  |
 | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-5-5` |
 | `ANTHROPIC_DEFAULT_HAIKU_MODEL`  | `claude-haiku-5-5`  |
+| `BASH_MAX_TIMEOUT_MS`            | `900000`            |

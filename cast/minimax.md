@@ -22,3 +22,4 @@
 | `ANTHROPIC_DEFAULT_HAIKU_MODEL`            | `MiniMax-M3`                       |
 | `CAROL_CONTEXT_FILL_PERCENT`               | `90`                               |
 | `CAROL_CONTEXT_DIVISOR`                    | `1000000`                          |
+| `BASH_MAX_TIMEOUT_MS`                      | `900000`                           |

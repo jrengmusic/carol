@@ -20,3 +20,4 @@
 | `ANTHROPIC_DEFAULT_HAIKU_MODEL`            | `deepseek-v4-flash`                  |
 | `CAROL_CONTEXT_FILL_PERCENT`               | `90`                                 |
 | `CAROL_CONTEXT_DIVISOR`                    | `1000000`                            |
+| `BASH_MAX_TIMEOUT_MS`                      | `900000`                             |
