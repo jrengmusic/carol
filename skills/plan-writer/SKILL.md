@@ -16,7 +16,7 @@ The writing language follows the Writing Standard in CAROL.md. This skill does n
 ## What the plan is
 
 - It is an executable artifact. COUNSELOR executes it with @Engineer, validates each step, and runs @Auditor once at the end.
-- The author of the plan never executes it. ORACLE writes a plan and stops. COUNSELOR writes a plan, and executes it only after ARCHITECT approves and runs `/go`.
+- ORACLE writes a plan and never executes it. COUNSELOR writes a plan with `/goplan`, and ARCHITECT's approval of that plan is the `/go`: COUNSELOR then executes it.
 - Writing a PLAN is gated (CAROL.md Decision Gate). The author presents the plan, and ARCHITECT locks it.
 
 ## Steps

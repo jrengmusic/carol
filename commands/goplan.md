@@ -15,6 +15,6 @@ description: Produce BLESSED-compliant incremental execution plan (consumes RFC.
 
 ### Execution (COUNSELOR)
 
-After ARCHITECT approves and runs `/go`, COUNSELOR executes the locked plan:
+ARCHITECT's approval of the plan is the `/go`. At approval, the plan locks, and COUNSELOR executes the locked plan to its endpoint at once. Run the `/go` re-read of the contract documents first:
 
 - Delegate to @Engineer for execution; COUNSELOR validates per step and orchestrates; @Auditor sweeps once at sprint completion.
