@@ -15,21 +15,21 @@ local afterStopActions = { continue = true, next = true, stepIn = true, stepOut 
 
 local traceFields = {
     breakpoints = {
-        kind = "list",
+        type = "list",
         expects = "list",
-        item = { kind = "object", expects = "object", fields = { file = Driver.text, line = Driver.count } },
+        item = { type = "object", expects = "object", fields = { file = Driver.text, line = Driver.count } },
     },
     onStop = {
-        kind = "object",
+        type = "object",
         expects = "object",
         fields = {
             stackDepth = Driver.count,
             locals = Driver.flag,
-            expressions = { kind = "list", expects = "list", item = Driver.text },
+            expressions = { type = "list", expects = "list", item = Driver.text },
         },
     },
     afterStop = {
-        kind = "value",
+        type = "value",
         expects = "continue, next, stepIn or stepOut",
         check = function (value) return afterStopActions[value] ~= nil end,
     },
@@ -178,7 +178,7 @@ local function onBreakpointChanged (run, body)
         .. " line=" .. tostring (body.breakpoint.line))
 end
 
-local eventHandlers = vim.tbl_extend ("error", Driver.eventHandlers, {
+local events = vim.tbl_extend ("error", Driver.events, {
     stopped = onStopped,
     breakpoint = onBreakpointChanged,
 })
@@ -192,10 +192,10 @@ local function runUntilOutcome (run, deadlineMs)
         if event == nil then
             outcome = "timeout"
         else
-            local handler = eventHandlers[event.event]
+            local onEvent = events[event.event]
 
-            if handler ~= nil then
-                outcome = handler (run, event.body)
+            if onEvent ~= nil then
+                outcome = onEvent (run, event.body)
             end
         end
     end
@@ -221,7 +221,7 @@ local function runTrace (spec)
     end
 
     report ("END outcome=" .. outcome .. " stops=" .. run.stopCount)
-    Driver.endSession (client, outcome)
+    Driver.endSession (client, spec, outcome)
 end
 
 assert (arg[1] ~= nil, "usage: nvim --headless -l trace.lua <spec-path>")

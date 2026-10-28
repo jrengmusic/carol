@@ -1,5 +1,5 @@
 ---
-description: Freeze session state as handoff for future COUNSELOR pickup
+description: Freeze session state as handoff for a later session - COUNSELOR or MACHINIST, format and destination from the handoff-writer skill
 ---
 
 This session is being frozen. Do both, no approval gate between them:
@@ -7,34 +7,4 @@ This session is being frozen. Do both, no approval gate between them:
 **1. Write commit message in CHAT ONLY** for any uncommitted changes — same procedure
 as `/log` step 1.
 
-**2. Append handoff entry to carol/SPRINT-LOG.md** so a future COUNSELOR can pick up exactly where we left off. The handoff entry does NOT contain the commit message.
-
-Format:
-```markdown
-## Handoff to COUNSELOR: [Objective]
-
-**From:** COUNSELOR
-**Date:** YYYY-MM-DD
-**Status:** [In Progress / Blocked / Ready for Implementation]
-
-### Context
-[What we were working on and why]
-
-### Completed
-- [What was done]
-
-### Remaining
-- [What still needs to happen]
-
-### Key Decisions
-- [Decision and rationale]
-
-### Files Modified
-- `path/file` — [what changed]
-
-### Open Questions
-- [Unresolved items]
-
-### Next Steps
-- [Where to pick up]
-```
+**2. Write the handoff entry** so a later session can pick up exactly where we left off. Load the `handoff-writer` skill. Follow it exactly. The handoff entry does NOT contain the commit message.

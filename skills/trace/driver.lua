@@ -3,7 +3,8 @@ local Dap = require ("dap")
 local Driver = {}
 
 local whatdbgExecutable = "whatdbg"
-local exitCodeSpecError = 2
+Driver.exitCodeSpecError = 2
+Driver.exitCodeFailure = 1
 local terminateTimeoutMs = 5000
 local newlineEscape = "\\n"
 local noSourceLabel = "<no source>"
@@ -11,26 +12,26 @@ local noSourceLabel = "<no source>"
 local modes = { launch = true, attach = true }
 
 Driver.count = {
-    kind = "value",
+    type = "value",
     expects = "positive integer",
     check = function (value) return type (value) == "number" and value >= 1 and value == math.floor (value) end,
 }
 
 Driver.text = {
-    kind = "value",
+    type = "value",
     expects = "string",
     check = function (value) return type (value) == "string" end,
 }
 
 Driver.flag = {
-    kind = "value",
+    type = "value",
     expects = "boolean",
     check = function (value) return type (value) == "boolean" end,
 }
 
 local sessionFields = {
     mode = {
-        kind = "value",
+        type = "value",
         expects = "launch or attach",
         check = function (value) return modes[value] ~= nil end,
     },
@@ -69,7 +70,7 @@ end
 local validators = {}
 
 local function validate (value, schema, label, errors)
-    validators[schema.kind] (value, schema, label, errors)
+    validators[schema.type] (value, schema, label, errors)
 end
 
 function validators.value (value, schema, label, errors)
@@ -108,10 +109,10 @@ function validators.object (value, schema, label, errors)
     end
 end
 
-local function getSpecErrors (spec, driverFields)
+function Driver.getSpecErrors (spec, driverFields)
     local errors = {}
     local modeFields = type (spec) == "table" and fieldsByMode[spec.mode] or {}
-    local schema = { kind = "object", fields = vim.tbl_extend ("error", sessionFields, modeFields, driverFields) }
+    local schema = { type = "object", fields = vim.tbl_extend ("error", sessionFields, modeFields, driverFields) }
 
     validate (spec, schema, "spec", errors)
     return errors
@@ -152,10 +153,19 @@ function Driver.initializeSession (client, spec, adapterId)
     Driver.requestChecked (client, spec.mode, argumentsByMode[spec.mode] (spec))
 end
 
-function Driver.endSession (client, outcome)
-    if terminationRequired[outcome] then
+local disconnectsByMode = {
+    launch = function (client)
         client:send ("disconnect", { terminateDebuggee = true })
         client:waitForEvent ("terminated", terminateTimeoutMs)
+    end,
+    attach = function (client)
+        client:request ("disconnect", { terminateDebuggee = false })
+    end,
+}
+
+function Driver.endSession (client, spec, outcome)
+    if terminationRequired[outcome] then
+        disconnectsByMode[spec.mode] (client)
     end
 
     client:close ()
@@ -174,24 +184,28 @@ local function onExited (run, body)
     return "exited"
 end
 
-Driver.eventHandlers = {
+Driver.events = {
     output = onOutput,
     process = onProcess,
     exited = onExited,
 }
 
+function Driver.reportSpecErrors (errors)
+    for errorIndex, message in ipairs (errors) do
+        Driver.report ("SPEC ERROR " .. message)
+    end
+end
+
 function Driver.main (specPath, driverFields, runSpec)
     local isDecoded, spec = readSpec (specPath)
-    local errors = isDecoded and getSpecErrors (spec, driverFields) or { "spec: invalid JSON: " .. Driver.oneLine (spec) }
-    local exitCode = exitCodeSpecError
+    local errors = isDecoded and Driver.getSpecErrors (spec, driverFields) or { "spec: invalid JSON: " .. Driver.oneLine (spec) }
+    local exitCode = Driver.exitCodeSpecError
 
     if #errors == 0 then
         runSpec (spec)
         exitCode = 0
     else
-        for errorIndex, message in ipairs (errors) do
-            Driver.report ("SPEC ERROR " .. message)
-        end
+        Driver.reportSpecErrors (errors)
     end
 
     return exitCode

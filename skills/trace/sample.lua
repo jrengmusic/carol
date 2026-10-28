@@ -2,6 +2,7 @@ local scriptDirectory = vim.fn.fnamemodify (arg[0], ":h")
 package.path = scriptDirectory .. "/?.lua;" .. package.path
 
 local Driver = require ("driver")
+local Epoch = require ("epoch")
 
 local adapterId = "whatdbg-sample"
 local pauseReason = "pause"
@@ -18,7 +19,7 @@ local threadSelectors = {
 
 local sampleFields = {
     threads = {
-        kind = "value",
+        type = "value",
         expects = "main or all",
         check = function (value) return threadSelectors[value] ~= nil end,
     },
@@ -45,17 +46,17 @@ local function onStopped (run, body, arrivedMs)
     run.stopMs = arrivedMs
 end
 
-local eventHandlers = vim.tbl_extend ("error", Driver.eventHandlers, { stopped = onStopped })
+local events = vim.tbl_extend ("error", Driver.events, { stopped = onStopped })
 
 local function pumpEvents (run, targetMs)
     while run.outcome == nil and run.stop == nil and getNowMs () < targetMs do
         local event = run.client:nextEvent (targetMs - getNowMs ())
 
         if event ~= nil then
-            local handler = eventHandlers[event.event]
+            local onEvent = events[event.event]
 
-            if handler ~= nil then
-                run.outcome = handler (run, event.body, event.arrivedMs)
+            if onEvent ~= nil then
+                run.outcome = onEvent (run, event.body, event.arrivedMs)
             end
         end
     end
@@ -243,8 +244,16 @@ local function runSample (spec)
 
     reportAggregates (run)
     report ("END outcome=" .. run.outcome .. " samples=" .. run.sampleCount)
-    Driver.endSession (client, run.outcome)
+    Driver.endSession (client, spec, run.outcome)
+
+    return run
 end
 
-assert (arg[1] ~= nil, "usage: nvim --headless -l sample.lua <spec-path>")
-os.exit (Driver.main (arg[1], sampleFields, runSample))
+assert (arg[1] ~= nil, "usage: nvim --headless -l sample.lua <spec-path.json | manifest-path.md>")
+
+local runsByExtension = {
+    json = function (path) return Driver.main (path, sampleFields, runSample) end,
+    md = function (path) return Epoch.main (path, sampleFields, runSample) end,
+}
+
+os.exit (runsByExtension[vim.fn.fnamemodify (arg[1], ":e")] (arg[1]))

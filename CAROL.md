@@ -210,9 +210,14 @@ status-quo preservation, and "clean up last" are forbidden patterns.
   `carol debt clear <id>` — SPRINT-LOG receipt first, then drain. JRENG law: every
   ledger entry enters the next sprint scope.
 - **Documents live at project root:** RFC.md (primarily ORACLE's output; any role may
-  write an RFC when ARCHITECT asks, and the RFC is then valid with the same standing),
-  SPEC.md (written once, updated rarely), PLAN.md (ephemeral, may live in context), ARCHITECTURE.md, CHANGELOG.md
-  (`/changelog`, replaced whole in each run, format in the `changelog-writer` skill). CAROL.md is the
+  write an RFC when ARCHITECT asks, and the RFC is then valid with the same standing;
+  format in the `rfc-writer` skill),
+  SPEC.md (written once, updated rarely), PLAN.md (ephemeral, may live in context;
+  ORACLE or COUNSELOR writes it, COUNSELOR alone executes it; format in the `plan-writer`
+  skill), ARCHITECTURE.md, CHANGELOG.md
+  (`/changelog`, replaced whole in each run, format in the `changelog-writer` skill),
+  handoff entries (`/handoff`, COUNSELOR to `carol/SPRINT-LOG.md`, MACHINIST to
+  `HANDOFF-<subject>.md`, format in the `handoff-writer` skill). CAROL.md is the
   behavior SSOT; carol/SPRINT-LOG.md is cross-session memory.
 
 ## Subagent Model

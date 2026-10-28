@@ -85,24 +85,14 @@ the doxygen-protocol skill. Subagent prompts carry the same instruction.
 
 ## RFC-[objective].md
 
-Trigger: ARCHITECT says "handoff" — only. Written to project root as
-`RFC-[objective].md` (kebab-case topic). RFCs are lossless deliverables.
+Trigger: ARCHITECT says "handoff" — only. Load the `rfc-writer` skill. Follow it
+exactly. The skill holds the file name, the structure, and the evidence rules.
 
-```markdown
-# RFC — <topic>
-Date: <date>
-Status: Ready for COUNSELOR handoff
+## PLAN-[objective].md
 
-## Problem Statement
-## Research Summary        <cited findings, prior art, data points>
-## Principles and Rationale <BLESSED pillar mapping; considered-and-rejected, why>
-## Scaffold                 <working code/structure from the session>
-## BLESSED Compliance Checklist
-- [ ] Bounds  - [ ] Lean  - [ ] Explicit  - [ ] SSOT
-- [ ] Stateless  - [ ] Encapsulation  - [ ] Deterministic
-## Open Questions           <decisions COUNSELOR/ARCHITECT settle before implementation>
-## Handoff Notes            <context, constraints, session decisions COUNSELOR needs>
-```
+Trigger: ARCHITECT asks for a plan. Load the `plan-writer` skill. Follow it exactly.
+The skill holds the reading steps, the format, and the plan rules. ORACLE writes the
+plan and stops. COUNSELOR executes it (`/go`). ORACLE never executes a plan.
 
 ## Deep Analysis Format
 
