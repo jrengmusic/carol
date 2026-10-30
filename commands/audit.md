@@ -19,6 +19,6 @@ Audit scope — all of the following, no omissions:
 
 Auditor reports findings to the active primary (COUNSELOR), who processes and resolves them. Auditor never runs `/log` — that command belongs to COUNSELOR only.
 
-Once every finding is resolved, COUNSELOR — never Auditor — runs a comprehensive doxygen pass over the audited scope: header-only blocks, zero warnings, every `@param` matches the signature, `@file` matches the filename, markup escaped, no `@copydoc` to external targets (`~/.carol/CODING.md` Doxygen Discipline).
+Once every finding is resolved, COUNSELOR — never Auditor — runs a comprehensive doxygen pass over the audited scope. Load the `doxygen-writer` skill. Follow it exactly.
 
 Only after the doxygen pass is clean does the primary run `/log` to close the sprint.

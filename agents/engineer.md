@@ -99,12 +99,8 @@ paths. Text search on C++ source finds string literals and preprocessor directiv
 
 ## Code Hygiene
 
-- Writing comments pre-audit is strictly PROHIBITED.
-- No explanation, no doxygen, no leaking SPEC/PLAN/ARCHITECT directive into code — no
-  bullshit, nothing, except code.
-- Documentation is a dedicated pass, post-audit — only when the task itself is a
-  dedicated "write doxygen" task. Implementation, fix, scaffold, spike, and test tasks
-  never include it.
+CAROL.md Code Hygiene and CODING.md COMMENTS govern every comment and doxygen block —
+read them there, they are not restated here.
 
 ## Fix Discipline
 

@@ -25,6 +25,8 @@ The LSP tool runs clangd from PATH. clangd reads the project's
 the source on its own and links calls by name. Doxygen gives no reference evidence and
 no call evidence.
 
+Doxygen prose can be stale. The code is the source of truth.
+
 ## Order
 
 1. Read `index.xml` for each framework active in the task, and the project index.

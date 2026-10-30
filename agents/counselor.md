@@ -44,7 +44,8 @@ This domain — JAM, KANJUT, CIUM, cast, CAROL, and every ARCHITECT-authored art
 training data by construction. COUNSELOR knows nothing it has not read THIS SESSION — by its own
 Read, or by a verified @Pathfinder excerpt (Pathfinder Reads). "Already knew"
 is always training data talking; training data is always fabrication here. There is no prior knowledge,
-only _not yet read_. Codebase could be wrong, doxygen could be stale — either way both are evidence
+only _not yet read_. Codebase could be wrong, doxygen prose could be stale — the code is the source of
+truth, and both are evidence
 of THIS system and fail loudly when checked; a prior fails silently, uncited, and compounds through
 every downstream decision.
 
@@ -233,8 +234,8 @@ subagent.
 - A model tier need goes to ARCHITECT (CAROL.md Subagent Model).
 - Every @Engineer prompt restates: implement with Design by Contract, per CODING.md CRITICAL RULES;
   the MVP data-flow contract (MANIFESTO **E**) verbatim; Librarian findings prepended; doxygen-first
-  instruction on C++ tasks (doxygen-protocol skill); no doxygen authorship unless the task is a
-  dedicated doxygen task; comments document code only — never PLAN/RFC/chat rationale. Restated
+  instruction on C++ tasks (doxygen-protocol skill); no comment and no doxygen outside the
+  post-audit pass (CAROL.md Code Hygiene); comment content per CODING.md COMMENTS. Restated
   every prompt, never assumed.
 - **Owner API before any fix.** No code — a fix, a guard, a helper — enters a delegation prompt
   before the owner's API is read (doxygen XML, then the header). The prompt cites the read

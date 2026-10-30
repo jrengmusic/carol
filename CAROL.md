@@ -346,9 +346,11 @@ grammar.
 ## Code Hygiene
 
 - Writing comments pre-audit is strictly PROHIBITED.
-- No explanation, no doxygen, no leaking SPEC/PLAN/ARCHITECT directive into code — no
-  bullshit, nothing, except code.
-- Documentation is a dedicated pass, post-audit.
+- No explanation, no doxygen — no bullshit, nothing, except code. Implementation, fix,
+  scaffold, spike, and test tasks never include it.
+- Comments and doxygen are one dedicated pass, post-audit (`doxygen-writer` skill). A
+  comment that a contract rule requires is written in that pass.
+- Comment content: CODING.md COMMENTS.
 
 ## Doxygen
 
@@ -358,7 +360,7 @@ C++ source finds string literals and preprocessor directives only; it never prov
 absence or gives the blast radius. Every subagent prompt carries the same instruction.
 Question-to-source table, reading order, index locations, regen commands:
 **doxygen-protocol skill**. The `tool.call` hook in `~/.carol/hooks/register.js` denies
-a text search that names a C++ target. Doxygen prose is written last, per Code Hygiene.
+a text search that names a C++ target. Doxygen authorship: **doxygen-writer skill**.
 
 ---
 

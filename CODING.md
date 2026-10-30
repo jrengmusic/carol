@@ -122,7 +122,13 @@ auto t = AffineTransform::translation (x, y)
 
 **Prefer `//` over `/* */`** for easier block commenting during debugging.
 
-**Content boundary:** comments document the code's implementation only — never PLAN.md, RFC.md, ARCHITECT's direction, sprint/task/chat discussion, or agent names. A comment must stand alone as a description of what the code does and why, structurally.
+**Content:** the code is the source of truth. A comment can be wrong or stale.
+
+- Write code that a reader understands without comments, per MANIFESTO.md, CODING.md, and NAMES.md.
+- A comment gives the why: why a decision was made, why an algorithm was used, why a variable needs to exist. It never repeats what the code does, or how.
+- A comment never excuses a contract violation. The contract is not negotiable. The rationale follows from contract adherence.
+- A comment stands alone. It never names PLAN.md, RFC.md, SPEC.md, ARCHITECT's direction or rulings, sprint, task, or chat discussion, citations from a session, or agent names.
+- Timing: CAROL.md Code Hygiene. Doxygen: `doxygen-writer` skill.
 
 **Alignment:**
 ```cpp
@@ -1076,32 +1082,7 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 
 ## DOXYGEN DISCIPLINE (MANDATORY)
 
-### Timing
-Doxygen blocks are authored LAST — after implementation is tested and audited, immediately before sprint log. Not during implementation. Not incrementally per-edit.
-
-### Zero-warning policy
-Doxygen must produce zero warnings. Warnings are treated as build failures.
-
-### Single source of truth
-Document in the **header only**. Implementation files (.cpp/.mm) must NOT
-have doxygen blocks for member functions — the header is the canonical doc.
-
-### Every @param must match the signature
-If a parameter is renamed, the @param MUST be updated in the same edit.
-No stale parameter names. No undocumented parameters.
-
-### No @file mismatches
-`@file` must match the actual filename. No copy-paste leftovers.
-
-### Escape markup in prose
-HTML-like tokens in doxygen prose (`<path>`, `<uuid>`, `\x1b`) must be
-escaped: `\<path\>`, `\\x1b`. Backtick fences inside `/** */` blocks
-must use `@code` / `@endcode`, not triple backticks.
-
-### No @copydoc to external targets
-Do not use `@copydoc`, `@copybrief`, or `@copydetails` referencing
-JUCE or other external library symbols — they are not in the doxygen
-tag scope. Write inline docs instead.
+The `doxygen-writer` skill is the only source of the doxygen rules.
 
 ---
 
@@ -1141,7 +1122,7 @@ Diagnostic instrumentation is ephemeral — all log statements added during inve
 ✓ **ALWAYS use `not`, `and`, `or`** alternative tokens
 ✓ **NO anonymous namespaces** — use `static` linkage instead
 ✓ **NO `namespace detail`** — use class `private:`, static file-local symbols, or PIMPL
-✓ **Doxygen:** zero warnings, header-only docs, @param matches signature, escaped markup, no @copydoc to external targets
+✓ **Doxygen:** `doxygen-writer` skill
 ✓ **No underscores in variable names** — including constructor parameter names in member initializer lists
 ✓ **Structured bindings for pair/tuple results** — chain through dereferences, all names descriptive, `_` and `it` forbidden
 ✓ **No manual management of RAII objects in destructors** — `.reset()`, `= nullptr`, `.clear()`, `.close()`, or any equivalent
