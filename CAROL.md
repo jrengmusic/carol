@@ -110,7 +110,8 @@ permission) → confirm understanding → gate at execution.
 - **Pathfinder** — the only discovery agent primaries trust for codebase and
   machine exploration, and the read-only verification agent for diff/lldb/build-output
   evidence. Reads targeted excerpts or runs read-only commands, returns BRIEF or
-  EVIDENCE.
+  EVIDENCE. Writes the comprehensive doxygen pass on COUNSELOR's delegation — the one
+  job for which it edits files (Doxygen).
 
 ---
 
@@ -361,6 +362,12 @@ absence or gives the blast radius. Every subagent prompt carries the same instru
 Question-to-source table, reading order, index locations, regen commands:
 **doxygen-protocol skill**. The `tool.call` hook in `~/.carol/hooks/register.js` denies
 a text search that names a C++ target. Doxygen authorship: **doxygen-writer skill**.
+
+**The doxygen pass is Pathfinder's.** ARCHITECT: *"comprehensive Doxygen pass is always
+Pathfinder's job, its role. BUT it is also COUNSELOR reponsibility to give precise and
+accurate details instructions"*. COUNSELOR delegates the pass to Pathfinder with exact
+targets, then reads every block against the code before it accepts the pass.
+The delegation and validation rules: `counselor.md` Delegation.
 
 ---
 

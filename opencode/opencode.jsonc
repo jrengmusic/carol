@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // The ~/.config/claude/CLAUDE.md loader that `carol install` writes, then the project CLAUDE.md files, then the harness map.
+  "instructions": [
+    "~/.carol/CAROL.md",
+    "~/.carol/ARCHITECT.md",
+    "~/.carol/MANIFESTO.md",
+    "~/.carol/NAMES.md",
+    "~/.carol/CODING.md",
+    "CLAUDE.md",
+    "~/.carol/opencode/HARNESS.md"
+  ],
+  "skills": ["~/.carol/skills"],
+  // The carol plugin fills each agent from ~/.carol/agents/<id>.md. A model here overrides that file for OpenCode only.
+  "agents": {
+    "counselor": { "mode": "primary", "model": "anthropic/claude-opus-5-5#high" },
+    "machinist": { "mode": "primary", "model": "anthropic/claude-sonnet-5-5#medium" },
+    "oracle": { "mode": "all" },
+    "engineer": { "mode": "subagent", "model": "anthropic/claude-sonnet-5-5#medium" },
+    "pathfinder": { "mode": "subagent", "model": "anthropic/claude-haiku-5-5#medium" },
+    "librarian": { "mode": "subagent" },
+    "auditor": { "mode": "subagent" }
+  },
+  "experimental": {
+    "todo": true
+  }
+}

@@ -37,3 +37,6 @@ providers/generated/
 
 
 .carol-role
+
+# Secrets
+ant.k

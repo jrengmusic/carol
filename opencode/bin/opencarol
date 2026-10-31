@@ -1,0 +1,49 @@
+#!/bin/bash
+# opencarol - CAROL on OpenCode
+# Usage: opencarol [counselor|oracle|machinist] [opencode flags...]
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+OPENCODE_ROOT="$( cd -P "$( dirname "$SOURCE" )/.." >/dev/null 2>&1 && pwd )"
+CAROL_ROOT="$( cd -P "$OPENCODE_ROOT/.." >/dev/null 2>&1 && pwd )"
+CLI_CONFIG="$OPENCODE_ROOT/cli.json"
+END_CONFIG="$HOME/.config/end/end.lua"
+
+role="counselor"
+case "${1:-}" in
+    counselor|counsel)
+        shift
+        ;;
+    oracle)
+        role="oracle"
+        shift
+        ;;
+    machinist|machine)
+        role="machinist"
+        shift
+        ;;
+esac
+
+# Project roles need the project scaffold, as `carol` does it (bin/carol cmd_run).
+if [ "$role" != "machinist" ] && [ ! -d carol ] && [ ! -d .carol ]; then
+    "$CAROL_ROOT/bin/carol" init --no-synth
+fi
+
+# END answers no OSC 4/10/11 palette query, so the `system` theme cannot read it.
+# The `end` theme is generated from END's own colours on each launch instead.
+if [ -f "$END_CONFIG" ]; then
+    node "$OPENCODE_ROOT/theme/end.js"
+fi
+
+# OPENCODE_CONFIG_DIR replaces the global config dir, cli.json included.
+if [ ! -e "$CLI_CONFIG" ]; then
+    printf '{\n  "$schema": "https://opencode.ai/v2/cli.json",\n  "theme": {\n    "name": "end",\n    "mode": "dark"\n  }\n}\n' > "$CLI_CONFIG"
+fi
+
+export OPENCODE_CONFIG_DIR="$OPENCODE_ROOT"
+export OPENCODE_CONFIG_CONTENT="{\"default_agent\":\"$role\"}"
+exec opencode --standalone "$@"

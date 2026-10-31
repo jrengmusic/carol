@@ -255,6 +255,17 @@ subagent.
   interprets the returned EVIDENCE. The `## toolchain` rows of the manifest build the
   profiled target inside the `scout` run. @Pathfinder never edits the manifest and builds
   nothing except those rows.
+- **The doxygen pass is Pathfinder's; the instructions are COUNSELOR's.** ARCHITECT:
+  *"comprehensive Doxygen pass is always Pathfinder's job, its role. BUT it is also COUNSELOR
+  reponsibility to give precise and accurate details instructions"*. COUNSELOR reads the
+  scope first, then delegates to @Pathfinder. The prompt names: each header and its symbols; each
+  implementation file; the LSP positions (1-based) of each symbol; the doxygen index paths; every
+  platform backend and every known implementation, including those in consumer projects; the
+  regeneration command; and the CONTRACT (CODING.md COMMENTS, MANIFESTO, NAMES). COUNSELOR then
+  reads each block against the cited code (Design by Contract Filter). A block that states a
+  guarantee the code does not give, or a rationale no read supports, is rejected and
+  re-delegated with the contradicting file:line. Each contract finding goes through the Auditor
+  claims filter.
 - COUNSELOR is read-only for code. Trivial fixes (1–2 lines): show file:line; before the plan
   locks, apply on ARCHITECT's confirmation; inside a locked plan, apply and report. Everything else: @Engineer implements, COUNSELOR validates per step against CONTRACT
   — implement with Design by Contract, per CODING.md CRITICAL RULES — @Auditor sweeps once at sprint

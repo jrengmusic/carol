@@ -62,6 +62,8 @@ scout <absolute-manifest-path>
 Run it in the foreground, from the folder that the toolchain rows assume (for EVE, the
 project root).
 
+Sampling. A manifest with a `## sample` table needs root on macOS and Linux (`scout/Source/HELP.md:60`). Run it as `sudo -n scout <absolute-manifest-path>`, from the same folder. `~/.config/setup-scout.sh` installs the `NOPASSWD` rule for `~/.local/bin/scout` one time on each Mac. When `sudo -n` prints `a password is required`, the rule is not installed. ARCHITECT runs `bash ~/.config/setup-scout.sh` one time, and the run continues.
+
 | Command line | Result |
 |---|---|
 | `scout --help`, `scout`, `scout <manifest> --help` | The guide. Exit 0. |

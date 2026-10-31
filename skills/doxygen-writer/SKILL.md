@@ -1,6 +1,6 @@
 ---
 name: doxygen-writer
-description: Writes doxygen blocks in C++ headers, in the dedicated post-audit pass only. Load it when /audit reaches the doxygen pass, or when ARCHITECT asks for doxygen after an audit. Gives the source rule, the tag rules, and the mechanics so no agent reads old doxygen for style.
+description: Writes doxygen blocks in C++ headers, in the dedicated post-audit pass only. Pathfinder loads it when COUNSELOR delegates the doxygen pass (/audit, or ARCHITECT's request after an audit). Gives the source rule, the tag rules, and the mechanics so no agent reads old doxygen for style.
 ---
 
 # Doxygen Writer
@@ -12,6 +12,8 @@ This skill is the only source of the doxygen rules.
 
 ## Contract
 
+- Writer: Pathfinder, on COUNSELOR's delegation. COUNSELOR gives the exact targets and
+  validates every block against the code (CAROL.md Doxygen, `counselor.md` Delegation).
 - Timing: CAROL.md Code Hygiene.
 - Content: CODING.md COMMENTS. The code is the source of truth. A block gives the why.
 - A block never excuses a contract violation. A contract violation found in this pass

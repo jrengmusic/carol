@@ -120,9 +120,9 @@ export function register(on) {
       await update($, isGitInstructed, () => GIT_INSTRUCTION_PATTERN.test(e.text))
     }
     await update($, promptCount, (count) => count + 1)
-    const context = [...(e.context ?? []), READ_DIRECTIVE]
+    const context = [...(e.context ?? [])]
     if ((await read($, promptCount)) % NUDGE_INTERVAL === 0) {
-      context.push((await getRole($)) === MACHINIST_ROLE ? NUDGE_MACHINIST : NUDGE_DEFAULT)
+      context.push(READ_DIRECTIVE, (await getRole($)) === MACHINIST_ROLE ? NUDGE_MACHINIST : NUDGE_DEFAULT)
     }
     return next({ ...e, context })
   })
