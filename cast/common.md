@@ -3,11 +3,11 @@
 | name           |
 | -------------- |
 | `Bash(*)`      |
-| `Read(*)`      |
-| `Write(*)`     |
-| `Edit(*)`      |
-| `Glob(*)`      |
-| `Grep(*)`      |
+| `Read`         |
+| `Write`        |
+| `Edit`         |
+| `Glob`         |
+| `Grep`         |
 | `WebFetch(*)`  |
 | `WebSearch(*)` |
 

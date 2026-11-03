@@ -6,11 +6,11 @@
 
 ## member
 
-| key                                 | value  |
-| ----------------------------------- | ------ |
-| `inputNeededNotifEnabled`           | true   |
-| `agentPushNotifEnabled`             | true   |
-| `skipDangerousModePermissionPrompt` | true   |
+| key                                 | value |
+| ----------------------------------- | ----- |
+| `inputNeededNotifEnabled`           | true  |
+| `agentPushNotifEnabled`             | true  |
+| `skipDangerousModePermissionPrompt` | true  |
 
 ## model setting
 
