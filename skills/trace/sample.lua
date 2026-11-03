@@ -2,7 +2,6 @@ local scriptDirectory = vim.fn.fnamemodify (arg[0], ":h")
 package.path = scriptDirectory .. "/?.lua;" .. package.path
 
 local Driver = require ("driver")
-local Epoch = require ("epoch")
 
 local adapterId = "whatdbg-sample"
 local pauseReason = "pause"
@@ -253,7 +252,7 @@ assert (arg[1] ~= nil, "usage: nvim --headless -l sample.lua <spec-path.json | m
 
 local runsByExtension = {
     json = function (path) return Driver.main (path, sampleFields, runSample) end,
-    md = function (path) return Epoch.main (path, sampleFields, runSample) end,
+    md = function (path) return require ("epoch").main (path, sampleFields, runSample) end,
 }
 
 os.exit (runsByExtension[vim.fn.fnamemodify (arg[1], ":e")] (arg[1]))

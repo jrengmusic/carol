@@ -289,6 +289,22 @@ use these build folders and CMake options:
 | `live.md` | `Builds/Profile` | `-DCAST_PROFILE=ON` |
 | `replay.md` | `Builds/Replay` | `-DCAST_PROFILE=ON -DCAST_REPLAY=ON` |
 
+A profile or replay build (`-DCAST_PROFILE=ON`) never touches the product build. The cast
+templates enforce this:
+
+| Product build | Profile build | Source |
+|---|---|---|
+| bundle ID `<bundleIdentifier>` | bundle ID `<bundleIdentifier>.scout` | `eve/cast/cmake.cast:126-130`, `end/cast/cmake.cast:91-95` |
+| installs each plugin format | installs nothing | `eve/cast/cmake.cast:446`, `:476` |
+| archive `<product> v<version> <platform>.zip` | archive `<product> v<version> <platform> scout.zip` | `eve/cast/cmake.cast:504-508` |
+| a host embeds only product archives | a host embeds only `scout` archives | `end/cast/cmake.cast:305-309` |
+| the installer chain runs when signed | no installer chain | `end/cast/cmake.cast:372`, `:385` |
+
+scout keeps each process of the run inside the run. scout leads its own process group. On
+SIGTERM, SIGINT and SIGHUP it kills the group (`scout/Source/Benchmark.cpp:7-38`). Under
+`sudo -n scout`, each child runs as the invoking user
+(`jam/jam_subprocess/subprocess/native/jam_ChildProcess_posix.cpp:28-63`).
+
 scout is built once, when scout itself changes. A change in the profiled project rebuilds
 that project only.
 
@@ -335,3 +351,5 @@ This work is COUNSELOR's. It is not part of a Pathfinder run.
   default. This is not verified.
 - `ProfileReport` wraps the `samples` column at 40 characters. In each report one row's
   cell stays unwrapped. The round trip is still exact.
+- Under `sudo -n scout`, scout writes the report as root (`scout/Source/Processor.cpp:80`).
+  The report file is owned by root.

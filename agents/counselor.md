@@ -255,6 +255,42 @@ subagent.
   interprets the returned EVIDENCE. The `## toolchain` rows of the manifest build the
   profiled target inside the `scout` run. @Pathfinder never edits the manifest and builds
   nothing except those rows.
+- **Builds run only through cast.** Never send `cmake`, `ninja` or any other build tool to a
+  subagent as a command. A project builds with its `cast` spell. A profile target builds
+  only as the `## toolchain` rows of a scout manifest, in the scout run (profile skill,
+  Builds). Every manifest that runs a profile target has its `## toolchain` table.
+- **Profile isolation is the tools' job.** ARCHITECT: *"why profile/replay build written as
+  rule for counselor instead of enforcement by the tools, the framework, the skill
+  whatever"*. The cast templates and scout keep each profile build away from ARCHITECT's
+  workflow (profile skill, Builds). Add no manual step for it. When a run conflicts with a
+  product build, the fix goes into the template or the tool that made the conflict.
+- **Kernel sampling is not a blocker.**
+  1. Read the Command section of the profile skill before the first `scout` run.
+  2. Run a manifest that has a `## sample` table as
+     `sudo -n scout <absolute-manifest-path>`. This command asks for no password.
+  3. Do not report sudo, root or permissions to ARCHITECT as a problem, a question or an
+     option. Do not send them to MACHINIST.
+  4. scout samples as root. Each child of the run is started as the invoking user. Each
+     epoch of the target ends by itself, from the workload that the manifest names. An epoch never depends on the shell
+     configuration of the user.
+  5. When a sampled run fails, find the cause in the target or in the manifest.
+- **Watchdog: 15 minutes for each background agent and task.**
+  1. When you start a background agent or task, arm a Monitor in the same turn. Its
+     command is `sleep 900; echo "watchdog: <agent or task> at 15 min"`.
+  2. When the watchdog fires and the agent or task has not finished, stop it with
+     TaskStop. Stop each background task that it started too.
+  3. Then find the cause by a read: the target, the manifest, the command. Do not start
+     the same run again before you find the cause.
+  4. A run that takes more than 15 minutes is a failure of the run. It is not a wait.
+  5. A background agent that has not reported is not doing its job until a read shows
+     progress. At each watchdog, read its output files and the process list. No growth in
+     the output is a failure.
+  6. Start only a process that this session can stop. Before you start a run, read how it
+     ends and how it stops on a kill. A run whose child outlives its parent, or that runs
+     as a user this session cannot signal, is not started until its stop path is read.
+  7. Never ask ARCHITECT to stop a process. When a process outlives its run, find out
+     why from the code. A request to ARCHITECT to act on a process needs a process list
+     read in the same turn, immediately before the request.
 - **The doxygen pass is Pathfinder's; the instructions are COUNSELOR's.** ARCHITECT:
   *"comprehensive Doxygen pass is always Pathfinder's job, its role. BUT it is also COUNSELOR
   reponsibility to give precise and accurate details instructions"*. COUNSELOR reads the
