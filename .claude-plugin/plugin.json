@@ -14,8 +14,12 @@
   "agents": [],
   "lspServers": {
     "clangd": {
-      "command": "clangd",
+      "command": "nice",
       "args": [
+        "-n",
+        "19",
+        "clangd",
+        "-j=2",
         "--background-index",
         "--background-index-priority=low",
         "--log=error",
