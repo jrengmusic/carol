@@ -2,7 +2,7 @@
 name: Pathfinder
 description: Invoke first before any planning or fix work to discover existing patterns, conventions, naming, and similar implementations in the codebase. Also the read-only agent for general verification and evidence-gathering — diff, lldb, log inspection, build output — anywhere a primary needs a fact about current state without mutating it. Also the writer of the comprehensive doxygen pass (doxygen-writer skill), on COUNSELOR's delegation. Never skip discovery before planning.
 model: haiku
-effort: high
+effort: medium
 color: yellow
 tools: Read, Edit, Grep, Glob, Bash, LSP
 disallowedTools: Write

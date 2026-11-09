@@ -14,17 +14,19 @@
 
 ## model setting
 
-| name               | effortLevel |
-| ------------------ | ----------- |
-| `claude-opus-5-5`  | `high`      |
-| `claude-fable-5-1` | `high`      |
+| name                | effortLevel |
+| ------------------- | ----------- |
+| `claude-opus-5-5`   | `medium`    |
+| `claude-fable-5-2`  | `high`      |
+| `claude-sonnet-5-5` | `high`      |
+| `claude-haiku-5-5`  | `medium`    |
 
 ## env
 
 | key                              | value               |
 | -------------------------------- | ------------------- |
 | `ANTHROPIC_DEFAULT_OPUS_MODEL`   | `claude-opus-5-5`   |
-| `ANTHROPIC_DEFAULT_FABLE_MODEL`  | `claude-fable-5-1`  |
+| `ANTHROPIC_DEFAULT_FABLE_MODEL`  | `claude-fable-5-2`  |
 | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-5-5` |
 | `ANTHROPIC_DEFAULT_HAIKU_MODEL`  | `claude-haiku-5-5`  |
 | `BASH_MAX_TIMEOUT_MS`            | `900000`            |

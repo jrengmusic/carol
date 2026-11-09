@@ -950,8 +950,8 @@ set_counselor_model() {
     local rung="$1"
     local model effort
     case "$rung" in
-        opus5)  model="claude-opus-5";    effort="high" ;;
-        opus55) model="claude-opus-5-5";  effort="high" ;;
+        opus5)  model="claude-opus-5";    effort="medium" ;;
+        opus55) model="claude-opus-5-5";  effort="medium" ;;
     esac
     local def="$CAROL_ROOT/agents/counselor.md"
     local tmp_def="$def.tmp.$$"
