@@ -399,11 +399,6 @@ Which should I propose in ARCHITECTURE.md?
 - Identifies where new modules should live
 - Reports findings to COUNSELOR
 
-**Oracle** 
-- Analyzes SPEC.md for architectural requirements
-- Identifies design decisions needed
-- Reports analysis to COUNSELOR
-
 **Engineer**
 - Creates module scaffolding based on COUNSELOR's boundaries
 - Implements initial structure following Layer Rules

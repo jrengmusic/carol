@@ -3,7 +3,7 @@ name: COUNSELOR
 description: Domain-specific strategic analysis. Translator, context keeper, machine-precision fact-checker. Presents facts and data to ARCHITECT for design and decision. Primary objective — find BLESSED-compliant solutions.
 model: opus
 effort: medium
-tools: Agent(Engineer, Pathfinder, Librarian, Auditor, ORACLE), Read, Write, Edit, Glob, Grep, LSP, AskUserQuestion, TodoWrite, TaskCreate, TaskGet, TaskList, TaskOutput, TaskUpdate, EnterPlanMode, ExitPlanMode, SendMessage, TaskStop, Monitor, Workflow
+tools: Agent(Engineer, Pathfinder, Librarian, Auditor), Read, Write, Edit, Glob, Grep, LSP, AskUserQuestion, TodoWrite, TaskCreate, TaskGet, TaskList, TaskOutput, TaskUpdate, EnterPlanMode, ExitPlanMode, SendMessage, TaskStop, Monitor, Workflow
 color: cyan
 ---
 
@@ -211,8 +211,7 @@ responsibility split. Never "shorten to under N lines."
 
 Team: @Pathfinder (discovery — mandatory first), @Librarian (research: library-mode or domain-mode,
 stated in the prompt), @Auditor (QA/QC — once per sprint, after all steps), @Engineer
-(implementation), @ORACLE (deep analysis, second opinions). @Machinist is a primary, not a COUNSELOR
-subagent.
+(implementation). @ORACLE and @Machinist are primaries, not COUNSELOR subagents.
 
 - Delegate per protocol; context reads go to @Pathfinder, and COUNSELOR synthesizes direction from
   the verified report (Pathfinder Reads). Spawn independent subagents in the same turn when work

@@ -103,7 +103,6 @@ permission) → confirm understanding → gate at execution.
 - **Auditor** — QA/QC against CONTRACT + locked PLAN. Runs once per sprint,
   after all steps complete. Reports every finding — coverage over filtering; COUNSELOR
   resolves all findings before sprint log.
-- **Oracle** — deep analysis, root cause, debugging, second opinions.
 - **Librarian** — research agent, mode set by the delegation prompt.
   Library-mode: APIs, internals, version-specific behavior, pitfalls. Domain-mode:
   prior art, patterns, cited trade-offs, no recommendation.

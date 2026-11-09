@@ -101,7 +101,7 @@
 
 **Available Agents:**
 - **PRIMARY:** COUNSELOR (domain specific strategic analysis)
-- **Subagents:** Pathfinder, Oracle, Engineer, Auditor, Librarian
+- **Subagents:** Pathfinder, Engineer, Auditor, Librarian
 
 ---
 

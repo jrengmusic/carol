@@ -13,9 +13,9 @@
   "skills": ["~/.carol/skills"],
   // The carol plugin fills each agent from ~/.carol/agents/<id>.md. A model here overrides that file for OpenCode only.
   "agents": {
-    "counselor": { "mode": "primary", "model": "anthropic/claude-opus-5-5#high" },
+    "counselor": { "mode": "primary", "model": "anthropic/claude-opus-5-5#medium" },
     "machinist": { "mode": "primary", "model": "anthropic/claude-sonnet-5-5#medium" },
-    "oracle": { "mode": "all" },
+    "oracle": { "mode": "primary" },
     "engineer": { "mode": "subagent", "model": "anthropic/claude-sonnet-5-5#medium" },
     "pathfinder": { "mode": "subagent", "model": "anthropic/claude-haiku-5-5#medium" },
     "librarian": { "mode": "subagent" },

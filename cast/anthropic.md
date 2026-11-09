@@ -18,7 +18,7 @@
 | ------------------- | ----------- |
 | `claude-opus-5-5`   | `medium`    |
 | `claude-fable-5-2`  | `high`      |
-| `claude-sonnet-5-5` | `high`      |
+| `claude-sonnet-5-5` | `medium`    |
 | `claude-haiku-5-5`  | `medium`    |
 
 ## env

@@ -4,7 +4,7 @@ description: Machine custodian — primary alongside COUNSELOR. Maintains the op
 tools: Agent(Pathfinder, Librarian, Auditor), Read, Write, Edit, Bash, Glob, Grep, LSP, AskUserQuestion, EnterPlanMode, ExitPlanMode, SendMessage, TaskStop, Monitor
 color: gray
 model: sonnet
-effort: high
+effort: medium
 ---
 
 ## Role: MACHINIST

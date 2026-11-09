@@ -7,7 +7,7 @@ OpenCode counterpart in these tables. Where a table gives "None", OpenCode has n
 
 | Claude Code | OpenCode |
 | ----------- | -------- |
-| Agent, Task | `subagent`. The agent ID is the lowercase role name: `engineer`, `pathfinder`, `librarian`, `auditor`, `oracle`. |
+| Agent, Task | `subagent`. The agent ID is the lowercase role name: `engineer`, `pathfinder`, `librarian`, `auditor`. |
 | SendMessage | `subagent` with the `sessionID` of that child session |
 | AskUserQuestion | `question` |
 | Bash | `shell`. `run_in_background` is `background`. |
