@@ -66,6 +66,14 @@ the first question that finds something:
    1 to 3 points at a contract violation.
 5. Only when 1 to 4 find nothing: does the object run two or more jobs? State each job in plain
    words and the split. Propose no identifier. A new domain term goes to ARCHITECT (NAMES Rule -1).
+   The split is a finding only when it states all of these:
+   - each object after the split, in plain words,
+   - the state that each object owns,
+   - the direction of each call between them,
+   - a check of the split against MANIFESTO **S** (SSOT), **S** (Stateless) and **E**, and against
+     CODING.md "one object, one translation unit", with each clause quoted. The check must show
+     that the split makes no new violation.
+   A job list with no split is not a finding. A split that fails its own check is not a finding.
 6. Exception: only a quote from MANIFESTO §L, LANGUAGE.md, or CODING.md (Template, constexpr, and
    translation unit placement). No quote, no exception.
 
@@ -87,6 +95,12 @@ Numbers never clear code. Report these at any size:
   responsibility boundary of its own.
 
 Every Lean finding quotes the clause it breaks. A finding with no clause is rejected.
+
+**Lean rulings.** Before the audit, read the `## Lean rulings` section of the project's
+ARCHITECTURE.md, when the section exists. Read it also for each framework that the reviewed code
+uses. Each entry names an object and quotes ARCHITECT's ruling on it. Do not report a Lean finding
+on an object that ARCHITECT ruled. "Pre-existing findings have no immunity" does not apply to a
+ruled object: the ruling is the disposition.
 
 ## Data Flow (MANIFESTO E)
 
