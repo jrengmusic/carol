@@ -14,17 +14,8 @@
   "agents": [],
   "lspServers": {
     "clangd": {
-      "command": "nice",
-      "args": [
-        "-n",
-        "19",
-        "clangd",
-        "-j=2",
-        "--background-index",
-        "--background-index-priority=low",
-        "--log=error",
-        "--query-driver=/usr/bin/c++,/usr/bin/clang++,/ucrt64/bin/g++"
-      ],
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/carol-clangd.js", "client"],
       "extensionToLanguage": {
         ".c": "c",
         ".h": "cpp",
