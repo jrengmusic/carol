@@ -166,15 +166,11 @@ name such as `integer` fails validation.
 
 ## toolchain
 
-+---------+----------------------------------------------------------------------------------------------+
-| command | flag                                                                                         |
-+=========+==============================================================================================+
-| cast    | ../jam/cast/spell.md                                                                         |
-+---------+----------------------------------------------------------------------------------------------+
-| cmake   | -S . -B Builds/Profile -G Ninja -DCMAKE_BUILD_TYPE=Release -DCAST_SIGN=OFF -DCAST_PROFILE=ON |
-+---------+----------------------------------------------------------------------------------------------+
-| ninja   | -C Builds/Profile                                                                            |
-+---------+----------------------------------------------------------------------------------------------+
++---------+-------------------------------------------+
+| command | flag                                      |
++=========+===========================================+
+| cast    | ../cast/spell.md --standalone-profile     |
++---------+-------------------------------------------+
 ```
 
 Samples: `~/Documents/Poems/dev/eve/benchmark/live.md` (live epoch, 100M lines) and
@@ -280,9 +276,24 @@ All commands run in the project directory.
 | scout | `cast cast/spell.md --no-sign` (Release) | `scout/project-info.md` `## toolchain` |
 | scout, quick check | `cast cast/spell.md --debug` | same |
 
-The profiled target builds inside the scout run, from the `## toolchain` table of its
-manifest. cast and `project-info.md` carry no profile or replay row. The EVE manifests
-use these build folders and CMake options:
+The profiled target builds inside the scout run, through cast. The `## toolchain` table of
+the scout manifest has one row: `cast | ../cast/spell.md --<profile lane>`. Never write a
+`cmake` or `ninja` row in a scout manifest, and never edit `Source/generated/*` by hand:
+only the project spell regenerates them from `cast/*.md`.
+
+The profile lanes live in `profile-info.md` at the project root, beside `project-info.md`.
+The project's `cast/spell.md` index declares it (`@profile-info`), and cast reads its
+`## toolchain` rows (cast HELP, toolchain: "CAST looks it up across each file that the
+manifest's index declares"). `project-info.md` carries no profile row and is not edited
+for profiling.
+
+| Project | Lane | Build |
+|---|---|---|
+| END | `--profile` | runs `pluginBundle.cmake` with `CAST_LANE=profile`, which runs EVE's `--vst-profile` lane, then END in `Builds/Profile` |
+| EVE | `--vst-profile` | the VST plugin in `Builds/Profile` |
+| EVE | `--standalone-profile` | `EVE_Standalone` in `Builds/Profile` |
+
+The EVE manifests use these build folders and CMake options:
 
 | Manifest | Build folder | Extra CMake options |
 |---|---|---|
