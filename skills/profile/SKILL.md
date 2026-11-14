@@ -19,18 +19,18 @@ Four lanes answer four questions. Each lane has its own tool.
 
 | Lane | Tool | What is rebuilt | Question it answers | What it may not claim |
 |---|---|---|---|---|
-| Where | whatdbg `sample`, attach by pid (trace skill) | the target (names resolve without debug symbols) | Which functions are hot on each thread? | Throughput or wall time. The driver pauses the process. |
+| Where | scout, through the manifest's `## sample` table (kernel and user stacks). Outside scout: whatdbg `sample.lua`, attach by pid (trace skill) | the target (names resolve without debug symbols) | Which functions are hot on each process and thread? | Throughput or wall time. The sampler adds load; the whatdbg driver pauses the process. |
 | How long | zones compiled into the target's profile build | the target only | How long does each stage take, per call? | Kernel time of a child process. |
 | Statistics and gate | scout | the target, through the manifest's `## toolchain` table | Median, spread, baseline, p-value. | Anything that no lane measured. |
-| Verdict | scout `user` and `system` rows, or `time seq` | nothing | The number against endless. | Where the time goes. |
+| Verdict | `time seq 1 N` inside the terminal, timed by the zsh `time` builtin; ARCHITECT measures every run (`eve/comparison.md:3`, `:7-9`) | nothing | The number against endless. | Where the time goes. |
 
 Rules:
 
-1. One measurement at a time on the machine. A Where-lane epoch is its own scout run.
+1. One measurement at a time on the machine. A sampling run is its own scout run.
    It never runs during a How-long or a Verdict run. A parallel benchmark disturbs the other (ghostty
    `src/benchmark/AGENTS.md:29-30`).
 2. A performance verdict needs a Release build. The report states the build type in its
-   `RUN` table.
+   `## run` table.
 3. A finding names its lane. A "where" claim cites a Where-lane tally. A "how long" claim
    cites a report row. A "faster than endless" claim cites a Verdict number.
 
@@ -59,15 +59,15 @@ under this grant.
 scout <absolute-manifest-path>
 ```
 
-Run it in the foreground, from the folder that the toolchain rows assume (for EVE, the
-project root).
+Run it in the foreground. scout runs each toolchain row and each epoch in the manifest
+folder (`scout/Source/HELP.md:89`, `:103`).
 
 Sampling. A manifest with a `## sample` table needs root on macOS and Linux (`scout/Source/HELP.md:60`). Run it as `sudo -n scout <absolute-manifest-path>`, from the same folder. `~/.config/setup-scout.sh` installs the `NOPASSWD` rule for `~/.local/bin/scout` one time on each Mac. When `sudo -n` prints `a password is required`, the rule is not installed. ARCHITECT runs `bash ~/.config/setup-scout.sh` one time, and the run continues.
 
 | Command line | Result |
 |---|---|
 | `scout --help`, `scout`, `scout <manifest> --help` | The guide. Exit 0. |
-| `scout --version`, `scout <manifest> --version` | `scout 0.1.0 (<commit>)`. Exit 0. |
+| `scout --version`, `scout <manifest> --version` | `scout 0.0.1 (<commit>)`. Exit 0. |
 | `scout missing.md` | The guide, and stderr `scout: not found: missing.md`. Exit 1. |
 
 scout runs in this order. It parses and validates the manifest. It runs each `## toolchain`
@@ -89,6 +89,7 @@ the samples file.
 | `EXIT_FAILURE` | Toolchain column missing: `scout: <path>:<line> (toolchain): toolchain column not declared`. |
 | `EXIT_FAILURE` | Toolchain row failure: `scout: <command> <flag>: toolchain command failed`. No epoch runs. |
 | `EXIT_FAILURE` | Unknown argument after the manifest: `scout: <argument>: unknown flag`. |
+| `EXIT_FAILURE` | Sampling session that cannot start: `scout: <name>: <reason>`. The name is a sysctl name or `kdebug<number>` on macOS, `perf_event_open` on Linux, and the failed API on Windows. |
 | `EXIT_FAILURE` | Missing baseline file: `scout: not found: <baseline path>`. |
 | `EXIT_FAILURE` | Command failure: `scout: <command path>: command failed`. |
 | `EXIT_FAILURE` | Missing samples file: `scout: not found: <samples path>`. |
@@ -99,7 +100,7 @@ Preconditions, all on COUNSELOR:
 - `scout` is built with cast and is on PATH (Builds below).
 - The manifest's `## toolchain` table builds the command. The command writes the samples file (Adding a workload below).
 - Every path in the `run` table is relative to the manifest.
-- Every path in a `## toolchain` row is relative to the folder that scout is called from.
+- Every path in a `## toolchain` row is relative to the manifest folder.
 
 ## Manifest
 
@@ -116,21 +117,34 @@ Table `## run`, columns `key | type | value`:
 | `output` | `string` | Report path, relative to the manifest. scout creates the folder. |
 | `baseline` | `string` | Earlier report to compare with, relative to the manifest. Empty = no comparison. |
 
-scout reads the `run` and `toolchain` tables. The other tables of the manifest belong to
-the target. The target reads them (the `profiler` table in the sample below).
+scout reads the `run`, `toolchain` and `sample` tables. The other tables of the manifest
+belong to the target. The target reads them (the `profiler` table in the sample below).
 
 ### toolchain
 
 Table `## toolchain`, columns `command | flag`.
 
 - Each row runs as one child process.
-- The working folder is the folder that scout is called from.
+- The working folder is the manifest folder. A relative path in a cell resolves against it.
 - The output streams to stdout.
 - Every row runs, in order. No flag selects rows.
 - A failed row prints `scout: <command> <flag>: toolchain command failed` and exits with 1.
   No epoch runs.
 - A header without both columns prints
   `scout: <path>:<line> (toolchain): toolchain column not declared`.
+
+### sample
+
+Table `## sample`, columns `key | type | value`. It turns on kernel and user stack sampling
+for each epoch (`scout/Source/HELP.md:49-73`). Without it, scout samples nothing.
+
+| key | type | meaning |
+|---|---|---|
+| `intervalMs` | `int` | The sampling period, in ms. The least value is 1. |
+| `stackDepth` | `int` | The most frames that each stack records. macOS: 2 to 128. Linux: 1 to 127. Windows: 1 to 192. |
+
+A sampling run is its own scout run. The sampler adds load, so its `epoch`, `user` and
+`system` rows are not timings.
 
 The `type` cell takes `int`, `float`, `bool`, `string`, `colour` or `numbers`. A C++ type
 name such as `integer` fails validation.
@@ -193,22 +207,37 @@ EVE under scout (profile and replay builds, `JAM_USING_PROFILER=1`):
 The target writes it. `jam::Profiler::writeSamples` is the one writer in the in-house
 frameworks.
 
-- One table `## <TYPE>`, one row for each zone. Columns: `key | type | value | calls | unit | bins`.
+- One table `## <type>`, one row for each zone. For EVE: `## eve`. Columns: `key | type | value | calls | unit | bins`.
   `value` is the sum of the zone's durations in the epoch, in ns. `calls` is the sum of
   the bins. `bins` holds one count for each log bin of the call time: 64 bins for each
   octave, 40 octaves.
 - A `dropped` row follows the zone rows. Its unit is `count`.
-- A `## RUN` table follows. It holds `buildType`, `Debug` or `Release`.
+- A `## run` table follows. It holds `build type`, `Debug` or `Release`.
 
 ## Report
 
-The report is markdown. scout builds it with `ProfileReport`.
+The report is markdown. scout builds it with `ProfileReport`. It starts with front matter
+that holds `date`, the time that scout writes the report, as `DD-MM-YYYY HH:MM`.
+
+Each heading and each key cell holds the words of its identifier: lower-case words joined
+by spaces (`jam::ConfigDocument::toDocument`, `jam_ConfigDocument.h:182`; `jam::Format::toWords`,
+`jam_Format.h:332`). Thus `EVE_CALLS` is `eve calls`, `buildType` is `build type`, and
+`ttyOpen` is `tty open`. scout reads any form back to the same identifier
+(`jam::Format::toType`, `jam_Format.h:343-351`), so an older report still works as a baseline.
 
 | Table | Content |
 |---|---|
-| `## <TYPE>` | One row for each zone. The value is the median time of one epoch. |
-| `## <TYPE>_CALLS` | One row for each zone. The value is the median time of one call, from the merged bins of all epochs. |
-| `## RUN` | The `buildType` of the target. |
+| `## <type>` | One row for each zone. The value is the median time of one epoch. For EVE: `## eve`. |
+| `## <type> calls` | One row for each zone. The value is the median time of one call, from the merged bins of all epochs. |
+| `## run` | The `build type` of the target. |
+| `## sample` | With a manifest `## sample` table only. One row for each frame, from the timer samples. |
+| `## cswitch` | With a manifest `## sample` table only. One row for each frame, from the stacks at each context switch. |
+
+In `## sample` and `## cswitch`, the key is the function name of the frame, or its image
+file name when it has no symbol, written as words: `__NSConcreteGlobalBlock` is
+`NS concrete global block`. The value is the number of samples whose stack holds the frame,
+in one epoch. The unit is `count`. A `dropped` row counts the kernel's buffer losses
+(`scout/Source/HELP.md:70-74`).
 
 Columns of a zone row:
 
@@ -226,46 +255,39 @@ Columns of a zone row:
 | `change` | With a baseline only: the change from the baseline. |
 | `probability` | With a baseline only: the probability that the change is noise. A small value means the change is not noise. |
 
-The `_CALLS` table has `bins` in place of `samples`, and one more column, `percentile`:
+The `calls` table has `bins` in place of `samples`, and one more column, `percentile`:
 the 99.9th percentile of the merged bins. Its `value`, `errorPercent`, `min`, `max` and
 `percentile` come from the merged bins of all epochs. Its `calls` is the number of calls
 of all epochs.
 
-The `## <TYPE>` table also has these rows:
+The `## <type>` table also has these rows:
 
 | Row | Meaning |
 |---|---|
 | `epoch` | Wall time of one epoch, measured by scout. |
-| `user` | User CPU time of the child in the epoch. macOS and Linux only. |
-| `system` | System CPU time of the child in the epoch. macOS and Linux only. |
+| `user` | User CPU time of the child in the epoch. |
+| `system` | System CPU time of the child in the epoch. |
 | `dropped` | Entries that the target lost, because a thread had no slot or its ring was full. |
 
-`user` and `system` come from `getrusage (RUSAGE_CHILDREN)` before and after the epoch.
-They are the Verdict-lane numbers.
+On macOS and Linux, `user` and `system` come from `getrusage (RUSAGE_CHILDREN)` before
+and after the epoch. On Windows, they cover every process of scout's job, also the
+processes that exited (`scout/Source/HELP.md:191`). They are not the Verdict number (Lanes).
 
 The report has one median mermaid `xychart-beta` for each unit. It also has one
-distribution chart for each zone of the `_CALLS` table. The x axis is the lower edge of
+distribution chart for each zone of the `calls` table. The x axis is the lower edge of
 the octave, in ns.
 
 Every row holds one sample for each epoch. A row absent from an epoch adds 0.
 
 The report is also the next baseline. The same parser reads it back.
 
-Zones in the EVE chain:
-
-| Zone key | Function |
-|---|---|
-| `deviceClock` | the `onBytesReady` lambda in `EVEProcessor` (`EVEProcessor.cpp:37`). It covers `device.clock (0)`. |
-| `ttyBytesReady` | `TerminalUnixTTY` read handler, around `onBytesReady()` (`jam_TerminalTTY_posix.cpp:219`) |
-| `terminalProcess` | `jam::TerminalProcessor::process` (`jam_TerminalProcessor.cpp:34`) |
-| `terminalRead` | `jam::TerminalProcessor::read`, around `tty.read` (`jam_TerminalProcessor.cpp:71`) |
-| `swapLiveLines` | `jam::TerminalSwap::setLiveLines` (`jam_TerminalSwap.cpp:67`) |
-| `swapHistoryLines` | `jam::TerminalSwap::writeFromTerminalBuffer` (`jam_TerminalSwap.cpp:95`) |
-| `editorLanes` | `jam::TextEditor::addLanes()` (`jam_TextEditor.cpp:796`) |
-
-`VirtualDevice::clock` has no zone of its own. `deviceClock` covers it from the caller.
-The Q_B history writer has no zone of its own. `swapHistoryLines` covers its work. The
-async path `VirtualDevice::handleAsyncUpdate` calls `clock (0)` with no zone.
+Zones. The report lists every zone that the target recorded. Each zone key is a cast
+identifier in the `## identifiers` table of its owner: `eve/cast/identifiers.md` for EVE
+zones, `jam/cast/<module>.md` for JAM zones (for example `jam/cast/terminal.md`). The
+report writes the key as words. To find the code site of a zone, ask clangd for the
+references of its `Id::` member. The zone sites sit under `#if JAM_USING_PROFILER`; clangd
+resolves them when the project's root `compile_commands.json` is the profile build's copy
+(nvim writes that copy from the first profile lane, `nvim/lua/core/project.lua` `getCompile`).
 
 ## Builds
 
@@ -292,13 +314,18 @@ for profiling.
 | END | `--profile` | runs `pluginBundle.cmake` with `CAST_LANE=profile`, which runs EVE's `--vst-profile` lane, then END in `Builds/Profile` |
 | EVE | `--vst-profile` | the VST plugin in `Builds/Profile` |
 | EVE | `--standalone-profile` | `EVE_Standalone` in `Builds/Profile` |
+| EVE | `--standalone-replay` | `EVE_Standalone` in `Builds/Replay`, with `-DCAST_REPLAY=ON` |
+| EVE | `--standalone-profile-symbols` | Windows only. `EVE_Standalone` in `Builds/ProfileSymbols`, with `/Z7` and `/DEBUG` |
+| EVE | `--standalone-symbols` | Windows only. `EVE_Standalone` in `Builds/ReleaseSymbols`, with `/Z7` and `/DEBUG`, no profiler |
 
-The EVE manifests use these build folders and CMake options:
+The EVE manifests use these lanes:
 
-| Manifest | Build folder | Extra CMake options |
-|---|---|---|
-| `live.md` | `Builds/Profile` | `-DCAST_PROFILE=ON` |
-| `replay.md` | `Builds/Replay` | `-DCAST_PROFILE=ON -DCAST_REPLAY=ON` |
+| Manifest | Lane |
+|---|---|
+| `live.md`, `live-sample.md`, `burn.md`, `cat.md`, `control.md`, `launch-windows.md`, `launch-windows-zsh.md` | `--standalone-profile` |
+| `replay.md` | `--standalone-replay` |
+| `launch-windows-sample.md` | `--standalone-profile-symbols` |
+| `launch-windows-symbols.md` | `--standalone-symbols` |
 
 A profile or replay build (`-DCAST_PROFILE=ON`) never touches the product build. The cast
 templates enforce this:
@@ -339,14 +366,11 @@ This work is COUNSELOR's. It is not part of a Pathfinder run.
 
 - `scout` resolves a relative manifest path against the working directory. Use an
   absolute path.
-- `user` and `system` count the children that the epoch reaped. In a live EVE run, `seq`
-  is a descendant of EVE, and on macOS the TTY child first tries to start through
-  `/usr/bin/login` (`jam_TerminalTTY_posix.h:24`). The first live run (2026-10-28, 100M,
-  11 epochs, Release) gave these medians: `epoch` 6.7365e10 ns, `user` 9.4932e10 ns,
-  `system` 8.9613e10 ns. `time seq 1 100000000 > /dev/null` gave 10.53 s user, 0.03 s
-  system, 10.561 s total. The `user` and `system` rows include the time of EVE itself, so
-  this comparison does not isolate `seq`. Whether `RUSAGE_CHILDREN` includes the `seq`
-  grandchild is still not verified.
+- `user` and `system` count the epoch's child, EVE, together with its descendants. They
+  are not the Verdict number and do not isolate `seq`. The first live run (2026-10-28,
+  100M, 11 epochs, Release) gave these medians: `epoch` 6.7365e10 ns, `user` 9.4932e10 ns,
+  `system` 8.9613e10 ns. The Verdict is `time seq 1 N` inside the terminal
+  (`eve/comparison.md:7-9`).
 - The profile build of EVE can trap at start: exit 133 (SIGTRAP), `BUG IN CLIENT OF
   LIBDISPATCH: Release of a suspended object`, in `jam::TerminalUnixTTY::open`. Each
   trap raises a macOS "EVE quit unexpectedly" dialog. The scout run then fails with
@@ -357,7 +381,7 @@ This work is COUNSELOR's. It is not part of a Pathfinder run.
   above 0 means the zone sums are low.
 - The EVE profile build has no debug symbols. `debugSymbols` is Debug only
   (`eve/project-info.md`, `## compile option`). Function names resolve without `-g`. A file:line location needs `-g`.
-- In a Where-lane report, the `epoch`, `user` and `system` rows include the debugger pauses. They are not timings of the target.
+- In a sampling report, the `epoch`, `user` and `system` rows include the sampler's load. They are not timings of the target (`scout/Source/HELP.md:67-68`).
 - The replay workload records its input with `seq`. Windows has no `seq` on PATH by
   default. This is not verified.
 - `ProfileReport` wraps the `samples` column at 40 characters. In each report one row's

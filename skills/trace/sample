@@ -1,2 +1,0 @@
-#!/bin/sh
-exec nvim --headless -l "$(dirname "$0")/sample.lua" "$1"

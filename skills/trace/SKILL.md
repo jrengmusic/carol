@@ -11,7 +11,6 @@ whatdbg is the debugger (CAROL.md Debugging). This skill holds the drivers for i
 |---|---|
 | `trace.lua` | What are the values at this file:line? Where did it crash? |
 | `sample.lua` | Where is the program at T ms? Where does it spend its time? (The Where lane of the profile skill.) |
-| `sample` | What is one Where-lane epoch under scout? (`sample <manifest>` runs `sample.lua` on a manifest.) |
 
 Both drivers share `driver.lua` (spec validator, report helpers, session start and end)
 and `dap.lua` (DAP client). The spec grammar and the output grammar are the same.
@@ -126,23 +125,7 @@ Every field is required. An unknown field is an error.
 Probe: set `maxSamples` to 1. One fresh launch gives one stack at `delayMs`.
 
 Profile lane: a profile sample attaches by pid to a Release build. Each sample pauses the process, so the tallies are shares of samples, never
-timings. Do not mix them with zone timings. Never run a sample during a How-long or Verdict scout run. A Where-lane epoch is its own scout run.
-
-## Manifest — sample
-
-scout runs `sample <manifest>` as the `run.command` of an epoch.
-
-The `## sample` table is a `key | type | value` table. It holds `program`, `cwd`, `threads`, `delayMs`, `intervalMs`, `maxSamples`, `stackDepth`, `topRows`, `pauseTimeoutMs` and `timeoutMs`.
-
-`epoch.lua` holds the scout epoch. `sample.lua` sends a manifest to it. The `## sample` table is checked like a launch spec: a missing key or an unknown key is a `SPEC ERROR`, and no target starts.
-
-`epoch.lua` starts `program <manifest>`. It attaches to the program by its pid. It takes the samples. It waits for the program to exit. It then writes `run.samples` last.
-
-The `run.samples` file holds one `## SAMPLE` table. Each row key is the frame name up to its last `(`. Each other character outside `[A-Za-z0-9:-]` becomes `-`, `_` included. These characters have no markdown meaning, so the key reads back unchanged in scout's report and in a baseline. The threads merge. The value is the inclusive sample count. The type is `int`, the calls are `1`, and the unit is `count`.
-
-The `run.samples` file also holds the `## RUN` table of the program, written back whole. The text output is unchanged.
-
-Exit code of a manifest run: 0 when the outcome is `limit` or `exited`. 1 for `error`, `timeout`, or a missing samples file. 2 for a spec error.
+timings. Do not mix them with zone timings. Never run a sample during a How-long or Verdict scout run. Stack sampling under scout is scout's own `## sample` table (profile skill), not this driver.
 
 ## Output
 
@@ -215,7 +198,6 @@ Exit code (both drivers): 0 when the run happened. 2 when the spec is wrong.
 - Locals and expression results are whatdbg's own text. Nested values are not expanded.
   The driver prints every local whatdbg returns and filters nothing.
 - `timeoutMs` bounds the wait for events after setup. Each setup request has its own
-  fixed timeout. In manifest mode `timeoutMs` bounds the sampling. The wait for the target to exit has no bound.
-- In manifest mode `program` resolves against the manifest folder, because scout runs each epoch with the manifest folder as the working folder (`scout/Source/Benchmark.cpp:40`).
+  fixed timeout.
 - The debuggee is stopped while the sample driver reads stacks. This time does not enter
   `t`. It limits how many samples fit in `timeoutMs`. `stackDepth` and `threads` control it.

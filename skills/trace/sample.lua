@@ -248,11 +248,6 @@ local function runSample (spec)
     return run
 end
 
-assert (arg[1] ~= nil, "usage: nvim --headless -l sample.lua <spec-path.json | manifest-path.md>")
+assert (arg[1] ~= nil, "usage: nvim --headless -l sample.lua <spec-path.json>")
 
-local runsByExtension = {
-    json = function (path) return Driver.main (path, sampleFields, runSample) end,
-    md = function (path) return require ("epoch").main (path, sampleFields, runSample) end,
-}
-
-os.exit (runsByExtension[vim.fn.fnamemodify (arg[1], ":e")] (arg[1]))
+os.exit (Driver.main (arg[1], sampleFields, runSample))
