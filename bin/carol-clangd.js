@@ -16,7 +16,7 @@ const CLANGD_ARGS = [
   '--background-index',
   '--background-index-priority=low',
   '--log=error',
-  '--query-driver=/usr/bin/c++,/usr/bin/clang++,/ucrt64/bin/g++'
+  '--query-driver=/usr/bin/c++,/usr/bin/clang++'
 ]
 const IDLE_TIMEOUT_MS = 30000
 const CONNECT_RETRY_MS = 100
