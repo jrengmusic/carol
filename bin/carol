@@ -116,13 +116,33 @@ refresh_marketplace() {
     claude plugin marketplace update "$CAROL_MARKETPLACE_NAME" 2>&1 >/dev/null || true
 }
 
+CAROL_REFERENCE_DOCS=(NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md CODING.md LANGUAGE.md ODE.md ARCHITECT.md)
+
+# The symlinks below point at an absolute per-machine path (~/.carol). Git
+# tracks a symlink target verbatim, so a tracked link breaks on every other OS.
+ignore_carol_assets() {
+    local ref_doc ignored_path
+    local ignored_paths=(".claude/agents/" ".claude/commands/")
+    for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
+        ignored_paths+=("carol/$ref_doc")
+    done
+
+    touch .gitignore
+    [ -n "$(tail -c1 .gitignore)" ] && echo >> .gitignore
+    for ignored_path in "${ignored_paths[@]}"; do
+        grep -qxF "$ignored_path" .gitignore || echo "$ignored_path" >> .gitignore
+    done
+}
+
 symlink_carol_assets() {
     # Symlink reference docs into carol/ so ARCHITECT can @mention them
     # SSOT: edits to ~/.carol/*.md reflect instantly, no copies.
     local ref_doc
-    for ref_doc in NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md CODING.md LANGUAGE.md ODE.md ARCHITECT.md; do
+    for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
         [ -f "$CAROL_ROOT/$ref_doc" ] && ln -sf "$CAROL_ROOT/$ref_doc" "carol/$ref_doc"
     done
+
+    ignore_carol_assets
 
     # Symlink agents and slash commands into project-level .claude/ so they use
     # bare names (/go, @oracle) instead of plugin-namespaced (/carol:go, @carol:oracle).
