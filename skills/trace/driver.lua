@@ -45,7 +45,7 @@ local fieldsByMode = {
 }
 
 local argumentsByMode = {
-    launch = function (spec) return { program = spec.program, cwd = spec.cwd } end,
+    launch = function (spec) return { program = spec.program, cwd = spec.cwd, console = "internalConsole" } end,
     attach = function (spec) return { pid = spec.pid, cwd = spec.cwd } end,
 }
 

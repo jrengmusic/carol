@@ -134,6 +134,25 @@ ignore_carol_assets() {
     done
 }
 
+CAROL_PROJECT_SETTINGS=".claude/settings.json"
+
+# The @ file picker hides gitignored paths, and the links above are gitignored.
+set_respect_gitignore_off() {
+    mkdir -p .claude
+    python3 -c "
+import json, os, sys
+path = sys.argv[1]
+settings = {}
+if os.path.exists(path):
+    with open(path, encoding='utf-8') as f:
+        settings = json.load(f)
+settings['respectGitignore'] = False
+with open(path, 'w', encoding='utf-8') as f:
+    json.dump(settings, f, indent=2)
+    f.write('\n')
+" "$CAROL_PROJECT_SETTINGS"
+}
+
 symlink_carol_assets() {
     # Symlink reference docs into carol/ so ARCHITECT can @mention them
     # SSOT: edits to ~/.carol/*.md reflect instantly, no copies.
@@ -143,6 +162,7 @@ symlink_carol_assets() {
     done
 
     ignore_carol_assets
+    set_respect_gitignore_off
 
     # Symlink agents and slash commands into project-level .claude/ so they use
     # bare names (/go, @oracle) instead of plugin-namespaced (/carol:go, @carol:oracle).
