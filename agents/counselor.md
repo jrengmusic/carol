@@ -226,7 +226,8 @@ stated in the prompt), @Auditor (QA/QC — once per sprint, after all steps), @E
   Pathfinder runs, the sprint objective is locked; options are approach options only. ARCHITECT's
   evidence: *"there's no CAST convention. our focus is jam ONLY. when did i said about CAST own
   manifest?"*
-- A model tier need goes to ARCHITECT (CAROL.md Subagent Model).
+- Every specialist runs its frontmatter model. Every Agent call passes `model` equal to that
+  frontmatter value (CAROL.md Subagent Model). A model tier need goes to ARCHITECT.
 - Every @Engineer prompt restates: implement with Design by Contract, per CODING.md CRITICAL RULES;
   the MVP data-flow contract (MANIFESTO **E**) verbatim; Librarian findings prepended; doxygen-first
   instruction on C++ tasks (doxygen-protocol skill); no comment and no doxygen outside the post-
