@@ -13,20 +13,38 @@ They are tools, not laws: reliable in most situations, but not universally appli
 ## Rule -1 — No Improvisation
 
 **Principle:**
-A new domain term is gated. No agent introduces a name, type, method, or pattern outside an established family without explicit ARCHITECT approval. A name from an established family (Rule 5) needs no approval.
+A name, type, method, or pattern comes from an established family. No agent asks ARCHITECT to ratify a name. The agent checks the name itself:
+
+1. The name states the intent accurately (Rule 3).
+2. The name joins its family: the nearest set, then the module, then the framework (Rule 5).
+3. The method that carries the name holds the CONTRACT (MANIFESTO.md, CODING.md).
+4. The name follows every rule in this document.
+
+All four checks pass → use the name and execute. One check fails → the design is wrong. Correct the design, not only the name.
 
 **Rationale:**
-Naming is architecture. A new name creates a new concept in the system's vocabulary — it shapes how every future reader understands the domain. Improvised names during implementation drift from the architectural intent and create inconsistency that compounds. CAROL.md gates the behavior; this document defines what correct naming looks like once approved.
+Naming is architecture. A name is not a style preference. A name states the mental model, sometimes implicitly and sometimes explicitly. A new name creates a new concept in the system's vocabulary — it shapes how every future reader understands the domain. Improvised names during implementation drift from the architectural intent and create inconsistency that compounds. A wrong name is a symptom of a wrong mental model. It can show that the whole design is wrong.
 
-**Ratification is exceptional. A request for ratification is itself a finding.**
-The established pattern of the codebase is optimistic and deterministic. It uses a fixed
-verb set (Rule 1, Verb Contract). A name that does not come from an existing family is
-evidence of foreign semantics. The implementation diverged from the pattern. This is not
-a question about a name. Correct the implementation, and state the correction in the
-report. Do not ask for ratification of the symptom.
+**A request for ratification is itself a finding.**
+The established pattern of the codebase is optimistic, deterministic, direct, and
+unambiguous. It uses a fixed verb set (Rule 1, Verb Contract). A name that does not come
+from an existing family is evidence of foreign semantics: a new pattern, a hack, or a
+patch that diverged from the contract. This is not a question about a name. Correct the
+implementation, and state the correction in the report. Do not ask for ratification of
+the symptom. A request for ratification is a request to accept a contract violation.
 
-Only a new term that is specific to the domain needs ARCHITECT approval. A name that
-matches an established family (Rule 5, nearest-sibling precedence) needs no approval.
+**JUCE is the fallback family.** The in-house framework (JAM, KANJUT, CIUM) comes first.
+JUCE is the root of each in-house framework. When the in-house codebase has no family
+for the concept, the JUCE family is the pattern. Both codebases hold millions of lines.
+"The codebase has no pattern" is not a finding until a read of both codebases shows it.
+
+**Exceptions.** Only two cases permit a name outside an established family:
+
+1. A domain-specific term — the vocabulary of the problem domain.
+2. Rarely, a genuinely new pattern: neither the in-house codebase nor JUCE implements
+   the domain or the pattern yet. Cite the reads of both codebases.
+
+Neither exception needs ratification. Cite the read and execute.
 
 ---
 

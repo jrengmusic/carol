@@ -6,6 +6,7 @@ declare module 'claude-code' {
       isNoGateArmed: boolean
       isGitInstructed: boolean
       sessionAgentType: string
+      contractReads: string[]
     }
   }
 }

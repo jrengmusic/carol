@@ -78,7 +78,7 @@ the whole sprint — never per step.
 - The objective name in the file name comes from the RFC title when an RFC exists. Otherwise it comes from ARCHITECT's stated objective. It is kebab-case, for example `PLAN-session-management.md`.
 - No hand-rolled method where the framework API already provides one. No manual arithmetic, no manual string parsing, no manual state tracking. Hand-rolled code for a need is valid only with an Absence row for that need.
 - No magic numbers or variables. Define constants per NAMES.md and CODING.md.
-- No new semantics, no new pattern, no new foreign names. Follow the pattern the codebase already uses, exactly. A new domain term goes to ARCHITECT (NAMES.md Rule -1).
+- No new semantics, no new pattern, no new foreign names. Follow the pattern the codebase already uses, exactly, with JUCE as the fallback family. Each name passes the four checks of NAMES.md Rule -1. A name is never an open question.
 - Every RFC point maps to a plan step or to an explicit ARCHITECT descope. Ambiguity goes to ARCHITECT.
 
 ## Delivery

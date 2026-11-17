@@ -7,6 +7,8 @@ const READ_ONLY_GIT_AGENT = 'pathfinder'
 const ROLE_FILE = '/.carol-role'
 const AGENTS_DIRECTORY = '/agents/'
 const SPRINT_LOG = 'carol/SPRINT-LOG.md'
+const CONTRACT_DOCUMENTS = ['MANIFESTO', 'CODING', 'NAMES']
+const QUESTION_TOOL = 'AskUserQuestion'
 
 const NO_GATE_PATTERN = /no[ -]?gate/i
 const GIT_INSTRUCTION_PATTERN = /\b(git|commit|push)\b/i
@@ -24,10 +26,12 @@ const CPP_EXTENSION = '\\.(?:h|hh|hpp|hxx|inl|c|cc|cpp|cxx|m|mm)'
 const TEXT_SEARCH_PATTERN = new RegExp(COMMAND_HEAD + '(?:grep|egrep|fgrep|rg|ag|ack)(?:\\s|$)')
 const CPP_TARGET_PATTERN = new RegExp('(?:--type[= ]|-t\\s*)(?:c|cpp|objc|objcpp)\\b|(?:-g|--glob|--include|-i?name)[= ]\\s*[\'"]?[^\\s\'"]*' + CPP_EXTENSION + '\\b|(?:^|\\s)[^\\s\'"|;&]*' + CPP_EXTENSION + '(?=$|[\\s|;&)])')
 const LITERAL_SEARCH_PATTERN = /\\"|'[^']*"[^']*'|['"]#/
+const CONTRACT_DOCUMENT_PATTERN = new RegExp('[\\\\/]\\.carol[\\\\/](' + CONTRACT_DOCUMENTS.join('|') + ')\\.md$')
 
 const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
 const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
 const TEXT_SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the LSP tool to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
+const CONTRACT_GATE = 'Before a question to ARCHITECT, read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again, in full, with the Read tool (counselor.md Options & Recommendations). Then filter each option against them. Delete each option that breaks CONTRACT: a revert to a past state, a patch that violates CONTRACT, and a question about a name (NAMES.md Rule -1). One option remains: execute it, because it is not a question. No option remains: research until one compliant solution exists. Ask only when two or more compliant options remain.'
 const BACKGROUND_GATE = 'A subagent runs no background command (CAROL.md Subagent Return Format: the report is the final output). Run this command in the foreground, wait for it to finish, and put its result in your report.'
 const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with the Read tool, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
 const READ_DIRECTIVE = "If your reasoning still leaves an open end to fill in, read again thoroughly with the Read tool. Find the answer as a citable fact from the codebase, checked against ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md, and from the agreed rulings in the RFC and the PLAN. Above all, use ARCHITECT's explicit discussion recorded in the chat history. Never fill in a gap. Never leave an open end that reading can answer. Respond only with a citable fact."
@@ -41,6 +45,7 @@ const armedAtMs = atom({ plugin: 'carol', key: 'armedAtMs' }, 0)
 const isNoGateArmed = atom({ plugin: 'carol', key: 'isNoGateArmed' }, false)
 const isGitInstructed = atom({ plugin: 'carol', key: 'isGitInstructed' }, false)
 const sessionAgentType = atom({ plugin: 'carol', key: 'sessionAgentType' }, '')
+const contractReads = atom({ plugin: 'carol', key: 'contractReads' }, [])
 
 function countMatches(pattern, text) {
   return (text.match(pattern) ?? []).length
@@ -68,6 +73,16 @@ function getFeedbackText(outcome) {
 
 async function isNoGateRun($) {
   return (await read($, isNoGateArmed)) && (await getRole($)) === DEFAULT_ROLE
+}
+
+async function isContractUnread($) {
+  return (await getRole($)) === DEFAULT_ROLE && (await read($, contractReads)).length < CONTRACT_DOCUMENTS.length
+}
+
+async function addContractRead($, e, outcome) {
+  const document = String(e.file_path ?? '').match(CONTRACT_DOCUMENT_PATTERN)?.[1]
+  const isFullRead = e.offset === undefined && e.limit === undefined && outcome.isError !== true
+  if (document !== undefined && isFullRead) await update($, contractReads, (reads) => (reads.includes(document) ? reads : [...reads, document]))
 }
 
 async function getExpectedModel($, agentType) {
@@ -118,6 +133,7 @@ export function register(on) {
     if (USER_ORIGIN_KINDS.includes(e.origin.kind)) {
       if (NO_GATE_PATTERN.test(e.text)) await armNoGate($)
       await update($, isGitInstructed, () => GIT_INSTRUCTION_PATTERN.test(e.text))
+      await update($, contractReads, () => [])
     }
     await update($, promptCount, (count) => count + 1)
     const context = [...(e.context ?? [])]
@@ -143,8 +159,16 @@ export function register(on) {
 
   on('tool.call', { tool: ['AskUserQuestion', 'EnterPlanMode', 'ExitPlanMode'] }, async ($, e, next) => {
     if (await isNoGateRun($)) return { deny: STEP_GATE }
+    if (e.tool === QUESTION_TOOL && (await isContractUnread($))) return { deny: CONTRACT_GATE }
     const outcome = await next(e)
+    if (e.tool === QUESTION_TOOL) await update($, contractReads, () => [])
     if (NO_GATE_PATTERN.test(getFeedbackText(outcome))) await armNoGate($)
+    return outcome
+  }).catch(failClosed)
+
+  on('tool.call', { tool: 'Read' }, async ($, e, next) => {
+    const outcome = await next(e)
+    await addContractRead($, e, outcome)
     return outcome
   }).catch(failClosed)
 

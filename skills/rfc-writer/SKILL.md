@@ -25,7 +25,7 @@ The writing language follows the Writing Standard in CAROL.md. This skill does n
 1. Every claim cites its evidence: file:line, doc quote, compiler output, runtime output, or spec citation (CAROL.md Ground of Truth).
 2. A finding that a run shows is run first. The RFC states the command and the observed result. Do not infer what a run can show.
 3. ARCHITECT's words that govern the RFC are quoted verbatim.
-4. The RFC records no decision that ARCHITECT did not state. A new name, field, format, or message text is ARCHITECT's (NAMES.md Rule -1). The RFC lists it as an open question.
+4. The RFC records no decision that ARCHITECT did not state. A new field, format, or message text is ARCHITECT's. The RFC lists it as an open question. A name is not an open question: it passes the four checks of NAMES.md Rule -1.
 5. A design in the RFC follows MANIFESTO.md. A violating design is flagged with its pillar. It is not offered as an option.
 6. Options are 2 to 4, each traceable to a citation. A recommendation appears only when BLESSED selects it. The RFC cites the principle.
 

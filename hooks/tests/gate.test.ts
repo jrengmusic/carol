@@ -50,12 +50,24 @@ for (const testCase of cases as any[]) {
     })
     on('tool.call', ($, e) => testCase.toolOutcomes?.[e.tool] ?? { result: ALLOWED_RESULT })
 
-    for (const prompt of testCase.prompts) {
+    const submitPrompt = async (prompt: any) => {
       const text = typeof prompt === 'string' ? prompt : prompt.text
       const originKind = typeof prompt === 'string' ? USER_ORIGIN_KIND : prompt.origin
       lastContext = undefined
       await $.classic.UserPromptSubmit({ session_id: 't', hook_event_name: 'UserPromptSubmit', prompt: text, agent_type: testCase.agentType ?? '' })
       await $.prompt.submit({ text, wait: false, origin: { kind: originKind } })
+    }
+
+    for (const prompt of testCase.prompts) {
+      await submitPrompt(prompt)
+    }
+
+    for (const contractRead of testCase.reads ?? []) {
+      await $.tool.call(typeof contractRead === 'string' ? { tool: 'Read', file_path: contractRead } : { tool: 'Read', ...contractRead })
+    }
+
+    for (const prompt of testCase.promptsAfterReads ?? []) {
+      await submitPrompt(prompt)
     }
 
     for (const priorTool of testCase.priorTools ?? []) {

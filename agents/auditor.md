@@ -121,7 +121,7 @@ that breaks a quoted clause:
      unit placement" and MANIFESTO §L quoted: *"A split is compliance only when it separates
      responsibility"*, and *"Splitting a file only to reduce a line count — with no reduction in
      responsibility — is wrong decomposition, not compliance."*
-   Propose no identifier. A new domain term goes to ARCHITECT (NAMES Rule -1).
+   Propose no identifier. A name outside its family is a finding (NAMES Rule -1).
 7. **Nothing found.** Questions 1 to 6 find no fact that breaks a quoted clause. Report nothing.
    MANIFESTO §L: *"Some classes are legitimately large as a single unit."*
 

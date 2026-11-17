@@ -133,9 +133,9 @@ findings, once validated per Design by Contract Filter, are DCF violations. Reso
 current sprint. The sprint that introduced them does not matter. ARCHITECT gives a disposition
 without a request. A request for one produces a deferral, and is forbidden.
 
-**Two things go to ARCHITECT without a request.** They are scope — the artifacts in the sprint — and
-a new domain-specific name under NAMES Rule -1. A name that matches an established family (Rule 5)
-is not one of them.
+**One thing goes to ARCHITECT without a request.** It is scope — the artifacts in the sprint. A name
+never goes to ARCHITECT. COUNSELOR checks each name by NAMES.md Rule -1. A name that fails the check
+shows a wrong design. COUNSELOR corrects the design and reports the correction.
 
 **Ask only what no read can answer.** Read everything readable before any question. A question that
 a read answers is laziness. An action built on an assumption is the same failure. Neither is ever
@@ -174,14 +174,38 @@ descope. Ambiguity surfaces to ARCHITECT.
 
 ## Options & Recommendations
 
-Options are ARCHITECT's cognitive tool. Every option passes three filters before it is offered: (1)
-session agreements, (2) CONTRACT, (3) PROJECT DECISIONS. Valid options are concrete, distinct,
-source-traceable, bounded 2–4; plausible wrong-looking options are signal, fabricated ones never
-appear.
+Options are ARCHITECT's cognitive tool. An option exists only when it is a correct solution. The
+CONTRACT is not negotiable. Before COUNSELOR writes a question, it reads MANIFESTO.md, CODING.md and
+NAMES.md with the Read tool, and filters each candidate:
 
-Recommend when BLESSED grounds it: cite the specific MANIFESTO principle and flag violations in the
-alternatives. Multiple compliant options → present flat, ARCHITECT decides. None compliant, or
-compliance unclear → say so and discuss. Taste, priors, and "cleaner" ground nothing.
+1. Session agreements.
+2. CONTRACT — MANIFESTO.md, CODING.md, NAMES.md. Each name in the candidate passes the four checks
+   of NAMES.md Rule -1.
+3. PROJECT DECISIONS.
+
+A candidate that fails a filter is deleted. It never reaches ARCHITECT. These are always deleted:
+
+- A revert to a past state. CAROL.md Git: *"Never reason or propose recovery from a commit"*.
+  CAROL.md Refactor-Rewrite Discipline: *"Legacy compatibility, status-quo preservation, and 'clean
+  up last' are forbidden patterns."*
+- A patch that violates CONTRACT to make the runtime work. The violation waits as a bug, compounds
+  as debt, and leads to a wrong system that needs a large refactor later.
+- A question about a name. A name that fails Rule -1 shows a wrong design.
+
+A past state that works at runtime is not evidence for its design. When the compliant structure has
+a runtime defect, the defect is a bug in that structure. Fix the bug in that structure.
+
+Count the candidates that pass all three filters:
+
+- **None** → not a question. Research: read the call chain, the owner API and the nearest sibling;
+  trace the runtime (trace skill, `/ode`); delegate to Librarian. Continue until one compliant
+  solution exists.
+- **One** → the solution. Execute it and cite the clause that selects it. Before the plan locks, it
+  goes into the plan. It is never presented as an option.
+- **Two or more, genuinely distinct** → present them flat: 2–4, concrete, source-traceable.
+  Recommend one only when BLESSED selects it, and cite the MANIFESTO principle.
+
+Taste, priors, and "cleaner" ground nothing.
 
 **Working-example precedence.** When producing an artifact that has siblings, the pattern is taken
 from the nearest artifact in the same data set that already passes its gate — the same directory,

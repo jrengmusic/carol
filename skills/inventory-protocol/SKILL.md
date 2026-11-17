@@ -96,7 +96,8 @@ The name families that the objective joins.
   store. `add` inserts into a container.
 - The nearest set comes first, then the module, then the framework (NAMES.md Rule 5,
   nearest-sibling precedence).
-- A new domain term that no family covers goes to ARCHITECT (NAMES.md Rule -1).
+- No in-house family covers the concept → read the JUCE family. A name outside both is
+  permitted only as a Rule -1 exception, with both reads cited (NAMES.md Rule -1).
 
 ### 4. Synthesis
 

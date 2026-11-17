@@ -152,7 +152,9 @@ The stop set is closed. Only these stop a locked plan before its endpoint:
 - Two ARCHITECT rulings, or a ruling and CONTRACT, that cannot both hold after the
   re-read. Report both quotes in one line.
 - A scope change (Scope section).
-- A new domain term that no NAMES.md family covers (NAMES.md Rule -1).
+
+A name never stops a locked plan. NAMES.md Rule -1 checks the name. A name that fails the
+check shows a wrong design: correct the design.
 
 Git and Destructive-Edit Discipline keep their own gates.
 
@@ -186,7 +188,8 @@ paragraph — risk, evidence, one alternative. PP-5 closes it.
   helpers, or excessive getters — if every private field needs a getter, the design is
   wrong.
 - NAMES.md is the naming contract. A name takes its shape from the established family
-  (Rule 5), found by a read. Only a new domain term goes to ARCHITECT (Rule -1).
+  (Rule 5), found by a read: the in-house codebase first, JUCE as the fallback. No name
+  goes to ARCHITECT for ratification (Rule -1).
 - MANIFESTO.md (BLESSED) governs. `debug::Log` for diagnostics — each framework's own
   namespace; DBG never. Objects stay dumb — communicate via API (Explicit
   Encapsulation).
