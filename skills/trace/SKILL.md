@@ -193,7 +193,18 @@ Exit code (both drivers): 0 when the run happened. 2 when the spec is wrong.
 
 ## Limits
 
-- whatdbg launch takes `program` and `cwd` only. No arguments. No environment.
+- whatdbg launch reads `program`, `console` and `cwd` only (whatdbg
+  `Source/Processor.cpp:424-438`). whatdbg resolves `program` as a path with
+  `getChildFile` (`Source/debug/Session.cpp:148-161`). Thus arguments in `program` do not
+  reach the target, and the launch sets no environment.
+- A target that needs arguments runs in attach mode, never in launch mode. Start the
+  target with its arguments, read its pid, write the pid into the spec, then run the
+  driver. Example: the EVE profile build reads its manifest from its first argument
+  (`eve/Source/EVETerminalProcessor.cpp:41-44`). Start
+  `EVE.exe <absolute-manifest-path>`, then attach the sample by pid. The manifest's
+  `## profiler` table sets the workload, and EVE quits when the shell exits.
+- This limit applies to launch only. It never means that whatdbg cannot debug or sample
+  the target.
 - Breakpoints are `file:line` only. The sample driver sets none.
 - Locals and expression results are whatdbg's own text. Nested values are not expanded.
   The driver prints every local whatdbg returns and filters nothing.

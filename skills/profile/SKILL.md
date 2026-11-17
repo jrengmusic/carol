@@ -143,6 +143,13 @@ for each epoch (`scout/Source/HELP.md:49-73`). Without it, scout samples nothing
 | `intervalMs` | `int` | The sampling period, in ms. The least value is 1. |
 | `stackDepth` | `int` | The most frames that each stack records. macOS: 2 to 128. Linux: 1 to 127. Windows: 1 to 192. |
 
+scout reads only these two keys (`scout/Source/Sampler.h:96`, `Source/HELP.md:51-56`).
+A row with any other key has no effect on scout. The keys `program`, `cwd`, `threads`,
+`delayMs`, `maxSamples`, `topRows`, `pauseTimeoutMs` and `timeoutMs` are fields of a
+whatdbg sample spec (trace skill, Spec — sample). They belong in a whatdbg spec file,
+not in a scout manifest. When a manifest holds them, scout still samples with
+`intervalMs` and `stackDepth` only.
+
 A sampling run is its own scout run. The sampler adds load, so its `epoch`, `user` and
 `system` rows are not timings.
 
