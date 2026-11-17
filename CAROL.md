@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.30
-**Last Updated:** 28 Oct 2026
+**Version:** 0.0.31
+**Last Updated:** 17 Nov 2026
 
 ---
 
@@ -424,7 +424,7 @@ ODE.md §VI. Afterward only signal survives in context.
 
 **ARCHITECT is supreme on decisions and judgment. Facts, cited, are the only override.**
 
-**End of CAROL v0.0.30**
+**End of CAROL v0.0.31**
 
 Rock 'n Roll!
 **JRENG!**

@@ -24,10 +24,7 @@ The writing language follows the Writing Standard in CAROL.md. This skill does n
 1. **Read the RFC** at the project root (`RFC.md` or `RFC-[objective].md`). It is optional. Skip it when ARCHITECT says "no RFC". If it is present and ARCHITECT did not say "no RFC", consume it. If it is absent, take the objective from ARCHITECT's prompt. Never invent an RFC. Never block on a missing one.
 2. **Read the CONTRACT documents** that the objective touches: `~/.carol/MANIFESTO.md` (BLESSED), `~/.carol/NAMES.md` (lexicon, identifiers), `~/.carol/CODING.md` (coding standards), `~/.carol/LANGUAGE.md` (language and framework adaptations). Read the sections that the objective needs, not the whole files.
 3. **Read SPEC.md** if it exists. The plan must align with it.
-4. **Invoke @Pathfinder** for a thorough dependency and pattern inventory. It finds and lists:
-   - Every framework or library dependency in use for this objective (Vulkan, Windows API, JUCE, KANJUT, JAM, CIUM, whichever apply).
-   - The pattern the codebase already uses for identifiers (lexicon), containers, helpers, and free static functions. Check the established vocabulary first: `HashMap`, `Function::Map`, `LookupTable`, `Format`, `Owner`, `Array`, and the existing Identifier lexicon.
-   - The framework API surface for the objective. The plan commits to use it to its fullest extent.
+4. **Build the Framework Inventory.** Load the `inventory-protocol` skill and follow it exactly. Invoke @Pathfinder for the reads, with the protocol's order and its five layers in the prompt: API, pattern usage, names, synthesis, absence. The plan commits to use the inventoried API and the established patterns to their fullest extent.
 5. **Write `PLAN-[objective].md`** at the project root, in the format below.
 
 ## Format
@@ -46,9 +43,8 @@ The writing language follows the Writing Standard in CAROL.md. This skill does n
 ## Language / Framework Constraints
 [Relevant LANGUAGE.md adaptations that affect this plan — BLESSED overrides, framework limitations, accepted violations]
 
-## Dependency & API Inventory
-[Frameworks/libraries Pathfinder found in scope for this objective, and the specific API surface each step commits to using — e.g. "Vulkan: VkDescriptorSetLayout via existing RenderContext wrapper", "KANJUT: kanjut::LookupTable for X"]
-[Established codebase pattern confirmed for identifiers/containers/helpers touched — cite file:line]
+## Framework Inventory
+[The five tables of the inventory-protocol skill, in its order: API, Pattern usage, Names, Synthesis, Absence. Each row cites file:line or compound XML, and names the step that uses it.]
 
 ## Validation Gate
 Each step is validated by COUNSELOR before proceeding to the next — against
@@ -61,7 +57,8 @@ the whole sprint — never per step.
 ### Step 1: [Title]
 **Scope:** [files/modules affected]
 **Action:** [precise instruction for @Engineer]
-**Validation:** [what COUNSELOR checks — must cover MANIFESTO.md, NAMES.md, ~/.carol/CODING.md, and locked PLAN decisions]
+**Inventory:** [the Framework Inventory rows this step uses — API, pattern, name family, synthesis]
+**Validation:** [what COUNSELOR checks — must cover MANIFESTO.md, NAMES.md, ~/.carol/CODING.md, the Inventory rows of this step, and locked PLAN decisions]
 
 ### Step 2: [Title]
 ...
@@ -79,7 +76,7 @@ the whole sprint — never per step.
 - Steps are small and incremental. Never choke the engineer.
 - Each step has explicit validation criteria.
 - The objective name in the file name comes from the RFC title when an RFC exists. Otherwise it comes from ARCHITECT's stated objective. It is kebab-case, for example `PLAN-session-management.md`.
-- No hand-rolled method where the framework API already provides one. No manual arithmetic, no manual string parsing, no manual state tracking.
+- No hand-rolled method where the framework API already provides one. No manual arithmetic, no manual string parsing, no manual state tracking. Hand-rolled code for a need is valid only with an Absence row for that need.
 - No magic numbers or variables. Define constants per NAMES.md and CODING.md.
 - No new semantics, no new pattern, no new foreign names. Follow the pattern the codebase already uses, exactly. A new domain term goes to ARCHITECT (NAMES.md Rule -1).
 - Every RFC point maps to a plan step or to an explicit ARCHITECT descope. Ambiguity goes to ARCHITECT.

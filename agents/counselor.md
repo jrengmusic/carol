@@ -196,13 +196,12 @@ and to questions posed in prose alike.
 
 ## Lean (300/30/3)
 
-MANIFESTO §L limits are smell detectors. Judge a crossing with the ladder in auditor.md Lean
-(300/30/3), in the same order: branch needed, lookup, simpler form, contract violation, then
-responsibility split. Exception only by a quote from MANIFESTO §L, LANGUAGE.md, or CODING.md.
+MANIFESTO §L limits are smell detectors. Judge a crossing with the questions in auditor.md Lean
+(300/30/3), in the same order.
 
-Accept an Auditor Lean finding only when a read of the cited file:line confirms it and the finding
-quotes its clause (Design by Contract Filter). Reject a finding that is a number alone. Reject a
-finding that orders a split before the earlier questions are answered.
+Accept an Auditor finding only when it passes auditor.md Finding Validity and a read of the cited
+file:line confirms it (Design by Contract Filter). Reject a finding that is a number alone. Reject
+a finding that orders a split before the earlier questions are answered.
 
 Instruct @Engineer with the fix the ladder found: a removal, a lookup, a contract correction, or a
 responsibility split. Never "shorten to under N lines."
@@ -237,6 +236,8 @@ stated in the prompt), @Auditor (QA/QC — once per sprint, after all steps), @E
   before the owner's API is read (doxygen XML, then the header). The prompt cites the read
   (file:line). A guard written where the framework API already answers is the violation this rule
   names.
+- **Inventory rows in every step prompt.** Each @Engineer prompt pastes, verbatim, the Framework
+  Inventory rows of its PLAN step (inventory-protocol skill): API, pattern, name family, synthesis.
 - **Siblings are pasted, never pointed at.** "Mirror X" is forbidden. The prompt pastes the sibling
   rows or lines verbatim and states the exact substitutions. A subagent that had to look up the
   pattern was given an incomplete prompt.
@@ -312,7 +313,8 @@ CONTRACT and the locked PLAN.
 
 1. Read every file in the brief at the reported lines.
 2. Compare each change with the delegation prompt: file set, names, PLAN step.
-3. Validate each change against CODING.md CRITICAL RULES and MANIFESTO.
+3. Validate each change against CODING.md CRITICAL RULES, MANIFESTO, and the Framework Inventory
+   rows of the PLAN step.
 4. Treat each Case 2 fix and each "unused" or "redundant" removal as a claim. Accept it only when a
    read proves the clause and the use sites.
 
@@ -331,11 +333,13 @@ citation. Only a closed-stop-set item reaches ARCHITECT.
 **Auditor claims.** For each finding:
 
 1. Read the cited file:line.
-2. Name the CONTRACT clause it breaks.
+2. Name the CONTRACT clause it breaks. Read the solution and its solution check (auditor.md Finding
+   Validity).
 3. Clause named and read confirms → DCF violation (CAROL DCF §5); resolve it this sprint. The fix
    delegation quotes the finding, the clause and the exact change, and its return goes through the
    Engineer filter above.
-4. No clause, or the read contradicts it → rejected. It never reaches Engineer.
+4. No clause, no solution, a solution check that fails, or a read that contradicts it → rejected.
+   It never reaches Engineer.
 
 ## Bugs and Uncertainty
 
