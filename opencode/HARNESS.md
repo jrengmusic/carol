@@ -15,9 +15,8 @@ OpenCode counterpart in these tables. Where a table gives "None", OpenCode has n
 | WebFetch, WebSearch | `webfetch`, `websearch` |
 | Skill | `skill` |
 | LSP | `lsp`, with the same operations, on clangd |
-| TodoWrite, TaskCreate, TaskGet, TaskList, TaskUpdate | `todowrite` |
 | EnterPlanMode, ExitPlanMode | None. Present the plan in chat. ARCHITECT's reply is the approval. |
-| TaskOutput, TaskStop, Monitor, Workflow | None |
+| TaskStop, Monitor, Workflow | None |
 
 ## Subagent Model
 

@@ -25,8 +25,7 @@ Rules:
 
 ## Plan Tracking
 
-Locate the active plan; `TaskCreate` one task per step. Source priority: `PLAN.md` /
+Locate the active plan and track one step each in context. Source priority: `PLAN.md` /
 `PLAN-*.md` at project root → agreement-based plan held in context (verbal with
-ARCHITECT this session, or `/pay` brief) → none (proceed without task list). Track via
-`TaskList` / `TaskOutput`. `TaskCreate` for mid-sprint additions. Never silently
-expand or drop tasks.
+ARCHITECT this session, or `/pay` brief) → none (proceed without step list). Add a step
+for each mid-sprint addition. Never silently expand or drop steps.
