@@ -13,9 +13,9 @@
   "commands": [],
   "agents": [],
   "lspServers": {
-    "clangd": {
-      "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/carol-clangd.js", "client"],
+    "ling": {
+      "command": "ling",
+      "args": ["project-info.md"],
       "extensionToLanguage": {
         ".c": "c",
         ".h": "cpp",
@@ -27,7 +27,13 @@
         ".cpp": "cpp",
         ".cxx": "cpp",
         ".m": "objective-c",
-        ".mm": "objective-cpp"
+        ".mm": "objective-cpp",
+        ".md": "markdown",
+        ".mmd": "mermaid",
+        ".json": "json",
+        ".css": "css",
+        ".xml": "xml",
+        ".html": "html"
       },
       "diagnostics": false
     }

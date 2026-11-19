@@ -1,6 +1,6 @@
 ---
 name: doxygen-protocol
-description: Symbol lookup for C++ work on every framework in the Index locations table. Doxygen XML gives what exists. The LSP tool (clangd) gives definitions, references, implementations, and call hierarchy from the compiler AST. Use at the start of any task touching these codebases, before any text search. Provides the question-to-source table, the reading order, index locations, and regeneration commands.
+description: Symbol lookup for C++ work on every framework in the Index locations table. Doxygen XML gives what exists. The LSP tool (ling) gives definitions, references, implementations, and call hierarchy from the compiler AST. Use at the start of any task touching these codebases, before any text search. Provides the question-to-source table, the reading order, index locations, and regeneration commands.
 ---
 
 # Doxygen Protocol
@@ -20,8 +20,8 @@ Two sources answer every symbol question. Text search answers none.
 | The symbols of one file | LSP `documentSymbol` |
 | The type at a position | LSP `hover` |
 
-The LSP tool runs clangd from PATH. clangd reads the project's
-`compile_commands.json`, so it reads the AST that the compiler reads. Doxygen parses
+The LSP tool runs `ling project-info.md` from PATH, in the session folder. ling reads
+the build of that manifest, so it reads the AST that the compiler reads. Doxygen parses
 the source on its own and links calls by name. Doxygen gives no reference evidence and
 no call evidence.
 
@@ -41,10 +41,10 @@ Doxygen prose can be stale. The code is the source of truth.
 - An absence claim cites an empty `findReferences` or `workspaceSymbol` result, and the
   call that gave it.
 - The LSP tool is read-only. Diagnostics are off: CAROL.md Build Environment.
-- A framework file (JAM, KANJUT, CIUM) has no compile database of its own. Its
-  `.clangd` file, written by `~/.config/nvim/lua/core/clangd.lua`, points at the
-  project that nvim loaded last. When an LSP result on a framework file is empty or
-  wrong, report it under `Needs`: ARCHITECT loads the project in nvim.
+- ling answers for the project whose `project-info.md` is in the session folder. A
+  framework file (JAM, KANJUT, CIUM) gets an answer when a unit of that project
+  compiles it. When an LSP result on a framework file is empty or wrong, report it
+  under `Needs`.
 
 ## Text search
 

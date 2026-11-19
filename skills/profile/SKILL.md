@@ -291,10 +291,10 @@ The report is also the next baseline. The same parser reads it back.
 Zones. The report lists every zone that the target recorded. Each zone key is a cast
 identifier in the `## identifiers` table of its owner: `eve/cast/identifiers.md` for EVE
 zones, `jam/cast/<module>.md` for JAM zones (for example `jam/cast/terminal.md`). The
-report writes the key as words. To find the code site of a zone, ask clangd for the
-references of its `Id::` member. The zone sites sit under `#if JAM_USING_PROFILER`; clangd
-resolves them when the project's root `compile_commands.json` is the profile build's copy
-(nvim writes that copy from the first profile lane, `nvim/lua/core/project.lua` `getCompile`).
+report writes the key as words. To find the code site of a zone, ask the LSP tool for the
+references of its `Id::` member. The zone sites sit under `#if JAM_USING_PROFILER`. The
+LSP tool starts ling with no toolchain argument, so ling reads the default lane of the
+manifest. A zone site resolves only when that lane compiles with the profiler.
 
 ## Builds
 

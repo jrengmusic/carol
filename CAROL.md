@@ -358,7 +358,7 @@ grammar.
 ## Doxygen
 
 On C++/JUCE/JAM/KANJUT/CIUM tasks, doxygen XML gives what exists, and the LSP tool
-(clangd) gives definitions, references, implementations, and call paths. Text search on
+(ling) gives definitions, references, implementations, and call paths. Text search on
 C++ source finds string literals and preprocessor directives only; it never proves
 absence or gives the blast radius. Every subagent prompt carries the same instruction.
 Question-to-source table, reading order, index locations, regen commands:

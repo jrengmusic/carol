@@ -82,7 +82,7 @@ juce::File presetDirectory;
 Functions use verbs:
 ```cpp
 void buildInterface();
-void applyImages();
+void setImages();
 bool isValidParameterID();
 juce::String getProductName();
 ```
@@ -119,9 +119,9 @@ codebase (Rule 6).
 |---|---|
 | `get` | Returns the object. Does not store, does not mutate a container. |
 | `add` | Inserts into a container. The container is the subject. |
-| `set` | Replaces an existing value in place. |
+| `set` | Replaces an existing variable in place. The variable holds a value or data. The body of any `apply` function is `set`. |
 | `is` / `has` | Answers a question. Returns bool, changes nothing. |
-| `apply` | Pushes a computed result onto a target the caller supplies. |
+| `apply` | Applies a function. Only a function is applied: `applyFunctionRecursively` applies a function to a tree. Never apply a value or data — that is `set`. |
 | `getOrCreate` | Returns the object, creating it when absent — the side effect is in the name. |
 
 A unit that both computes and stores is two units. Split it: `get` returns, the caller
@@ -361,8 +361,8 @@ juce::String fetchVersionString() const noexcept;
 juce::String retrieveProductWebsite() const noexcept;
 
 // Inconsistent parameter naming
-void applyImages(juce::Component* view, Descriptors& descriptors);
-void applyRules(juce::Component* comp, Descriptors& desc);
+void setImages(juce::Component* view, Descriptors& descriptors);
+void setRules(juce::Component* comp, Descriptors& desc);
 void attachTo(juce::Component* parent, Descriptors& componentDescriptors);
 
 // Mixed naming for boolean checks
@@ -379,8 +379,8 @@ juce::String getVersionString() const noexcept;
 juce::String getProductWebsite() const noexcept;
 
 // Consistent parameter naming throughout Manager
-void applyImages(juce::Component* view, Descriptors& descriptors);
-void applyRules(juce::Component* view, Descriptors& descriptors);
+void setImages(juce::Component* view, Descriptors& descriptors);
+void setRules(juce::Component* view, Descriptors& descriptors);
 void attachTo(juce::Component* view, Descriptors& descriptors);
 
 // Consistent boolean naming pattern
