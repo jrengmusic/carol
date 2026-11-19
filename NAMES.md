@@ -119,10 +119,28 @@ codebase (Rule 6).
 |---|---|
 | `get` | Returns the object. Does not store, does not mutate a container. |
 | `add` | Inserts into a container. The container is the subject. |
-| `set` | Replaces an existing variable in place. The variable holds a value or data. The body of any `apply` function is `set`. |
+| `set` | Writes onto a target: a variable, a member, a container slot, a tree, a component, a stream. The name states the result on the target, not the steps. The body can loop, add, remove, insert, or call other functions (`setAppearance`, `setBypassed`, `setPanelHeight`). |
 | `is` / `has` | Answers a question. Returns bool, changes nothing. |
-| `apply` | Applies a function. Only a function is applied: `applyFunctionRecursively` applies a function to a tree. Never apply a value or data — that is `set`. |
+| `apply` | Takes a callable as a parameter and calls it: on each element, on each match, or on a tree (`applyFunctionRecursively`, `applyToRecords`, `applyToComponentRows`). |
 | `getOrCreate` | Returns the object, creating it when absent — the side effect is in the name. |
+
+**`set` or `apply` — the test.** Read the signature. A callable parameter that the body
+calls → `apply`. No callable parameter → never `apply`. A function that writes onto a
+target is `set`, whatever its body does.
+
+```cpp
+// WRONG — no callable parameter
+void applyFlexGap (juce::FlexBox& flexBox, float gap);
+void applyWinsize (TerminalWinsize newWinsize, TerminalBuffer& terminalBuffer);
+
+// CORRECT — writes onto the target
+void setFlexGap (juce::FlexBox& flexBox, float gap);
+void setWinsize (TerminalWinsize newWinsize, TerminalBuffer& terminalBuffer);
+
+// CORRECT — takes a callable and calls it
+template <typename Function>
+void applyToRecords (const Document& document, const Function& function);
+```
 
 A unit that both computes and stores is two units. Split it: `get` returns, the caller
 `add`s. When splitting produces a one-line call site, that is the correct shape — not a
