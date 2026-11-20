@@ -301,6 +301,12 @@ and `pull` also pass. The hook
 reads words, not intent. The rules above govern everything the hook cannot read,
 including whether the task needs the fact.
 
+**Doxygen task.** A Pathfinder that writes the doxygen pass runs no git. Git output
+is not input to a doxygen block. The hook reads the `description` of the Agent call:
+when it names `doxygen`, the hook denies every git command from that Pathfinder. The
+delegation puts `doxygen` in the `description`. An ARCHITECT instruction that names git
+still passes. Engineer runs no git under the same rule: Engineer is not Pathfinder.
+
 ## Destructive-Edit Discipline
 
 Any scripted or mechanical in-place modification (sed/perl/awk/python, bulk Edit

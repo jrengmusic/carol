@@ -4,6 +4,7 @@ const NUDGE_INTERVAL = 5
 const DEFAULT_ROLE = 'COUNSELOR'
 const MACHINIST_ROLE = 'MACHINIST'
 const READ_ONLY_GIT_AGENT = 'pathfinder'
+const DOXYGEN_TASK_PATTERN = /doxygen/i
 const ROLE_FILE = '/.carol-role'
 const AGENTS_DIRECTORY = '/agents/'
 const SPRINT_LOG = 'carol/SPRINT-LOG.md'
@@ -28,7 +29,7 @@ const CPP_TARGET_PATTERN = new RegExp('(?:--type[= ]|-t\\s*)(?:c|cpp|objc|objcpp
 const LITERAL_SEARCH_PATTERN = /\\"|'[^']*"[^']*'|['"]#/
 const CONTRACT_DOCUMENT_PATTERN = new RegExp('[\\\\/]\\.carol[\\\\/](' + CONTRACT_DOCUMENTS.join('|') + ')\\.md$')
 
-const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
+const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent and never in a Pathfinder whose task description names doxygen, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
 const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
 const TEXT_SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the LSP tool to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
 const CONTRACT_GATE = 'Before a question to ARCHITECT, read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again, in full, with the Read tool (counselor.md Options & Recommendations). Then filter each option against them. Delete each option that breaks CONTRACT: a revert to a past state, a patch that violates CONTRACT, and a question about a name (NAMES.md Rule -1). One option remains: execute it, because it is not a question. No option remains: research until one compliant solution exists. Ask only when two or more compliant options remain.'
@@ -96,14 +97,15 @@ async function isSprintLogNewer($, sprintLog) {
   return (await $.fs.exists(sprintLog)) && (await $.fs.stat(sprintLog)).mtimeMs > (await read($, armedAtMs))
 }
 
-async function getSubagentType($, agentId) {
+async function isReadOnlyGitAgent($, agentId) {
   const agents = await $.agent.list()
-  return (agents.find((agent) => agent.id === agentId)?.type ?? '').toLowerCase()
+  const { type = '', description = '' } = agents.find((agent) => agent.id === agentId) ?? {}
+  return type.toLowerCase() === READ_ONLY_GIT_AGENT && !DOXYGEN_TASK_PATTERN.test(description)
 }
 
 async function getPermittedInvocations($, command, agentId) {
   const isMainSession = agentId === undefined
-  const isReadOnlyPermitted = isMainSession || (await getSubagentType($, agentId)) === READ_ONLY_GIT_AGENT
+  const isReadOnlyPermitted = isMainSession || (await isReadOnlyGitAgent($, agentId))
   const isSyncPermitted = isMainSession && (await read($, sessionAgentType)) === MACHINIST_ROLE
   const readOnly = isReadOnlyPermitted ? countMatches(GIT_READ_ONLY_PATTERN, command) : 0
   return isSyncPermitted ? readOnly + countMatches(GIT_SYNC_PATTERN, command) : readOnly

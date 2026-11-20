@@ -85,6 +85,8 @@ export default [
   { name: 'Engineer subagent git log denied', prompts: ['hello'], subagent: true, subagentType: 'Engineer', tool: 'Bash', command: 'git log --oneline', expect: 'deny' },
   { name: 'Engineer subagent git status allowed when prompt names git', prompts: ['run git status'], subagent: true, subagentType: 'Engineer', tool: 'Bash', command: 'git status', expect: 'allow' },
   { name: 'Pathfinder subagent git diff allowed', prompts: ['hello'], subagent: true, subagentType: 'Pathfinder', tool: 'Bash', command: 'git diff', expect: 'allow' },
+  { name: 'Pathfinder doxygen task git diff denied', prompts: ['hello'], subagent: true, subagentType: 'Pathfinder', subagentDescription: 'Doxygen pass on Foo.h', tool: 'Bash', command: 'git diff', expect: 'deny' },
+  { name: 'Pathfinder doxygen task git status allowed when prompt names git', prompts: ['run git status'], subagent: true, subagentType: 'Pathfinder', subagentDescription: 'Doxygen pass on Foo.h', tool: 'Bash', command: 'git status', expect: 'allow' },
   { name: 'Pathfinder subagent git commit denied', prompts: ['hello'], subagent: true, subagentType: 'Pathfinder', tool: 'Bash', command: 'git commit -m x', expect: 'deny' },
   { name: 'Auditor subagent git diff denied', prompts: ['hello'], subagent: true, subagentType: 'Auditor', tool: 'Bash', command: 'git diff', expect: 'deny' },
   { name: 'subagent background read-only git denied', prompts: ['hello'], subagent: true, background: true, tool: 'Bash', command: 'git status', expect: 'deny' },

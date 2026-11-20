@@ -42,7 +42,7 @@ for (const testCase of cases as any[]) {
     on('fs.exists', ($, e) => ({ value: files.has(e.path) }))
     on('fs.read', ($, e) => ({ value: files.get(e.path) }))
     on('classic.UserPromptSubmit', () => ({}))
-    on('agent.list', () => ({ value: [{ id: SUBAGENT_ID, type: testCase.subagentType ?? DEFAULT_SUBAGENT_TYPE }] }) as any)
+    on('agent.list', () => ({ value: [{ id: SUBAGENT_ID, type: testCase.subagentType ?? DEFAULT_SUBAGENT_TYPE, description: testCase.subagentDescription ?? '' }] }) as any)
     let lastContext: string[] | undefined
     on('prompt.submit', ($, e) => {
       lastContext = e.context
