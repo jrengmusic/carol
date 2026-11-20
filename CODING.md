@@ -1056,6 +1056,7 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **No Windows SDK macro names as identifiers** — no name in the *Platform macro names* table.
 - **No bail-out guards.** Preconditions use an assert (STL, JUCE, or project-specific) — NEVER `if (not valid) return;`. Result returns (value determined at that point) are correct and preferred.
 - **ALWAYS use nested positive checks:** `if (valid) { if (ready) { doWork(); } }` — NEVER `if (not valid) return;`
+- **No `else` after `return`.** A branch that returns ends the branch. The code after it is the other path.
 - **Use `.at()` for container access where the container provides it** — NEVER raw `[]` when a bounds-checked accessor exists. Fail Fast principle: invalid index throws immediately.
 - **Use C++ alternative tokens:** `not`, `and`, `or` — NEVER `!`, `&&`, `||`
 - **NO anonymous namespaces.** Use `static` linkage for translation-unit-local symbols.
@@ -1095,55 +1096,6 @@ The `doxygen-writer` skill is the only source of the doxygen rules.
 **Use `debug::Log` exclusively** — each framework provides it in its own namespace.
 
 Diagnostic instrumentation is ephemeral — all log statements added during investigation are removed within the same sprint. See ODE.md §VI.
-
----
-
-## SUMMARY CHECKLIST
-
-✓ DRY: Never repeat code
-✓ Braces on new line
-✓ Space around operators
-✓ `*` and `&` stick to type
-✓ `const` before type
-✓ Use `override`, never with `virtual`
-✓ Add `noexcept` where possible
-✓ Explicit null checks with `nullptr`
-✓ Avoid raw `new`/`delete`
-✓ Use smart pointers
-✓ Pre-increment in loops
-✓ No `else` after `return`
-✓ Narrow pointer scope with if-init
-✓ Prefer `enum class` over plain `enum` when applicable
-✓ `explicit` single-arg constructors
-✓ Pass small types by value
-✓ Use `std::` math functions
-✓ Aggregate (brace) initialization always — parentheses when the initializer is the same container type
-✓ No Windows SDK macro names as identifiers — no name in the *Platform macro names* table
-✓ No bail-out guards — assert (project-appropriate) for preconditions, nested positive checks for conditional execution, result returns correct and preferred
-✓ **Use `.at()` where the container provides it** — bounds-checked accessor always preferred over raw `[]`
-✓ **ALWAYS use `not`, `and`, `or`** alternative tokens
-✓ **NO anonymous namespaces** — use `static` linkage instead
-✓ **NO `namespace detail`** — use class `private:`, static file-local symbols, or PIMPL
-✓ **Doxygen:** `doxygen-writer` skill
-✓ **No underscores in variable names** — including constructor parameter names in member initializer lists
-✓ **Structured bindings for pair/tuple results** — chain through dereferences, all names descriptive, `_` and `it` forbidden
-✓ **No manual management of RAII objects in destructors** — `.reset()`, `= nullptr`, `.clear()`, `.close()`, or any equivalent
-✓ **No non-owning naked pointers as members** — inject at call site, never store
-✓ **No `friend` declarations** — redesign the public API
-✓ **No `DBG`** — use `debug::Log` exclusively for diagnostic instrumentation
-✓ **No local struct definitions inside function bodies** — define at class scope, file-local `static`, or dedicated header
-✓ **No near-duplicate struct proliferation** — same field layout = same type; unify and reuse
-✓ **Consume the event payload** — react to exactly what the event delivered, never re-derive by walking/diffing state
-✓ **No identifier latitude in delegation** — agents introduce zero names not verbatim in their task prompt; violation rejects the output, not amends it
-✓ **Use the framework API fully** — the project's in-house framework (JAM/KANJUT/CIUM) first, then its dependency framework (e.g. JUCE); do not write again what the framework supplies; no manual arithmetic when an API exists
-✓ **Owner first, narrowest scope, configure only the difference** — read the owner for an existing default/API; smallest scope that holds every use; never restate a framework default in project code
-✓ **No `==`/`!=` on strings** — dispatch by key (Function::Map / HashMap / Bimap / Identifier); `juce::String::compare (…) == 0` only where text comparison is unavoidable; > 3 text tests = lookup table
-✓ **Uniform signature in the type** — `Function::Map<Key, ReturnType>` (type-erased) only when entry signatures differ; one signature for every entry → `Function::Map<Key, ReturnType (Args...)>`, `add` deduces, no explicit template argument
-✓ **`apply` takes a callable; a write is `set`** — no callable parameter → never `apply…`; a write onto a target → `set…`
-✓ **No out-parameters** — return the value; a getter is `const`; one exception is a value replacement in place (`void process (double& sample)`)
-✓ **No fake-carrier structs** — a struct must give a capability that value data does not have; a struct that only carries data is forbidden
-✓ **One object, one translation unit** — templates/constexpr in the header; every non-template body in the object's one `.cpp`; never one object over several `.cpp` files; header-only only for portability
-✓ **Deadline threads** — no allocation, lock, wait, or blocking call on the audio or clock thread, in creation or in transit; the owner sizes every buffer in `prepare`
 
 ---
 

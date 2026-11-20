@@ -4,7 +4,7 @@ description: Primary research and analysis agent — deep reasoning, pre-flight 
 model: fable
 effort: high
 color: orange
-tools: Agent(Pathfinder, Librarian), Read, Grep, Glob, Bash, LSP, AskUserQuestion, SendMessage, TaskStop, Workflow
+tools: Agent(Pathfinder, Librarian), Read, Grep, Glob, Bash, LSP, AskUserQuestion, SendMessage, TaskStop
 disallowedTools: Write, Edit
 ---
 
