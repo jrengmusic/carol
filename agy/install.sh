@@ -10,6 +10,7 @@ done
 AGY_ROOT="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 CAROL_ROOT="$( cd -P "$AGY_ROOT/.." >/dev/null 2>&1 && pwd )"
 PLUGIN_DIR="$HOME/.gemini/config/plugins/carol"
+GLOBAL_SKILLS_DIR="$HOME/.gemini/config/skills"
 LOCAL_BIN="$HOME/.local/bin"
 
 mkdir -p "$PLUGIN_DIR/agents" "$PLUGIN_DIR/hooks" "$PLUGIN_DIR/mcp" "$PLUGIN_DIR/rules" "$PLUGIN_DIR/skills" "$LOCAL_BIN"
@@ -39,9 +40,14 @@ arch = (carol_root / "ARCHITECT.md").read_text()
 (plugin_rules / "architect.md").write_text("---\ntrigger: always_on\n---\n\n" + arch)
 ' "$CAROL_ROOT" "$PLUGIN_DIR/rules"
 
-# Copy core skills from ~/.carol/skills/ and command skills from ~/.carol/agy/skills/
+# Copy core skills to plugin and command skills to global skills for bare /<cmd> names
 cp -R "$CAROL_ROOT/skills/." "$PLUGIN_DIR/skills/"
-cp -R "$AGY_ROOT/skills/." "$PLUGIN_DIR/skills/"
+mkdir -p "$GLOBAL_SKILLS_DIR"
+for cmd_dir in "$AGY_ROOT/skills"/*/; do
+    cmd_name="$(basename "$cmd_dir")"
+    rm -rf "$GLOBAL_SKILLS_DIR/$cmd_name"
+    cp -R "${cmd_dir%/}" "$GLOBAL_SKILLS_DIR/$cmd_name"
+done
 
 chmod +x "$AGY_ROOT/bin/agycarol" "$AGY_ROOT/bin/agyoracle" "$AGY_ROOT/bin/agymachine" "$AGY_ROOT/bin/agy-statusline.sh" "$PLUGIN_DIR/hooks/agy-gate.mjs" "$PLUGIN_DIR/mcp/ling-bridge.mjs"
 
