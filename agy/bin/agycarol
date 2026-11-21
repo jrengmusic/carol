@@ -46,11 +46,18 @@ if [ "$role" != "machinist" ] && [ ! -d carol ] && [ ! -d .carol ]; then
     esac
 fi
 
-# Ensure AGENTS.md rule link exists in current directory if in a project
+# Ensure AGENTS.md rule link and hard-linked reference docs exist in project
 if [ -d carol ] || [ -d .carol ]; then
     if [ ! -f "AGENTS.md" ] && [ ! -L "AGENTS.md" ]; then
         ln -sf "$CAROL_ROOT/CAROL.md" AGENTS.md
     fi
+    case "$(pwd -P)" in
+        "$CAROL_ROOT"|"$CAROL_ROOT"/*)
+            ;;
+        *)
+            "$CAROL_ROOT/bin/carol" sync-docs
+            ;;
+    esac
 fi
 
 # Map role to agent name, model, and activation acknowledgment prompt
@@ -80,13 +87,4 @@ esac
 export CAROL_ROLE="$AGENT"
 printf '%s' "$CAROL_ROLE" > "$CAROL_ROOT/.carol-role"
 
-ADD_DIR_ARGS=()
-case "$(pwd -P)" in
-    "$CAROL_ROOT"|"$CAROL_ROOT"/*)
-        ;;
-    *)
-        ADD_DIR_ARGS=(--add-dir "$CAROL_ROOT")
-        ;;
-esac
-
-exec agy --dangerously-skip-permissions --agent "$AGENT" --model "$MODEL" "${ADD_DIR_ARGS[@]}" --prompt-interactive "$PROMPT" "$@"
+exec agy --dangerously-skip-permissions --agent "$AGENT" --model "$MODEL" --prompt-interactive "$PROMPT" "$@"

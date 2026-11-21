@@ -118,20 +118,62 @@ refresh_marketplace() {
 
 CAROL_REFERENCE_DOCS=(NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md CODING.md LANGUAGE.md ODE.md ARCHITECT.md)
 
-# The symlinks below point at an absolute per-machine path (~/.carol). Git
-# tracks a symlink target verbatim, so a tracked link breaks on every other OS.
+# Keep Claude project symlinks out of git tracking across machines.
 ignore_carol_assets() {
-    local ref_doc ignored_path
+    local ignored_path
     local ignored_paths=(".claude/agents/" ".claude/commands/")
-    for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
-        ignored_paths+=("carol/$ref_doc")
-    done
 
     touch .gitignore
-    [ -n "$(tail -c1 .gitignore)" ] && echo >> .gitignore
+    [ -s .gitignore ] && [ -n "$(tail -c1 .gitignore)" ] && echo >> .gitignore
     for ignored_path in "${ignored_paths[@]}"; do
         grep -qxF "$ignored_path" .gitignore || echo "$ignored_path" >> .gitignore
     done
+}
+
+# Hard-link reference docs into carol/ (agy skips symlinks and .gitignore) and
+# exclude them via .git/info/exclude so git never tracks them and agy @ shows them.
+sync_carol_docs() {
+    [ -d "carol" ] || return 0
+    local ref_doc exclude_file tmp_file
+    for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
+        if [ -f "$CAROL_ROOT/$ref_doc" ]; then
+            if [ ! -L "carol/$ref_doc" ] && [ "$CAROL_ROOT/$ref_doc" -ef "carol/$ref_doc" ]; then
+                continue
+            fi
+            rm -f "carol/$ref_doc"
+            ln -f "$CAROL_ROOT/$ref_doc" "carol/$ref_doc" 2>/dev/null || ln -sf "$CAROL_ROOT/$ref_doc" "carol/$ref_doc"
+        fi
+    done
+
+    if exclude_file="$(git rev-parse --git-path info/exclude 2>/dev/null)" && [ -n "$exclude_file" ]; then
+        local git_prefix
+        git_prefix="$(git rev-parse --show-prefix 2>/dev/null)"
+        mkdir -p "$(dirname "$exclude_file")"
+        touch "$exclude_file"
+        [ -s "$exclude_file" ] && [ -n "$(tail -c1 "$exclude_file")" ] && echo >> "$exclude_file"
+        for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
+            grep -qxF "${git_prefix}carol/$ref_doc" "$exclude_file" || echo "${git_prefix}carol/$ref_doc" >> "$exclude_file"
+        done
+    fi
+
+    if [ -f ".gitignore" ]; then
+        local has_stale=0
+        for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
+            if grep -qxF "carol/$ref_doc" .gitignore; then
+                has_stale=1
+                break
+            fi
+        done
+        if [ "$has_stale" -eq 1 ]; then
+            tmp_file="$(mktemp .gitignore.carol.XXXXXX)"
+            cp .gitignore "$tmp_file"
+            for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
+                grep -vxF "carol/$ref_doc" "$tmp_file" > "$tmp_file.next" || true
+                mv "$tmp_file.next" "$tmp_file"
+            done
+            mv "$tmp_file" .gitignore
+        fi
+    fi
 }
 
 CAROL_PROJECT_SETTINGS=".claude/settings.json"
@@ -154,13 +196,7 @@ with open(path, 'w', encoding='utf-8') as f:
 }
 
 symlink_carol_assets() {
-    # Symlink reference docs into carol/ so ARCHITECT can @mention them
-    # SSOT: edits to ~/.carol/*.md reflect instantly, no copies.
-    local ref_doc
-    for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
-        [ -f "$CAROL_ROOT/$ref_doc" ] && ln -sf "$CAROL_ROOT/$ref_doc" "carol/$ref_doc"
-    done
-
+    sync_carol_docs
     ignore_carol_assets
     set_respect_gitignore_off
 
@@ -1225,6 +1261,9 @@ case "${1:-run}" in
     update)
         shift
         cmd_update "$@"
+        ;;
+    sync-docs)
+        sync_carol_docs
         ;;
     version)
         cmd_version
