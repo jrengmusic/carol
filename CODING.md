@@ -617,12 +617,12 @@ Materialisation of Concrete Objects.
 namespace
 {
     void helperFunction();
-    constexpr int kSomeConstant { 42 };
+    constexpr int numBufferedEvents { 16 };
 }
 
 // CORRECT: use named namespace or static linkage
 static void helperFunction();
-static constexpr int kSomeConstant { 42 };
+static constexpr int numBufferedEvents { 16 };
 ```
 
 **Rationale:**

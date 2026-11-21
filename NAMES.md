@@ -202,6 +202,25 @@ std::unique_ptr<juce::XmlElement> layout;
 // "layout" describes what the data represents in the domain.
 ```
 
+**No kind prefix.** A prefix that states what kind of construct a name is — `k` for a
+constant, `m_` for a member, `g_` for a global, `s_` for a static — is a type statement.
+The declaration already states it: `constexpr`, the class scope, `static`.
+
+```cpp
+// WRONG
+static constexpr int kBufferedEvents { 16 };
+int m_panelHeight;
+
+// CORRECT
+static constexpr int numBufferedEvents { 16 };
+int panelHeight;
+```
+
+**External names stay as they are.** A name that a platform SDK or a library declares is
+not a name of this codebase. Use it as the SDK spells it: `kFSEventStreamEventFlagItemModified`,
+`FILE_NOTIFY_CHANGE_SIZE`, `IN_CLOSE_WRITE`. The rules of this document apply to the names
+that this codebase declares.
+
 ---
 
 ## Rule 3 — Semantic over literal
