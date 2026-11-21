@@ -4,7 +4,7 @@ description: Invoke to validate an implementation against SPEC.md, MANIFESTO.md 
 subagent: true
 mainAgent: false
 inheritMcp: true
-model: pro
+model: inherit
 tools:
   - read_file
   - run_command

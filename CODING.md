@@ -35,6 +35,7 @@ x = 1 + y - 2 * z / 3;  // Space around binary operators
 
 **Special operators:**
 - Use C++ alternative tokens: `not`, `and`, `or` — NEVER `!`, `&&`, `||`
+- Preprocessor directives keep `!`, `&&`, `||`. Do not apply the alternative tokens (the `<ciso646>` keywords) to `#if`, `#elif`, or `#define`: `#if JUCE_WINDOWS && ! defined(__clang__)`
 - `~` preceded by space, not followed: `foo = ~ bar`
 - `++` and `--` no spaces: `++i`, `i++`
 
@@ -667,6 +668,16 @@ If something truly needs to be "hidden" from the public API, it belongs in:
 
 None of those require `namespace detail`.
 
+**Namespace enclosure format:**
+```cpp
+namespace name
+{
+/*____________________________________________________________________________*/
+// namespace content
+/**_____________________________END OF NAMESPACE______________________________*/
+}// namespace name
+```
+
 ---
 
 ## CONTROL FLOW
@@ -1058,7 +1069,7 @@ treeValidators.insert_or_assign (propertyName, std::move (validator));
 - **ALWAYS use nested positive checks:** `if (valid) { if (ready) { doWork(); } }` — NEVER `if (not valid) return;`
 - **No `else` after `return`.** A branch that returns ends the branch. The code after it is the other path.
 - **Use `.at()` for container access where the container provides it** — NEVER raw `[]` when a bounds-checked accessor exists. Fail Fast principle: invalid index throws immediately.
-- **Use C++ alternative tokens:** `not`, `and`, `or` — NEVER `!`, `&&`, `||`
+- **Use C++ alternative tokens:** `not`, `and`, `or` — NEVER `!`, `&&`, `||` — except in preprocessor directives (`#if`, `#elif`, `#define`), which keep `!`, `&&`, `||`.
 - **NO anonymous namespaces.** Use `static` linkage for translation-unit-local symbols.
 - **NO `namespace detail` (or equivalent implementation-hiding namespaces).** Use class `private:`, separate `.cpp` with `static`, or PIMPL.
 - **No underscores in any variable name** — including trailing-underscore constructor parameters.

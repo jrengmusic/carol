@@ -204,10 +204,11 @@ symlink_carol_assets() {
     # bare names (/go, @oracle) instead of plugin-namespaced (/carol:go, @carol:oracle).
     mkdir -p .claude/agents .claude/commands
 
-    # MACHINIST is a top-level primary, not a subagent. Remove any stale symlink
-    # so `carol update` cleans up existing projects that were init'd under older
-    # versions. Launched only via `carol machinist` → _launch_machinist.
-    rm -f ".claude/agents/machinist.md"
+    # MACHINIST and JANITOR are top-level primaries, not subagents. Remove any stale
+    # symlink so `carol update` cleans up existing projects that were init'd under
+    # older versions. MACHINIST launches only via `carol machinist` →
+    # _launch_machinist; JANITOR launches only via `janitor` (pi).
+    rm -f ".claude/agents/machinist.md" ".claude/agents/janitor.md"
     # Stale names from pre-0.0.23 layouts: Researcher merged into Librarian,
     # JRENG-CODING-STANDARD.md renamed to CODING.md.
     rm -f ".claude/agents/researcher.md" "carol/JRENG-CODING-STANDARD.md"
@@ -224,7 +225,9 @@ symlink_carol_assets() {
     local agent_file cmd_file
     if [ -d "$CAROL_ROOT/agents" ]; then
         for agent_file in "$CAROL_ROOT/agents"/*.md; do
-            [ "$(basename "$agent_file")" = "machinist.md" ] && continue
+            case "$(basename "$agent_file")" in
+                machinist.md|janitor.md) continue ;;
+            esac
             [ -f "$agent_file" ] && ln -sf "$agent_file" ".claude/agents/$(basename "$agent_file")"
         done
     fi

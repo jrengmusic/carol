@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# janitor - JANITOR on pi CLI with a local llama.cpp model
+# Usage: janitor [pi flags...]
+set -euo pipefail
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/../.." >/dev/null 2>&1 && pwd )"
+PI_ROOT="$CAROL_ROOT/pi"
+PI_AGENT_DIR="$HOME/.pi/agent"
+ROLE_FILE="$CAROL_ROOT/agents/janitor.md"
+SOP_SKILL="$CAROL_ROOT/skills/iterative-contract-sop/SKILL.md"
+# janitor.md frontmatter is the one source of the model and the tool list (bin/carol reads model: the same way).
+PI_MODEL="${CAROL_PI_MODEL:-$(grep '^model:' "$ROLE_FILE" | head -1 | sed 's/^model:[[:space:]]*//')}"
+PI_TOOLS="$(grep '^tools:' "$ROLE_FILE" | head -1 | sed 's/^tools:[[:space:]]*//' | tr -d ' ')"
+LOCAL_ROOT="$CAROL_ROOT/local"
+MODELS_DIR="$LOCAL_ROOT/models"
+MODELS_PRESET="$LOCAL_ROOT/models-preset.ini"
+LLAMA_HOST="127.0.0.1"
+LLAMA_PORT=9931
+LLAMA_URL="http://$LLAMA_HOST:$LLAMA_PORT"
+LLAMA_MODELS_MAX=1
+LLAMA_READY_ATTEMPTS=50
+LLAMA_READY_INTERVAL=0.1
+# The JANITOR core of CAROL.md: these level-2 sections, without the /ode subsection.
+CAROL_CORE_SECTIONS="Writing Standard|Ground of Truth (PROTOCOL LEVEL)|Protocol Principles|Scope|Code Contract (STRICT)|Destructive-Edit Discipline|Instruction Hierarchy"
+CAROL_CORE_EXCLUDED_SUBSECTION="### /ode"
+
+mkdir -p "$PI_AGENT_DIR/extensions"
+for extension in "$PI_ROOT/extensions"/*.ts; do
+    ln -sf "$extension" "$PI_AGENT_DIR/extensions/$(basename "$extension")"
+done
+
+# janitor stops only the llama server it spawned; the session prompt file dies with the session.
+spawned_llama_pid=""
+system_prompt="$(mktemp -t janitor)"
+cleanup() {
+    rm -f "$system_prompt"
+    if [ -n "$spawned_llama_pid" ]; then
+        kill "$spawned_llama_pid" 2>/dev/null || true
+        wait "$spawned_llama_pid" 2>/dev/null || true
+    fi
+}
+trap cleanup EXIT
+
+{
+    awk -v sections="$CAROL_CORE_SECTIONS" -v excluded="$CAROL_CORE_EXCLUDED_SUBSECTION" '
+        BEGIN { count = split(sections, names, "|"); for (i = 1; i <= count; i++) kept["## " names[i]] = 1 }
+        /^## /  { isKept = ($0 in kept); isExcluded = 0 }
+        /^### / { isExcluded = (index($0, excluded) == 1) }
+        isKept && !isExcluded { print }
+    ' "$CAROL_ROOT/CAROL.md"
+    for prompt_part in "$CAROL_ROOT/output-styles.md" "$PI_ROOT/HARNESS.md" "$ROLE_FILE" "$SOP_SKILL"; do
+        printf '\n---\n\n'
+        cat "$prompt_part"
+    done
+} > "$system_prompt"
+
+export CAROL_ROLE="JANITOR"
+printf '%s' "$CAROL_ROLE" > "$CAROL_ROOT/.carol-role"
+
+if ! curl -fsS "$LLAMA_URL/health" >/dev/null 2>&1; then
+    llama serve --models-dir "$MODELS_DIR" --models-preset "$MODELS_PRESET" --models-max "$LLAMA_MODELS_MAX" \
+        --host "$LLAMA_HOST" --port "$LLAMA_PORT" >/dev/null 2>&1 &
+    spawned_llama_pid="$!"
+    for attempt in $(seq 1 "$LLAMA_READY_ATTEMPTS"); do
+        curl -fsS "$LLAMA_URL/health" >/dev/null 2>&1 && break
+        sleep "$LLAMA_READY_INTERVAL"
+    done
+fi
+export LLAMA_BASE_URL="$LLAMA_URL"
+
+pi --model "$PI_MODEL" \
+   --thinking off \
+   --no-context-files \
+   --no-skills \
+   --system-prompt "$system_prompt" \
+   --tools "$PI_TOOLS" \
+   "$@"
