@@ -1,0 +1,83 @@
+#!/bin/bash
+# agycarol - CAROL Framework on Antigravity CLI (agy)
+# Usage: agycarol [counselor|oracle|machinist] [agy flags...]
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/../.." >/dev/null 2>&1 && pwd )"
+
+role="counselor"
+case "${1:-}" in
+    counselor|counsel)
+        role="counselor"
+        shift
+        ;;
+    oracle)
+        role="oracle"
+        shift
+        ;;
+    machinist|machine)
+        role="machinist"
+        shift
+        ;;
+    -*)
+        # Flag passed directly, keep default role
+        ;;
+    *)
+        if [ -n "${1:-}" ]; then
+            role="$1"
+            shift
+        fi
+        ;;
+esac
+
+# Ensure project scaffolding exists for project roles
+if [ "$role" != "machinist" ] && [ ! -d carol ] && [ ! -d .carol ]; then
+    case "$(pwd)" in
+        "$CAROL_ROOT"|"$CAROL_ROOT"/*)
+            ;;
+        *)
+            "$CAROL_ROOT/bin/carol" init --no-synth
+            ;;
+    esac
+fi
+
+# Ensure AGENTS.md rule link exists in current directory if in a project
+if [ -d carol ] || [ -d .carol ]; then
+    if [ ! -f "AGENTS.md" ] && [ ! -L "AGENTS.md" ]; then
+        ln -sf "$CAROL_ROOT/CAROL.md" AGENTS.md
+    fi
+fi
+
+# Map role to agent name, model, and activation acknowledgment prompt
+case "$role" in
+    counselor)
+        AGENT="COUNSELOR"
+        MODEL="gemini-4-neon-medium"
+        PROMPT="COUNSELOR ready to Rock 'n Roll!"
+        ;;
+    oracle)
+        AGENT="ORACLE"
+        MODEL="gemini-4-argon-high"
+        PROMPT="ORACLE ready to Rock 'n Roll!"
+        ;;
+    machinist)
+        AGENT="MACHINIST"
+        MODEL="gemini-4-neon-medium"
+        PROMPT="MACHINIST ready to Rock 'n Roll!"
+        ;;
+    *)
+        AGENT="$role"
+        MODEL="gemini-4-neon-medium"
+        PROMPT="${role} ready to Rock 'n Roll!"
+        ;;
+esac
+
+export CAROL_ROLE="$AGENT"
+printf '%s' "$CAROL_ROLE" > "$CAROL_ROOT/.carol-role"
+
+exec agy --dangerously-skip-permissions --agent "$AGENT" --model "$MODEL" --prompt-interactive "$PROMPT" "$@"

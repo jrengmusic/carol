@@ -1,0 +1,42 @@
+{
+  "carol-protocol-gates": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "node ./hooks/agy-gate.mjs",
+        "timeout": 10
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "run_command|ask_question|invoke_subagent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./hooks/agy-gate.mjs",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "read_file|ask_question",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./hooks/agy-gate.mjs",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node ./hooks/agy-gate.mjs",
+        "timeout": 10
+      }
+    ]
+  }
+}

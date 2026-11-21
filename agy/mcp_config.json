@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "carol-ling": {
+      "command": "node",
+      "args": ["/Users/jreng/.gemini/config/plugins/carol/mcp/ling-bridge.mjs"]
+    }
+  }
+}
