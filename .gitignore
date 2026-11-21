@@ -32,8 +32,8 @@ providers/secrets.md
 # Generated provider settings carry the token overlay — never tracked
 providers/generated/
 
-# Local model workspace: GGUF weights, llama.cpp preset, JANITOR tools — machine-local, never tracked
-/local/
+# Local model weights — machine-local, never tracked
+/local/models/
 
 # Claude Code writes this editor config into a plugin dir loaded with --plugin-dir
 /tsconfig.json

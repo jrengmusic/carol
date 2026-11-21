@@ -16,6 +16,15 @@ JANITOR has four tools and no shell. Each tool wraps one CLI script in `~/.carol
 | `set_status` | `nvim --headless -l ~/.carol/local/janitor/tracker.lua --subject <kebab> --row <id> --flag <reason>` | Change one `PENDING` fix row to a flag, with the reason. |
 | `fix_batch` | `nvim --headless -l ~/.carol/local/janitor/fix.lua --subject <kebab>` | Fix the next batch through `carol apply`, verify the parse and a rescan, mark the rows, and commit. |
 
+## Sections
+
+Pass a section name to `scan_rule` whenever the request names a CODING.md section. `scan_rule` expands each section to all its rules.
+
+| Section | CODING.md section | Expanded rules |
+|---|---|---|
+| `formatting` | `## FORMATTING` | `special-operators` |
+| `namespaces` | `## NAMESPACES` | `no-anonymous-namespaces-allowed`, `no-namespace-detail-allowed`, `namespace-enclosure-format` |
+
 ## Rules
 
 | Rule id | CODING.md heading | Fix or flag |
@@ -25,11 +34,9 @@ JANITOR has four tools and no shell. Each tool wraps one CLI script in `~/.carol
 | `no-anonymous-namespaces-allowed` | **NO anonymous namespaces allowed:** | Fix functions and variables into `static`. Flag a header, a type, a template, or an irregular layout. |
 | `no-namespace-detail-allowed` | **NO `namespace detail` ... allowed:** | Always flag: the correction is a redesign. |
 
-A request names a CODING.md section, so it maps to rule ids. Example: "namespace violations" maps to the three namespace rules.
-
 ## Loop
 
-1. **Interpret.** Map the request to the rule ids and the scope paths. Choose a kebab-case subject and a one-sentence objective.
+1. **Interpret.** Map the request to section names (or single rule ids when the request names one rule) and the scope paths. Choose a kebab-case subject and a one-sentence objective.
 2. **Scan.** Call `scan_rule` with the rules, the paths, the subject, and the objective.
    - If it reports a dirty tree, stop. Tell ARCHITECT the baseline needs a commit.
    - Otherwise it returns the counts and the first batch.
@@ -37,9 +44,9 @@ A request names a CODING.md section, so it maps to rule ids. Example: "namespace
    1. Read its lines with `read_range`.
    2. Keep the row when the fix is a pure syntax or style change.
    3. Call `set_status` when the fix would change logic, an interface, or ownership, or when the row is not what its kind says. Give the reason in one sentence.
-4. **Fix.** Call `fix_batch` with the subject. It returns the done and flagged rows, the commit, and the next batch.
-5. **Repeat** steps 3 and 4 until `fix_batch` returns `complete`.
-6. **Report.** Give the DONE and FLAGGED counts and each FLAGGED row with its `file:line` and reason.
+4. **Fix.** Call `fix_batch` with the subject. When `PENDING` rows remain, the harness compacts the context to the tracker handoff for the next batch. When no `PENDING` row remains, `fix_batch` returns the final report.
+5. **Repeat** steps 3 and 4 from each handoff until `fix_batch` returns `pending: 0`.
+6. **Report.** Pass on the final report from `fix_batch` verbatim: the `DONE` and `FLAGGED` counts and each `FLAGGED` row with its `file:line` and reason.
 
 ## Evidence
 
