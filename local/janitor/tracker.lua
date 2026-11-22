@@ -208,7 +208,7 @@ function Tracker.getHandoffText (tracker, subject)
     local counts = getCounts (tracker.rows)
     local hasPending = counts[Tracker.pending] > 0
     local nextAction = hasPending
-        and ("classify the batch rows with read_range and set_status, then call fix_batch with subject \"" .. subject .. "\"")
+        and ("inspect the fix rows below with read_range; call set_status ONLY if a fix would change logic, ownership, or interface; otherwise call fix_batch directly with subject \"" .. subject .. "\"")
         or "the campaign is complete: pass on the report below verbatim"
 
     return table.concat ({
