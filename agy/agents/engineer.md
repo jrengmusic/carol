@@ -4,7 +4,7 @@ description: Invoke for code implementation. Executes exactly what the primary a
 subagent: true
 mainAgent: false
 inheritMcp: true
-model: inherit
+model: flash
 tools:
   - read_file
   - edit_file
