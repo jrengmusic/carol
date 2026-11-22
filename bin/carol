@@ -130,8 +130,9 @@ ignore_carol_assets() {
     done
 }
 
-# Hard-link reference docs into carol/ (agy skips symlinks and .gitignore) and
-# exclude them via .git/info/exclude so git never tracks them and agy @ shows them.
+# Hard-link reference docs into carol/ (agy skips symlinks), write carol/.ignore
+# so ripgrep indexes them, and exclude both via .git/info/exclude so git never
+# tracks them while carol/SPRINT-LOG.md stays tracked.
 sync_carol_docs() {
     [ -d "carol" ] || return 0
     local ref_doc exclude_file tmp_file
@@ -145,6 +146,12 @@ sync_carol_docs() {
         fi
     done
 
+    {
+        for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
+            printf '!%s\n' "$ref_doc"
+        done
+    } > "carol/.ignore"
+
     if exclude_file="$(git rev-parse --git-path info/exclude 2>/dev/null)" && [ -n "$exclude_file" ]; then
         local git_prefix
         git_prefix="$(git rev-parse --show-prefix 2>/dev/null)"
@@ -154,6 +161,7 @@ sync_carol_docs() {
         for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
             grep -qxF "${git_prefix}carol/$ref_doc" "$exclude_file" || echo "${git_prefix}carol/$ref_doc" >> "$exclude_file"
         done
+        grep -qxF "${git_prefix}carol/.ignore" "$exclude_file" || echo "${git_prefix}carol/.ignore" >> "$exclude_file"
     fi
 
     if [ -f ".gitignore" ]; then
