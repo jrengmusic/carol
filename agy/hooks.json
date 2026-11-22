@@ -9,7 +9,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "run_command|ask_question|invoke_subagent",
+        "matcher": "run_command|ask_question|invoke_subagent|call_mcp_tool",
         "hooks": [
           {
             "type": "command",

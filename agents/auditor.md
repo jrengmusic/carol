@@ -4,7 +4,7 @@ description: Invoke to validate an implementation against SPEC.md, MANIFESTO.md 
 model: opus
 effort: medium
 color: red
-tools: Read, Grep, Glob, Bash, LSP
+tools: Read, Grep, Glob, Bash, LSP, mcp__ling__*
 disallowedTools: Write, Edit
 ---
 

@@ -1,214 +1,42 @@
 ---
 name: trace
-description: Run one deterministic whatdbg debug run from a spec file and report the result. Two drivers — trace (breakpoints, crash triage) and sample (stack at chosen moments, wall time, aggregate profile). Use when COUNSELOR delegates a trace or a sample to Pathfinder for a native binary. Pathfinder runs the named driver with the given spec path and reports the output verbatim. Pathfinder never writes the spec and never writes DAP or Lua.
+description: Debug native binaries through the whatdbg MCP server (breakpoints, crash triage, locals, expressions, stack inspection). Accessible to COUNSELOR and Pathfinder only; hooks enforce this boundary. No Lua scripts, no DAP wrappers, no profiling (profiling uses scout exclusively).
 ---
 
 # trace
 
-whatdbg is the debugger (CAROL.md Debugging). This skill holds the drivers for it.
+`whatdbg` is the native debugger (CAROL.md Debugging). It runs as a native MCP stdio server (`whatdbg --mcp`). No Lua scripts and no spec files are used.
 
-| Driver | Question it answers |
+Profiling and stack sampling belong exclusively to `scout` (`profile` skill). Never use `whatdbg` for profiling.
+
+## Access
+
+- **COUNSELOR** and **@Pathfinder** may call `whatdbg` MCP tools.
+- Hooks (`~/.carol/hooks/register.js`, `~/.carol/agy/hooks/agy-gate.mjs`) deny `whatdbg` MCP calls from all other roles and subagents.
+
+## Tools (`whatdbg` MCP server)
+
+| Phase | Tools |
 |---|---|
-| `trace.lua` | What are the values at this file:line? Where did it crash? |
-| `sample.lua` | Where is the program at T ms? Where does it spend its time? (The Where lane of the profile skill.) |
-
-Both drivers share `driver.lua` (spec validator, report helpers, session start and end)
-and `dap.lua` (DAP client). The spec grammar and the output grammar are the same.
+| Session start | `launch` (`program`, optional `cwd`) or `attach` (`pid`, optional `cwd`) → returns `{session}` |
+| Setup | `setBreakpoints` (`session`, `source.path`, `breakpoints`), then `configurationDone` (`session`) |
+| Wait for events | `events` (`session`, `timeoutMs`) — returns `stopped`, `output`, `process`, `thread`, `breakpoint`, `exited`, `terminated` |
+| Inspect | `threads`, `stackTrace`, `scopes`, `variables`, `evaluate`, `exceptionInfo` |
+| Control | `continue`, `next`, `stepIn`, `stepOut`, `pause` |
+| Session end | `disconnect` (`session`, `terminateDebuggee`) or `terminate` (`session`) |
 
 ## Protocol
 
-1. COUNSELOR owns the spec. COUNSELOR decides what to trace or sample and writes the spec file.
-2. COUNSELOR puts the driver name (`trace` or `sample`) and the absolute spec path in the
-   Pathfinder delegation prompt.
-3. Pathfinder runs the one command below for that driver with that path.
-4. Pathfinder returns the driver output verbatim in EVIDENCE.
-5. COUNSELOR reads the evidence and decides the next step.
-
-Pathfinder does not edit the spec. Pathfinder does not add a breakpoint or an
-expression. Pathfinder does not read `whatdbg --help`. Pathfinder does not write Lua.
-The driver prints `SPEC ERROR` lines when the spec is wrong. Pathfinder returns them
-under `Needs` and stops.
-
-## Command
-
-```
-nvim --headless -l ~/.claude/skills/trace/trace.lua <absolute-spec-path>
-nvim --headless -l ~/.claude/skills/trace/sample.lua <absolute-spec-path>
-```
-
-Run it in the foreground. The run is bounded by `timeoutMs` in the spec.
-
-Preconditions, all on COUNSELOR:
-
-- `nvim` and `whatdbg` are on PATH.
-- The target is already built. This skill does not build. Function names resolve without `-g`. A file:line location needs `-g`.
-- Every path in the spec is absolute.
-
-## Spec — trace
-
-The spec is a JSON file. Every field is required. The driver has no defaults.
-An unknown field is an error.
-
-| Field | Type | Meaning |
-|---|---|---|
-| `mode` | `"launch"` or `"attach"` | How the session starts. |
-| `program` | string | Launch only. Absolute path of the binary. |
-| `pid` | positive integer | Attach only. Process id. |
-| `cwd` | string | Seeds the symbol and source search paths. |
-| `breakpoints` | list of `{file, line}` | `file` is an absolute source path. `line` is a positive integer. An empty list is valid. |
-| `onStop.stackDepth` | positive integer | How many frames to report at each stop. |
-| `onStop.locals` | boolean | Report the locals of each reported frame. |
-| `onStop.expressions` | list of string | Evaluated in frame #0 at each stop. An empty list is valid. |
-| `afterStop` | `"continue"`, `"next"`, `"stepIn"` or `"stepOut"` | What the driver does after each stop that does not end the run. |
-| `maxStops` | positive integer | The run ends at this stop count. |
-| `timeoutMs` | positive integer | The run ends when this time passes with no ending event. |
-
-### Template
-
-```json
-{
-  "mode": "launch",
-  "program": "/absolute/path/to/binary",
-  "cwd": "/absolute/path/to/source/root",
-  "breakpoints": [{ "file": "/absolute/path/to/file.cpp", "line": 40 }],
-  "onStop": { "stackDepth": 3, "locals": true, "expressions": ["counter"] },
-  "afterStop": "continue",
-  "maxStops": 1,
-  "timeoutMs": 30000
-}
-```
-
-Crash trace: set `breakpoints` to `[]`. A crash stops the run by itself. The driver
-captures the exception, the frames, and the locals. The driver then ends the run.
-`afterStop` is required and unused on a crash stop.
-
-## Spec — sample
-
-The sample driver sets no breakpoint. It sends `pause`, waits for the `stopped` event,
-reads the stacks, and sends `continue`.
-
-Every field is required. An unknown field is an error.
-
-| Field | Type | Meaning |
-|---|---|---|
-| `mode` | `"launch"` or `"attach"` | As trace. |
-| `program` | string | Launch only. Absolute path of the binary. |
-| `pid` | positive integer | Attach only. Process id. |
-| `cwd` | string | As trace. |
-| `threads` | `"main"` or `"all"` | Which threads each sample records. `main` is the first thread of the `threads` response. |
-| `delayMs` | positive integer | Wall time from the `configurationDone` response to the first `pause`. |
-| `intervalMs` | positive integer | Wall time from the `continue` of one sample to the next `pause`. Required and unused when `maxSamples` is 1. |
-| `maxSamples` | positive integer | The run ends at this sample count. 1 makes a probe. More makes a profile. |
-| `stackDepth` | positive integer | Frames recorded per thread per sample. |
-| `topRows` | positive integer | Rows per aggregate table. |
-| `pauseTimeoutMs` | positive integer | Longest wait for the `stopped` event after one `pause`. |
-| `timeoutMs` | positive integer | The run ends when this wall time passes. |
-
-### Template
-
-```json
-{
-  "mode": "launch",
-  "program": "/absolute/path/to/binary",
-  "cwd": "/absolute/path/to/source/root",
-  "threads": "all",
-  "delayMs": 2000,
-  "intervalMs": 500,
-  "maxSamples": 20,
-  "stackDepth": 32,
-  "topRows": 10,
-  "pauseTimeoutMs": 8000,
-  "timeoutMs": 60000
-}
-```
-
-Probe: set `maxSamples` to 1. One fresh launch gives one stack at `delayMs`.
-
-Profile lane: a profile sample attaches by pid to a Release build. Each sample pauses the process, so the tallies are shares of samples, never
-timings. Do not mix them with zone timings. Never run a sample during a How-long or Verdict scout run. Stack sampling under scout is scout's own `## sample` table (profile skill), not this driver.
-
-## Output
-
-One line per fact, in the order the events arrive. A newline inside a value prints as
-`\n`.
-
-### Output — trace
-
-| Line | Meaning |
-|---|---|
-| `TRACE mode=<mode>` | Run start. |
-| `BREAKPOINT <file>:<line> verified=<bool> line=<line>` | Result of the breakpoint request. May add `message=`. |
-| `BREAKPOINT-CHANGED id=<n> verified=<bool> line=<line>` | whatdbg resolved a breakpoint later. |
-| `PROCESS name=<name> pid=<pid>` | The debuggee started. |
-| `OUTPUT <category> <text>` | Debuggee output. |
-| `STOP <n> reason=<r> thread=<id> text=<t> description=<d>` | A stop. `nil` means the field was absent. |
-| `EXCEPTION id=<id> description=<d> breakMode=<m>` | Exception detail. Only on `reason=exception`. |
-| `FRAME #<i> <function> <file>:<line>` | A frame. `<no source>` replaces the location when the frame has no source. |
-| `LOCAL #<i> <name> : <type> = <value>` | A local of frame `#<i>`. |
-| `EVAL <expression> = <result>` or `EVAL <expression> ERROR <message>` | Expression result in frame #0. |
-| `EXITED code=<n>` | The debuggee exited. |
-| `DRIVER ERROR <message>` | The session failed. The message names the request. |
-| `END outcome=<outcome> stops=<n>` | Run end. |
-| `SPEC ERROR <field>: <problem>` | The spec is wrong. The run did not start. |
-
-Outcomes:
-
-- `exited` — the debuggee ended by itself.
-- `crash` — an exception stop ended the run. In launch mode the driver then killed the debuggee. In attach mode the driver detached and the debuggee keeps running.
-- `limit` — the stop count reached `maxStops`. Launch mode kills the debuggee. Attach mode detaches.
-- `timeout` — `timeoutMs` passed. Launch mode kills the debuggee. Attach mode detaches.
-- `error` — see the `DRIVER ERROR` line. Launch mode kills the debuggee. Attach mode detaches.
-
-### Output — sample
-
-`PROCESS`, `OUTPUT`, `FRAME`, `EXITED`, `DRIVER ERROR` and `SPEC ERROR` are as in trace.
-The sample driver prints no `TRACE` line.
-
-| Line | Meaning |
-|---|---|
-| `SAMPLE <n> t=<ms> thread=<id> <name>` | One thread of sample n. `t` is the wall time, in ms, from the `configurationDone` response to the arrival of the `stopped` event. `dap.lua` stamps each message when it arrives. The pause is asynchronous, so `t` includes the pause latency. `<name>` is whatdbg's thread name and can be empty. |
-| `FRAME #<i> <function> <file>:<line>` | A frame of the thread named by the last `SAMPLE` line. At most `stackDepth` frames. |
-| `INCLUSIVE thread=<id> <count> <percent>% <function>` | Aggregate. Each function counts once per sample, wherever it is in the recorded frames. |
-| `LEAF thread=<id> <count> <percent>% <function>` | Aggregate. Frame #0 only. |
-| `END outcome=<outcome> samples=<n>` | Run end. `n` counts complete samples. |
-
-Aggregate lines print after the last sample and before `END`, for each thread in order
-of first appearance. `INCLUSIVE` rows come first, then `LEAF` rows. Each table holds at
-most `topRows` rows, sorted by count high to low, ties by function name. `percent` is
-`count` divided by the number of samples that recorded the thread. Aggregates count only
-the frames recorded, so `stackDepth` limits them.
-
-A run that fails still prints the samples taken and their aggregate. A `pause` with no
-`stopped` event within `pauseTimeoutMs` ends the run with `outcome=error` and a `DRIVER ERROR` line.
-A `stopped` event the driver did not ask for ends the run the same way.
-
-Outcomes:
-
-- `limit` — the sample count reached `maxSamples`. Launch mode kills the debuggee. Attach mode detaches and the debuggee keeps running.
-- `timeout` — `timeoutMs` passed. Launch mode kills the debuggee. Attach mode detaches.
-- `exited` — the debuggee ended by itself.
-- `error` — see the `DRIVER ERROR` line. Launch mode kills the debuggee. Attach mode detaches.
-
-Exit code (both drivers): 0 when the run happened. 2 when the spec is wrong.
+1. Confirm the target binary is already built. This skill does not build.
+2. Call `launch` (or `attach` when the target needs command-line arguments or is already running).
+3. For breakpoint traces, call `setBreakpoints` with absolute source paths, then `configurationDone`. For crash triage, skip `setBreakpoints` and call `configurationDone`.
+4. Call `events` with a bounded `timeoutMs` (up to `60000`) to wait for a `stopped` or `exited` event.
+5. On a stop, inspect with `threads`, `stackTrace`, `scopes`, `variables`, `evaluate`, or `exceptionInfo`.
+6. Always end the session with `disconnect` or `terminate` before returning.
+7. When COUNSELOR delegates a debug run to `@Pathfinder`, COUNSELOR names the binary/pid, breakpoints, and expressions; `@Pathfinder` executes the `whatdbg` MCP calls and returns the raw structured results verbatim in `EVIDENCE`.
 
 ## Limits
 
-- whatdbg launch reads `program`, `console` and `cwd` only (whatdbg
-  `Source/Processor.cpp:424-438`). whatdbg resolves `program` as a path with
-  `getChildFile` (`Source/debug/Session.cpp:148-161`). Thus arguments in `program` do not
-  reach the target, and the launch sets no environment.
-- A target that needs arguments runs in attach mode, never in launch mode. Start the
-  target with its arguments, read its pid, write the pid into the spec, then run the
-  driver. Example: the EVE profile build reads its manifest from its first argument
-  (`eve/Source/EVETerminalProcessor.cpp:41-44`). Start
-  `EVE.exe <absolute-manifest-path>`, then attach the sample by pid. The manifest's
-  `## profiler` table sets the workload, and EVE quits when the shell exits.
-- This limit applies to launch only. It never means that whatdbg cannot debug or sample
-  the target.
-- Breakpoints are `file:line` only. The sample driver sets none.
-- Locals and expression results are whatdbg's own text. Nested values are not expanded.
-  The driver prints every local whatdbg returns and filters nothing.
-- `timeoutMs` bounds the wait for events after setup. Each setup request has its own
-  fixed timeout.
-- The debuggee is stopped while the sample driver reads stacks. This time does not enter
-  `t`. It limits how many samples fit in `timeoutMs`. `stackDepth` and `threads` control it.
+- `launch` takes `program` and `cwd` only; it passes no command-line arguments and sets no environment. Start binaries that need arguments separately, then call `attach` with the `pid`.
+- Breakpoints use absolute `file` paths and 1-based `line` numbers.
+- Function names resolve without `-g`; `file:line` locations and locals require `-g`.

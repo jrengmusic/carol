@@ -1,8 +1,16 @@
 {
   "mcpServers": {
-    "carol-ling": {
-      "command": "node",
-      "args": ["/Users/jreng/.gemini/config/plugins/carol/mcp/ling-bridge.mjs"]
+    "ling": {
+      "command": "ling",
+      "args": ["--mcp", "project-info.md"]
+    },
+    "whatdbg": {
+      "command": "whatdbg",
+      "args": ["--mcp"]
+    },
+    "scout": {
+      "command": "scout",
+      "args": ["--mcp"]
     }
   }
 }

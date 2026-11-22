@@ -31,7 +31,18 @@ const CONTRACT_DOCUMENT_PATTERN = new RegExp('[\\\\/]\\.carol[\\\\/](' + CONTRAC
 
 const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent and never in a Pathfinder whose task description names doxygen, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
 const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
-const TEXT_SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the LSP tool to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
+const TEXT_SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the ling MCP tools to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
+const SCOUT_MCP_TOOLS = ['mcp__scout__run']
+const WHATDBG_MCP_TOOLS = [
+  'mcp__whatdbg__launch', 'mcp__whatdbg__attach', 'mcp__whatdbg__setBreakpoints',
+  'mcp__whatdbg__configurationDone', 'mcp__whatdbg__threads', 'mcp__whatdbg__stackTrace',
+  'mcp__whatdbg__scopes', 'mcp__whatdbg__variables', 'mcp__whatdbg__continue',
+  'mcp__whatdbg__next', 'mcp__whatdbg__stepIn', 'mcp__whatdbg__stepOut',
+  'mcp__whatdbg__pause', 'mcp__whatdbg__exceptionInfo', 'mcp__whatdbg__evaluate',
+  'mcp__whatdbg__disconnect', 'mcp__whatdbg__terminate', 'mcp__whatdbg__events'
+]
+const SCOUT_GATE = 'scout MCP is restricted to @Pathfinder only (CAROL.md Profiling). Write the manifest and delegate the scout run to @Pathfinder.'
+const WHATDBG_GATE = 'whatdbg MCP is restricted to COUNSELOR and @Pathfinder only (CAROL.md Debugging).'
 const CONTRACT_GATE = 'Before a question to ARCHITECT, read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again, in full, with the Read tool (counselor.md Options & Recommendations). Then filter each option against them. Delete each option that breaks CONTRACT: a revert to a past state, a patch that violates CONTRACT, and a question about a name (NAMES.md Rule -1). One option remains: execute it, because it is not a question. No option remains: research until one compliant solution exists. Ask only when two or more compliant options remain.'
 const BACKGROUND_GATE = 'A subagent runs no background command (CAROL.md Subagent Return Format: the report is the final output). Run this command in the foreground, wait for it to finish, and put its result in your report.'
 const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with the Read tool, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
@@ -95,6 +106,13 @@ async function getExpectedModel($, agentType) {
 
 async function isSprintLogNewer($, sprintLog) {
   return (await $.fs.exists(sprintLog)) && (await $.fs.stat(sprintLog)).mtimeMs > (await read($, armedAtMs))
+}
+
+async function isPathfinderAgent($, agentId) {
+  if (agentId === undefined) return false
+  const agents = await $.agent.list()
+  const { type = '' } = agents.find((agent) => agent.id === agentId) ?? {}
+  return type.toLowerCase() === READ_ONLY_GIT_AGENT
 }
 
 async function isReadOnlyGitAgent($, agentId) {
@@ -191,5 +209,14 @@ export function register(on) {
 
   on('tool.call', { tool: 'Monitor' }, async ($, e, next) => {
     return e.agentId === undefined ? next(e) : { deny: BACKGROUND_GATE }
+  }).catch(failClosed)
+
+  on('tool.call', { tool: SCOUT_MCP_TOOLS }, async ($, e, next) => {
+    return (await isPathfinderAgent($, e.agentId)) ? next(e) : { deny: SCOUT_GATE }
+  }).catch(failClosed)
+
+  on('tool.call', { tool: WHATDBG_MCP_TOOLS }, async ($, e, next) => {
+    const isCounselorMain = e.agentId === undefined && (await getRole($)) === DEFAULT_ROLE
+    return isCounselorMain || (await isPathfinderAgent($, e.agentId)) ? next(e) : { deny: WHATDBG_GATE }
   }).catch(failClosed)
 }

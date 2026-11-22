@@ -30,7 +30,12 @@ const CONTRACT_DOCUMENT_PATTERN = new RegExp('[\\\\/]\\.carol[\\\\/](' + CONTRAC
 
 const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent and never in a Pathfinder whose task description names doxygen, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the read_file tool, or report what you need."
 const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
-const TEXT_SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the carol-ling MCP tools to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
+const TEXT_SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the ling MCP tools to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
+const SCOUT_SERVER_PATTERN = /^(?:carol_)?scout$/
+const WHATDBG_SERVER_PATTERN = /^(?:carol_)?whatdbg$/
+const PATHFINDER_AGENT = 'pathfinder'
+const SCOUT_GATE = 'scout MCP is restricted to @Pathfinder only (CAROL.md Profiling). Write the manifest and delegate the scout run to @Pathfinder.'
+const WHATDBG_GATE = 'whatdbg MCP is restricted to COUNSELOR and @Pathfinder only (CAROL.md Debugging).'
 const CONTRACT_GATE = 'Before a question to ARCHITECT, read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again, in full, with read_file (counselor.md Options & Recommendations). Then filter each option against them. Delete each option that breaks CONTRACT: a revert to a past state, a patch that violates CONTRACT, and a question about a name (NAMES.md Rule -1). One option remains: execute it, because it is not a question. No option remains: research until one compliant solution exists. Ask only when two or more compliant options remain.'
 const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with read_file, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
 const READ_DIRECTIVE = "If your reasoning still leaves an open end to fill in, read again thoroughly with read_file. Find the answer as a citable fact from the codebase, checked against ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md, and from the agreed rulings in the RFC and the PLAN. Above all, use ARCHITECT's explicit discussion recorded in the chat history. Never fill in a gap. Never leave an open end that reading can answer. Respond only with a citable fact."
@@ -168,6 +173,20 @@ function handlePreToolUse(payload, state) {
         decision: 'deny',
         reason: 'invoke_subagent needs Model "' + expected + '", the model: value in ' + typeName.toLowerCase() + '.md. Pass Model "' + expected + '" on every invoke_subagent call. Per CAROL.md Subagent Model, a tier change is ARCHITECT\'s edit to the definition.'
       }
+    }
+    return { decision: 'allow' }
+  }
+
+  if (toolName === 'call_mcp_tool') {
+    const serverName = String(args.ServerName || '')
+    const agentName = String(payload.agentName || payload.subagentType || '').toLowerCase()
+    const isPathfinder = agentName === PATHFINDER_AGENT
+    const isCounselorMain = agentName === '' && role === DEFAULT_ROLE
+    if (SCOUT_SERVER_PATTERN.test(serverName) && !isPathfinder) {
+      return { decision: 'deny', reason: SCOUT_GATE }
+    }
+    if (WHATDBG_SERVER_PATTERN.test(serverName) && !isCounselorMain && !isPathfinder) {
+      return { decision: 'deny', reason: WHATDBG_GATE }
     }
     return { decision: 'allow' }
   }

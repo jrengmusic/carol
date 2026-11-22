@@ -4,7 +4,7 @@ description: Invoke first before any planning or fix work to discover existing p
 model: haiku
 effort: medium
 color: yellow
-tools: Read, Edit, Grep, Glob, Bash, LSP
+tools: Read, Edit, Grep, Glob, Bash, LSP, mcp__ling__*, mcp__whatdbg__*, mcp__scout__*
 disallowedTools: Write
 ---
 
@@ -18,10 +18,10 @@ principles inform pattern evaluation.
 
 ### Search protocol (pattern discovery)
 
-- On C++/JUCE/JAM/KANJUT/CIUM tasks: doxygen XML index for what exists, the LSP tool
-  for definitions, references, implementations, and call paths (doxygen-protocol
+- On C++/JUCE/JAM/KANJUT/CIUM tasks: doxygen XML index for what exists, and `ling` MCP
+  tools for definitions, references, implementations, and call paths (`doxygen-protocol`
   skill). Text search on C++ source finds string literals and preprocessor directives
-  only. Each LSP finding cites the operation and the file:line it returned.
+  only. Each `ling` finding cites the tool and the file:line it returned.
 - Glob for structure, text search for non-C++ files, Read at found locations.
 - Read targeted excerpts (offset/limit around the match) — whole files only when the
   file itself is the deliverable.
@@ -45,27 +45,26 @@ principles inform pattern evaluation.
 
 ### Trace protocol (trace skill)
 
-- Run a trace or a sample only when the delegation prompt gives an absolute spec path and
-  names the driver (`trace` or `sample`). The spec is COUNSELOR's. Run the one command in
-  the trace skill for that driver with that path.
-- Never write, edit, or guess a spec. Never read `whatdbg --help`. Never write Lua or DAP.
-- The driver launches the debuggee that the spec names and ends it before the driver
-  returns. This run is permitted evidence-gathering. The ban on mutation above does not
-  cover what the debuggee does.
-- Return the driver output verbatim in EVIDENCE. When the spec path is missing or the
-  driver prints `SPEC ERROR`, report it under `Needs` and stop.
+- Run a debug session through `whatdbg` MCP tools (`launch`/`attach`, `setBreakpoints`,
+  `configurationDone`, `events`, `threads`, `stackTrace`, `scopes`, `variables`, `evaluate`,
+  `exceptionInfo`, `disconnect`/`terminate`) using the binary/pid, breakpoints, and
+  expressions named in the delegation prompt (`trace` skill).
+- Never write Lua or DAP scripts. Never use `whatdbg` for profiling (profiling uses `scout`
+  exclusively).
+- Always end the debug session (`disconnect` or `terminate`) before returning.
+- Return the raw structured `whatdbg` MCP outputs verbatim in `EVIDENCE`.
 
 ### Profile protocol (profile skill)
 
 - Run `scout` only when the delegation prompt gives an absolute manifest path. The
-  manifest is COUNSELOR's. Run the one command in the profile skill with that path.
+  manifest is COUNSELOR's. Call the `scout` MCP `run` tool with that absolute path.
 - Never write, edit, or guess a manifest. Never build `scout`. Never write a benchmark.
-- `scout` writes the report file that the manifest names. This run is permitted
-  evidence-gathering. The ban on mutation above does not cover that report.
+- `scout` writes the report file that the manifest names and handles `sudo -n` automatically
+  when a `## sample` table is present. This run is permitted evidence-gathering.
 - `scout` first runs the `## toolchain` rows of the manifest. These rows build the
   profiled target. ARCHITECT: *"profiling with scout is granted with build permission"*.
   The ban on mutation above does not cover this build. Run no other build command.
-- Return the exit code, the stderr, and the report file verbatim in EVIDENCE. When the
+- Return the exit code, output, and the report file verbatim in `EVIDENCE`. When the
   manifest path is missing, or `scout` prints a validation diagnostic, report it under
   `Needs` and stop.
 

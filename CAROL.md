@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.31
-**Last Updated:** 17 Nov 2026
+**Version:** 0.0.32
+**Last Updated:** 22 Nov 2026
 
 ---
 
@@ -348,18 +348,20 @@ Ignore all LSP errors — false positives from the JUCE module system.
 
 ## Debugging
 
-Headless debugging of native binaries uses whatdbg over DAP stdio — never raw lldb.
-Raw lldb opens the macOS Developer-Tools permission dialog, and a missed click stops the
-process for ever. whatdbg debugs without that dialog and is fully scriptable.
-`whatdbg --help` gives the protocol: DAP framing, launch and attach examples, the event
-flow, and crash triage. The trace skill (`~/.carol/skills/trace/`) is the
-CAROL driver.
+Headless debugging of native binaries uses the `whatdbg` MCP server (`whatdbg --mcp`) —
+never raw lldb and never Lua wrapper scripts. Raw lldb opens the macOS Developer-Tools
+permission dialog, and a missed click stops the process for ever. `whatdbg` debugs without
+that dialog and exposes all DAP operations as MCP tools. COUNSELOR and `@Pathfinder` can
+call `whatdbg` MCP tools; hooks enforce this boundary. The `trace` skill
+(`~/.carol/skills/trace/`) holds the protocol.
 
 ## Profiling
 
-Measurement of code uses `scout` — never a hand-written harness. One manifest names the
-benchmarks, the epochs, and the baseline. One run writes one generated report with the
-median, the spread, and the change from the baseline. The profile skill
+Measurement and stack sampling of code use the `scout` MCP server (`scout --mcp`) — never
+a hand-written harness and never a `whatdbg` script. One manifest names the benchmarks,
+the epochs, the baseline, and optional `## sample` stack sampling. `scout --mcp` handles
+`sudo -n` automatically when a `## sample` table is present. Only `@Pathfinder` calls
+`scout` MCP tools; hooks enforce this boundary. The `profile` skill
 (`~/.carol/skills/profile/`) holds the protocol, the manifest grammar, and the report
 grammar.
 
@@ -374,13 +376,13 @@ grammar.
 
 ## Doxygen
 
-On C++/JUCE/JAM/KANJUT/CIUM tasks, doxygen XML gives what exists, and the LSP tool
-(ling) gives definitions, references, implementations, and call paths. Text search on
-C++ source finds string literals and preprocessor directives only; it never proves
-absence or gives the blast radius. Every subagent prompt carries the same instruction.
-Question-to-source table, reading order, index locations, regen commands:
-**doxygen-protocol skill**. The `tool.call` hook in `~/.carol/hooks/register.js` denies
-a text search that names a C++ target. Doxygen authorship: **doxygen-writer skill**.
+On C++/JUCE/JAM/KANJUT/CIUM tasks, doxygen XML gives what exists, and the `ling` MCP
+server (`ling --mcp project-info.md`) gives definitions, references, implementations, and
+call paths from the compiler AST. Text search on C++ source finds string literals and
+preprocessor directives only; it never proves absence or gives the blast radius. Every
+subagent prompt carries the same instruction. Question-to-source table, reading order,
+index locations, regen commands: **doxygen-protocol skill**. The `tool.call` hook denies a
+text search that names a C++ target. Doxygen authorship: **doxygen-writer skill**.
 
 **The doxygen pass is Pathfinder's.** ARCHITECT: *"comprehensive Doxygen pass is always
 Pathfinder's job, its role. BUT it is also COUNSELOR reponsibility to give precise and
@@ -444,7 +446,7 @@ ODE.md §VI. Afterward only signal survives in context.
 
 **ARCHITECT is supreme on decisions and judgment. Facts, cited, are the only override.**
 
-**End of CAROL v0.0.31**
+**End of CAROL v0.0.32**
 
 Rock 'n Roll!
 **JRENG!**

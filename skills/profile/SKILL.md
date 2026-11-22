@@ -1,6 +1,6 @@
 ---
 name: profile
-description: Measure code with scout, the statistics and gate lane of four measurement lanes. A manifest names the command, the epochs and the baseline. scout runs the command once per epoch, reads the samples file that the command writes, and writes one generated markdown report with the median, the spread and the change from the baseline. Use when COUNSELOR delegates a profile run to Pathfinder. Pathfinder runs scout with the given manifest path and returns the exit code, the stderr and the report verbatim. Pathfinder never writes the manifest and never writes a workload. scout builds the target from the manifest's toolchain table.
+description: Measure code and collect stack samples with the scout MCP server (scout --mcp). A manifest names the command, the epochs, the baseline, and optional ## sample stack sampling. Use when COUNSELOR delegates a profile run to Pathfinder. Pathfinder calls the scout MCP run tool with the absolute manifest path and returns the exit code, output, and report verbatim. Only Pathfinder may call scout MCP; hooks enforce this boundary.
 ---
 
 # profile
@@ -19,7 +19,7 @@ Four lanes answer four questions. Each lane has its own tool.
 
 | Lane | Tool | What is rebuilt | Question it answers | What it may not claim |
 |---|---|---|---|---|
-| Where | scout, through the manifest's `## sample` table (kernel and user stacks). Outside scout: whatdbg `sample.lua`, attach by pid (trace skill) | the target (names resolve without debug symbols) | Which functions are hot on each process and thread? | Throughput or wall time. The sampler adds load; the whatdbg driver pauses the process. |
+| Where | scout, through the manifest's `## sample` table (kernel and user stacks). No profiling outside scout. | the target (names resolve without debug symbols) | Which functions are hot on each process and thread? | Throughput or wall time. The sampler adds load. |
 | How long | zones compiled into the target's profile build | the target only | How long does each stage take, per call? | Kernel time of a child process. |
 | Statistics and gate | scout | the target, through the manifest's `## toolchain` table | Median, spread, baseline, p-value. | Anything that no lane measured. |
 | Verdict | `time seq 1 N` inside the terminal, timed by the zsh `time` builtin; ARCHITECT measures every run (`eve/comparison.md:3`, `:7-9`) | nothing | The number against endless. | Where the time goes. |
@@ -41,28 +41,35 @@ Rules:
 2. COUNSELOR puts the absolute manifest path and the expected duration in the Pathfinder
    delegation prompt. A live 100M epoch lasts about 65 s. Eleven epochs last about 12
    minutes. Pathfinder runs the command to completion before its report.
-3. Pathfinder runs the one command below with that path, from the project root.
-4. Pathfinder returns the exit code, the stderr, and the report file verbatim in EVIDENCE.
+3. Pathfinder calls the `scout` MCP `run` tool with `{"manifest": "<absolute-manifest-path>"}`.
+4. Pathfinder returns the exit code, output, and the report file verbatim in EVIDENCE.
 5. COUNSELOR reads the evidence and decides the next step.
 
 Pathfinder does not edit the manifest. Pathfinder runs no build command of its own; the
-build is part of the scout run. When scout prints a validation diagnostic, Pathfinder returns it under `Needs` and stops.
+build is part of the scout run. Only `@Pathfinder` may call `scout` MCP; hooks enforce
+this boundary. When scout prints a validation diagnostic, Pathfinder returns it under `Needs` and stops.
 
 Build permission. ARCHITECT: *"profiling with scout is granted with build permission"*.
 This is the standing request for every profile build: scout, the profiled target's
 profile build, and the replay workload binary. COUNSELOR delegates or runs these builds
 under this grant.
 
-## Command
+## MCP Tool (`scout --mcp`)
 
+Call the `scout` MCP `run` tool with the absolute manifest path:
+
+```json
+{ "manifest": "/absolute/path/to/manifest.md" }
 ```
-scout <absolute-manifest-path>
-```
 
-Run it in the foreground. scout runs each toolchain row and each epoch in the manifest
-folder (`scout/Source/HELP.md:89`, `:103`).
+`scout --mcp` parses and validates the manifest, runs each `## toolchain` row in the
+manifest folder, and then runs the epochs and writes the report.
 
-Sampling. A manifest with a `## sample` table needs root on macOS and Linux (`scout/Source/HELP.md:60`). Run it as `sudo -n scout <absolute-manifest-path>`, from the same folder. `~/.config/setup-scout.sh` installs the `NOPASSWD` rule for `~/.local/bin/scout` one time on each Mac. When `sudo -n` prints `a password is required`, the rule is not installed. ARCHITECT runs `bash ~/.config/setup-scout.sh` one time, and the run continues.
+Sampling. When the manifest holds a `## sample` table, `scout --mcp` automatically invokes
+`sudo -n scout <manifest>` on macOS and Linux (`scout/Source/ToolServer.cpp:118-122`).
+`~/.config/setup-scout.sh` installs the `NOPASSWD` rule for `~/.local/bin/scout` one time
+on each Mac. When `sudo -n` reports `a password is required`, ARCHITECT runs
+`bash ~/.config/setup-scout.sh` one time, and the run continues.
 
 | Command line | Result |
 |---|---|
@@ -144,11 +151,7 @@ for each epoch (`scout/Source/HELP.md:49-73`). Without it, scout samples nothing
 | `stackDepth` | `int` | The most frames that each stack records. macOS: 2 to 128. Linux: 1 to 127. Windows: 1 to 192. |
 
 scout reads only these two keys (`scout/Source/Sampler.h:96`, `Source/HELP.md:51-56`).
-A row with any other key has no effect on scout. The keys `program`, `cwd`, `threads`,
-`delayMs`, `maxSamples`, `topRows`, `pauseTimeoutMs` and `timeoutMs` are fields of a
-whatdbg sample spec (trace skill, Spec — sample). They belong in a whatdbg spec file,
-not in a scout manifest. When a manifest holds them, scout still samples with
-`intervalMs` and `stackDepth` only.
+A row with any other key has no effect on scout.
 
 A sampling run is its own scout run. The sampler adds load, so its `epoch`, `user` and
 `system` rows are not timings.

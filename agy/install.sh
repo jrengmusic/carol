@@ -13,18 +13,17 @@ PLUGIN_DIR="$HOME/.gemini/config/plugins/carol"
 GLOBAL_SKILLS_DIR="$HOME/.gemini/config/skills"
 LOCAL_BIN="$HOME/.local/bin"
 
-mkdir -p "$PLUGIN_DIR/agents" "$PLUGIN_DIR/hooks" "$PLUGIN_DIR/mcp" "$PLUGIN_DIR/rules" "$PLUGIN_DIR/skills" "$LOCAL_BIN"
+mkdir -p "$PLUGIN_DIR/agents" "$PLUGIN_DIR/hooks" "$PLUGIN_DIR/rules" "$PLUGIN_DIR/skills" "$LOCAL_BIN"
 
 cp "$AGY_ROOT/plugin.json" "$PLUGIN_DIR/plugin.json"
 cp "$AGY_ROOT/hooks.json" "$PLUGIN_DIR/hooks.json"
 cp "$AGY_ROOT/mcp_config.json" "$PLUGIN_DIR/mcp_config.json"
 
-rm -rf "$PLUGIN_DIR/agents" "$PLUGIN_DIR/rules" "$PLUGIN_DIR/skills"
+rm -rf "$PLUGIN_DIR/agents" "$PLUGIN_DIR/mcp" "$PLUGIN_DIR/rules" "$PLUGIN_DIR/skills"
 mkdir -p "$PLUGIN_DIR/agents" "$PLUGIN_DIR/rules" "$PLUGIN_DIR/skills"
 
 cp -R "$AGY_ROOT/agents/." "$PLUGIN_DIR/agents/"
 cp "$AGY_ROOT/hooks/agy-gate.mjs" "$PLUGIN_DIR/hooks/agy-gate.mjs"
-cp "$AGY_ROOT/mcp/ling-bridge.mjs" "$PLUGIN_DIR/mcp/ling-bridge.mjs"
 
 # Refresh rules from SSOT in ~/.carol/
 cp "$CAROL_ROOT/CAROL.md" "$PLUGIN_DIR/rules/AGENTS.md"
@@ -49,7 +48,7 @@ for cmd_dir in "$AGY_ROOT/skills"/*/; do
     cp -R "${cmd_dir%/}" "$GLOBAL_SKILLS_DIR/$cmd_name"
 done
 
-chmod +x "$AGY_ROOT/bin/agycarol" "$AGY_ROOT/bin/agyoracle" "$AGY_ROOT/bin/agymachine" "$AGY_ROOT/bin/agy-statusline.sh" "$PLUGIN_DIR/hooks/agy-gate.mjs" "$PLUGIN_DIR/mcp/ling-bridge.mjs"
+chmod +x "$AGY_ROOT/bin/agycarol" "$AGY_ROOT/bin/agyoracle" "$AGY_ROOT/bin/agymachine" "$AGY_ROOT/bin/agy-statusline.sh" "$PLUGIN_DIR/hooks/agy-gate.mjs"
 
 ln -sf "$AGY_ROOT/bin/agycarol" "$LOCAL_BIN/agycarol"
 ln -sf "$AGY_ROOT/bin/agyoracle" "$LOCAL_BIN/agyoracle"

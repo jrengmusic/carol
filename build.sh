@@ -66,7 +66,7 @@ if [ -n "$old_version" ] && [ "$old_version" != "$version" ] \
         perl -i -pe "s/\Q$old_version\E/$version/g" "$f"
         echo "  synced $f"
         synced=$((synced + 1))
-    done < <(grep -rlF "$old_version" . --exclude-dir=.git --exclude-dir=carol 2>/dev/null)
+    done < <(grep -rlIF "$old_version" . --exclude-dir=.git --exclude-dir=carol --exclude-dir=local 2>/dev/null)
 fi
 
 echo "built $rendered files at version $version, synced $synced files"

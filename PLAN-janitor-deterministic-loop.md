@@ -470,6 +470,32 @@ ARCHITECT: "both. git permision granted". Build Variant 2 as designed, then meas
 - **Compaction proof (`v2i`):** total context tokens dropped from 7025 to 6311 after batch 1, from 9989 to 6507 after batch 2, and from 7036 to 6385 after batch 3. Peak context stayed at 9989 tokens.
 - **Phase C gate:** passed and locked (`v2s`: 38/38 fixes, 3/3 flags, 0 missed, 0 false flags, 0 wrong edits, 0 rescan mismatch).
 
+## Phase E Result (real JAM library, Qwen3.5-4B Q4_K_M)
+
+**Target:** scratch copy of `~/Documents/Poems/dev/jam/jam_dsp` (`/tmp/janitor-phase-e/run`, 39 source files, 25 affected files, 5 batches, 108 rows: 96 fix, 12 flag — `special-operators` 75, `namespace-enclosure-format` 33). The real `jam_dsp` repo was untouched.
+
+**Method:** one warm `llama serve` router (`Qwen3.5-4B-Q4_K_M`), locked Phase C formula (in-process per-batch compaction + section mapping), scored against model-free ground truth (`/tmp/janitor-phase-e/truth`).
+
+| Metric | `jam_dsp` (Phase E) |
+|---|---|
+| Correct fixes | 96 of 96 |
+| Wrong edits (critical) | 0 |
+| Correct flags | 12 of 12 |
+| False flags | 0 |
+| Missed rows | 0 |
+| Source diff vs ground truth | 0 differences (identical) |
+| Post-campaign rescan | 12 findings (equals 12 FLAGGED rows) |
+| New parse errors | 0 (26/39 clean before and after; 13 pre-existing JUCE macro parse quirks) |
+| `janitor` runs | 1 (4 in-process per-batch compactions) |
+| Tool calls | 53 (`scan_rule` 1, `read_range` 38, `set_status` 9, `fix_batch` 5) |
+| Tool errors | 9 (`set_status` on rows 052–060, already flagged by rule; rejected cleanly) |
+| Tokens (input / cache read / output) | 13856 / 143155 / 3723 |
+| Peak context | 8977 tokens (`cacheRead` reset to 5745 after every batch) |
+| Wall time | 198.3 s |
+| Peak llama memory | 4262 MB |
+
+- **Phase E audit:** passed. Every edit matches ground truth, rescan leaves only the 12 flagged rows, no new parse errors exist, and context stays below 9k tokens across all 5 batches.
+
 ## Risks / Open Questions
 
 None.

@@ -13,7 +13,7 @@ data=$(cat)
 mkdir -p "$CAROL_ROOT/.tmp"
 
 carol_version=$(tr -d '[:space:]' < "$CAROL_ROOT/VERSION" 2>/dev/null)
-carol_version=${carol_version:-"0.0.31"}
+carol_version=${carol_version:-"0.0.32"}
 
 python3 -c '
 import sys, json, os
@@ -187,7 +187,7 @@ state = data.get("agent_state", "") or ""
 state_str = f"  {DIM}[{state}]{RESET}" if state and state != "idle" else ""
 state_w = (4 + len(state)) if state_str else 0
 
-carol_version = sys.argv[1] if len(sys.argv) > 1 else "0.0.31"
+carol_version = sys.argv[1] if len(sys.argv) > 1 else "0.0.32"
 ver_str = f"{LABEL}◈ CAROL v{carol_version}{RESET}"
 ver_w = 9 + len(carol_version)
 model_str = f"  {DIM}{model}{RESET}" if model else ""
