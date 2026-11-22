@@ -2,6 +2,7 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { DatabaseSync } from 'node:sqlite'
 
 const NUDGE_INTERVAL = 5
 const DEFAULT_ROLE = 'COUNSELOR'
@@ -46,6 +47,9 @@ const NUDGE_DEFAULT = "CAROL NUDGE — Stay in role: plan and delegate (@Enginee
 const CAROL_ROOT = process.env.CAROL_ROOT || path.join(os.homedir(), '.carol')
 const PLUGIN_ROOT = process.env.PLUGIN_ROOT || path.join(os.homedir(), '.gemini', 'config', 'plugins', 'carol')
 const STATE_DIR = path.join(CAROL_ROOT, '.tmp')
+const SUMMARIES_DB = 'conversation_summaries.db'
+const DEFAULT_AGY_DIR = path.join(os.homedir(), '.gemini', 'antigravity-cli')
+const SQLITE_TIMEOUT_MS = 1000
 
 function countMatches(pattern, text) {
   return (text.match(pattern) ?? []).length
@@ -89,6 +93,31 @@ function saveState(conversationId, state) {
   const tmpPath = statePath + '.' + process.pid + '.tmp'
   fs.writeFileSync(tmpPath, JSON.stringify(state))
   fs.renameSync(tmpPath, statePath)
+}
+
+function getConversationMeta(payload) {
+  const conversationId = String(payload.conversationId || '')
+  if (!conversationId) return { agentName: '', isSubagent: false }
+  const dbPath = payload.artifactDirectoryPath
+    ? path.resolve(payload.artifactDirectoryPath, '..', '..', SUMMARIES_DB)
+    : path.join(DEFAULT_AGY_DIR, SUMMARIES_DB)
+  if (!fs.existsSync(dbPath)) return { agentName: '', isSubagent: false }
+  let db
+  try {
+    db = new DatabaseSync(dbPath, { readOnly: true, timeout: SQLITE_TIMEOUT_MS })
+    const row = db
+      .prepare('SELECT agent_name, parent_conversation_id, nesting_depth FROM conversation_summaries WHERE conversation_id = ?')
+      .get(conversationId)
+    if (!row) return { agentName: '', isSubagent: false }
+    return {
+      agentName: String(row.agent_name || ''),
+      isSubagent: Number(row.nesting_depth) > 0 || Boolean(row.parent_conversation_id)
+    }
+  } catch {
+    return { agentName: '', isSubagent: false }
+  } finally {
+    if (db) db.close()
+  }
 }
 
 function getExpectedSubagentModel(typeName) {
@@ -179,9 +208,9 @@ function handlePreToolUse(payload, state) {
 
   if (toolName === 'call_mcp_tool') {
     const serverName = String(args.ServerName || '')
-    const agentName = String(payload.agentName || payload.subagentType || '').toLowerCase()
-    const isPathfinder = agentName === PATHFINDER_AGENT
-    const isCounselorMain = agentName === '' && role === DEFAULT_ROLE
+    const { agentName, isSubagent } = getConversationMeta(payload)
+    const isPathfinder = agentName.toLowerCase() === PATHFINDER_AGENT
+    const isCounselorMain = !isSubagent && (agentName ? agentName.toUpperCase() === DEFAULT_ROLE : role === DEFAULT_ROLE)
     if (SCOUT_SERVER_PATTERN.test(serverName) && !isPathfinder) {
       return { decision: 'deny', reason: SCOUT_GATE }
     }
