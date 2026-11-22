@@ -54,4 +54,17 @@ ln -sf "$AGY_ROOT/bin/agycarol" "$LOCAL_BIN/agycarol"
 ln -sf "$AGY_ROOT/bin/agyoracle" "$LOCAL_BIN/agyoracle"
 ln -sf "$AGY_ROOT/bin/agymachine" "$LOCAL_BIN/agymachine"
 
+# Configure cross-platform statusLine in agy settings
+python3 -c '
+import json, pathlib
+settings_path = pathlib.Path.home() / ".gemini" / "antigravity-cli" / "settings.json"
+settings_path.parent.mkdir(parents=True, exist_ok=True)
+data = json.loads(settings_path.read_text(encoding="utf-8")) if settings_path.exists() else {}
+data["statusLine"] = {
+    "type": "command",
+    "command": "bash ~/.carol/agy/bin/agy-statusline.sh",
+}
+settings_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+'
+
 agy plugin validate "$PLUGIN_DIR"
