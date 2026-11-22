@@ -3,115 +3,139 @@
 
 data=$(cat)
 mkdir -p "$HOME/.carol/.tmp"
-session_id=$(sed -n 's/.*"session_id" *: *"\([^"]*\)".*/\1/p' <<< "$data")
-printf "%s" "$data" > "$HOME/.carol/.tmp/statusline_input.${session_id}.json"
 
 # CAROL version from SSOT (/VERSION file at repo root)
 carol_version=$(tr -d '[:space:]' < "$(dirname "$0")/../VERSION" 2>/dev/null)
 carol_version=${carol_version:-"?"}
 
-# Parse context %, model name, agent role, and rate limit
-parsed=$(python3 -c "
-import sys, json, time, os
-from datetime import datetime, timezone
-d = json.load(sys.stdin)
-cw = d.get('context_window', {}) or {}
-pct = int(cw.get('used_percentage', 0) or 0)
-total_tokens = int(cw.get('total_input_tokens', 0) or 0)
-model = (d.get('model', {}) or {}).get('display_name', '') or ''
-model = model.replace(' (1M context)', '').strip()
-agent = (d.get('agent', {}) or {}).get('name', '') or ''
-if not agent:
-    agent = os.environ.get('CAROL_ROLE', '')
-    if not agent:
-        try:
-            with open(os.path.expanduser('~/.carol/.carol-role'), 'r') as rf:
-                agent = rf.read().strip()
-        except Exception:
-            pass
-    if not agent:
-        agent = 'COUNSELOR'
-rls = d.get('rate_limits', {}) or {}
-divisor = int(os.environ.get('CAROL_CONTEXT_DIVISOR', '0') or 0)
-fill_percent = int(os.environ.get('CAROL_CONTEXT_FILL_PERCENT', '80') or 80) or 80
-pct_f = min(total_tokens * 100.0 / divisor, 100.0) if divisor > 0 and total_tokens > 0 else float(min(pct, 100))
-scaled = min(int(round(pct_f * 100.0 / fill_percent)), 100)
-def fmt(window):
-    w = rls.get(window, {}) or {}
-    p = int(w.get('used_percentage', 0) or 0)
-    r = int(w.get('resets_at', 0) or 0)
-    rem = ''
-    if r > 0:
-        delta = max(0, r - int(time.time()))
-        days, rem_s = delta // 86400, delta % 86400
-        h, m = rem_s // 3600, (rem_s % 3600) // 60
-        if days: rem = f'{days}d{h:02d}h'
-        elif h:  rem = f'{h}h{m:02d}m'
-        else:    rem = f'{m}m'
-    return p, rem
-rl_pct, remaining = fmt('five_hour')
-wk_pct, wk_remaining = fmt('seven_day')
-transcript_path = d.get('transcript_path', '') or ''
-CACHE_TTL_1H_SECONDS = 3600
-CACHE_TTL_5M_SECONDS = 300
-cache_pct = 0
-cache_remaining = ''
-if transcript_path and os.path.isfile(transcript_path):
-    anchor_time, ttl_seconds = None, None
-    with open(transcript_path, 'r', encoding='utf-8') as tf:
-        for line in reversed(tf.readlines()):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                entry = json.loads(line)
-            except Exception:
-                continue
-            usage = (entry.get('message') or {}).get('usage') or {}
-            creation = int(usage.get('cache_creation_input_tokens', 0) or 0)
-            cached = int(usage.get('cache_read_input_tokens', 0) or 0)
-            if creation > 0 or cached > 0:
-                if anchor_time is None:
-                    anchor_time = entry.get('timestamp', '')
-                breakdown = usage.get('cache_creation') or {}
-                if int(breakdown.get('ephemeral_1h_input_tokens', 0) or 0) > 0:
-                    ttl_seconds = CACHE_TTL_1H_SECONDS
-                    break
-                if int(breakdown.get('ephemeral_5m_input_tokens', 0) or 0) > 0:
-                    ttl_seconds = CACHE_TTL_5M_SECONDS
-                    break
-    if anchor_time:
-        ttl_seconds = ttl_seconds or CACHE_TTL_1H_SECONDS
-        anchor_epoch = datetime.strptime(anchor_time, '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=timezone.utc).timestamp()
-        elapsed = max(0.0, time.time() - anchor_epoch)
-        cache_pct = min(int(elapsed * 100.0 / ttl_seconds), 100)
-        left_seconds = max(0, int(ttl_seconds - elapsed))
-        cache_m, cache_s = left_seconds // 60, left_seconds % 60
-        cache_remaining = f'{cache_m}m{cache_s:02d}s' if cache_pct < 100 else 'cold'
-print(pct)
-print(total_tokens)
-print(model)
-print(agent.upper())
-print(rl_pct)
-print(remaining)
-print(wk_pct)
-print(wk_remaining)
-print(scaled)
-print(cache_pct)
-print(cache_remaining)
-" <<< "$data" 2>/dev/null)
+DEFAULT_FILL_PERCENT=80
+divisor="${CAROL_CONTEXT_DIVISOR:-0}"
+[ -z "$divisor" ] && divisor=0
+fill_percent="${CAROL_CONTEXT_FILL_PERCENT:-$DEFAULT_FILL_PERCENT}"
+if [ -z "$fill_percent" ] || [ "$fill_percent" -eq 0 ]; then
+    fill_percent=$DEFAULT_FILL_PERCENT
+fi
 
-pct=$(sed -n '1p' <<< "$parsed")
-total_tokens=$(sed -n '2p' <<< "$parsed")
-model=$(sed -n '3p' <<< "$parsed")
-agent=$(sed -n '4p' <<< "$parsed")
-rl_pct=$(sed -n '5p' <<< "$parsed")
-rl_remaining=$(sed -n '6p' <<< "$parsed")
-wk_pct=$(sed -n '7p' <<< "$parsed")
-wk_remaining=$(sed -n '8p' <<< "$parsed")
-scaled=$(sed -n '9p' <<< "$parsed")
-cache_pct=$(sed -n '10p' <<< "$parsed")
-cache_remaining=$(sed -n '11p' <<< "$parsed")
+# Parse context %, model name, agent role, rate limits, and transcript path
+parsed=$(jq -r --argjson divisor "$divisor" --argjson fill_percent "$fill_percent" '
+    def clean: tostring | gsub("[\r\n]"; "");
+    def fmt_window($rls; $name):
+        ($rls[$name] // {}) as $w |
+        ($w.used_percentage // 0 | tonumber | floor) as $p |
+        ($w.resets_at // 0 | tonumber | floor) as $r |
+        (if $r > 0 then
+            ([0, ($r - (now | floor))] | max) as $delta |
+            (($delta / 86400) | floor) as $days |
+            ($delta % 86400) as $rem_s |
+            (($rem_s / 3600) | floor) as $h |
+            ((($rem_s % 3600) / 60) | floor) as $m |
+            if $days > 0 then "\($days)d\(if $h < 10 then "0\($h)" else "\($h)" end)h"
+            elif $h > 0 then "\($h)h\(if $m < 10 then "0\($m)" else "\($m)" end)m"
+            else "\($m)m"
+            end
+        else "" end) as $rem |
+        [$p, $rem];
+
+    (.session_id // "" | clean) as $sid |
+    (.context_window // {}) as $cw |
+    ($cw.used_percentage // 0 | tonumber | floor) as $pct |
+    ($cw.total_input_tokens // 0 | tonumber | floor) as $total_tokens |
+    ((.model.display_name // "") | gsub(" \\(1M context\\)"; "") | gsub("^\\s+|\\s+$"; "") | clean) as $model |
+    ((.agent.name // "") | gsub("^\\s+|\\s+$"; "") | clean) as $agent |
+    (if $divisor > 0 and $total_tokens > 0 then [($total_tokens * 100 / $divisor), 100] | min
+     else [$pct, 100] | min end) as $pct_f |
+    ([($pct_f * 100 / $fill_percent | round), 100] | min) as $scaled |
+    (.rate_limits // {}) as $rls |
+    fmt_window($rls; "five_hour") as $rl |
+    fmt_window($rls; "seven_day") as $wk |
+    (.transcript_path // "" | clean) as $tp |
+    [$sid, $pct, $total_tokens, $model, $agent, $rl[0], $rl[1], $wk[0], $wk[1], $scaled, $tp][]
+' <<< "$data" 2>/dev/null | tr -d '\r')
+
+session_id="" pct="" total_tokens="" model="" agent=""
+rl_pct="" rl_remaining="" wk_pct="" wk_remaining="" scaled="" transcript_path=""
+
+{
+    IFS= read -r session_id
+    IFS= read -r pct
+    IFS= read -r total_tokens
+    IFS= read -r model
+    IFS= read -r agent
+    IFS= read -r rl_pct
+    IFS= read -r rl_remaining
+    IFS= read -r wk_pct
+    IFS= read -r wk_remaining
+    IFS= read -r scaled
+    IFS= read -r transcript_path
+} <<< "$parsed"
+
+printf "%s" "$data" > "$HOME/.carol/.tmp/statusline_input.${session_id}.json"
+
+if [ -z "$agent" ]; then
+    agent="${CAROL_ROLE:-}"
+fi
+if [ -z "$agent" ] && [ -f "$HOME/.carol/.carol-role" ]; then
+    agent=$(tr -d '[:space:]' < "$HOME/.carol/.carol-role" 2>/dev/null)
+fi
+if [ -z "$agent" ]; then
+    agent="COUNSELOR"
+fi
+agent=$(printf '%s' "$agent" | tr '[:lower:]' '[:upper:]')
+
+cache_pct=0
+cache_remaining=""
+if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
+    cache_parsed=$(jq -R -s -r '
+        def CACHE_TTL_1H: 3600;
+        def CACHE_TTL_5M: 300;
+        split("\n") | reverse |
+        reduce .[] as $line (
+            {anchor: null, ttl: null, done: false};
+            if .done then .
+            else
+                ($line | fromjson? // null) as $e |
+                if ($e | type) != "object" then .
+                else
+                    ($e.message.usage // {}) as $u |
+                    (($u.cache_creation_input_tokens // 0 | tonumber) > 0 or ($u.cache_read_input_tokens // 0 | tonumber) > 0) as $has_cache |
+                    if $has_cache then
+                        (if .anchor == null then ($e.timestamp // "") else .anchor end) as $a |
+                        ($u.cache_creation // {}) as $b |
+                        if ($b.ephemeral_1h_input_tokens // 0 | tonumber) > 0 then
+                            {anchor: $a, ttl: CACHE_TTL_1H, done: true}
+                        elif ($b.ephemeral_5m_input_tokens // 0 | tonumber) > 0 then
+                            {anchor: $a, ttl: CACHE_TTL_5M, done: true}
+                        else
+                            .anchor = $a
+                        end
+                    else .
+                    end
+                end
+            end
+        ) |
+        if (.anchor // "") != "" then
+            (.ttl // CACHE_TTL_1H) as $ttl |
+            (try (.anchor | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) catch null) as $epoch |
+            if $epoch != null then
+                ([0, (now - $epoch)] | max) as $elapsed |
+                ([100, (($elapsed * 100 / $ttl) | floor)] | min) as $cpct |
+                ([0, (($ttl - $elapsed) | floor)] | max) as $left |
+                (($left / 60) | floor) as $cm |
+                ($left % 60) as $cs |
+                (if $cpct < 100 then "\($cm)m\(if $cs < 10 then "0\($cs)" else "\($cs)" end)s" else "cold" end) as $crem |
+                [$cpct, $crem][]
+            else
+                ["0", ""][]
+            end
+        else
+            ["0", ""][]
+        end
+    ' "$transcript_path" 2>/dev/null | tr -d '\r')
+    {
+        IFS= read -r cache_pct
+        IFS= read -r cache_remaining
+    } <<< "$cache_parsed"
+fi
 
 pct=${pct:-0}
 total_tokens=${total_tokens:-0}

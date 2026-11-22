@@ -2,212 +2,260 @@
 # agy-statusline.sh - CAROL Context Rot Meter & Status Line for Antigravity CLI (agy)
 
 SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do
-    DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
-    SOURCE="$(readlink "$SOURCE")"
-    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
-done
-CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/../.." >/dev/null 2>&1 && pwd )"
+if [ -h "$SOURCE" ]; then
+    while [ -h "$SOURCE" ]; do
+        DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+        SOURCE="$(readlink "$SOURCE")"
+        [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+    done
+    CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/../.." >/dev/null 2>&1 && pwd )"
+else
+    CAROL_ROOT="${SOURCE%/*}/../.."
+fi
 
-data=$(cat)
-mkdir -p "$CAROL_ROOT/.tmp"
+SEGMENTS=10
+DEFAULT_FILL_PERCENT=80
+DEFAULT_TERMINAL_WIDTH=120
 
-carol_version=$(tr -d '[:space:]' < "$CAROL_ROOT/VERSION" 2>/dev/null)
+RESET=$'\033[0m'
+BOLD=$'\033[1m'
+BG_DARK=$'\033[48;5;236m'
+DIM=$'\033[38;2;51;83;91m'
+LABEL=$'\033[38;2;105;157;170m'
+GIT=$'\033[38;2;140;100;180m'
+
+COLOR_LOW=$'\033[38;2;51;83;91m'
+COLOR_MED=$'\033[38;2;0;150;160m'
+COLOR_HIGH=$'\033[38;2;200;120;50m'
+COLOR_CRIT=$'\033[38;2;252;112;76m'
+
+threshold_color() {
+    local used=$1
+    if [ "$used" -ge 75 ]; then _color="$COLOR_CRIT"
+    elif [ "$used" -ge 50 ]; then _color="$COLOR_HIGH"
+    elif [ "$used" -ge 25 ]; then _color="$COLOR_MED"
+    else _color="$COLOR_LOW"
+    fi
+}
+
+ctx_emoji_for() {
+    local used=$1
+    if [ "$used" -ge 75 ]; then _emoji='🥵'
+    elif [ "$used" -ge 50 ]; then _emoji='😟'
+    elif [ "$used" -ge 25 ]; then _emoji='😐'
+    else _emoji='😊'
+    fi
+}
+
+build_bar() {
+    local used=$1 clr=$2
+    local filled=$((used * SEGMENTS / 100))
+    [ "$filled" -lt 0 ] && filled=0
+    [ "$filled" -gt "$SEGMENTS" ] && filled=$SEGMENTS
+    local cells="" i
+    for ((i=0; i<SEGMENTS; i++)); do
+        if [ "$i" -lt "$filled" ]; then
+            cells="${cells}${clr}${BOLD}█"
+        else
+            cells="${cells} "
+        fi
+    done
+    _bar="${BG_DARK}${cells}${RESET}"
+}
+
+fmt_eta() {
+    local sec=$1
+    _eta=""
+    if [ "$sec" -le 0 ]; then
+        return
+    fi
+    local days=$((sec / 86400))
+    local rem=$((sec % 86400))
+    local hours=$((rem / 3600))
+    local mins=$(((rem % 3600) / 60))
+    if [ "$days" -gt 0 ]; then
+        printf -v _eta '%dd%02dh' "$days" "$hours"
+    elif [ "$hours" -gt 0 ]; then
+        printf -v _eta '%dh%02dm' "$hours" "$mins"
+    else
+        printf -v _eta '%dm' "$mins"
+    fi
+}
+
+render_quota() {
+    local icon=$1 used=$2 left=$3 sec=$4
+    q_full="" q_full_w=0 q_short="" q_short_w=0
+    if [ -z "$used" ]; then
+        return
+    fi
+    local clr eta_part="" eta_w=0
+    threshold_color "$used"
+    clr="$_color"
+    build_bar "$used" "$clr"
+    fmt_eta "$sec"
+    if [ -n "$_eta" ]; then
+        eta_part=" ${DIM}${_eta}${RESET}"
+        eta_w=$((1 + ${#_eta}))
+    fi
+    q_full="  ${DIM}${icon}${RESET}${_bar} ${clr}${left}%${RESET}${eta_part}"
+    q_full_w=$((2 + 2 + SEGMENTS + 1 + ${#left} + 1 + eta_w))
+    q_short="  ${DIM}${icon}${RESET}${clr}${left}%${RESET}"
+    q_short_w=$((2 + 2 + ${#left} + 1))
+}
+
+IFS= read -r -d '' data || true
+[ -d "$CAROL_ROOT/.tmp" ] || mkdir -p "$CAROL_ROOT/.tmp"
+
+carol_version=""
+if [ -f "$CAROL_ROOT/VERSION" ]; then
+    IFS= read -r carol_version < "$CAROL_ROOT/VERSION" || true
+    carol_version="${carol_version//[[:space:]]/}"
+fi
 carol_version=${carol_version:-"0.0.32"}
 
-python3 -c '
-import sys, json, os
+divisor="${CAROL_CONTEXT_DIVISOR:-0}"
+[ -z "$divisor" ] && divisor=0
+fill_percent="${CAROL_CONTEXT_FILL_PERCENT:-$DEFAULT_FILL_PERCENT}"
+if [ -z "$fill_percent" ] || [ "$fill_percent" -eq 0 ]; then
+    fill_percent=$DEFAULT_FILL_PERCENT
+fi
 
-SEGMENTS = 10
-DEFAULT_FILL_PERCENT = 80
-DEFAULT_TERMINAL_WIDTH = 120
+parsed=$(jq -r --argjson divisor "$divisor" --argjson fill_percent "$fill_percent" '
+    def clean: tostring | gsub("[\r\n]"; "");
+    def qinfo($q; $k):
+        ($q[$k]) as $e |
+        if ($e | type) == "object" and ($e | has("remaining_fraction")) then
+            ([0, ([100, (($e.remaining_fraction // 1 | tonumber) * 100 | round)] | min)] | max) as $left |
+            [(100 - $left), $left, ($e.reset_in_seconds // 0 | tonumber | floor)]
+        else
+            ["", "", ""]
+        end;
 
-RESET = "\033[0m"
-BOLD = "\033[1m"
-BG_DARK = "\033[48;5;236m"
-DIM = "\033[38;2;51;83;91m"
-LABEL = "\033[38;2;105;157;170m"
-GIT = "\033[38;2;140;100;180m"
+    (.session_id // "" | if . == "" then "default" else clean end) as $sid |
+    ((.model.display_name // "") | gsub(" \\(1M context\\)"; "") | gsub("^\\s+|\\s+$"; "") | clean) as $model |
+    ($model | ascii_downcase) as $ml |
+    (.context_window.used_percentage // 0 | tonumber) as $raw_pct |
+    (.context_window.total_input_tokens // 0 | tonumber | floor) as $total_tokens |
+    (if $divisor > 0 and $total_tokens > 0 then [($total_tokens * 100 / $divisor), 100] | min
+     else [0, ([$raw_pct, 100] | min)] | max end) as $pct_f |
+    ($pct_f | round) as $pct |
+    ([($pct_f * 100 / $fill_percent | round), 100] | min) as $scaled |
+    ((.agent.name // "") | gsub("^\\s+|\\s+$"; "") | ascii_upcase | clean) as $agent |
+    (.quota // {}) as $quota |
+    (if ($ml | contains("claude")) or ($ml | contains("gpt")) then ["3p-5h", "3p-weekly"]
+     elif ($ml | contains("argon")) then ["gemini-5h", "gemini-argon-wtu-weekly"]
+     else ["gemini-5h", "gemini-weekly"] end) as $keys |
+    qinfo($quota; $keys[0]) as $rl |
+    qinfo($quota; $keys[1]) as $wk |
+    (.vcs.branch // "" | clean) as $branch |
+    (if .vcs.dirty then "*" else "" end) as $dirty |
+    (.agent_state // "" | clean) as $state |
+    (.terminal_width // 0 | tonumber | floor) as $cols |
+    [$sid, $model, $pct, $scaled, $agent, $rl[0], $rl[1], $rl[2], $wk[0], $wk[1], $wk[2], $branch, $dirty, $state, $cols][]
+' <<< "$data" 2>/dev/null)
+parsed="${parsed//$'\r'/}"
 
-COLOR_LOW = "\033[38;2;51;83;91m"
-COLOR_MED = "\033[38;2;0;150;160m"
-COLOR_HIGH = "\033[38;2;200;120;50m"
-COLOR_CRIT = "\033[38;2;252;112;76m"
+session_id="" model="" pct="" scaled="" agent=""
+rl_used="" rl_left="" rl_sec=""
+wk_used="" wk_left="" wk_sec=""
+branch="" dirty="" state="" cols=""
 
-ROLE_STYLES = {
-    "ORACLE": "\033[48;2;217;119;41m\033[38;2;9;13;18m",
-    "COUNSELOR": "\033[48;2;0;200;216m\033[38;2;9;13;18m",
-    "MACHINIST": "\033[48;2;160;160;160m\033[38;2;9;13;18m",
-    "ENGINEER": "\033[48;2;40;120;220m\033[38;2;9;13;18m",
-}
-DEFAULT_ROLE_STYLE = "\033[48;2;78;140;147m\033[38;2;9;13;18m"
+{
+    IFS= read -r session_id
+    IFS= read -r model
+    IFS= read -r pct
+    IFS= read -r scaled
+    IFS= read -r agent
+    IFS= read -r rl_used
+    IFS= read -r rl_left
+    IFS= read -r rl_sec
+    IFS= read -r wk_used
+    IFS= read -r wk_left
+    IFS= read -r wk_sec
+    IFS= read -r branch
+    IFS= read -r dirty
+    IFS= read -r state
+    IFS= read -r cols
+} <<< "$parsed"
 
+session_id=${session_id:-default}
+pct=${pct:-0}
+scaled=${scaled:-0}
+cols=${cols:-0}
+[ "$cols" -le 0 ] && cols=$DEFAULT_TERMINAL_WIDTH
 
-def threshold_color(used_pct):
-    if used_pct >= 75:
-        return COLOR_CRIT
-    if used_pct >= 50:
-        return COLOR_HIGH
-    if used_pct >= 25:
-        return COLOR_MED
-    return COLOR_LOW
+printf '%s' "$data" > "$CAROL_ROOT/.tmp/statusline_agy_${session_id}.json"
 
+if [ -z "$agent" ]; then
+    agent="${CAROL_ROLE:-}"
+fi
+if [ -z "$agent" ] && [ -f "$CAROL_ROOT/.carol-role" ]; then
+    IFS= read -r agent < "$CAROL_ROOT/.carol-role" || true
+    agent="${agent//[[:space:]]/}"
+fi
+if [ -z "$agent" ]; then
+    agent="COUNSELOR"
+fi
+case "$agent" in
+    *[a-z]*) agent=$(printf '%s' "$agent" | tr '[:lower:]' '[:upper:]') ;;
+esac
 
-def ctx_emoji_for(used_pct):
-    if used_pct >= 75:
-        return "🥵"
-    if used_pct >= 50:
-        return "😟"
-    if used_pct >= 25:
-        return "😐"
-    return "😊"
+case "$agent" in
+    ORACLE)    role_bg=$'\033[48;2;217;119;41m\033[38;2;9;13;18m' ;;
+    COUNSELOR) role_bg=$'\033[48;2;0;200;216m\033[38;2;9;13;18m' ;;
+    MACHINIST) role_bg=$'\033[48;2;160;160;160m\033[38;2;9;13;18m' ;;
+    ENGINEER)  role_bg=$'\033[48;2;40;120;220m\033[38;2;9;13;18m' ;;
+    *)         role_bg=$'\033[48;2;78;140;147m\033[38;2;9;13;18m' ;;
+esac
+role_str="${role_bg}${BOLD} ${agent} ${RESET}"
+role_w=$((${#agent} + 2))
 
+threshold_color "$scaled"
+ctx_emoji_for "$scaled"
+build_bar "$scaled" "$_color"
+ctx_str="${_emoji}${_bar} ${DIM}${pct}%${RESET}"
+ctx_w=$((2 + SEGMENTS + 1 + ${#pct} + 1))
 
-def build_bar(used_pct, color):
-    filled = max(0, min(SEGMENTS, int(used_pct * SEGMENTS // 100)))
-    cells = "".join(f"{color}{BOLD}█" if i < filled else " " for i in range(SEGMENTS))
-    return f"{BG_DARK}{cells}{RESET}"
+render_quota "🕔" "$rl_used" "$rl_left" "$rl_sec"
+rl_full=$q_full rl_full_w=$q_full_w rl_short=$q_short rl_short_w=$q_short_w
 
+render_quota "📅" "$wk_used" "$wk_left" "$wk_sec"
+wk_full=$q_full wk_full_w=$q_full_w wk_short=$q_short wk_short_w=$q_short_w
 
-def fmt_eta(seconds):
-    if seconds <= 0:
-        return ""
-    days, rem = divmod(seconds, 86400)
-    hours, rem = divmod(rem, 3600)
-    mins = rem // 60
-    if days:
-        return f"{days}d{hours:02d}h"
-    if hours:
-        return f"{hours}h{mins:02d}m"
-    return f"{mins}m"
+git_str="" git_w=0
+if [ -n "$branch" ]; then
+    git_str="  ${GIT} ${branch}${dirty}${RESET}"
+    git_w=$((4 + ${#branch} + ${#dirty}))
+fi
 
+state_str="" state_w=0
+if [ -n "$state" ] && [ "$state" != "idle" ]; then
+    state_str="  ${DIM}[${state}]${RESET}"
+    state_w=$((4 + ${#state}))
+fi
 
-def parse_quota(quota, key):
-    entry = quota.get(key)
-    if not isinstance(entry, dict) or "remaining_fraction" not in entry:
-        return None
-    rem_frac = float(entry.get("remaining_fraction", 1.0))
-    left_pct = max(0, min(100, int(round(rem_frac * 100.0))))
-    used_pct = 100 - left_pct
-    eta = fmt_eta(int(entry.get("reset_in_seconds", 0) or 0))
-    return used_pct, left_pct, eta
+ver_str="${LABEL}◈ CAROL v${carol_version}${RESET}"
+ver_w=$((9 + ${#carol_version}))
 
+model_str="" model_w=0
+if [ -n "$model" ]; then
+    model_str="  ${DIM}${model}${RESET}"
+    model_w=$((2 + ${#model}))
+fi
 
-data = {}
-try:
-    data = json.load(sys.stdin)
-except Exception:
-    pass
+t1_w=$((role_w + 2 + ctx_w))
+t2_w=$((t1_w + rl_short_w + wk_short_w))
+t3_w=$((t1_w + rl_full_w + wk_full_w))
+t4_w=$((ver_w + 2 + role_w + model_w + git_w + state_w + 2 + ctx_w + rl_full_w + wk_full_w))
 
-session_id = data.get("session_id", "") or "default"
-try:
-    tmp_dir = os.path.expanduser("~/.carol/.tmp")
-    os.makedirs(tmp_dir, exist_ok=True)
-    with open(f"{tmp_dir}/statusline_agy_{session_id}.json", "w") as f:
-        json.dump(data, f)
-except Exception:
-    pass
+if [ "$cols" -ge "$t4_w" ]; then
+    out="${ver_str}  ${role_str}${model_str}${git_str}${state_str}  ${ctx_str}${rl_full}${wk_full}"
+elif [ "$cols" -ge "$t3_w" ]; then
+    out="${role_str}  ${ctx_str}${rl_full}${wk_full}"
+elif [ "$cols" -ge "$t2_w" ]; then
+    out="${role_str}  ${ctx_str}${rl_short}${wk_short}"
+else
+    out="${role_str}  ${ctx_str}"
+fi
 
-model = ((data.get("model") or {}).get("display_name") or "").replace(" (1M context)", "").strip()
-
-cw = data.get("context_window") or {}
-raw_pct = float(cw.get("used_percentage", 0) or 0)
-total_tokens = int(cw.get("total_input_tokens", 0) or 0)
-divisor = int(os.environ.get("CAROL_CONTEXT_DIVISOR", "0") or 0)
-fill_percent = int(os.environ.get("CAROL_CONTEXT_FILL_PERCENT", str(DEFAULT_FILL_PERCENT)) or DEFAULT_FILL_PERCENT) or DEFAULT_FILL_PERCENT
-
-if divisor > 0 and total_tokens > 0:
-    pct_f = min(total_tokens * 100.0 / divisor, 100.0)
-else:
-    pct_f = max(0.0, min(raw_pct, 100.0))
-
-pct = int(round(pct_f))
-scaled = min(int(round(pct_f * 100.0 / fill_percent)), 100)
-
-agent = ((data.get("agent") or {}).get("name") or "").strip()
-if not agent:
-    agent = os.environ.get("CAROL_ROLE", "").strip()
-if not agent:
-    try:
-        with open(os.path.expanduser("~/.carol/.carol-role"), "r") as rf:
-            agent = rf.read().strip()
-    except Exception:
-        pass
-if not agent:
-    agent = "COUNSELOR"
-agent = agent.upper()
-
-role_bg = ROLE_STYLES.get(agent, DEFAULT_ROLE_STYLE)
-role_str = f"{role_bg}{BOLD} {agent} {RESET}"
-role_w = len(agent) + 2
-
-ctx_color = threshold_color(scaled)
-ctx_emoji = ctx_emoji_for(scaled)
-ctx_bar = build_bar(scaled, ctx_color)
-ctx_str = f"{ctx_emoji}{ctx_bar} {DIM}{pct}%{RESET}"
-ctx_w = 2 + SEGMENTS + 1 + len(str(pct)) + 1
-
-quota = data.get("quota") or {}
-model_lower = model.lower()
-if "claude" in model_lower or "gpt" in model_lower:
-    rl_key, wk_key = "3p-5h", "3p-weekly"
-elif "argon" in model_lower:
-    rl_key, wk_key = "gemini-5h", "gemini-argon-wtu-weekly"
-else:
-    rl_key, wk_key = "gemini-5h", "gemini-weekly"
-
-rl = parse_quota(quota, rl_key)
-wk = parse_quota(quota, wk_key)
-
-
-def render_quota(icon, q):
-    if q is None:
-        return "", 0, "", 0
-    used_pct, left_pct, eta = q
-    clr = threshold_color(used_pct)
-    qbar = build_bar(used_pct, clr)
-    eta_part = f" {DIM}{eta}{RESET}" if eta else ""
-    full = f"  {DIM}{icon}{RESET}{qbar} {clr}{left_pct}%{RESET}{eta_part}"
-    full_w = 2 + 2 + SEGMENTS + 1 + len(str(left_pct)) + 1 + (1 + len(eta) if eta else 0)
-    short = f"  {DIM}{icon}{RESET}{clr}{left_pct}%{RESET}"
-    short_w = 2 + 2 + len(str(left_pct)) + 1
-    return full, full_w, short, short_w
-
-
-rl_full, rl_full_w, rl_short, rl_short_w = render_quota("🕔", rl)
-wk_full, wk_full_w, wk_short, wk_short_w = render_quota("📅", wk)
-
-vcs = data.get("vcs") or {}
-branch = vcs.get("branch", "") or ""
-dirty = "*" if vcs.get("dirty") else ""
-git_str = f"  {GIT} {branch}{dirty}{RESET}" if branch else ""
-git_w = (4 + len(branch) + len(dirty)) if branch else 0
-
-state = data.get("agent_state", "") or ""
-state_str = f"  {DIM}[{state}]{RESET}" if state and state != "idle" else ""
-state_w = (4 + len(state)) if state_str else 0
-
-carol_version = sys.argv[1] if len(sys.argv) > 1 else "0.0.32"
-ver_str = f"{LABEL}◈ CAROL v{carol_version}{RESET}"
-ver_w = 9 + len(carol_version)
-model_str = f"  {DIM}{model}{RESET}" if model else ""
-model_w = (2 + len(model)) if model else 0
-
-cols = int(data.get("terminal_width", 0) or DEFAULT_TERMINAL_WIDTH)
-
-t1_w = role_w + 2 + ctx_w
-t2_w = t1_w + rl_short_w + wk_short_w
-t3_w = t1_w + rl_full_w + wk_full_w
-t4_w = ver_w + 2 + role_w + model_w + git_w + state_w + 2 + ctx_w + rl_full_w + wk_full_w
-
-if cols >= t4_w:
-    out = f"{ver_str}  {role_str}{model_str}{git_str}{state_str}  {ctx_str}{rl_full}{wk_full}"
-elif cols >= t3_w:
-    out = f"{role_str}  {ctx_str}{rl_full}{wk_full}"
-elif cols >= t2_w:
-    out = f"{role_str}  {ctx_str}{rl_short}{wk_short}"
-else:
-    out = f"{role_str}  {ctx_str}"
-
-sys.stdout.write(out + "\n")
-' "$carol_version" <<< "$data"
+printf '%s\n' "$out"
