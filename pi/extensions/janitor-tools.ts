@@ -56,11 +56,11 @@ export default function (pi: ExtensionAPI) {
       name: "scan_rule",
       label: "Scan rules",
       description:
-        "Scan the given paths for violations of the given CODING.md sections or rules. With subject and objective, it writes CLEAN-UP-<subject>.md at the repository root " +
-        "and returns the counts and the first batch. With check true, it lists the findings and writes nothing. Sections: formatting, namespaces. Rules: special-operators, " +
-        "namespace-enclosure-format, no-anonymous-namespaces-allowed, no-namespace-detail-allowed.",
+        "Scan the given paths for violations of the given CODING.md / NAMES.md sections or rules. With subject and objective, it writes CLEAN-UP-<subject>.md at the repository root " +
+        "and returns the counts and the first batch. With check true, it lists the findings and writes nothing. Sections: all, coding, formatting, pointers, literals, namespaces, " +
+        "modern-cpp, structure, control-flow, names.",
       parameters: Type.Object ({
-        rules: Type.Array (Type.String(), { minItems: 1, description: "Section names (formatting, namespaces) or rule ids" }),
+        rules: Type.Array (Type.String(), { minItems: 1, description: "Section names (all, coding, formatting, pointers, literals, namespaces, modern-cpp, structure, control-flow, names) or rule ids" }),
         paths: Type.Array (Type.String(), { minItems: 1, description: "Files or directories, relative to the repository root" }),
         subject: Type.Optional (Type.String ({ description: "Campaign subject in kebab-case; names CLEAN-UP-<subject>.md" })),
         objective: Type.Optional (Type.String ({ description: "One sentence: the invariant the campaign enforces" })),

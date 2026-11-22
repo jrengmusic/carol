@@ -138,41 +138,71 @@ local function getRemainingFixCount (file, rules)
     return count
 end
 
--- Applies the fix rows of one file. A fix finding on a flagged row stays in the file, so the rescan must
--- find exactly flaggedFixCount. Returns the reason the rows are flagged, or nil when they are done.
+local function restoreAll (documents)
+    for index, document in ipairs (documents) do
+        restore (document)
+    end
+end
+
 local function applyFixes (document, findings, rules, flaggedFixCount)
-    local edits = {}
+    local editsByFile = {}
+    local fileOrder = {}
 
     for findingIndex, finding in ipairs (findings) do
-        vim.list_extend (edits, finding.edits)
+        for editIndex, edit in ipairs (finding.edits) do
+            local targetFile = edit.file or document.path
+            if editsByFile[targetFile] == nil then
+                editsByFile[targetFile] = {}
+                table.insert (fileOrder, targetFile)
+            end
+            table.insert (editsByFile[targetFile], edit)
+        end
     end
 
-    local changes, conflict = getChanges (document, edits)
-    if changes == nil then return conflict end
+    local plans = {}
+    local originals = {}
 
-    local planned = getPlannedContent (document, changes)
-    local script = getSedScript (changes)
-    local sedResult = vim.system ({ "sed", "-E", "-e", script, document.path }, { text = true }):wait()
-    if sedResult.code ~= 0 or sedResult.stdout ~= planned then return "sed plan differs from the computed plan" end
+    for fileIndex, targetFile in ipairs (fileOrder) do
+        local targetDocument = targetFile == document.path and document or Syntax.getDocument (targetFile)
+        local changes, conflict = getChanges (targetDocument, editsByFile[targetFile])
+        if changes == nil then return conflict end
 
-    local plannedPath = writeTemporary (planned)
-    local count = getChangedLineCount (document.path, plannedPath)
-    vim.fn.delete (plannedPath)
+        local planned = getPlannedContent (targetDocument, changes)
+        local script = getSedScript (changes)
+        local sedResult = vim.system ({ "sed", "-E", "-e", script, targetDocument.path }, { text = true }):wait()
+        if sedResult.code ~= 0 or sedResult.stdout ~= planned then return "sed plan differs from the computed plan" end
 
-    local applyResult = vim.system ({ "carol", "apply", "--expect", tostring (count), script, document.path }, { text = true }):wait()
-    if applyResult.code ~= 0 then return "carol apply failed: " .. vim.trim (applyResult.stderr or applyResult.stdout or "") end
+        local plannedPath = writeTemporary (planned)
+        local count = getChangedLineCount (targetDocument.path, plannedPath)
+        vim.fn.delete (plannedPath)
 
-    local fixed = Syntax.getDocument (document.path)
+        table.insert (plans, { document = targetDocument, script = script, count = count })
+        table.insert (originals, targetDocument)
+    end
 
-    if Syntax.getErrorCount (fixed) > Syntax.getErrorCount (document) then
-        restore (document)
-        return "parse errors increased; file restored"
+    local applied = {}
+
+    for planIndex, plan in ipairs (plans) do
+        local applyResult = vim.system ({ "carol", "apply", "--expect", tostring (plan.count), plan.script, plan.document.path }, { text = true }):wait()
+        if applyResult.code ~= 0 then
+            restoreAll (applied)
+            return "carol apply failed: " .. vim.trim (applyResult.stderr or applyResult.stdout or "")
+        end
+        table.insert (applied, plan.document)
+    end
+
+    for planIndex, plan in ipairs (plans) do
+        local fixed = Syntax.getDocument (plan.document.path)
+        if Syntax.getErrorCount (fixed) > Syntax.getErrorCount (plan.document) then
+            restoreAll (applied)
+            return "parse errors increased; file restored"
+        end
     end
 
     local remaining = getRemainingFixCount (document.path, rules)
 
     if remaining ~= flaggedFixCount then
-        restore (document)
+        restoreAll (applied)
         return "rescan finds " .. remaining .. " fix findings, expected " .. flaggedFixCount .. "; file restored"
     end
 

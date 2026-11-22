@@ -18,21 +18,26 @@ JANITOR has four tools and no shell. Each tool wraps one CLI script in `~/.carol
 
 ## Sections
 
-Pass a section name to `scan_rule` whenever the request names a CODING.md section. `scan_rule` expands each section to all its rules.
+Pass a section name to `scan_rule` whenever the request names a CODING.md or NAMES.md section. `scan_rule` expands each section to all its rules.
 
-| Section | CODING.md section | Expanded rules |
+| Section | Contract section | Expanded rules |
 |---|---|---|
-| `formatting` | `## FORMATTING` | `special-operators` |
+| `all` | All CODING.md + NAMES.md | All 31 rules (`coding` + `names`) |
+| `coding` | All CODING.md | All 26 CODING.md rules |
+| `formatting` | `## FORMATTING` | `special-operators`, `braces-new-line`, `comment-spacing` |
+| `pointers` | `## POINTERS AND REFERENCES` | `pointer-ref-placement`, `const-placement`, `no-multiple-pointers` |
+| `literals` | `## LITERALS AND CONSTANTS` | `numeric-literals`, `null-to-nullptr`, `no-platform-macro-names` |
 | `namespaces` | `## NAMESPACES` | `no-anonymous-namespaces-allowed`, `no-namespace-detail-allowed`, `namespace-enclosure-format` |
+| `modern-cpp` | Modern C++ / Diagnostics | `override-without-virtual`, `no-c-casts`, `no-c-math`, `no-dbg`, `no-pair-first-second`, `no-string-equality`, `no-implicit-null-check` |
+| `structure` | Memory / Class / Header | `no-raw-new-delete`, `no-manual-raii-destructor`, `no-friend`, `no-local-struct`, `no-forward-declarations` |
+| `control-flow` | `## CONTROL FLOW` | `no-else-after-return`, `no-bail-out-guard` |
+| `names` | `NAMES.md` | `no-kind-prefix`, `no-variable-underscores`, `no-type-suffix`, `apply-without-callable`, `forbidden-terms` |
 
 ## Rules
 
-| Rule id | CODING.md heading | Fix or flag |
-|---|---|---|
-| `special-operators` | **Special operators:** | Fix `!`, `&&`, `\|\|` in code. Preprocessor directives are out of scope. |
-| `namespace-enclosure-format` | **Namespace enclosure format:** | Fix a missing or wrong banner and a wrong closing comment. Flag a misplaced brace. |
-| `no-anonymous-namespaces-allowed` | **NO anonymous namespaces allowed:** | Fix functions and variables into `static`. Flag a header, a type, a template, or an irregular layout. |
-| `no-namespace-detail-allowed` | **NO `namespace detail` ... allowed:** | Always flag: the correction is a redesign. |
+- **Auto-fix rules (tree-sitter):** `special-operators`, `braces-new-line`, `comment-spacing`, `pointer-ref-placement`, `const-placement`, `numeric-literals`, `null-to-nullptr`, `no-anonymous-namespaces-allowed` (`.cpp` functions/vars), `namespace-enclosure-format`, `override-without-virtual`, `no-c-math`.
+- **Auto-fix rules (`ling` cross-TU rename when indexed, else flag):** `no-kind-prefix`, `no-variable-underscores`.
+- **Flag-only rules (redesign / judgment):** `no-multiple-pointers`, `no-platform-macro-names`, `no-namespace-detail-allowed`, `no-c-casts`, `no-dbg`, `no-pair-first-second`, `no-string-equality`, `no-implicit-null-check`, `no-raw-new-delete`, `no-manual-raii-destructor`, `no-friend`, `no-local-struct`, `no-forward-declarations`, `no-else-after-return`, `no-bail-out-guard`, `no-type-suffix`, `apply-without-callable`, `forbidden-terms`.
 
 ## Loop
 

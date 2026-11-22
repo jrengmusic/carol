@@ -14,9 +14,24 @@ local sourceExtensions = { h = true, cpp = true }
 local unlimitedDepth = math.huge
 
 local sections = {
-    formatting = { "special-operators" },
+    formatting = { "special-operators", "braces-new-line", "comment-spacing" },
+    pointers = { "pointer-ref-placement", "const-placement", "no-multiple-pointers" },
+    literals = { "numeric-literals", "null-to-nullptr", "no-platform-macro-names" },
     namespaces = { "no-anonymous-namespaces-allowed", "no-namespace-detail-allowed", "namespace-enclosure-format" },
+    ["modern-cpp"] = { "override-without-virtual", "no-c-casts", "no-c-math", "no-dbg", "no-pair-first-second", "no-string-equality", "no-implicit-null-check" },
+    structure = { "no-raw-new-delete", "no-manual-raii-destructor", "no-friend", "no-local-struct", "no-forward-declarations" },
+    ["control-flow"] = { "no-else-after-return", "no-bail-out-guard" },
+    names = { "no-kind-prefix", "no-variable-underscores", "no-type-suffix", "apply-without-callable", "forbidden-terms" },
 }
+
+sections.coding = {}
+for index, name in ipairs ({ "formatting", "pointers", "literals", "namespaces", "modern-cpp", "structure", "control-flow" }) do
+    vim.list_extend (sections.coding, sections[name])
+end
+
+sections.all = {}
+vim.list_extend (sections.all, sections.coding)
+vim.list_extend (sections.all, sections.names)
 
 local Scan = {}
 
