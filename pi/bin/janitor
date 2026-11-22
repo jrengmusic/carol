@@ -26,9 +26,6 @@ LLAMA_URL="http://$LLAMA_HOST:$LLAMA_PORT"
 LLAMA_MODELS_MAX=1
 LLAMA_READY_ATTEMPTS=50
 LLAMA_READY_INTERVAL=0.1
-# The JANITOR core of CAROL.md: these level-2 sections, without the /ode subsection.
-CAROL_CORE_SECTIONS="Writing Standard|Ground of Truth (PROTOCOL LEVEL)|Protocol Principles|Scope|Code Contract (STRICT)|Destructive-Edit Discipline|Instruction Hierarchy"
-CAROL_CORE_EXCLUDED_SUBSECTION="### /ode"
 
 mkdir -p "$PI_AGENT_DIR/extensions"
 for extension in "$PI_ROOT/extensions"/*.ts; do
@@ -48,16 +45,9 @@ cleanup() {
 trap cleanup EXIT
 
 {
-    awk -v sections="$CAROL_CORE_SECTIONS" -v excluded="$CAROL_CORE_EXCLUDED_SUBSECTION" '
-        BEGIN { count = split(sections, names, "|"); for (i = 1; i <= count; i++) kept["## " names[i]] = 1 }
-        /^## /  { isKept = ($0 in kept); isExcluded = 0 }
-        /^### / { isExcluded = (index($0, excluded) == 1) }
-        isKept && !isExcluded { print }
-    ' "$CAROL_ROOT/CAROL.md"
-    for prompt_part in "$CAROL_ROOT/output-styles.md" "$PI_ROOT/HARNESS.md" "$ROLE_FILE" "$SOP_SKILL"; do
-        printf '\n---\n\n'
-        cat "$prompt_part"
-    done
+    cat "$ROLE_FILE"
+    printf '\n---\n\n'
+    cat "$SOP_SKILL"
 } > "$system_prompt"
 
 export CAROL_ROLE="JANITOR"

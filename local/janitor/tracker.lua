@@ -165,14 +165,26 @@ function Tracker.getCounts (tracker)
     return getCounts (tracker.rows)
 end
 
--- The next batch as one line per row, for the model to classify.
 function Tracker.getBatchText (tracker, maxFiles)
     local files, rows = Tracker.getNextBatch (tracker, maxFiles)
-    local lines = { "next batch: " .. #rows .. " rows in " .. #files .. " files" }
+    local fixRows = {}
+    local preFlaggedCount = 0
 
     for rowIndex, row in ipairs (rows) do
-        table.insert (lines, string.format ("%s %s:%s %s | %s | %s%s", row.id, row.file, row.lines, row.rule, row.kind, row.action,
-            row.notes ~= "" and (" | " .. row.notes) or ""))
+        if row.action == "fix" then
+            table.insert (fixRows, row)
+        else
+            preFlaggedCount = preFlaggedCount + 1
+        end
+    end
+
+    local lines = {
+        string.format ("next batch: %d fix rows to classify in %d files (%d rows already pre-flagged by rules; do not call set_status on pre-flagged rows)",
+            #fixRows, #files, preFlaggedCount),
+    }
+
+    for rowIndex, row in ipairs (fixRows) do
+        table.insert (lines, string.format ("%s %s:%s %s | %s | fix", row.id, row.file, row.lines, row.rule, row.kind))
     end
 
     return table.concat (lines, "\n") .. "\n"

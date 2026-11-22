@@ -172,7 +172,8 @@ local function main ()
     if options.check then
         printCheck (findings)
     else
-        assert (options.subject ~= nil and options.objective ~= nil, usage)
+        options.subject = options.subject or "cleanup"
+        options.objective = options.objective or ("Clean up " .. table.concat (paths, ", ") .. " against " .. options.rules)
         writeTracker (options, rules, files, findings, paths)
     end
 end
