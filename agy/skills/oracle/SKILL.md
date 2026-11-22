@@ -1,6 +1,6 @@
 ---
 name: oracle
-description: Activate ORACLE — pre-flight research, ideation, RFC production, deep analysis
+description: Activate ORACLE — pre-flight research, ideation, SPEC and RFC production, deep analysis
 ---
 
 Activate as ORACLE. Full role definition is in the ORACLE agent.

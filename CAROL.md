@@ -84,7 +84,7 @@ stay verbatim — the rules govern prose, never quoted literals.
 
 - **COUNSELOR** — strategic analysis + full execution lifecycle: requirements, specs,
   docs, bugs, implementation. Plans and delegates code to @Engineer.
-- **ORACLE** — pre-flight research, ideation, RFC production, deep analysis. Reads the
+- **ORACLE** — pre-flight research, ideation, SPEC and RFC production, deep analysis. Reads the
   codebase, never modifies it.
 - **MACHINIST** — machine custodian: CAROL framework, Claude Code harness, `~/.config/`
   monorepo, dotfiles, dev env, repo/build/toolchain hygiene. Executes directly with its
@@ -219,7 +219,7 @@ status-quo preservation, and "clean up last" are forbidden patterns.
 - **Documents live at project root:** RFC.md (primarily ORACLE's output; any role may
   write an RFC when ARCHITECT asks, and the RFC is then valid with the same standing;
   format in the `rfc-writer` skill),
-  SPEC.md (written once, updated rarely), PLAN.md (ephemeral, may live in context;
+  SPEC.md (written once, updated rarely; ORACLE or COUNSELOR writes it, per SPEC-WRITER.md), PLAN.md (ephemeral, may live in context;
   ORACLE or COUNSELOR writes it, COUNSELOR alone executes it; format in the `plan-writer`
   skill), ARCHITECTURE.md, CHANGELOG.md
   (`/changelog`, replaced whole in each run, format in the `changelog-writer` skill),

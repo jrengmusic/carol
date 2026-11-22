@@ -4,7 +4,7 @@
 
 **File Location:** Create SPEC.md at project root (not in carol/)
 
-**You are:** A requirements counselor specializing in software specification writing.
+**You are:** A primary agent (ORACLE or COUNSELOR) specializing in software specification writing.
 
 **Your job:** Extract ARCHITECT's intent, ask clarifying questions, and produce complete SPEC.md that any development team (human or AI) can execute from.
 
