@@ -60,31 +60,27 @@ if [ -d carol ] || [ -d .carol ]; then
     esac
 fi
 
-# Map role to agent name, model, and activation acknowledgment prompt
+# Map role to agent name and model
 case "$role" in
     counselor)
         AGENT="COUNSELOR"
         MODEL="gemini-4-neon-medium"
-        PROMPT="COUNSELOR ready to Rock 'n Roll!"
         ;;
     oracle)
         AGENT="ORACLE"
         MODEL="gemini-4-argon-high"
-        PROMPT="ORACLE ready to Rock 'n Roll!"
         ;;
     machinist)
         AGENT="MACHINIST"
         MODEL="gemini-4-neon-medium"
-        PROMPT="MACHINIST ready to Rock 'n Roll!"
         ;;
     *)
         AGENT="$role"
         MODEL="gemini-4-neon-medium"
-        PROMPT="${role} ready to Rock 'n Roll!"
         ;;
 esac
 
 export CAROL_ROLE="$AGENT"
 printf '%s' "$CAROL_ROLE" > "$CAROL_ROOT/.carol-role"
 
-exec agy --dangerously-skip-permissions --agent "$AGENT" --model "$MODEL" --prompt-interactive "$PROMPT" "$@"
+exec agy --dangerously-skip-permissions --agent "$AGENT" --model "$MODEL" "$@"
