@@ -9,7 +9,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "run_command|ask_question|invoke_subagent|call_mcp_tool",
+        "matcher": "run_command|write_file|edit_file|send_message|ask_question|invoke_subagent|call_mcp_tool",
         "hooks": [
           {
             "type": "command",

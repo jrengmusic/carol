@@ -24,6 +24,7 @@ mkdir -p "$PLUGIN_DIR/agents" "$PLUGIN_DIR/rules" "$PLUGIN_DIR/skills"
 
 cp -R "$AGY_ROOT/agents/." "$PLUGIN_DIR/agents/"
 cp "$AGY_ROOT/hooks/agy-gate.mjs" "$PLUGIN_DIR/hooks/agy-gate.mjs"
+cp "$CAROL_ROOT/hooks/saw-gate.mjs" "$PLUGIN_DIR/hooks/saw-gate.mjs"
 
 # Refresh rules from SSOT in ~/.carol/
 cp "$CAROL_ROOT/CAROL.md" "$PLUGIN_DIR/rules/AGENTS.md"

@@ -116,8 +116,6 @@ refresh_marketplace() {
     claude plugin marketplace update "$CAROL_MARKETPLACE_NAME" 2>&1 >/dev/null || true
 }
 
-CAROL_REFERENCE_DOCS=(NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md CODING.md LANGUAGE.md ODE.md ARCHITECT.md)
-
 # Keep Claude project symlinks out of git tracking across machines.
 ignore_carol_assets() {
     local ignored_path
@@ -126,87 +124,46 @@ ignore_carol_assets() {
     touch .gitignore
     [ -s .gitignore ] && [ -n "$(tail -c1 .gitignore)" ] && echo >> .gitignore
     for ignored_path in "${ignored_paths[@]}"; do
-        grep -qxF "$ignored_path" .gitignore || echo "$ignored_path" >> .gitignore
+        saw find -x -q -- "$ignored_path" .gitignore || echo "$ignored_path" >> .gitignore
     done
 }
 
-# Hard-link reference docs into carol/ (agy skips symlinks), write carol/.ignore
-# so ripgrep indexes them, and exclude both via .git/info/exclude so git never
-# tracks them while carol/SPRINT-LOG.md stays tracked.
-sync_carol_docs() {
+# Delete the named rows from a line-based file.
+remove_rows() {
+    local target="$1"
+    shift
+
+    local remaining row
+    local patterns=()
+    for row in "$@"; do
+        patterns+=(-e "$row")
+    done
+    remaining="$(mktemp)"
+    saw find -v -x --no-line-number "${patterns[@]}" "$target" > "$remaining" || true
+    cmp -s "$remaining" "$target" || cat "$remaining" > "$target"
+    rm -f "$remaining"
+}
+
+# Older versions linked the contract documents into carol/ and excluded them from git.
+# The documents live in ~/.carol only; /contract reads them there.
+remove_carol_docs() {
     [ -d "carol" ] || return 0
-    local ref_doc exclude_file tmp_file
-    for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
-        if [ -f "$CAROL_ROOT/$ref_doc" ]; then
-            if [ ! -L "carol/$ref_doc" ] && [ "$CAROL_ROOT/$ref_doc" -ef "carol/$ref_doc" ]; then
-                continue
-            fi
-            rm -f "carol/$ref_doc"
-            ln -f "$CAROL_ROOT/$ref_doc" "carol/$ref_doc" 2>/dev/null || ln -sf "$CAROL_ROOT/$ref_doc" "carol/$ref_doc"
-        fi
-    done
+    local linked_docs=(NAMES.md MANIFESTO.md SPEC-WRITER.md ARCHITECTURE-WRITER.md CODING.md LANGUAGE.md ODE.md ARCHITECT.md)
+    local stale_paths=("${linked_docs[@]/#/carol/}" "carol/.ignore")
+    local exclude_file git_prefix
 
-    {
-        for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
-            printf '!%s\n' "$ref_doc"
-        done
-    } > "carol/.ignore"
+    rm -f "${stale_paths[@]}"
+    [ -f ".gitignore" ] && remove_rows ".gitignore" "${stale_paths[@]}"
 
-    if exclude_file="$(git rev-parse --git-path info/exclude 2>/dev/null)" && [ -n "$exclude_file" ]; then
-        local git_prefix
+    if exclude_file="$(git rev-parse --git-path info/exclude 2>/dev/null)" && [ -f "$exclude_file" ]; then
         git_prefix="$(git rev-parse --show-prefix 2>/dev/null)"
-        mkdir -p "$(dirname "$exclude_file")"
-        touch "$exclude_file"
-        [ -s "$exclude_file" ] && [ -n "$(tail -c1 "$exclude_file")" ] && echo >> "$exclude_file"
-        for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
-            grep -qxF "${git_prefix}carol/$ref_doc" "$exclude_file" || echo "${git_prefix}carol/$ref_doc" >> "$exclude_file"
-        done
-        grep -qxF "${git_prefix}carol/.ignore" "$exclude_file" || echo "${git_prefix}carol/.ignore" >> "$exclude_file"
+        remove_rows "$exclude_file" "${stale_paths[@]/#/$git_prefix}"
     fi
-
-    if [ -f ".gitignore" ]; then
-        local has_stale=0
-        for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
-            if grep -qxF "carol/$ref_doc" .gitignore; then
-                has_stale=1
-                break
-            fi
-        done
-        if [ "$has_stale" -eq 1 ]; then
-            tmp_file="$(mktemp .gitignore.carol.XXXXXX)"
-            cp .gitignore "$tmp_file"
-            for ref_doc in "${CAROL_REFERENCE_DOCS[@]}"; do
-                grep -vxF "carol/$ref_doc" "$tmp_file" > "$tmp_file.next" || true
-                mv "$tmp_file.next" "$tmp_file"
-            done
-            mv "$tmp_file" .gitignore
-        fi
-    fi
-}
-
-CAROL_PROJECT_SETTINGS=".claude/settings.json"
-
-# The @ file picker hides gitignored paths, and the links above are gitignored.
-set_respect_gitignore_off() {
-    mkdir -p .claude
-    python3 -c "
-import json, os, sys
-path = sys.argv[1]
-settings = {}
-if os.path.exists(path):
-    with open(path, encoding='utf-8') as f:
-        settings = json.load(f)
-settings['respectGitignore'] = False
-with open(path, 'w', encoding='utf-8') as f:
-    json.dump(settings, f, indent=2)
-    f.write('\n')
-" "$CAROL_PROJECT_SETTINGS"
 }
 
 symlink_carol_assets() {
-    sync_carol_docs
+    remove_carol_docs
     ignore_carol_assets
-    set_respect_gitignore_off
 
     # Symlink agents and slash commands into project-level .claude/ so they use
     # bare names (/go, @oracle) instead of plugin-namespaced (/carol:go, @carol:oracle).
@@ -246,33 +203,28 @@ symlink_carol_assets() {
     fi
 }
 
+fill_template() {
+    local token="$1" value="$2" target="$3"
+    local count
+    count=$(saw find -o --no-line-number -- "$token" "$target" | wc -l)
+    saw replace --apply --expect "$((count))" -- "$token" "$value" "$target" > /dev/null
+}
+
 customize_templates() {
     local project_path="$1"
     local project_name=$(basename "$project_path")
     local date=$(date +"%Y-%m-%d")
 
     if [ -f "carol/SPRINT-LOG.md" ]; then
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s/\[Project Name\]/$project_name/g" carol/SPRINT-LOG.md
-            sed -i '' "s/\[YYYY-MM-DD\]/$date/g" carol/SPRINT-LOG.md
-            sed -i '' "s|\[repo-url or local path\]|$project_path|g" carol/SPRINT-LOG.md
-        else
-            sed -i "s/\[Project Name\]/$project_name/g" carol/SPRINT-LOG.md
-            sed -i "s/\[YYYY-MM-DD\]/$date/g" carol/SPRINT-LOG.md
-            sed -i "s|\[repo-url or local path\]|$project_path|g" carol/SPRINT-LOG.md
-        fi
+        fill_template "[Project Name]" "$project_name" carol/SPRINT-LOG.md
+        fill_template "[YYYY-MM-DD]" "$date" carol/SPRINT-LOG.md
+        fill_template "[repo-url or local path]" "$project_path" carol/SPRINT-LOG.md
     fi
 
     if [ -f "carol/config.yml" ]; then
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s/\[PROJECT_NAME\]/$project_name/g" carol/config.yml
-            sed -i '' "s|\[PROJECT_PATH\]|$project_path|g" carol/config.yml
-            sed -i '' "s/\[DATE\]/$date/g" carol/config.yml
-        else
-            sed -i "s/\[PROJECT_NAME\]/$project_name/g" carol/config.yml
-            sed -i "s|\[PROJECT_PATH\]|$project_path|g" carol/config.yml
-            sed -i "s/\[DATE\]/$date/g" carol/config.yml
-        fi
+        fill_template "[PROJECT_NAME]" "$project_name" carol/config.yml
+        fill_template "[PROJECT_PATH]" "$project_path" carol/config.yml
+        fill_template "[DATE]" "$date" carol/config.yml
     fi
 }
 
@@ -287,7 +239,7 @@ synth_claude_md() {
         synth_mode="replace"
     elif [ -f "$claude_md" ]; then
         # Full CAROL.md copy starts with "# CAROL"
-        if head -1 "$claude_md" | grep -q "^# CAROL"; then
+        if [[ "$(saw lines 1 "$claude_md")" == "# CAROL"* ]]; then
             synth_mode="replace"
         else
             synth_mode="update"
@@ -535,7 +487,6 @@ cmd_help() {
     echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/clear)"
     echo -e "  ${YELLOW}ledger${NC}         Show DEBT.md ledger"
     echo -e "  ${YELLOW}loc${NC} [days]      Show git line-change stats for last N days (default 7)"
-    echo -e "  ${YELLOW}apply${NC} --expect N <sed-expr> <file>...  Back up, preview, check changed-line count, apply, verify (restores on mismatch)"
     echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
     echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
     echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
@@ -701,11 +652,11 @@ cmd_resume() {
     local session_file="$sessions_dir/$full_uuid.jsonl"
     if [ -f "$meta_file" ]; then
         local meta_model meta_agent
-        meta_model=$(grep '^model=' "$meta_file" | head -1 | sed 's/^model=//')
+        meta_model=$(saw fields 2 -d = --match '^model=' -r --first "$meta_file")
         if [ -n "$meta_model" ]; then
             model_flag=(--model "$meta_model")
         fi
-        meta_agent=$(grep '^agent=' "$meta_file" | head -1 | sed 's/^agent=//')
+        meta_agent=$(saw fields 2 -d = --match '^agent=' -r --first "$meta_file")
         if [ -n "$meta_agent" ]; then
             agent_flag=(--agent "$meta_agent")
         fi
@@ -829,15 +780,13 @@ cmd_debt_add() {
 
     # Find line number of first --- separator (end of preamble)
     local sep_line
-    sep_line=$(grep -n '^---$' DEBT.md | head -1 | cut -d: -f1)
+    sep_line=$(saw find -x --first -- '---' DEBT.md | cut -d: -f1)
     if [ -z "$sep_line" ]; then
         error "DEBT.md format invalid: no '---' separator found"
     fi
 
-    # Build new file: preamble through first ---, then new entry, then rest
-    local tmp_file="DEBT.md.tmp.$$"
+    # The new entry goes directly after the preamble separator.
     {
-        sed -n "1,${sep_line}p" DEBT.md
         echo ""
         echo "## $id"
         echo ""
@@ -846,9 +795,7 @@ cmd_debt_add() {
         echo "**Expectation:** $expectation"
         echo ""
         echo "---"
-        sed -n "$((sep_line+1)),\$p" DEBT.md
-    } > "$tmp_file"
-    mv "$tmp_file" DEBT.md
+    } | saw lines "$sep_line" --insert-after --stdin DEBT.md --apply --expect 1 > /dev/null || error "$id was not written to DEBT.md"
 
     success "Debt registered: $id"
 }
@@ -910,124 +857,18 @@ cmd_debt_clear() {
 
     # Find the heading line for the target id
     local start_line
-    start_line=$(grep -n "^## $id$" DEBT.md | head -1 | cut -d: -f1)
+    start_line=$(saw find -x --first -- "## $id" DEBT.md | cut -d: -f1)
     [ -z "$start_line" ] && error "$id not found in DEBT.md"
 
     # Find the next --- separator after start_line — this is the entry's terminator
     local end_line
-    end_line=$(awk -v start="$start_line" 'NR > start && /^---$/ { print NR; exit }' DEBT.md)
+    end_line=$(saw find -x --after "$start_line" --first -- '---' DEBT.md | cut -d: -f1)
     [ -z "$end_line" ] && error "$id has no terminating separator (DEBT.md corrupt?)"
 
     # Delete from start_line to end_line (inclusive)
-    local tmp_file="DEBT.md.tmp.$$"
-    sed "${start_line},${end_line}d" DEBT.md > "$tmp_file"
-    mv "$tmp_file" DEBT.md
+    saw lines "$start_line:$end_line" --delete DEBT.md --apply --expect 1 > /dev/null || error "$id was not removed from DEBT.md"
 
     success "Drained $id"
-}
-
-APPLY_USAGE="Usage: carol apply --expect N 'sed-expression' file..."
-
-count_changed_lines() {
-    diff "$1" "$2" | grep -c '^<'
-}
-
-verify_apply() {
-    local work_dir="$1"
-    local expected_count="$2"
-    shift 2
-
-    local index=0
-    local applied=0
-    local file
-    for file in "$@"; do
-        cmp -s "$file" "$work_dir/planned.$index" || return 1
-        applied=$((applied + $(count_changed_lines "$work_dir/backup.$index" "$file")))
-        index=$((index + 1))
-    done
-
-    [ "$applied" -eq "$expected_count" ]
-}
-
-restore_apply() {
-    local work_dir="$1"
-    shift
-
-    local index=0
-    local failures=0
-    local file
-    for file in "$@"; do
-        cat "$work_dir/backup.$index" > "$file" || failures=$((failures + 1))
-        index=$((index + 1))
-    done
-
-    [ "$failures" -eq 0 ]
-}
-
-cmd_apply() {
-    local expected_count=""
-    local expression=""
-    local files=()
-
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --expect)
-                expected_count="$2"
-                shift 2
-                ;;
-            *)
-                if [ -z "$expression" ]; then
-                    expression="$1"
-                else
-                    files+=("$1")
-                fi
-                shift
-                ;;
-        esac
-    done
-
-    [[ "$expected_count" =~ ^[0-9]+$ ]] || error "$APPLY_USAGE"
-    [ -n "$expression" ] || error "$APPLY_USAGE"
-    [ ${#files[@]} -gt 0 ] || error "$APPLY_USAGE"
-
-    local file
-    for file in "${files[@]}"; do
-        [ -f "$file" ] || error "Not a file: $file"
-    done
-
-    local work_dir
-    work_dir=$(mktemp -d)
-    local index=0
-    local predicted=0
-    for file in "${files[@]}"; do
-        sed -E -e "$expression" "$file" > "$work_dir/planned.$index" || { rm -rf "$work_dir"; error "sed rejected the expression"; }
-        echo -e "${CYAN}$file${NC}"
-        diff -u -L "$file" -L "$file (after)" "$file" "$work_dir/planned.$index"
-        predicted=$((predicted + $(count_changed_lines "$file" "$work_dir/planned.$index")))
-        index=$((index + 1))
-    done
-
-    [ "$predicted" -eq "$expected_count" ] || { rm -rf "$work_dir"; error "Dry run changes $predicted lines, expected $expected_count. Nothing written."; }
-
-    index=0
-    for file in "${files[@]}"; do
-        cp "$file" "$work_dir/backup.$index"
-        index=$((index + 1))
-    done
-
-    index=0
-    for file in "${files[@]}"; do
-        cat "$work_dir/planned.$index" > "$file"
-        index=$((index + 1))
-    done
-
-    if verify_apply "$work_dir" "$expected_count" "${files[@]}"; then
-        rm -rf "$work_dir"
-        success "Applied $expected_count changed lines in ${#files[@]} file(s)"
-    else
-        restore_apply "$work_dir" "${files[@]}" || error "Verification failed and a restore failed. Backups kept in $work_dir"
-        error "Verification failed. Files restored. Backups kept in $work_dir"
-    fi
 }
 
 set_counselor_model() {
@@ -1041,9 +882,8 @@ set_counselor_model() {
         opus55) model="claude-opus-5-5";  effort="medium" ;;
     esac
     local def="$CAROL_ROOT/agents/counselor.md"
-    local tmp_def="$def.tmp.$$"
-    sed -e "s/^model: .*/model: $model/" -e "s/^effort: .*/effort: $effort/" "$def" > "$tmp_def"
-    mv "$tmp_def" "$def"
+    saw replace -r '^model: .*' "model: $model" "$def" --apply --expect 1 > /dev/null || error "counselor.md holds no single model: line"
+    saw replace -r '^effort: .*' "effort: $effort" "$def" --apply --expect 1 > /dev/null || error "counselor.md holds no single effort: line"
     success "COUNSELOR seat: $model (effort: $effort)"
 }
 
@@ -1220,7 +1060,7 @@ print(role)
     local agent_model=""
     local agent_file="$HOME/.claude/agents/$(echo "$requested_role" | tr '[:upper:]' '[:lower:]').md"
     if [ -f "$agent_file" ]; then
-        agent_model=$(grep '^model:' "$agent_file" | head -1 | sed 's/^model:[[:space:]]*//')
+        agent_model=$(saw fields 2 --match '^model:' -r --first "$agent_file")
     fi
 
     if [ -n "$agent_model" ]; then
@@ -1273,9 +1113,6 @@ case "${1:-run}" in
         shift
         cmd_update "$@"
         ;;
-    sync-docs)
-        sync_carol_docs
-        ;;
     version)
         cmd_version
         ;;
@@ -1317,10 +1154,6 @@ case "${1:-run}" in
     loc)
         shift
         cmd_loc "$@"
-        ;;
-    apply)
-        shift
-        cmd_apply "$@"
         ;;
     sessions|list)
         cmd_sessions

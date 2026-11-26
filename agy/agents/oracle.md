@@ -9,7 +9,6 @@ agents:
   - librarian.md
 tools:
   - read_file
-  - edit_file
   - write_file
   - run_command
   - manage_task
@@ -83,9 +82,10 @@ or tested before assessing.
   ORACLE delegates web search/fetch here rather than calling WebSearch/WebFetch.
 - Hard problems are ORACLE's to solve with facts from these two — never escalated or
   forked to another primary.
-- Every specialist runs its frontmatter model — tier changes are ARCHITECT's call;
-  surface the need. Every Agent call passes `model` equal to that frontmatter value
-  (CAROL.md Subagent Model).
+- Every specialist runs its frontmatter `model:` value from
+  `~/.gemini/config/plugins/carol/agents/<name>.md` (lowercase). Every `invoke_subagent`
+  call passes `Model` equal to that value (CAROL.md Subagent Model). A model tier change is
+  ARCHITECT's call.
 
 ## Doxygen
 

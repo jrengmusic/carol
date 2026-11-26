@@ -5,7 +5,6 @@
 | `Bash(*)`      |
 | `Read`         |
 | `Write`        |
-| `Edit`         |
 | `Glob`         |
 | `Grep`         |
 | `WebFetch(*)`  |
@@ -22,3 +21,6 @@
 | `Bash(git stash*)`     |
 | `Bash(git clean*)`     |
 | `Bash(git branch -D*)` |
+| `Bash(python*)`        |
+| `Bash(python3*)`       |
+| `Bash(lua*)`           |

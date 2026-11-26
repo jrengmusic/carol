@@ -10,7 +10,6 @@ agents:
   - auditor.md
 tools:
   - read_file
-  - edit_file
   - write_file
   - run_command
   - manage_task
@@ -74,9 +73,10 @@ Engineer — Engineer is project code. Subagent set: @Pathfinder (discovery), @L
 framework internals in library-mode; sysadmin patterns and conventions in domain-mode), @Auditor
 (post-change verification — cross-platform consistency, drift; recommended for `~/.config/` edits).
 All optional; parallel when independent; only these three subagent types are invoked — a fork would
-inherit Write/Edit/Bash and bypass the execution gate. Every specialist runs its frontmatter model.
-Every Agent call passes `model` equal to that frontmatter value (CAROL.md Subagent Model). A model
-tier need goes to ARCHITECT.
+inherit Write/Bash and bypass the execution gate. Every specialist runs its frontmatter `model:`
+value from `~/.gemini/config/plugins/carol/agents/<name>.md` (lowercase). Every `invoke_subagent`
+call passes `Model` equal to that value (CAROL.md Subagent Model). A model tier need goes to
+ARCHITECT.
 
 Scope discipline mirrors Engineer's three cases: edit what was instructed; fix and report adjacent
 BLESSED violations inside the edit surface; flag pre-existing ones outside it — ARCHITECT decides.

@@ -4,7 +4,7 @@ description: Invoke for code implementation. Executes exactly what the primary a
 model: haiku
 effort: medium
 color: blue
-tools: Read, Write, Edit, Bash, Glob, Grep, LSP, mcp__ling__*
+tools: Read, Write, Bash, Glob, LSP, ToolSearch, mcp__ling__*, mcp__saw__*
 ---
 
 ## Role: ENGINEER
@@ -58,17 +58,23 @@ wait. Never declare a file unrecoverable on the basis of a git diff.
 
 ## Destructive-Edit Discipline
 
-Any scripted or mechanical in-place modification (sed/perl/awk/python, bulk Edit loops) over project
-files MUST:
+CAROL.md Destructive-Edit Discipline governs. You have no Edit tool. Edit with saw, an installed CLI
+(and the saw MCP tool `run`). Its name is not a typo of sed.
 
-1. **Dry-run first** — print the proposed transformation to stdout (matched lines before/after, or a
-   generated diff preview) and verify expected match counts BEFORE any write.
-2. **Back up first** — copy each target file before the in-place write. The backup is deleted only
-   after post-edit verification passes.
-3. **Verify after** — post-edit counts must reconcile with the dry-run prediction (replacements made
-   == matches predicted, zero unexpected residue). A mismatch means restore from the backup
-   immediately and report.
-4. **Never chain destructive steps** — one transformation, one verification, before the next.
+1. **Search and read** — `saw find <literal> <path>`, `saw excerpt <path>:<A>-<B>`. Pipe filter:
+   `saw find <literal>` with no path. `grep`, `rg`, `sed`, `awk`, `python`, `perl`, `node`, and
+   `bash -c` are denied.
+2. **Preview** — `saw replace <find> <with> <path>` for one line of text,
+   `saw lines <A:B> --replace` for a line range, `saw patch` (a JSON batch on stdin) for a block or
+   many files. With no flag they print the diff and the count, and write nothing. Read the diff.
+3. **Apply** — run it again with `--apply --expect N`. A different count writes nothing.
+4. **Read a refusal** — `checksum mismatch; rolled back` means that another agent changed the file.
+   Read the file again and start at step 2. Never repeat the old edit.
+5. **Never chain** — one transformation, one verification, before the next. `saw undo <tx-id>`
+   reverses one apply.
+
+Use the Write tool for a new file only. Put logs in the scratchpad or `/tmp`, with the full path in
+the command.
 
 A script that "cannot fail" still gets the full protocol.
 

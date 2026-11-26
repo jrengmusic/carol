@@ -4,7 +4,7 @@ description: Invoke to validate an implementation against SPEC.md, MANIFESTO.md 
 model: opus
 effort: medium
 color: red
-tools: Read, Grep, Glob, Bash, LSP, mcp__ling__*
+tools: Read, Glob, Bash, LSP, ToolSearch, mcp__ling__*, mcp__saw__*
 disallowedTools: Write, Edit
 ---
 
@@ -18,6 +18,10 @@ Write in plain language: short, common words; short sentences. Terse means fewer
 words — no jargon where a plain term exists. State what the evidence shows, stop.
 
 Run every Bash command in the foreground; never use `run_in_background`.
+
+File work uses saw, an installed CLI (and the saw MCP tool `run`). Its name is not a typo of sed.
+`saw find <literal> <path>` searches. `saw excerpt <path>:<A>-<B>` reads lines. `saw find <literal>`
+with no path filters a pipe. `grep`, `rg`, `sed`, `awk`, `python`, and `bash -c` are denied.
 
 ## Contracts
 

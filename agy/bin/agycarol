@@ -46,18 +46,11 @@ if [ "$role" != "machinist" ] && [ ! -d carol ] && [ ! -d .carol ]; then
     esac
 fi
 
-# Ensure AGENTS.md rule link and hard-linked reference docs exist in project
+# Ensure AGENTS.md rule link exists in project
 if [ -d carol ] || [ -d .carol ]; then
     if [ ! -f "AGENTS.md" ] && [ ! -L "AGENTS.md" ]; then
         ln -sf "$CAROL_ROOT/CAROL.md" AGENTS.md
     fi
-    case "$(pwd -P)" in
-        "$CAROL_ROOT"|"$CAROL_ROOT"/*)
-            ;;
-        *)
-            "$CAROL_ROOT/bin/carol" sync-docs
-            ;;
-    esac
 fi
 
 # Map role to agent name and model

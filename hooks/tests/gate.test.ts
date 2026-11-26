@@ -27,6 +27,15 @@ function getToolInput(testCase: any) {
   if (testCase.tool === 'Monitor') {
     return { tool: 'Monitor', command: testCase.command, ...(testCase.subagent ? { agentId: SUBAGENT_ID } : {}) }
   }
+  if (testCase.tool === 'mcp__saw__run') {
+    return { tool: 'mcp__saw__run', arguments: testCase.arguments, directory: ROOT, ...(testCase.subagent ? { agentId: SUBAGENT_ID } : {}) }
+  }
+  if (testCase.tool === 'Write') {
+    return { tool: 'Write', file_path: testCase.filePath, content: '', ...(testCase.subagent ? { agentId: SUBAGENT_ID } : {}) }
+  }
+  if (testCase.tool === 'Edit') {
+    return { tool: 'Edit', file_path: testCase.filePath, old_string: 'a', new_string: 'b', ...(testCase.subagent ? { agentId: SUBAGENT_ID } : {}) }
+  }
   if (testCase.tool === 'Agent') {
     return { tool: 'Agent', subagent_type: testCase.subagentType, ...(testCase.model ? { model: testCase.model } : {}) }
   }
@@ -48,7 +57,11 @@ for (const testCase of cases as any[]) {
       lastContext = e.context
       return { text: e.text }
     })
-    on('tool.call', ($, e) => testCase.toolOutcomes?.[e.tool] ?? { result: ALLOWED_RESULT })
+    let lastCommand: string | undefined
+    on('tool.call', ($, e: any) => {
+      lastCommand = e.command
+      return testCase.toolOutcomes?.[e.tool] ?? { result: ALLOWED_RESULT }
+    })
 
     const submitPrompt = async (prompt: any) => {
       const text = typeof prompt === 'string' ? prompt : prompt.text
@@ -76,6 +89,8 @@ for (const testCase of cases as any[]) {
 
     const outcome: any = await $.tool.call(getToolInput(testCase))
     expect(outcome.deny === undefined ? 'allow' : 'deny').toBe(testCase.expect)
+    if (testCase.expectCommand !== undefined) expect(lastCommand).toBe(testCase.expectCommand)
+    if (testCase.expectCommandStart !== undefined) expect(lastCommand?.startsWith(testCase.expectCommandStart)).toBe(true)
     if (testCase.contextLinesOnLastPrompt !== undefined) {
       expect((lastContext ?? []).length).toBe(testCase.contextLinesOnLastPrompt)
     }

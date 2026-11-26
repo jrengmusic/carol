@@ -47,6 +47,6 @@ Contract: <CODING.md heading>; <CODING.md heading>
 
 1. **Closed status set:** `PENDING`, `DONE`, `FLAGGED`.
 2. **Closed action set:** `fix`, `flag`. Only a `PENDING` fix row can become a flag.
-3. **DONE needs evidence:** `fix.lua` marks a row `DONE` only after `carol apply`, the parse check, and a rescan pass.
+3. **DONE needs evidence:** `fix.lua` marks a row `DONE` only after `saw patch`, the parse check, and a rescan pass.
 4. **A `|` in a cell is written `\|`.**
 5. **Audit:** the batch commits name their row IDs. `git log` plus the tracker give the full trail. `scan.lua --check` after the campaign must list only `FLAGGED` rows.

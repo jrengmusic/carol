@@ -11,7 +11,7 @@ each tool's job.
 | Claude Code | pi (JANITOR) |
 | ----------- | ------------ |
 | Read | `read_range`: numbered lines, at most 80 per call |
-| Write, Edit, Bash | None. `fix_batch` makes every change through `carol apply`. |
+| Write, Edit, Bash | None. `fix_batch` makes every change through `saw patch`. |
 | Glob, Grep, LSP | None. `scan_rule` finds the violations with tree-sitter queries. |
 | Skill | None. The `iterative-contract-sop` skill is part of this prompt. |
 | EnterPlanMode, ExitPlanMode, AskUserQuestion | None. Ask in chat. ARCHITECT's reply is the answer. |

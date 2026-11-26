@@ -320,27 +320,45 @@ still passes. Engineer runs no git under the same rule: Engineer is not Pathfind
 
 ## Destructive-Edit Discipline
 
-Any scripted or mechanical in-place modification (sed/perl/awk/python, bulk Edit
-loops) over project files MUST:
+saw is the file tool. It is an installed CLI and an MCP server (`saw --mcp`, tool `run`). It
+searches, reads, and edits text files. Its name is not a typo of sed.
 
-1. **Dry-run first** — print the proposed transformation to stdout (matched lines
-   before/after, or a generated diff preview) and verify expected match counts BEFORE
-   any write.
-2. **Back up first** — copy each target file before the in-place write. The backup is
-   deleted only after post-edit verification passes.
-3. **Verify after** — post-edit counts must reconcile with the dry-run prediction
-   (replacements made == matches predicted, zero unexpected residue). A mismatch means
-   restore from the backup immediately and report.
+| Need | Command |
+|---|---|
+| Search text | `saw find <literal> <path>` (`-r` for a regex). A pipe filter has no path. |
+| Exact lines | `saw excerpt <path>:<A>-<B>`, or `saw excerpt "<path> ~ <literal>"` |
+| Columns | `saw fields <spec> <path>` |
+| Edit one text | `saw replace <find> <with> <path>` |
+| Edit lines, or many edits in many files | `saw lines`, `saw patch` |
+| Reverse an edit | `saw undo <tx-id>` |
+
+Any scripted or mechanical in-place modification over project files uses saw, and MUST:
+
+1. **Dry-run first** — run the edit verb with no flag. It prints the diff and the edit count,
+   and writes nothing. Read the diff.
+2. **Apply with the count** — run it again with `--apply --expect N`. A different count
+   writes nothing. saw backs up, verifies, and rolls back by itself.
+3. **Read a refusal** — `checksum mismatch; rolled back` means that another process changed
+   the file. Read the file again, then start at step 1. Never repeat the old edit.
 4. **Never chain destructive steps** — one transformation, one verification, before
    the next.
+
+saw does not create a file: use the Write tool. A `saw replace` pattern is one line: use
+`saw patch` for a block. saw refuses a hard-linked file. No session has the Edit tool.
 
 Overconfidence is the named threat: a script that "cannot fail" still gets the full
 protocol.
 
-**Hook enforcement.** For a Bash edit, run `carol apply --expect N 'sed-expression'
-file...`. The command does steps 1 to 3 in one run and restores on a mismatch. The
-`tool.call` hook in `~/.carol/hooks/register.js` denies `sed -i`, `perl -i`, and
-`awk -i inplace`. Bulk `Edit` loops and Python writers stay under this rule alone.
+**Subagents.** A subagent does file work only with saw. Only Engineer, and Pathfinder in a
+doxygen task, run saw with `--apply`. Engineer uses the Write tool for a new file only. Logs
+and other output go to the scratchpad or `/tmp`.
+
+**Hook enforcement.** The hooks in `~/.carol/hooks/register.js`, `~/.carol/agy/hooks/agy-gate.mjs` and
+`~/.carol/opencode/plugins/carol/` use one gate, `~/.carol/hooks/saw-gate.mjs`. In every session it denies the Edit tool, `sed`,
+`awk`, and an in-place `perl`, also in a Monitor command. In a subagent it also denies `grep`, `rg`,
+`python`, `perl`, `lua`, `ruby`, `node`, `bash -c`, and a `>` or `tee` into a project file. In a
+main session, `python` and `lua` ask ARCHITECT. The hook cannot read a script file: the rule
+governs it.
 
 ## Build Environment
 

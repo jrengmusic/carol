@@ -52,7 +52,7 @@ Doxygen prose can be stale. The code is the source of truth.
 
 ## Text search
 
-Text search (`grep`, `rg`) on C++ source has two uses only:
+Text search (`saw find`) on C++ source has two uses only:
 
 - A string literal: the search pattern includes the double quote (`"`). Write the
   pattern inside single quotes, or escape the quote.
@@ -62,7 +62,7 @@ Text search never proves absence. Text search never gives the blast radius.
 
 The `tool.call` hook in `~/.carol/hooks/register.js` denies a text search that names a
 C++ file, glob, or type as its target, unless the pattern holds the double quote or
-the `#`. The hook reads the command text, not intent. This protocol governs every
+the `#`. It reads `saw find` in Bash and in the saw MCP tool. The hook reads the command text, not intent. This protocol governs every
 search the hook cannot read, such as an untyped search of a source directory.
 
 ## Index locations

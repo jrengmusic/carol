@@ -1,4 +1,19 @@
 import { atom, read, update } from 'claude-code'
+import {
+  EDIT_GATE,
+  SEARCH_GATE,
+  WRITE_GATE,
+  getExcerptBlocks,
+  getGuardedCommand,
+  getReportDenial,
+  getRunDenial,
+  getSawFinds,
+  getShellDenial,
+  isApplyAgent,
+  isExcerptAgent,
+  isSawExcerpt,
+  isTemporaryPath,
+} from './saw-gate.mjs'
 
 const NUDGE_INTERVAL = 5
 const DEFAULT_ROLE = 'COUNSELOR'
@@ -22,7 +37,6 @@ const GIT_SUFFIX = '(?:[\\s;&|)]|$)'
 const GIT_COMMAND_PATTERN = new RegExp(COMMAND_HEAD + 'git(?:\\s|$)', 'g')
 const GIT_READ_ONLY_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(?:status|log|diff|show)' + GIT_SUFFIX, 'g')
 const GIT_SYNC_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(?:push|pull)' + GIT_SUFFIX, 'g')
-const IN_PLACE_PATTERN = new RegExp(COMMAND_HEAD + '(?:(?:sed|perl)\\s+(?:[^|;&]*\\s)?(?:-[A-Za-z]*i[A-Za-z.]*|--in-place)(?:[\\s=]|$)|awk\\s+-i\\s+inplace)')
 const CPP_EXTENSION = '\\.(?:h|hh|hpp|hxx|inl|c|cc|cpp|cxx|m|mm)'
 const TEXT_SEARCH_PATTERN = new RegExp(COMMAND_HEAD + '(?:grep|egrep|fgrep|rg|ag|ack)(?:\\s|$)')
 const CPP_TARGET_PATTERN = new RegExp('(?:--type[= ]|-t\\s*)(?:c|cpp|objc|objcpp)\\b|(?:-g|--glob|--include|-i?name)[= ]\\s*[\'"]?[^\\s\'"]*' + CPP_EXTENSION + '\\b|(?:^|\\s)[^\\s\'"|;&]*' + CPP_EXTENSION + '(?=$|[\\s|;&)])')
@@ -30,8 +44,8 @@ const LITERAL_SEARCH_PATTERN = /\\"|'[^']*"[^']*'|['"]#/
 const CONTRACT_DOCUMENT_PATTERN = new RegExp('[\\\\/]\\.carol[\\\\/](' + CONTRACT_DOCUMENTS.join('|') + ')\\.md$')
 
 const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent and never in a Pathfinder whose task description names doxygen, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
-const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
-const TEXT_SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the ling MCP tools to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
+const SAW_MCP_TOOLS = ['mcp__saw__run']
+const EXCERPT_VERB = 'excerpt'
 const SCOUT_MCP_TOOLS = ['mcp__scout__run']
 const WHATDBG_MCP_TOOLS = [
   'mcp__whatdbg__launch', 'mcp__whatdbg__attach', 'mcp__whatdbg__setBreakpoints',
@@ -58,6 +72,7 @@ const isNoGateArmed = atom({ plugin: 'carol', key: 'isNoGateArmed' }, false)
 const isGitInstructed = atom({ plugin: 'carol', key: 'isGitInstructed' }, false)
 const sessionAgentType = atom({ plugin: 'carol', key: 'sessionAgentType' }, '')
 const contractReads = atom({ plugin: 'carol', key: 'contractReads' }, [])
+const excerptReceipts = atom({ plugin: 'carol', key: 'excerptReceipts' }, {})
 
 function countMatches(pattern, text) {
   return (text.match(pattern) ?? []).length
@@ -108,17 +123,38 @@ async function isSprintLogNewer($, sprintLog) {
   return (await $.fs.exists(sprintLog)) && (await $.fs.stat(sprintLog)).mtimeMs > (await read($, armedAtMs))
 }
 
-async function isPathfinderAgent($, agentId) {
-  if (agentId === undefined) return false
+async function getAgent($, agentId) {
   const agents = await $.agent.list()
-  const { type = '' } = agents.find((agent) => agent.id === agentId) ?? {}
-  return type.toLowerCase() === READ_ONLY_GIT_AGENT
+  const { type = '', description = '' } = agents.find((agent) => agent.id === agentId) ?? {}
+  return { type, description }
+}
+
+async function isPathfinderAgent($, agentId) {
+  return agentId !== undefined && (await getAgent($, agentId)).type.toLowerCase() === READ_ONLY_GIT_AGENT
 }
 
 async function isReadOnlyGitAgent($, agentId) {
-  const agents = await $.agent.list()
-  const { type = '', description = '' } = agents.find((agent) => agent.id === agentId) ?? {}
+  const { type, description } = await getAgent($, agentId)
   return type.toLowerCase() === READ_ONLY_GIT_AGENT && !DOXYGEN_TASK_PATTERN.test(description)
+}
+
+async function canApply($, agentId) {
+  if (agentId === undefined) return true
+  const { type, description } = await getAgent($, agentId)
+  return isApplyAgent(type, description)
+}
+
+async function addExcerptReceipts($, agentId, text) {
+  if (!(await isPathfinderAgent($, agentId))) return
+  await update($, excerptReceipts, (receipts) => ({ ...receipts, [agentId]: { ...receipts[agentId], ...getExcerptBlocks(text) } }))
+}
+
+function getRunOutput(outcome) {
+  try {
+    return JSON.parse(outcome.text ?? '').output ?? ''
+  } catch {
+    return ''
+  }
 }
 
 async function getPermittedInvocations($, command, agentId) {
@@ -131,8 +167,10 @@ async function getPermittedInvocations($, command, agentId) {
 
 async function getBashVerdict($, command, agentId, isBackground) {
   if (agentId !== undefined && isBackground) return { deny: BACKGROUND_GATE }
-  if (IN_PLACE_PATTERN.test(command)) return { deny: IN_PLACE_GATE }
-  if (TEXT_SEARCH_PATTERN.test(command) && CPP_TARGET_PATTERN.test(command) && !LITERAL_SEARCH_PATTERN.test(command)) return { deny: TEXT_SEARCH_GATE }
+  const denial = getShellDenial(command, agentId !== undefined, await canApply($, agentId))
+  if (denial !== undefined) return { deny: denial }
+  const searches = TEXT_SEARCH_PATTERN.test(command) ? [command] : getSawFinds(command)
+  if (searches.some((search) => CPP_TARGET_PATTERN.test(search) && !LITERAL_SEARCH_PATTERN.test(search))) return { deny: SEARCH_GATE }
   const invocations = countMatches(GIT_COMMAND_PATTERN, command)
   if (invocations === 0 || (await read($, isGitInstructed))) return undefined
   return invocations === (await getPermittedInvocations($, command, agentId)) ? undefined : { deny: GIT_GATE }
@@ -204,12 +242,37 @@ export function register(on) {
 
   on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
     const verdict = await getBashVerdict($, e.command, e.agentId, e.run_in_background === true)
-    return verdict === undefined ? next(e) : verdict
+    if (verdict !== undefined) return verdict
+    const outcome = await next({ ...e, command: getGuardedCommand(e.command, e.agentId !== undefined) })
+    if (e.agentId !== undefined && isSawExcerpt(e.command)) await addExcerptReceipts($, e.agentId, outcome.text ?? '')
+    return outcome
   }).catch(failClosed)
 
   on('tool.call', { tool: 'Monitor' }, async ($, e, next) => {
-    return e.agentId === undefined ? next(e) : { deny: BACKGROUND_GATE }
+    if (e.agentId !== undefined) return { deny: BACKGROUND_GATE }
+    return (await getBashVerdict($, e.command ?? '', undefined, false)) ?? next(e)
   }).catch(failClosed)
+
+  on('tool.call', { tool: 'Edit' }, async () => ({ deny: EDIT_GATE })).catch(failClosed)
+  on('tool.call', { tool: 'Write' }, async ($, e, next) => {
+    const isOverwrite = e.agentId !== undefined && !isTemporaryPath(e.file_path) && (await $.fs.exists(e.file_path))
+    return isOverwrite ? { deny: WRITE_GATE } : next(e)
+  }).catch(failClosed)
+
+  on('tool.call', { tool: SAW_MCP_TOOLS }, async ($, e, next) => {
+    const denial = getRunDenial(e.arguments ?? [], e.agentId !== undefined, await canApply($, e.agentId))
+    if (denial !== undefined) return { deny: denial }
+    const outcome = await next(e)
+    if (e.agentId !== undefined && e.arguments?.[0] === EXCERPT_VERB) await addExcerptReceipts($, e.agentId, getRunOutput(outcome))
+    return outcome
+  }).catch(failClosed)
+
+  on('classic.SubagentStop', async ($, e, next) => {
+    const receipts = (await read($, excerptReceipts))[e.agent_id] ?? {}
+    const isChecked = isExcerptAgent(e.agent_type ?? '') && e.stop_hook_active !== true
+    const denial = isChecked ? getReportDenial(e.last_assistant_message ?? '', (header) => receipts[header]) : undefined
+    return denial === undefined ? next(e) : { block: denial }
+  })
 
   on('tool.call', { tool: SCOUT_MCP_TOOLS }, async ($, e, next) => {
     return (await isPathfinderAgent($, e.agentId)) ? next(e) : { deny: SCOUT_GATE }

@@ -1,7 +1,7 @@
 ---
 name: MACHINIST
 description: Machine custodian — primary alongside COUNSELOR. Maintains the operator environment: CAROL framework itself, Claude Code harness, ~/.config monorepo, dotfiles, dev env, and general machine setup/troubleshooting. Executes directly with its own hands. Pathfinder invoked when discovery is needed. Other subagents optional.
-tools: Agent(Pathfinder, Librarian, Auditor), Read, Write, Edit, Bash, Glob, Grep, LSP, mcp__ling__*, AskUserQuestion, EnterPlanMode, ExitPlanMode, SendMessage, TaskStop, Monitor
+tools: Agent(Pathfinder, Librarian, Auditor), Read, Write, Bash, Glob, Grep, LSP, ToolSearch, mcp__ling__*, mcp__saw__*, AskUserQuestion, EnterPlanMode, ExitPlanMode, SendMessage, TaskStop, Monitor
 color: gray
 model: sonnet
 effort: medium
@@ -61,7 +61,7 @@ Engineer — Engineer is project code. Subagent set: @Pathfinder (discovery), @L
 framework internals in library-mode; sysadmin patterns and conventions in domain-mode), @Auditor
 (post-change verification — cross-platform consistency, drift; recommended for `~/.config/` edits).
 All optional; parallel when independent; only these three subagent types are invoked — a fork would
-inherit Write/Edit/Bash and bypass the execution gate. Every specialist runs its frontmatter model.
+inherit Write/Bash and bypass the execution gate. Every specialist runs its frontmatter model.
 Every Agent call passes `model` equal to that frontmatter value (CAROL.md Subagent Model). A model
 tier need goes to ARCHITECT.
 

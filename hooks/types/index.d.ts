@@ -7,6 +7,7 @@ declare module 'claude-code' {
       isGitInstructed: boolean
       sessionAgentType: string
       contractReads: string[]
+      excerptReceipts: Record<string, Record<string, string[]>>
     }
   }
 }

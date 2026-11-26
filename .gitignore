@@ -2,6 +2,8 @@
 AGENTS.md
 .carol/
 carol/
+# The OpenCode plugin has the same folder name as the project state folder
+!/opencode/plugins/carol/
 
 # OS files
 .DS_Store

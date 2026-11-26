@@ -1,8 +1,8 @@
 #!/usr/bin/env node
+import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { DatabaseSync } from 'node:sqlite'
 
 const NUDGE_INTERVAL = 5
 const DEFAULT_ROLE = 'COUNSELOR'
@@ -22,7 +22,6 @@ const GIT_SUFFIX = '(?:[\\s;&|)]|$)'
 const GIT_COMMAND_PATTERN = new RegExp(COMMAND_HEAD + 'git(?:\\s|$)', 'g')
 const GIT_READ_ONLY_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(?:status|log|diff|show)' + GIT_SUFFIX, 'g')
 const GIT_SYNC_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(?:push|pull)' + GIT_SUFFIX, 'g')
-const IN_PLACE_PATTERN = new RegExp(COMMAND_HEAD + '(?:(?:sed|perl)\\s+(?:[^|;&]*\\s)?(?:-[A-Za-z]*i[A-Za-z.]*|--in-place)(?:[\\s=]|$)|awk\\s+-i\\s+inplace)')
 const CPP_EXTENSION = '\\.(?:h|hh|hpp|hxx|inl|c|cc|cpp|cxx|m|mm)'
 const TEXT_SEARCH_PATTERN = new RegExp(COMMAND_HEAD + '(?:grep|egrep|fgrep|rg|ag|ack)(?:\\s|$)')
 const CPP_TARGET_PATTERN = new RegExp('(?:--type[= ]|-t\\s*)(?:c|cpp|objc|objcpp)\\b|(?:-g|--glob|--include|-i?name)[= ]\\s*[\'"]?[^\\s\'"]*' + CPP_EXTENSION + '\\b|(?:^|\\s)[^\\s\'"|;&]*' + CPP_EXTENSION + '(?=$|[\\s|;&)])')
@@ -30,10 +29,12 @@ const LITERAL_SEARCH_PATTERN = /\\"|'[^']*"[^']*'|['"]#/
 const CONTRACT_DOCUMENT_PATTERN = new RegExp('[\\\\/]\\.carol[\\\\/](' + CONTRACT_DOCUMENTS.join('|') + ')\\.md$')
 
 const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent and never in a Pathfinder whose task description names doxygen, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the read_file tool, or report what you need."
-const IN_PLACE_GATE = "An in-place edit with sed, perl or awk is not allowed (CAROL.md Destructive-Edit Discipline). Run: carol apply --expect N 'sed-expression' file... It backs up each file, prints the preview, checks that the changed-line count equals N, applies, verifies, and restores on a mismatch."
-const TEXT_SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the ling MCP tools to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
 const SCOUT_SERVER_PATTERN = /^(?:carol_)?scout$/
 const WHATDBG_SERVER_PATTERN = /^(?:carol_)?whatdbg$/
+const SAW_SERVER_PATTERN = /^(?:carol_)?saw$/
+const EXCERPT_TARGET_PATTERN = /^(.+:\d+-\d+) of \d+ sha256:/
+const DOXYGEN_TASK_PATTERN = /doxygen/i
+const DOXYGEN_DESCRIPTION = 'doxygen'
 const PATHFINDER_AGENT = 'pathfinder'
 const SCOUT_GATE = 'scout MCP is restricted to @Pathfinder only (CAROL.md Profiling). Write the manifest and delegate the scout run to @Pathfinder.'
 const WHATDBG_GATE = 'whatdbg MCP is restricted to COUNSELOR and @Pathfinder only (CAROL.md Debugging).'
@@ -83,7 +84,9 @@ function loadState(conversationId) {
     isNoGateArmed: false,
     isGitInstructed: false,
     lastUserInput: '',
-    contractReads: []
+    contractReads: [],
+    isDoxygenDelegated: false,
+    isReportReturned: false
   }
 }
 
@@ -95,29 +98,59 @@ function saveState(conversationId, state) {
   fs.renameSync(tmpPath, statePath)
 }
 
-function getConversationMeta(payload) {
+// A read failure throws, so that the gate denies: an unknown subagent must not pass as a main session.
+async function getConversationMeta(payload) {
+  const main = { agentName: '', isSubagent: false, parentId: '' }
   const conversationId = String(payload.conversationId || '')
-  if (!conversationId) return { agentName: '', isSubagent: false }
   const dbPath = payload.artifactDirectoryPath
     ? path.resolve(payload.artifactDirectoryPath, '..', '..', SUMMARIES_DB)
     : path.join(DEFAULT_AGY_DIR, SUMMARIES_DB)
-  if (!fs.existsSync(dbPath)) return { agentName: '', isSubagent: false }
-  let db
+  if (!conversationId || !fs.existsSync(dbPath)) return main
+  const { DatabaseSync } = await import('node:sqlite')
+  const db = new DatabaseSync(dbPath, { readOnly: true, timeout: SQLITE_TIMEOUT_MS })
   try {
-    db = new DatabaseSync(dbPath, { readOnly: true, timeout: SQLITE_TIMEOUT_MS })
     const row = db
       .prepare('SELECT agent_name, parent_conversation_id, nesting_depth FROM conversation_summaries WHERE conversation_id = ?')
       .get(conversationId)
-    if (!row) return { agentName: '', isSubagent: false }
+    if (!row) return main
     return {
       agentName: String(row.agent_name || ''),
-      isSubagent: Number(row.nesting_depth) > 0 || Boolean(row.parent_conversation_id)
+      isSubagent: Number(row.nesting_depth) > 0 || Boolean(row.parent_conversation_id),
+      parentId: String(row.parent_conversation_id || '')
     }
-  } catch {
-    return { agentName: '', isSubagent: false }
   } finally {
-    if (db) db.close()
+    db.close()
   }
+}
+
+function canApply(gate, meta) {
+  const description = meta.isSubagent && loadState(meta.parentId).isDoxygenDelegated ? DOXYGEN_DESCRIPTION : ''
+  return !meta.isSubagent || gate.isApplyAgent(meta.agentName, description)
+}
+
+// agy gives a hook no tool output, so the lines come from a new run of the same target.
+function getSourceLines(gate, payload, header) {
+  const target = header.match(EXCERPT_TARGET_PATTERN)?.[1] ?? ''
+  const cwd = payload.workspacePaths?.[0] ?? process.cwd()
+  const { stdout } = spawnSync('saw', ['excerpt', target], { cwd, encoding: 'utf8' })
+  return gate.getExcerptBlocks(stdout ?? '')[header]
+}
+
+function getReportDenial(gate, payload, state, meta, message) {
+  const isChecked = meta.isSubagent && gate.isExcerptAgent(meta.agentName) && !state.isReportReturned
+  if (!isChecked) return undefined
+  const denial = gate.getReportDenial(message, (header) => getSourceLines(gate, payload, header))
+  if (denial !== undefined) {
+    state.isReportReturned = true
+    saveState(payload.conversationId, state)
+  }
+  return denial
+}
+
+function getCommandOutput(gate, command, meta) {
+  const guarded = gate.getGuardedCommand(command, meta.isSubagent)
+  const isRewritten = guarded !== command && process.platform !== 'win32'
+  return isRewritten ? { decision: 'allow', overwrite: { CommandLine: guarded } } : { decision: 'allow' }
 }
 
 function getExpectedSubagentModel(typeName) {
@@ -161,16 +194,19 @@ function handlePreInvocation(payload, state) {
   return {}
 }
 
-function handlePreToolUse(payload, state) {
+async function handlePreToolUse(gate, payload, state) {
   const toolName = payload.toolCall?.name || ''
   const args = payload.toolCall?.args || {}
   const role = getRole()
+  const meta = await getConversationMeta(payload)
 
   if (toolName === 'run_command') {
     const command = String(args.CommandLine || '')
-    if (IN_PLACE_PATTERN.test(command)) return { decision: 'deny', reason: IN_PLACE_GATE }
-    if (TEXT_SEARCH_PATTERN.test(command) && CPP_TARGET_PATTERN.test(command) && !LITERAL_SEARCH_PATTERN.test(command)) {
-      return { decision: 'deny', reason: TEXT_SEARCH_GATE }
+    const denial = gate.getShellDenial(command, meta.isSubagent, canApply(gate, meta))
+    if (denial !== undefined) return { decision: 'deny', reason: denial }
+    const searches = TEXT_SEARCH_PATTERN.test(command) ? [command] : gate.getSawFinds(command)
+    if (searches.some((search) => CPP_TARGET_PATTERN.test(search) && !LITERAL_SEARCH_PATTERN.test(search))) {
+      return { decision: 'deny', reason: gate.SEARCH_GATE }
     }
     const invocations = countMatches(GIT_COMMAND_PATTERN, command)
     if (invocations > 0 && !state.isGitInstructed) {
@@ -180,7 +216,20 @@ function handlePreToolUse(payload, state) {
         return { decision: 'deny', reason: GIT_GATE }
       }
     }
-    return { decision: 'allow' }
+    if (gate.isScriptRun(command)) return { decision: 'force_ask', reason: gate.SCRIPT_GATE }
+    return getCommandOutput(gate, command, meta)
+  }
+
+  if (toolName === 'edit_file') return { decision: 'deny', reason: gate.EDIT_GATE }
+  if (toolName === 'write_file') {
+    const target = String(args.Path || '')
+    const isOverwrite = meta.isSubagent && !gate.isTemporaryPath(target) && fs.existsSync(target)
+    return isOverwrite ? { decision: 'deny', reason: gate.WRITE_GATE } : { decision: 'allow' }
+  }
+
+  if (toolName === 'send_message') {
+    const denial = getReportDenial(gate, payload, state, meta, String(args.Message || ''))
+    return denial === undefined ? { decision: 'allow' } : { decision: 'deny', reason: denial }
   }
 
   if (toolName === 'ask_question') {
@@ -195,6 +244,10 @@ function handlePreToolUse(payload, state) {
 
   if (toolName === 'invoke_subagent') {
     const typeName = String(args.TypeName || '')
+    if (typeName.toLowerCase() === PATHFINDER_AGENT) {
+      state.isDoxygenDelegated = DOXYGEN_TASK_PATTERN.test(String(args.Role || ''))
+      saveState(payload.conversationId, state)
+    }
     const expected = getExpectedSubagentModel(typeName)
     const passed = String(args.Model || '')
     if (expected !== undefined && passed !== expected) {
@@ -208,7 +261,7 @@ function handlePreToolUse(payload, state) {
 
   if (toolName === 'call_mcp_tool') {
     const serverName = String(args.ServerName || '')
-    const { agentName, isSubagent } = getConversationMeta(payload)
+    const { agentName, isSubagent } = meta
     const isPathfinder = agentName.toLowerCase() === PATHFINDER_AGENT
     const isCounselorMain = !isSubagent && (agentName ? agentName.toUpperCase() === DEFAULT_ROLE : role === DEFAULT_ROLE)
     if (SCOUT_SERVER_PATTERN.test(serverName) && !isPathfinder) {
@@ -216,6 +269,11 @@ function handlePreToolUse(payload, state) {
     }
     if (WHATDBG_SERVER_PATTERN.test(serverName) && !isCounselorMain && !isPathfinder) {
       return { decision: 'deny', reason: WHATDBG_GATE }
+    }
+    if (SAW_SERVER_PATTERN.test(serverName)) {
+      const runArguments = args.Arguments?.arguments ?? []
+      const denial = gate.getRunDenial(runArguments, isSubagent, canApply(gate, meta))
+      if (denial !== undefined) return { decision: 'deny', reason: denial }
     }
     return { decision: 'allow' }
   }
@@ -275,15 +333,16 @@ function handleStop(payload, state) {
 let raw = ''
 process.stdin.setEncoding('utf8')
 process.stdin.on('data', (chunk) => { raw += chunk })
-process.stdin.on('end', () => {
+process.stdin.on('end', async () => {
   try {
+    const gate = await import('./saw-gate.mjs')
     const payload = JSON.parse(raw || '{}')
     const state = loadState(payload.conversationId)
     const event = payload.hookEventName || ''
     let output = {}
 
     if (event === 'PreInvocation') output = handlePreInvocation(payload, state)
-    else if (event === 'PreToolUse') output = handlePreToolUse(payload, state)
+    else if (event === 'PreToolUse') output = await handlePreToolUse(gate, payload, state)
     else if (event === 'PostToolUse') output = handlePostToolUse(payload, state)
     else if (event === 'Stop') output = handleStop(payload, state)
 

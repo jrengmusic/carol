@@ -14,7 +14,7 @@ JANITOR has four tools and no shell. Each tool wraps one CLI script in `~/.carol
 | `read_range` | none (a numbered read) | Read numbered lines of one file, at most 80 per call. |
 | `scan_rule` | `nvim --headless -l ~/.carol/local/janitor/scan.lua --rules <id,id> (--subject <kebab> --objective <text> \| --check) <path>...` | Find every violation. With a subject, write `CLEAN-UP-<subject>.md`. With `--check`, list the findings and write nothing. |
 | `set_status` | `nvim --headless -l ~/.carol/local/janitor/tracker.lua --subject <kebab> --row <id> --flag <reason>` | Change one `PENDING` fix row to a flag, with the reason. |
-| `fix_batch` | `nvim --headless -l ~/.carol/local/janitor/fix.lua --subject <kebab>` | Fix the next batch through `carol apply`, verify the parse and a rescan, mark the rows, and commit. |
+| `fix_batch` | `nvim --headless -l ~/.carol/local/janitor/fix.lua --subject <kebab>` | Fix the next batch through `saw patch`, verify the parse and a rescan, mark the rows, and commit. |
 
 ## Sections
 

@@ -7,16 +7,20 @@ OpenCode counterpart in these tables. Where a table gives "None", OpenCode has n
 
 | Claude Code | OpenCode |
 | ----------- | -------- |
-| Agent, Task | `subagent`. The agent ID is the lowercase role name: `engineer`, `pathfinder`, `librarian`, `auditor`. |
+| Agent, Task | `subagent`. The agent ID is the lowercase role name: `engineer`, `pathfinder`, `librarian`, `auditor`. `pathfinder` runs in the foreground only: its report is checked before you read it. |
 | SendMessage | `subagent` with the `sessionID` of that child session |
 | AskUserQuestion | `question` |
 | Bash | `shell`. `run_in_background` is `background`. |
-| Read, Write, Edit, Glob, Grep | `read`, `write`, `edit`, `glob`, `grep` |
+| Read, Write, Glob, Grep | `read`, `write`, `glob`, `grep` |
+| `mcp__saw__run` | `saw_run`, with the same arguments |
 | WebFetch, WebSearch | `webfetch`, `websearch` |
 | Skill | `skill` |
 | LSP | `lsp`, with the same operations, on clangd |
 | EnterPlanMode, ExitPlanMode | None. Present the plan in chat. ARCHITECT's reply is the approval. |
 | TaskStop, Monitor, Workflow | None |
+
+No session has an `edit` and `patch` tool: edit with saw. A subagent has no `grep` and `question` tool: search with
+saw. Its `write` makes a new file only.
 
 ## Subagent Model
 

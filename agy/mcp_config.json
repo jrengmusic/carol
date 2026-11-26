@@ -11,6 +11,10 @@
     "scout": {
       "command": "scout",
       "args": ["--mcp"]
+    },
+    "saw": {
+      "command": "saw",
+      "args": ["--mcp"]
     }
   }
 }

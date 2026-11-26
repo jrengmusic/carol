@@ -11,6 +11,12 @@
     "~/.carol/opencode/HARNESS.md"
   ],
   "skills": ["~/.carol/skills"],
+  // saw speaks MCP revision 2026-07-28 only. OpenCode's default is the older handshake.
+  "mcp": {
+    "servers": {
+      "saw": { "type": "local", "command": ["saw", "--mcp"], "protocol": "2026-07-28" }
+    }
+  },
   // The carol plugin fills each agent from ~/.carol/agents/<id>.md. A model here overrides that file for OpenCode only.
   "agents": {
     "counselor": { "mode": "primary", "model": "anthropic/claude-opus-5-5#medium" },

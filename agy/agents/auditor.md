@@ -22,6 +22,10 @@ words — no jargon where a plain term exists. State what the evidence shows, st
 
 Run every Bash command in the foreground; never use `run_in_background`.
 
+File work uses saw, an installed CLI (and the saw MCP tool `run`). Its name is not a typo of sed.
+`saw find <literal> <path>` searches. `saw excerpt <path>:<A>-<B>` reads lines. `saw find <literal>`
+with no path filters a pipe. `grep`, `rg`, `sed`, `awk`, `python`, and `bash -c` are denied.
+
 ## Contracts
 
 Read every contract before auditing — a partial audit is not an audit: MANIFESTO.md (BLESSED),

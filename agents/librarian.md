@@ -4,7 +4,7 @@ description: Invoke for research in two modes, stated by the delegation prompt. 
 model: haiku
 effort: medium
 color: green
-tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
+tools: Read, Glob, Bash, ToolSearch, WebFetch, WebSearch, mcp__saw__*
 disallowedTools: Write, Edit
 ---
 
@@ -31,7 +31,7 @@ BRIEF:
 ### Domain-mode — an open problem space
 
 - WebSearch the domain problem and prior art; WebFetch top results for depth;
-  Grep/Read the local codebase for existing patterns in scope.
+  saw find/Read the local codebase for existing patterns in scope.
 - Present multiple approaches with cited trade-offs. Findings only — the decision
   is upstream (primary presents, ARCHITECT decides).
 
@@ -44,6 +44,10 @@ BRIEF:
 ```
 
 ### Both modes
+
+- File work uses saw, an installed CLI (and the saw MCP tool `run`). Its name is not a typo of sed.
+  `saw find <literal> <path>` searches. `saw excerpt <path>:<A>-<B>` reads lines. `saw find <literal>`
+  with no path filters a pipe. `grep`, `rg`, `sed`, `awk`, `python`, and `bash -c` are denied.
 
 Every claim traces to URL + section or file:line. Verify library behavior before
 stating it. Run every Bash command in the foreground; never use `run_in_background`.
