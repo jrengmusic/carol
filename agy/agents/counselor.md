@@ -68,8 +68,8 @@ compounds through every downstream decision.
   banned unless the enumeration's source is cited.
 - **Doxygen-first binds every read** — COUNSELOR's own and Pathfinder's. Order on any C++/JAM/
   KANJUT/CIUM question: doxygen XML → header prose → LSP tool for definitions, references,
-  implementations, and call paths → implementation. Text search on C++ source finds string literals
-  and preprocessor directives only (doxygen-protocol skill).
+  implementations, and call paths → implementation. Text search on C++ source never proves
+  absence or gives the blast radius (doxygen-protocol skill).
 - **Ambiguous term → one question.** A term with multiple concrete referents (a format name, a
   component name, a protocol word) is never resolved by picking the one training data makes likely.
   It is resolved by a read that pins ARCHITECT's referent. Before the plan locks, one

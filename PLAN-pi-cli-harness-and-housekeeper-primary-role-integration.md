@@ -1,6 +1,6 @@
-# PLAN: pi CLI Harness and JANITOR Primary Role Integration
+# PLAN: pi CLI Harness and HOUSEKEEPER Primary Role Integration
 
-**RFC:** RFC-pi_cli_harness_and_janitor_primary_role_integration.md
+**RFC:** RFC-pi_cli_harness_and_housekeeper_primary_role_integration.md
 **Date:** 2026-11-21
 **BLESSED Compliance:** verified
 **Language Constraints:** bash 3.2 (`/bin/bash`, macOS), TypeScript pi extension (`@earendil-works/pi-coding-agent` 1.6.0), Markdown contract documents
@@ -8,7 +8,7 @@
 
 ## Overview
 
-Add `janitor`, a pi launcher that starts `ollama serve` when it is absent and stops it at exit. Add the `JANITOR` primary role, the `carol-gate.ts` pi extension, and two skills. JANITOR runs bounded, syntax-only clean-up campaigns on large C++ codebases with a local model. The RFC objective holds. This plan corrects the RFC citations and mechanisms that a read or a test disproved.
+Add `housekeeper`, a pi launcher that starts `ollama serve` when it is absent and stops it at exit. Add the `HOUSEKEEPER` primary role, the `carol-gate.ts` pi extension, and two skills. HOUSEKEEPER runs bounded, syntax-only clean-up campaigns on large C++ codebases with a local model. The RFC objective holds. This plan corrects the RFC citations and mechanisms that a read or a test disproved.
 
 ## Verification of RFC Claims
 
@@ -58,7 +58,7 @@ Each RFC claim was read or run in this session. Status: **holds**, **corrected**
 | `tree-sitter` scans C++ | corrected | The CLI has no config and no grammar cache. Test T4: `tree-sitter parse --lib-path ~/.local/share/nvim/site/parser/cpp.so --lang-name cpp` parses, and exits 1 on an `ERROR` node. `tree-sitter query` with the same flags captures the namespace open banner. |
 | SOP step "run `/compact`" | false | `/compact` is a user command. The model has only the tools `read, bash, edit, write, grep, find, ls`. Pi auto-compaction or ARCHITECT runs it. |
 | Close banner is "29-underscore" | corrected | `jam_ModelUtils.cpp:313`: `/**` + 29 `_` + `END OF NAMESPACE` + 30 `_` + `*/`, 80 columns. Open banner: `/*` + 76 `_` + `*/`, 80 columns (:3). |
-| JANITOR in `agents/` is excluded from project subagents only by `bin/carol` | incomplete | The OpenCode plugin reads every `~/.carol/agents/*.md` (`opencode/plugins/carol/source.js:111-126`) and updates each ID (`index.js:142-152`). The agy harness uses its own copies (`agy/install.sh:25`), so a new file does not reach agy. |
+| HOUSEKEEPER in `agents/` is excluded from project subagents only by `bin/carol` | incomplete | The OpenCode plugin reads every `~/.carol/agents/*.md` (`opencode/plugins/carol/source.js:111-126`) and updates each ID (`index.js:142-152`). The agy harness uses its own copies (`agy/install.sh:25`), so a new file does not reach agy. |
 | `.carol-role` write | holds | Sibling pattern (`agy/bin/agycarol:87-88`). `hooks/register.js:56-60` reads the file only when `CAROL_ROLE` is unset. |
 
 ### Test Log (this session, scratchpad)
@@ -69,11 +69,11 @@ Each RFC claim was read or run in this session. Status: **holds**, **corrected**
 | T1b | EXIT trap under HUP, INT, TERM, bash 3.2 | cleanup runs in all three |
 | T4 | tree-sitter parse and query with the nvim `cpp.so` | parse exit 0; broken file exit 1 with `ERROR`; banner captured |
 | T5 | `carol apply --expect 2`, then `--expect 5` on a 1-line change | applied; mismatch wrote nothing |
-| T6 | Spawn `OLLAMA_CONTEXT_LENGTH=32768 ollama serve`; `pi --print --system-prompt -e gate.ts`; kill | role `JANITOR` from the custom prompt; `CONTEXT 32768`; git-scope blocked; dirty write blocked; tracker write allowed; `sed -i` blocked; no Ollama process after the kill |
+| T6 | Spawn `OLLAMA_CONTEXT_LENGTH=32768 ollama serve`; `pi --print --system-prompt -e gate.ts`; kill | role `HOUSEKEEPER` from the custom prompt; `CONTEXT 32768`; git-scope blocked; dirty write blocked; tracker write allowed; `sed -i` blocked; no Ollama process after the kill |
 
 Not tested yet (Step 9 tests them):
 - the clean-tree path, and the gate flip after a commit (needs `git init` and `git commit` in a scratch repo)
-- the interactive TUI exit through `janitor`
+- the interactive TUI exit through `housekeeper`
 
 ### Token Budget (estimate, chars/4)
 
@@ -81,7 +81,7 @@ Not tested yet (Step 9 tests them):
 |---|---|
 | `CAROL.md` | ~5450 |
 | `output-styles.md` | ~1280 |
-| `agents/janitor.md` | ~1000 |
+| `agents/housekeeper.md` | ~1000 |
 | `pi/HARNESS.md` | ~500 |
 | Skill index (14 skills) | ~1000 |
 | **System prompt total** | **~9200** |
@@ -94,8 +94,8 @@ Step 9 measures the real `prompt_eval_count`.
 
 ## Language / Framework Constraints
 
-- `/bin/bash` is 3.2. `janitor` uses no bash 4 features.
-- `janitor` is macOS-only by purpose (local Ollama on the M4). `install.sh` also runs on the Windows machines. The symlink there is inert. No `~/.config/` file changes.
+- `/bin/bash` is 3.2. `housekeeper` uses no bash 4 features.
+- `housekeeper` is macOS-only by purpose (local Ollama on the M4). `install.sh` also runs on the Windows machines. The symlink there is inert. No `~/.config/` file changes.
 - The tree-sitter C++ parser path is the nvim `stdpath('data')` on macOS: `~/.local/share/nvim/site/parser/cpp.so`.
 - `jq` is at `/opt/homebrew/bin/jq`.
 - A pi extension is TypeScript, loaded by pi from `~/.pi/agent/extensions/*.ts` (`extensions.md:131`).
@@ -138,13 +138,13 @@ Step 9 measures the real `prompt_eval_count`.
 
 | Name | Family | Source | Step |
 |---|---|---|---|
-| `janitor` | `machine` (role-named launcher) | `~/.local/bin` | 6, 8 |
-| `JANITOR` / `janitor.md` | `MACHINIST` / `machinist.md` | `agents/` | 1-3 |
+| `housekeeper` | `machine` (role-named launcher) | `~/.local/bin` | 6, 8 |
+| `HOUSEKEEPER` / `housekeeper.md` | `MACHINIST` / `machinist.md` | `agents/` | 1-3 |
 | `carol-gate.ts` | `agy-gate.mjs`, `opencode/plugins/carol/gate.js` | RFC §5 | 7 |
 | `clean-up-writer` | `*-writer` skills (`commit-writer`, `handoff-writer`, `rfc-writer`) | `skills/` | 3 |
 | `iterative-contract-sop` | RFC-named skill | RFC §7 | 3 |
 | `CLEAN-UP-<subject>.md` | `HANDOFF-<subject>.md`, `PLAN-<objective>.md` | `CAROL.md` Documentation | 1, 3 |
-| `JANITOR checkpoint` | `MACHINIST sync` | `CAROL.md:292` | 1 |
+| `HOUSEKEEPER checkpoint` | `MACHINIST sync` | `CAROL.md:292` | 1 |
 | `CAROL_PI_MODEL` | `CAROL_ROLE`, `CAROL_ROOT` | RFC §4 | 6 |
 
 ### 4. Synthesis
@@ -152,9 +152,9 @@ Step 9 measures the real `prompt_eval_count`.
 | Rule | Established form | Step |
 |---|---|---|
 | Constants over magic values (MANIFESTO E) | Named shell variables at the script top | 6, 7 |
-| SSOT (MANIFESTO S) | Context length lives once, in `models.json`. `janitor` reads it with `jq` and sets `OLLAMA_CONTEXT_LENGTH`. | 5, 6 |
-| Bound (MANIFESTO B) | `janitor` owns the Ollama process it spawned, and only that one. The EXIT trap stops it. | 6 |
-| No defensive garbage | No `kill -0` probe. The PID is set only when `janitor` spawned the server. | 6 |
+| SSOT (MANIFESTO S) | Context length lives once, in `models.json`. `housekeeper` reads it with `jq` and sets `OLLAMA_CONTEXT_LENGTH`. | 5, 6 |
+| Bound (MANIFESTO B) | `housekeeper` owns the Ollama process it spawned, and only that one. The EXIT trap stops it. | 6 |
+| No defensive garbage | No `kill -0` probe. The PID is set only when `housekeeper` spawned the server. | 6 |
 | Positive checks | `if [ -n "$spawned_ollama_pid" ]` | 6 |
 
 ### 5. Absence
@@ -177,13 +177,13 @@ MACHINIST validates each step before the next step. The references are:
 
 ## Steps
 
-### Step 1: Register JANITOR in CAROL.md
+### Step 1: Register HOUSEKEEPER in CAROL.md
 **Scope:** `CAROL.md`
 **Action:**
-1. Add a `**JANITOR**` entry under Primaries, after the MACHINIST entry (`CAROL.md:89-92`). It is the housekeeping primary for local models on pi. It runs anywhere without `carol init`. It does syntax and style clean-up only, in bounded batches tracked in `CLEAN-UP-<subject>.md`. It has no subagents.
-2. In Documentation, add `CLEAN-UP-<subject>.md` (JANITOR, format in the `clean-up-writer` skill) to the documents-at-project-root list.
-3. In Git, add a `**JANITOR checkpoint.**` paragraph after `MACHINIST sync` (`CAROL.md:292-293`). JANITOR runs `git add -A`, `git commit`, and `git restore` on the batch files without instruction, only to checkpoint a baseline or a verified batch, or to revert a failed batch. Read-only git follows the main-session rule. `carol-gate.ts` enforces the rest.
-**Inventory:** Pattern `CAROL.md:292-293`; Names `JANITOR checkpoint`, `CLEAN-UP-<subject>.md`.
+1. Add a `**HOUSEKEEPER**` entry under Primaries, after the MACHINIST entry (`CAROL.md:89-92`). It is the housekeeping primary for local models on pi. It runs anywhere without `carol init`. It does syntax and style clean-up only, in bounded batches tracked in `CLEAN-UP-<subject>.md`. It has no subagents.
+2. In Documentation, add `CLEAN-UP-<subject>.md` (HOUSEKEEPER, format in the `clean-up-writer` skill) to the documents-at-project-root list.
+3. In Git, add a `**HOUSEKEEPER checkpoint.**` paragraph after `MACHINIST sync` (`CAROL.md:292-293`). HOUSEKEEPER runs `git add -A`, `git commit`, and `git restore` on the batch files without instruction, only to checkpoint a baseline or a verified batch, or to revert a failed batch. Read-only git follows the main-session rule. `carol-gate.ts` enforces the rest.
+**Inventory:** Pattern `CAROL.md:292-293`; Names `HOUSEKEEPER checkpoint`, `CLEAN-UP-<subject>.md`.
 **Validation:** STE prose. No other CAROL.md section changes. No version bump.
 
 ### Step 1b: Add the namespace enclosure format to CODING.md
@@ -192,19 +192,19 @@ MACHINIST validates each step before the next step. The references are:
 **Inventory:** Exemplar `jam_ModelUtils.cpp:1-3, 313-314`.
 **Validation:** Both banner strings in CODING.md match the exemplar byte for byte.
 
-### Step 2: Exclude janitor.md from project subagents
+### Step 2: Exclude housekeeper.md from project subagents
 **Scope:** `bin/carol:210`, `bin/carol:227`
 **Action:**
-1. At :210, also remove a stale `.claude/agents/janitor.md`.
-2. At :227, skip `janitor.md` with `machinist.md`, as one `case` on the basename.
+1. At :210, also remove a stale `.claude/agents/housekeeper.md`.
+2. At :227, skip `housekeeper.md` with `machinist.md`, as one `case` on the basename.
 **Inventory:** Pattern `bin/carol:210, 227`.
-**Validation:** `bash -n bin/carol`. Run `carol update` in a scratch dir with a `carol/` directory, then check that `.claude/agents/` has no `janitor.md`.
+**Validation:** `bash -n bin/carol`. Run `carol update` in a scratch dir with a `carol/` directory, then check that `.claude/agents/` has no `housekeeper.md`.
 
-### Step 3: Create janitor.md and the two skills
-**Scope:** `agents/janitor.md`, `skills/clean-up-writer/SKILL.md`, `skills/iterative-contract-sop/SKILL.md`
+### Step 3: Create housekeeper.md and the two skills
+**Scope:** `agents/housekeeper.md`, `skills/clean-up-writer/SKILL.md`, `skills/iterative-contract-sop/SKILL.md`
 **Action:** Write the RFC §3, §6, and §7 content, with these corrections:
-1. `janitor.md` adds the rule "A tool result is the only evidence. Report the result verbatim. A blocked call ends the run." (Test T6: the model reported blocked calls as successes.)
-2. `janitor.md` Upon Invocation step 4 loads the CODING.md section by its heading, not by line number.
+1. `housekeeper.md` adds the rule "A tool result is the only evidence. Report the result verbatim. A blocked call ends the run." (Test T6: the model reported blocked calls as successes.)
+2. `housekeeper.md` Upon Invocation step 4 loads the CODING.md section by its heading, not by line number.
 3. The SOP Scan step gives the exact commands:
    - `tree-sitter parse --lib-path ~/.local/share/nvim/site/parser/cpp.so --lang-name cpp --quiet <file>`
    - `tree-sitter query --lib-path … --lang-name cpp <query.scm> <file>`
@@ -232,7 +232,7 @@ Notes:
 - The plan is presented in chat, and ARCHITECT's reply is the approval.
 
 Files table:
-- `~/.carol/hooks/register.js` → `~/.carol/pi/extensions/carol-gate.ts` (JANITOR gates only)
+- `~/.carol/hooks/register.js` → `~/.carol/pi/extensions/carol-gate.ts` (HOUSEKEEPER gates only)
 - the CAROL output style → the composed system prompt
 - `CLAUDE.md` → None (`--no-context-files`)
 - the settings ask list → the `carol-gate.ts` blocks
@@ -252,16 +252,16 @@ Files table:
 **Inventory:** API `models.json`, `compaction.modelOverrides`; Synthesis SSOT.
 **Validation:** `jq` reads back both values. `pi --list-models` or a pi start shows no settings error.
 
-### Step 6: Create pi/bin/janitor
-**Scope:** `pi/bin/janitor` (`chmod +x`)
+### Step 6: Create pi/bin/housekeeper
+**Scope:** `pi/bin/housekeeper` (`chmod +x`)
 **Action:** Use the RFC §4 structure, with these changes:
-1. Keep the header, the extension symlink, and the skill symlink loop. The role is fixed to JANITOR (locked Decision 4): no role `case`, no scaffold check.
+1. Keep the header, the extension symlink, and the skill symlink loop. The role is fixed to HOUSEKEEPER (locked Decision 4): no role `case`, no scaffold check.
 2. Make named constants at the top:
    - `OLLAMA_URL="http://127.0.0.1:11434"`
    - `PI_MODEL="${CAROL_PI_MODEL:-gemma4:e4b}"`
    - `PI_TOOLS="read,bash,edit,write,grep,find,ls"`
    - the readiness attempt count and interval
-3. Compose the prompt from `CAROL.md`, `output-styles.md`, `pi/HARNESS.md`, and `agents/janitor.md`. The destination follows locked Decision 1.
+3. Compose the prompt from `CAROL.md`, `output-styles.md`, `pi/HARNESS.md`, and `agents/housekeeper.md`. The destination follows locked Decision 1.
 4. Read the context length: `jq -r --arg id "$PI_MODEL" '.providers.ollama.models[] | select(.id == $id) | .contextWindow' "$PI_AGENT_DIR/models.json"`.
 5. Spawn `OLLAMA_CONTEXT_LENGTH="$context_length" ollama serve` only when `/api/tags` fails. Record its PID.
 6. `cleanup` stops the recorded PID and removes the composed prompt when it is a session file. Use one `trap cleanup EXIT`.
@@ -280,7 +280,7 @@ Files table:
 **Scope:** `pi/extensions/carol-gate.ts`
 **Action:** Use the gate that passed Test T6, with these changes:
 1. Import from `@earendil-works/pi-coding-agent`. Narrow with `isToolCallEventType`.
-2. All gates apply only when `process.env.CAROL_ROLE === "JANITOR"`.
+2. All gates apply only when `process.env.CAROL_ROLE === "HOUSEKEEPER"`.
 3. Bash gates:
    - Block `sed -i`, `perl -i`, and `awk -i inplace`.
    - Block when any `git <subcommand>` in the command is outside `status, diff, log, show, add -A, commit, restore`. Check every match (`matchAll`).
@@ -293,20 +293,20 @@ Files table:
 **Validation:** Each gate maps to an RFC §5 gate. Test T6 cases pass again in Step 9.
 
 ### Step 8: Wire install.sh and the symlinks
-**Scope:** `install.sh` `setup_path` (`install.sh:114-130`), `~/.pi/agent/extensions/`, `~/.local/bin/janitor`
+**Scope:** `install.sh` `setup_path` (`install.sh:114-130`), `~/.pi/agent/extensions/`, `~/.local/bin/housekeeper`
 **Action:**
-1. Add `chmod +x "$CAROL_ROOT/pi/bin/janitor"` and `ln -sf "$CAROL_ROOT/pi/bin/janitor" "$LOCAL_BIN/janitor"`.
+1. Add `chmod +x "$CAROL_ROOT/pi/bin/housekeeper"` and `ln -sf "$CAROL_ROOT/pi/bin/housekeeper" "$LOCAL_BIN/housekeeper"`.
 2. Update the success line.
-3. Create the `~/.local/bin/janitor` symlink now.
+3. Create the `~/.local/bin/housekeeper` symlink now.
 **Inventory:** Pattern `install.sh:121-123`.
-**Validation:** `bash -n install.sh`. `readlink ~/.local/bin/janitor` points to `~/.carol/pi/bin/janitor`.
+**Validation:** `bash -n install.sh`. `readlink ~/.local/bin/housekeeper` points to `~/.carol/pi/bin/housekeeper`.
 
 ### Step 9: Verify end to end
 **Scope:** scratch git repo in the session scratchpad. ARCHITECT's TUI session for the interactive checks.
 **Action:**
 1. Make a scratch repo: `git init` and an initial `git commit`. This needs ARCHITECT's go prompt to name `git`, because `hooks/register.js` denies it otherwise.
-2. Run `janitor --print` probes:
-   - The role answer is `JANITOR`.
+2. Run `housekeeper --print` probes:
+   - The role answer is `HOUSEKEEPER`.
    - `ollama ps` shows `CONTEXT` equal to the `models.json` value.
    - Measure the real system-prompt tokens with `prompt_eval_count` from the Ollama API on the composed prompt.
 3. Run the gate probes:
@@ -316,17 +316,17 @@ Files table:
    - `git status && git push` is blocked.
    - `sed -i` is blocked.
    - A `CLEAN-UP-test.md` write passes on a dirty tree.
-4. After each probe, `pgrep -fl ollama` gives none, when `janitor` spawned the server.
-5. Check OpenCode: start `opencarol` in a scratch dir, and check that no `janitor` agent appears in the agent list. If it appears, stop and report. That is a scope change in `opencode/plugins/carol/`.
-6. ARCHITECT runs `janitor` interactively. Exit with Ctrl+D, Ctrl+C, and a tab close. Then `pgrep -fl ollama` gives none.
+4. After each probe, `pgrep -fl ollama` gives none, when `housekeeper` spawned the server.
+5. Check OpenCode: start `opencarol` in a scratch dir, and check that no `housekeeper` agent appears in the agent list. If it appears, stop and report. That is a scope change in `opencode/plugins/carol/`.
+6. ARCHITECT runs `housekeeper` interactively. Exit with Ctrl+D, Ctrl+C, and a tab close. Then `pgrep -fl ollama` gives none.
 7. Run @Auditor once: cross-harness consistency (`agy/`, `opencode/`, `pi/`) and drift against this plan.
 **Validation:** Each probe result is recorded in chat. Every Auditor finding is resolved before done.
 
 ## BLESSED Alignment
 
 - **Bound:**
-  - `janitor` owns only the Ollama process that it spawned. The EXIT trap stops it on every exit path (Tests T1, T1b, T6).
-  - Each JANITOR batch is bounded by the tracker.
+  - `housekeeper` owns only the Ollama process that it spawned. The EXIT trap stops it on every exit path (Tests T1, T1b, T6).
+  - Each HOUSEKEEPER batch is bounded by the tracker.
 - **Lean:**
   - No LSP server.
   - tree-sitter runs as a transient child process.
@@ -336,7 +336,7 @@ Files table:
   - The gates block with a reason and end the run, so the model cannot report a false success.
   - The constants are named.
 - **SSOT:**
-  - The context window lives once, in `models.json`, and `janitor` derives `OLLAMA_CONTEXT_LENGTH` from it.
+  - The context window lives once, in `models.json`, and `housekeeper` derives `OLLAMA_CONTEXT_LENGTH` from it.
   - The namespace rule lives once, in CODING.md.
   - The definitions live in `~/.carol/`.
 - **Stateless:**
@@ -352,7 +352,7 @@ Files table:
 ## Locked Decisions (ARCHITECT, 2026-11-21)
 
 1. **System prompt destination: per-session file.**
-   - `janitor` composes the prompt into a `mktemp` file and passes it with `--system-prompt`.
+   - `housekeeper` composes the prompt into a `mktemp` file and passes it with `--system-prompt`.
    - `cleanup` removes the file at exit.
    - The global `~/.pi/agent/SYSTEM.md` stays untouched.
    - Step 8.4 adds no `.gitignore` entry, because the file is outside the repo.
@@ -364,12 +364,12 @@ Files table:
 3. **Edit `bin/carol` (RFC handoff step 2).**
    - This overrides "`bin/carol` remains untouched" in `RFC:46` and `RFC:378`.
    - Reason: `bin/carol:225-229` symlinks every `agents/*.md` except `machinist.md` into project `.claude/agents/`.
-4. **Launcher `janitor`, not `picarol` (ARCHITECT, in session).**
-   - `machine` is always MACHINIST on Claude Code (`bin/machine:2`). `janitor` is always JANITOR on pi, with a local model.
+4. **Launcher `housekeeper`, not `picarol` (ARCHITECT, in session).**
+   - `machine` is always MACHINIST on Claude Code (`bin/machine:2`). `housekeeper` is always HOUSEKEEPER on pi, with a local model.
    - The launcher has no role argument and no project-scaffold check.
-   - `pi/bin/janitor` symlinks to `~/.local/bin/janitor`.
+   - `pi/bin/housekeeper` symlinks to `~/.local/bin/housekeeper`.
 
 ## Risks
 
-1. **Superseded: Ollama is removed (`PLAN-llama-cpp-local-model-baseline.md` Step 1).** `ollama launch pi` may rewrite `models.json`. The entries carry `"_launch": true`. Not tested: a test would overwrite ARCHITECT's config. If it rewrites `contextWindow`, `janitor` still sets Ollama to the same value (SSOT), but the memory use grows with the value.
+1. **Superseded: Ollama is removed (`PLAN-llama-cpp-local-model-baseline.md` Step 1).** `ollama launch pi` may rewrite `models.json`. The entries carry `"_launch": true`. Not tested: a test would overwrite ARCHITECT's config. If it rewrites `contextWindow`, `housekeeper` still sets Ollama to the same value (SSOT), but the memory use grows with the value.
 2. **OpenCode agent leak.** Step 9.5 checks it. A leak is a scope change. MACHINIST stops and reports.

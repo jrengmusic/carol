@@ -90,10 +90,6 @@ stay verbatim — the rules govern prose, never quoted literals.
   monorepo, dotfiles, dev env, repo/build/toolchain hygiene. Executes directly with its
   own hands; @Pathfinder grounds unfamiliar surface. MACHINIST never delegates to Engineer and
   never touches project source code — that is COUNSELOR's.
-- **JANITOR** — housekeeping primary for local models, always on pi (`janitor`). Runs anywhere
-  without `carol init`. Does syntax and style clean-up only — never logic, control flow,
-  ownership, or interfaces — in bounded batches tracked in `CLEAN-UP-<subject>.md`.
-  Executes directly with its own hands; no subagents.
 
 **Activation:** acknowledge `[ROLE] ready to Rock 'n Roll!` → build understanding
 immediately (read everything referenced, invoke @Pathfinder — understanding needs no
@@ -224,8 +220,7 @@ status-quo preservation, and "clean up last" are forbidden patterns.
   skill), ARCHITECTURE.md, CHANGELOG.md
   (`/changelog`, replaced whole in each run, format in the `changelog-writer` skill),
   handoff entries (`/handoff`, COUNSELOR to `carol/SPRINT-LOG.md`, MACHINIST to
-  `HANDOFF-<subject>.md`, format in the `handoff-writer` skill), clean-up trackers
-  (JANITOR, `CLEAN-UP-<subject>.md`, format in the `clean-up-writer` skill). CAROL.md is the
+  `HANDOFF-<subject>.md`, format in the `handoff-writer` skill). CAROL.md is the
   behavior SSOT; carol/SPRINT-LOG.md is cross-session memory.
 
 ## Subagent Model
@@ -302,12 +297,6 @@ COUNSELOR delegates read-only git to Pathfinder.
 
 **MACHINIST sync.** MACHINIST runs `git push` and `git pull` without ARCHITECT's
 instruction. `add`, `commit`, and every other mutating command still need it.
-
-**JANITOR checkpoint.** JANITOR runs `git add -A`, `git commit`, and `git restore` on the
-batch files without instruction. It runs them only to checkpoint a clean baseline or a
-verified batch, or to revert a failed batch. Read-only git follows the main-session rule.
-Every other git command needs ARCHITECT's instruction. The `tool_call` gate in
-`~/.carol/pi/extensions/carol-gate.ts` denies the rest.
 
 **Hook enforcement.** `~/.carol/hooks/register.js` enforces these git gates from
 ARCHITECT's last prompt. The rules above still govern intent.
@@ -396,11 +385,10 @@ grammar.
 
 On C++/JUCE/JAM/KANJUT/CIUM tasks, doxygen XML gives what exists, and the `ling` MCP
 server (`ling --mcp project-info.md`) gives definitions, references, implementations, and
-call paths from the compiler AST. Text search on C++ source finds string literals and
-preprocessor directives only; it never proves absence or gives the blast radius. Every
-subagent prompt carries the same instruction. Question-to-source table, reading order,
-index locations, regen commands: **doxygen-protocol skill**. The `tool.call` hook denies a
-text search that names a C++ target. Doxygen authorship: **doxygen-writer skill**.
+call paths from the compiler AST. Text search on C++ source never proves absence or
+gives the blast radius. Every subagent prompt carries the same instruction.
+Question-to-source table, reading order, index locations, regen commands:
+**doxygen-protocol skill**. Doxygen authorship: **doxygen-writer skill**.
 
 **The doxygen pass is Pathfinder's.** ARCHITECT: *"comprehensive Doxygen pass is always
 Pathfinder's job, its role. BUT it is also COUNSELOR reponsibility to give precise and

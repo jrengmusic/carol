@@ -15,8 +15,6 @@ const STREAM_PATTERNS = [['perl', PERL_IN_PLACE_PATTERN], ['perl', PERL_STREAM_P
 const TAIL_FOLLOW_PATTERN = /\btail\s+(?:[^|;&\n]*\s)?(?:-[A-Za-z0-9]*[fF][A-Za-z0-9]*|--follow\S*)(?=\s|$)/g
 const NESTED_SHELL_PATTERN = new RegExp(COMMAND_HEAD + '(?:bash|sh|zsh|dash)(?:\\s+(?:-\\w*[cs]\\b|<<)|\\s*(?:$|[;&|\\n]))')
 const SAW_APPLY_PATTERN = new RegExp(COMMAND_HEAD + 'saw\\s[^;&|\\n]*--apply\\b')
-const SAW_FIND_PATTERN = new RegExp(COMMAND_HEAD + 'saw\\s+find(?:\\s|$)')
-const FILE_LIST_PATTERN = /\s--files(?:\s|$)/
 const SAW_EXCERPT_PATTERN =new RegExp(COMMAND_HEAD + 'saw\\s+excerpt(?:\\s|$)')
 const TEE_PATTERN = new RegExp(COMMAND_HEAD + 'tee\\s+([^;&|\\n]*)', 'g')
 const REDIRECT_PATTERN = /(?<![-=<>])(?:\d|&)?>{1,2}\|?\s*(?![&(>])([^\s;&|()<>]+)/g
@@ -29,7 +27,6 @@ const VARIABLE_PATTERN = /\$\{?([A-Za-z_]\w*)\}?/g
 const DIRECTORY_PATTERN = /(?:^|[;&|\n(]\s*)cd\s+([^\s;&|)]+)/g
 const TEMPORARY_PATTERN = /^(?:\/dev\/|\/(?:private\/)?tmp(?:\/|$)|\/(?:private\/)?var\/folders\/|\$\(mktemp|\$\{?(?:TMPDIR|TEMP|TMP)\b)|[\\/]scratchpad(?:[\\/]|$)|[\\/]AppData[\\/]Local[\\/]Temp(?:[\\/]|$)/
 const ABSOLUTE_PATTERN = /^(?:[\\/~]|[A-Za-z]:)/
-const CPP_ARGUMENT_PATTERN = /\.(?:h|hh|hpp|hxx|inl|c|cc|cpp|cxx|m|mm)$/
 const BLOCK_HEADER_PATTERN = /^## \d+ (.+:\d+-\d+ of \d+ sha256:[0-9a-f]{16}(?: escaped)?)\s*$/
 const BLOCK_LINE_PATTERN = /^\d+(?:\t|$)/
 const CITATION_PATTERN = /[\w.~/\\-]+\.[A-Za-z]\w*:\d+/
@@ -53,7 +50,6 @@ const SAW_ROWS = [
 ]
 const SAW_CALLS = new Map(SAW_ROWS.flatMap(([tools, cli, mcp]) => tools.map((tool) => [tool, { cli, mcp }])))
 export const APPLY_GATE = 'This subagent does not edit files. Only Engineer, and Pathfinder in a doxygen task, run saw with --apply. Report what must change.'
-export const SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the ling MCP tools to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
 const EXCERPT_MISSING_GATE = 'The report cites file lines and holds no excerpt block. Run "saw excerpt <absolute path>:<A>-<B> ..." with every cited target, and put its output in the report exactly as saw printed it: each ## header and every numbered line. Use no paraphrase.'
 const EXCERPT_CHANGED_GATE = 'These excerpt blocks differ from the output of saw. Copy each one again exactly as saw printed it, the ## header and every numbered line, or remove it:'
 
@@ -142,22 +138,13 @@ export function getGuardedCommand(command, isSubagent) {
   return functions.join('') + command
 }
 
-// Each saw find call of a command that searches text. A separator inside quotes does not end a call.
-export function getSawFinds(command) {
-  const masked = command.replace(HEREDOC_PATTERN, '<<$2$3').replace(QUOTED_PATTERN, (quoted) => quoted.replace(/[;&|\n]/g, '_'))
-  return masked.split(/[;&|\n]+/).filter((segment) => SAW_FIND_PATTERN.test(segment) && !FILE_LIST_PATTERN.test(segment))
-}
-
 export function isSawExcerpt(command) {
   return SAW_EXCERPT_PATTERN.test(getUnquoted(command))
 }
 
 // The denial text of a saw MCP call, or undefined.
 export function getRunDenial(args, isSubagent, canApply) {
-  if (isSubagent && !canApply && args.includes('--apply')) return APPLY_GATE
-  const isLiteralSearch = args.some((argument) => argument.includes('"') || argument.startsWith('#'))
-  const isCppSearch = args[0] === 'find' && args.slice(1).some((argument) => CPP_ARGUMENT_PATTERN.test(argument))
-  return isCppSearch && !isLiteralSearch ? SEARCH_GATE : undefined
+  return isSubagent && !canApply && args.includes('--apply') ? APPLY_GATE : undefined
 }
 
 // header -> numbered lines, for each excerpt block of the text.

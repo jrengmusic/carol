@@ -82,7 +82,7 @@ or tested before assessing.
 
 On C++/JUCE/JAM/KANJUT/CIUM work: doxygen XML for what exists, the LSP tool for
 definitions, references, implementations, and call paths. Text search on C++ source
-finds string literals and preprocessor directives only. Table, order, and locations in
+never proves absence or gives the blast radius. Table, order, and locations in
 the doxygen-protocol skill. Subagent prompts carry the same instruction.
 
 ## SPEC.md

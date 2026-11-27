@@ -1,11 +1,9 @@
 import { atom, read, update } from 'claude-code'
 import {
-  SEARCH_GATE,
   getExcerptBlocks,
   getGuardedCommand,
   getReportDenial,
   getRunDenial,
-  getSawFinds,
   getShellDenial,
   getToolDenial,
   isApplyAgent,
@@ -35,10 +33,6 @@ const GIT_SUFFIX = '(?:[\\s;&|)]|$)'
 const GIT_COMMAND_PATTERN = new RegExp(COMMAND_HEAD + 'git(?:\\s|$)', 'g')
 const GIT_READ_ONLY_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(?:status|log|diff|show)' + GIT_SUFFIX, 'g')
 const GIT_SYNC_PATTERN = new RegExp(COMMAND_HEAD + 'git' + GIT_OPTIONS + '(?:push|pull)' + GIT_SUFFIX, 'g')
-const CPP_EXTENSION = '\\.(?:h|hh|hpp|hxx|inl|c|cc|cpp|cxx|m|mm)'
-const TEXT_SEARCH_PATTERN = new RegExp(COMMAND_HEAD + '(?:grep|egrep|fgrep|rg|ag|ack)(?:\\s|$)')
-const CPP_TARGET_PATTERN = new RegExp('(?:--type[= ]|-t\\s*)(?:c|cpp|objc|objcpp)\\b|(?:-g|--glob|--include|-i?name)[= ]\\s*[\'"]?[^\\s\'"]*' + CPP_EXTENSION + '\\b|(?:^|\\s)[^\\s\'"|;&]*' + CPP_EXTENSION + '(?=$|[\\s|;&)])')
-const LITERAL_SEARCH_PATTERN = /\\"|'[^']*"[^']*'|['"]#/
 const CONTRACT_DOCUMENT_PATTERN = new RegExp('[\\\\/]\\.carol[\\\\/](' + CONTRACT_DOCUMENTS.join('|') + ')\\.md$')
 
 const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent and never in a Pathfinder whose task description names doxygen, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
@@ -168,8 +162,6 @@ async function getBashVerdict($, command, agentId, isBackground) {
   if (agentId !== undefined && isBackground) return { deny: BACKGROUND_GATE }
   const denial = getShellDenial(command, agentId !== undefined, await canApply($, agentId), SAW_MCP_TOOL)
   if (denial !== undefined) return { deny: denial }
-  const searches = TEXT_SEARCH_PATTERN.test(command) ? [command] : getSawFinds(command)
-  if (searches.some((search) => CPP_TARGET_PATTERN.test(search) && !LITERAL_SEARCH_PATTERN.test(search))) return { deny: SEARCH_GATE }
   const invocations = countMatches(GIT_COMMAND_PATTERN, command)
   if (invocations === 0 || (await read($, isGitInstructed))) return undefined
   return invocations === (await getPermittedInvocations($, command, agentId)) ? undefined : { deny: GIT_GATE }

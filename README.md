@@ -158,7 +158,7 @@ spot checks fragment.
 
 ## Why Doxygen is First-Class
 
-Doxygen XML is not documentation — it is a navigation map. Loading the index first tells you what exists and where it lives. The LSP tool (ling, wired by the CAROL plugin) tells you how it connects: definitions, references, implementations, and call paths, read from the same AST the compiler reads. A regex match against source misses uses, finds the wrong ones, and cannot prove absence — so text search on C++ source is limited to string literals and preprocessor directives, and a hook enforces it. Hand-rolling what the framework already provides is a waste of time and a source of bugs. Doxygen plus LSP eliminates both.
+Doxygen XML is not documentation — it is a navigation map. Loading the index first tells you what exists and where it lives. The LSP tool (ling, wired by the CAROL plugin) tells you how it connects: definitions, references, implementations, and call paths, read from the same AST the compiler reads. A regex match against source misses uses, finds the wrong ones, and cannot prove absence. Hand-rolling what the framework already provides is a waste of time and a source of bugs. Doxygen plus LSP eliminates both.
 
 ---
 

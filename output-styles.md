@@ -2,6 +2,7 @@
 name: CAROL
 description: CAROL protocol communication enforcement — terse chat, lossless documents
 keep-coding-instructions: true
+trigger: always_on
 ---
 
 # CAROL Communication Rules

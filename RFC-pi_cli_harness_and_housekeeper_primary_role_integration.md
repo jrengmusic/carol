@@ -1,17 +1,17 @@
-# RFC — `pi` CLI Harness and `JANITOR` Primary Role Integration
+# RFC — `pi` CLI Harness and `HOUSEKEEPER` Primary Role Integration
 
 Date: 2026-11-21
 Status: Ready for COUNSELOR handoff
 Author: ARCHITECT (drafted in session)
-Targets: `~/.carol/` (`pi/`, `agents/janitor.md`, `skills/clean-up-writer/`, `skills/iterative-contract-sop/`, `CODING.md`, `CAROL.md`, `bin/carol`, `install.sh`), `~/.pi/agent/`, `~/.local/bin/picarol`
+Targets: `~/.carol/` (`pi/`, `agents/housekeeper.md`, `skills/clean-up-writer/`, `skills/iterative-contract-sop/`, `CODING.md`, `CAROL.md`, `bin/carol`, `install.sh`), `~/.pi/agent/`, `~/.local/bin/picarol`
 
 ## Problem Statement
 
 ARCHITECT runs `gemma4:e4b` locally via Ollama on an M4 MacBook Pro with 16 GB unified memory. ARCHITECT currently launches `pi` via `ollama launch pi` and starts `ollama serve` manually in the background. Keeping `ollama serve` idle consumes unified memory when `pi` is inactive.
 
-ARCHITECT needs a standalone CLI wrapper (`picarol`) matching `carol`, `agycarol`, and `opencarol`. `picarol` must start `ollama serve` when absent, launch `pi` with the CAROL protocol as its system prompt, default to a new primary role (`JANITOR`), and terminate the spawned `ollama serve` process on exit.
+ARCHITECT needs a standalone CLI wrapper (`picarol`) matching `carol`, `agycarol`, and `opencarol`. `picarol` must start `ollama serve` when absent, launch `pi` with the CAROL protocol as its system prompt, default to a new primary role (`HOUSEKEEPER`), and terminate the spawned `ollama serve` process on exit.
 
-ARCHITECT maintains multi-million-LOC C++ codebases governed by `CODING.md` and `NAMES.md`. Local model context windows cannot process an entire codebase in one pass. `JANITOR` must operate anywhere without requiring `carol init`, enforce a clean git tree via a `pi` hook, scan and edit in bounded batches using `tree-sitter` and `carol apply --expect N`, track progress in `CLEAN-UP-<subject>.md` at the repository root via a new `clean-up-writer` skill, and commit progress before wrapping up.
+ARCHITECT maintains multi-million-LOC C++ codebases governed by `CODING.md` and `NAMES.md`. Local model context windows cannot process an entire codebase in one pass. `HOUSEKEEPER` must operate anywhere without requiring `carol init`, enforce a clean git tree via a `pi` hook, scan and edit in bounded batches using `tree-sitter` and `carol apply --expect N`, track progress in `CLEAN-UP-<subject>.md` at the repository root via a new `clean-up-writer` skill, and commit progress before wrapping up.
 
 ## Research Summary
 
@@ -38,11 +38,11 @@ ARCHITECT maintains multi-million-LOC C++ codebases governed by `CODING.md` and 
 
 ## Principles and Rationale
 
-- **Bound (`MANIFESTO.md`):** Each `JANITOR` session operates on one `CLEAN-UP-<subject>.md` tracker and executes bounded file batches. `picarol` binds the spawned `ollama serve` PID to the `pi` process lifetime via `trap EXIT` so unified RAM on the 16 GB M4 is reclaimed at exit.
-- **Lean (`MANIFESTO.md`):** `JANITOR` loads no LSP server (`ling` / `clangd`) into unified memory and loads only `CAROL.md`, `output-styles.md`, `agents/janitor.md`, and the active `SKILL.md` into `gemma4:e4b`. `tree-sitter` parses on demand in transient child processes.
-- **Explicit (`MANIFESTO.md`):** `JANITOR` holds zero architectural or logic-change authority (`CAROL.md:53-54` PP-3). Ambiguous violations are recorded as `FLAGGED` with `file:line` in `CLEAN-UP-<subject>.md` rather than guessed.
+- **Bound (`MANIFESTO.md`):** Each `HOUSEKEEPER` session operates on one `CLEAN-UP-<subject>.md` tracker and executes bounded file batches. `picarol` binds the spawned `ollama serve` PID to the `pi` process lifetime via `trap EXIT` so unified RAM on the 16 GB M4 is reclaimed at exit.
+- **Lean (`MANIFESTO.md`):** `HOUSEKEEPER` loads no LSP server (`ling` / `clangd`) into unified memory and loads only `CAROL.md`, `output-styles.md`, `agents/housekeeper.md`, and the active `SKILL.md` into `gemma4:e4b`. `tree-sitter` parses on demand in transient child processes.
+- **Explicit (`MANIFESTO.md`):** `HOUSEKEEPER` holds zero architectural or logic-change authority (`CAROL.md:53-54` PP-3). Ambiguous violations are recorded as `FLAGGED` with `file:line` in `CLEAN-UP-<subject>.md` rather than guessed.
 - **Single Source of Truth (`MANIFESTO.md`):** All definitions live in `~/.carol/` and symlink into `~/.pi/agent/`. `CLEAN-UP-<subject>.md` at the target repository root is the single source of campaign state across `pi` compactions. The namespace enclosure rule is added once to `CODING.md`.
-- **Stateless (`MANIFESTO.md`):** `JANITOR` carries no persistent state in chat history. Each turn reads `CLEAN-UP-<subject>.md`, processes one bounded batch, updates the tracker, commits, and compacts when needed.
+- **Stateless (`MANIFESTO.md`):** `HOUSEKEEPER` carries no persistent state in chat history. Each turn reads `CLEAN-UP-<subject>.md`, processes one bounded batch, updates the tracker, commits, and compacts when needed.
 - **Encapsulation (`MANIFESTO.md`):** All `pi` harness files live under `~/.carol/pi/` (`HARNESS.md`, `bin/picarol`, `extensions/carol-gate.ts`, `models.json.tmpl`), matching `agy/` and `opencode/`. `bin/carol` remains untouched.
 - **Deterministic (`MANIFESTO.md`):** Edits execute via `carol apply --expect N` (`bin/carol:475-545`) or verified single-file `edit` calls, followed by `tree-sitter` parse verification and `git diff` inspection.
 
@@ -53,10 +53,10 @@ ARCHITECT maintains multi-million-LOC C++ codebases governed by `CODING.md` and 
 ```text
 ~/.carol/
 ├── CODING.md                                 # Add Namespace Enclosure Format section
-├── CAROL.md                                  # Register JANITOR primary role and clean-up-writer skill
+├── CAROL.md                                  # Register HOUSEKEEPER primary role and clean-up-writer skill
 ├── install.sh                                # Symlink pi/bin/picarol -> ~/.local/bin/picarol
 ├── agents/
-│   └── janitor.md                            # JANITOR primary role definition (subset of MACHINIST)
+│   └── housekeeper.md                            # HOUSEKEEPER primary role definition (subset of MACHINIST)
 ├── pi/
 │   ├── HARNESS.md                            # Claude Code -> pi tool, hook, and file mapping
 │   ├── bin/
@@ -89,20 +89,20 @@ namespace jam
 ```
 ```
 
-### 3. Primary Role Definition (`~/.carol/agents/janitor.md`)
+### 3. Primary Role Definition (`~/.carol/agents/housekeeper.md`)
 
 ```markdown
 ---
-name: JANITOR
+name: HOUSEKEEPER
 description: Machine-custodian subset and housekeeping primary for local models. Runs anywhere without carol init, enforces clean git tree baselines, scans C++ modules with tree-sitter against CODING.md and NAMES.md, tracks progress in CLEAN-UP-<subject>.md at repo root, and commits verified batches.
 tools: Read, Write, Edit, Bash, Glob, Grep
 color: yellow
 model: ollama/gemma4:e4b
 ---
 
-## Role: JANITOR
+## Role: HOUSEKEEPER
 
-Housekeeping and cleanup primary — a scoped subset of MACHINIST (`agents/machinist.md`). Runs in any directory without a `carol/` scaffold. CAROL.md governs; this file adds JANITOR discipline.
+Housekeeping and cleanup primary — a scoped subset of MACHINIST (`agents/machinist.md`). Runs in any directory without a `carol/` scaffold. CAROL.md governs; this file adds HOUSEKEEPER discipline.
 
 ## Authority Boundary
 
@@ -120,7 +120,7 @@ Housekeeping and cleanup primary — a scoped subset of MACHINIST (`agents/machi
 
 ## Upon Invocation
 
-1. `JANITOR ready to Rock 'n Roll!`
+1. `HOUSEKEEPER ready to Rock 'n Roll!`
 2. Check `git status --porcelain`. If dirty, resolve the baseline commit gate before scanning or editing.
 3. Read `CLEAN-UP-<subject>.md` at the repository root if one exists for the campaign.
 4. Load `clean-up-writer` and `iterative-contract-sop`, plus the exact contract section from `~/.carol/CODING.md` or `~/.carol/NAMES.md`.
@@ -132,7 +132,7 @@ Housekeeping and cleanup primary — a scoped subset of MACHINIST (`agents/machi
 ```bash
 #!/usr/bin/env bash
 # picarol - CAROL Framework on pi CLI
-# Usage: picarol [janitor|counselor|oracle|machinist] [pi flags...]
+# Usage: picarol [housekeeper|counselor|oracle|machinist] [pi flags...]
 set -euo pipefail
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -143,9 +143,9 @@ while [ -h "$SOURCE" ]; do
 done
 CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/../.." >/dev/null 2>&1 && pwd )"
 
-role="janitor"
+role="housekeeper"
 case "${1:-}" in
-    janitor|counselor|oracle|machinist)
+    housekeeper|counselor|oracle|machinist)
         role="$1"
         shift
         ;;
@@ -159,8 +159,8 @@ case "${1:-}" in
         ;;
 esac
 
-# Project roles (counselor, oracle) require carol/ scaffold; janitor and machinist run anywhere
-if [ "$role" != "janitor" ] && [ "$role" != "machinist" ] && [ ! -d carol ] && [ ! -d .carol ]; then
+# Project roles (counselor, oracle) require carol/ scaffold; housekeeper and machinist run anywhere
+if [ "$role" != "housekeeper" ] && [ "$role" != "machinist" ] && [ ! -d carol ] && [ ! -d .carol ]; then
     case "$(pwd)" in
         "$CAROL_ROOT"|"$CAROL_ROOT"/*) ;;
         *) "$CAROL_ROOT/bin/carol" init --no-synth ;;
@@ -244,7 +244,7 @@ export default function (pi: ExtensionAPI) {
 
   pi.on("tool_call", async (event, ctx) => {
     const role = process.env.CAROL_ROLE ?? "";
-    if (role !== "JANITOR") return;
+    if (role !== "HOUSEKEEPER") return;
 
     if (event.toolName === "bash") {
       const cmd = String((event.input as { command?: string }).command ?? "").trim();
@@ -254,13 +254,13 @@ export default function (pi: ExtensionAPI) {
         return { block: true, reason: "CAROL gate: use `carol apply --expect N` instead of in-place sed/perl/awk." };
       }
 
-      // Git command gate for JANITOR
+      // Git command gate for HOUSEKEEPER
       if (/\bgit\b/.test(cmd)) {
         const allowedGit = /^git\s+(status|diff|log|show|add\s+-A|commit|restore)\b/;
         if (!allowedGit.test(cmd)) {
           return {
             block: true,
-            reason: "CAROL gate: JANITOR permits only git status, diff, log, show, add -A, commit, and restore.",
+            reason: "CAROL gate: HOUSEKEEPER permits only git status, diff, log, show, add -A, commit, and restore.",
           };
         }
         if (/^git\s+commit\b/.test(cmd)) {
@@ -298,7 +298,7 @@ export default function (pi: ExtensionAPI) {
 ```markdown
 ---
 name: clean-up-writer
-description: Writes and updates CLEAN-UP-<subject>.md at the repository root. Load whenever JANITOR starts, updates, or finishes a cleanup or housekeeping campaign.
+description: Writes and updates CLEAN-UP-<subject>.md at the repository root. Load whenever HOUSEKEEPER starts, updates, or finishes a cleanup or housekeeping campaign.
 ---
 
 # Clean-Up Writer
@@ -349,7 +349,7 @@ Contract: <CODING.md:<line> or NAMES.md:<line>>
 ```markdown
 ---
 name: iterative-contract-sop
-description: Iterative Scan -> List -> Plan -> Execute -> Track workflow for bounded syntactic/stylistic cleanup across large C++ codebases using tree-sitter and carol apply. Load whenever JANITOR runs a multi-file contract enforcement campaign.
+description: Iterative Scan -> List -> Plan -> Execute -> Track workflow for bounded syntactic/stylistic cleanup across large C++ codebases using tree-sitter and carol apply. Load whenever HOUSEKEEPER runs a multi-file contract enforcement campaign.
 ---
 
 # Iterative Contract SOP
@@ -370,10 +370,10 @@ description: Iterative Scan -> List -> Plan -> Execute -> Track workflow for bou
 
 ## BLESSED Compliance Checklist
 
-- [x] **Bounds:** `picarol` binds `ollama serve` PID to `pi` exit via `trap EXIT`; `JANITOR` processes bounded batches tracked in `CLEAN-UP-<subject>.md`.
-- [x] **Lean:** Zero background LSP memory overhead; `tree-sitter` runs per-file on demand; system prompt composes only `CAROL.md`, `output-styles.md`, and `agents/janitor.md`.
-- [x] **Explicit:** `JANITOR` authority is strictly syntactic/stylistic; `carol-gate.ts` blocks dirty-tree code edits and enforces scoped git commands; ambiguous items become `FLAGGED`.
-- [x] **SSOT:** `CAROL.md`, `output-styles.md`, `agents/janitor.md`, `skills/`, and `pi/` live in `~/.carol/` and symlink into `~/.pi/agent/`; `CLEAN-UP-<subject>.md` is the single campaign tracker at repo root.
+- [x] **Bounds:** `picarol` binds `ollama serve` PID to `pi` exit via `trap EXIT`; `HOUSEKEEPER` processes bounded batches tracked in `CLEAN-UP-<subject>.md`.
+- [x] **Lean:** Zero background LSP memory overhead; `tree-sitter` runs per-file on demand; system prompt composes only `CAROL.md`, `output-styles.md`, and `agents/housekeeper.md`.
+- [x] **Explicit:** `HOUSEKEEPER` authority is strictly syntactic/stylistic; `carol-gate.ts` blocks dirty-tree code edits and enforces scoped git commands; ambiguous items become `FLAGGED`.
+- [x] **SSOT:** `CAROL.md`, `output-styles.md`, `agents/housekeeper.md`, `skills/`, and `pi/` live in `~/.carol/` and symlink into `~/.pi/agent/`; `CLEAN-UP-<subject>.md` is the single campaign tracker at repo root.
 - [x] **Stateless:** Progress persists in `CLEAN-UP-<subject>.md` and git commits; `/compact` clears raw diffs between batches.
 - [x] **Encapsulation:** All `pi` assets live in `~/.carol/pi/`; `bin/carol` is unmodified; `install.sh` adds `~/.local/bin/picarol`.
 - [x] **Deterministic:** `tree-sitter` AST queries, `carol apply --expect N` (`bin/carol:475-545`), `git restore` rollback on failure, and `tree-sitter` post-edit syntax verification.
@@ -387,8 +387,8 @@ None.
 - **Executor:** `MACHINIST` (`agents/machinist.md`).
 - **Implementation sequence for `MACHINIST`:**
   1. Add the **Namespace enclosure format** rule to `~/.carol/CODING.md` after line 534.
-  2. Register `JANITOR` under Primaries in `~/.carol/CAROL.md` (`CAROL.md:83-94`) and exclude `janitor.md` alongside `machinist.md` in `bin/carol:136-138` so subagents cannot invoke it.
-  3. Create `~/.carol/agents/janitor.md`, `~/.carol/skills/clean-up-writer/SKILL.md`, and `~/.carol/skills/iterative-contract-sop/SKILL.md`.
+  2. Register `HOUSEKEEPER` under Primaries in `~/.carol/CAROL.md` (`CAROL.md:83-94`) and exclude `housekeeper.md` alongside `machinist.md` in `bin/carol:136-138` so subagents cannot invoke it.
+  3. Create `~/.carol/agents/housekeeper.md`, `~/.carol/skills/clean-up-writer/SKILL.md`, and `~/.carol/skills/iterative-contract-sop/SKILL.md`.
   4. Create `~/.carol/pi/HARNESS.md`, `~/.carol/pi/bin/picarol` (`chmod +x`), `~/.carol/pi/extensions/carol-gate.ts`, and `~/.carol/pi/models.json.tmpl`.
   5. Update `~/.carol/install.sh` (`setup_path`, `install.sh:113-122`) to symlink `$CAROL_ROOT/pi/bin/picarol` to `$HOME/.local/bin/picarol`, and create the symlink immediately.
   6. Verify in a clean scratch git repo: `picarol --help`, `picarol` startup with Ollama server auto-spawn + teardown on exit, `carol-gate.ts` blocking edits on a dirty tree, and allowing edits after `git commit`.

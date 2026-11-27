@@ -23,8 +23,8 @@ principles inform pattern evaluation.
 
 - On C++/JUCE/JAM/KANJUT/CIUM tasks: doxygen XML index for what exists, and `ling` MCP
   tools for definitions, references, implementations, and call paths (`doxygen-protocol`
-  skill). Text search on C++ source finds string literals and preprocessor directives
-  only. Each `ling` finding cites the tool and the file:line it returned.
+  skill). Text search on C++ source never proves absence or gives the blast radius.
+  Each `ling` finding cites the tool and the file:line it returned.
 - File work uses the saw MCP tool (`run`) by default; use CLI `saw` only in shell pipes. Its name is
   not a typo of sed. Search: `["find", "<literal>", "<path>"]`. Lines: `["excerpt", "<path>:<A>-<B>"]`
   with an absolute path. List files: `["find", "--files", "<path>"]`. Read a file: `["page", "<path>"]`.

@@ -1,31 +1,31 @@
-## Handoff to MACHINIST: JANITOR deterministic loop on a local model (pi + llama.cpp)
+## Handoff to MACHINIST: HOUSEKEEPER deterministic loop on a local model (pi + llama.cpp)
 
 **From:** MACHINIST
 **Date:** 2026-11-22
 **Status:** Blocked (Phase C gate: ARCHITECT picks the loop formula)
 
 ### Read First
-1. `~/.carol/PLAN-janitor-deterministic-loop.md`. It is the plan. Phases A-E, Locked Decisions (`:289`), Phase A Result (`:310`), Phase B Result (`:322`), Phase C Result (`:360`).
+1. `~/.carol/PLAN-housekeeper-deterministic-loop.md`. It is the plan. Phases A-E, Locked Decisions (`:289`), Phase A Result (`:310`), Phase B Result (`:322`), Phase C Result (`:360`).
 2. `~/.carol/PLAN-llama-cpp-local-model-baseline.md`. It has the llama.cpp infra steps 1-5 (done) and the halted Step 6.
-3. `~/.carol/PLAN-pi-cli-harness-and-janitor-primary-role-integration.md`. It has the pi harness and JANITOR role decisions 1-4.
-4. `~/.carol/RFC-pi_cli_harness_and_janitor_primary_role_integration.md`. It is the original RFC. MACHINIST verified its claims and corrected its defects in the integration plan.
-5. `~/.carol/agents/janitor.md`. It is the role. Its frontmatter is the one source of the model (`:6`) and the tool list (`:4`).
+3. `~/.carol/PLAN-pi-cli-harness-and-housekeeper-primary-role-integration.md`. It has the pi harness and HOUSEKEEPER role decisions 1-4.
+4. `~/.carol/RFC-pi_cli_harness_and_housekeeper_primary_role_integration.md`. It is the original RFC. MACHINIST verified its claims and corrected its defects in the integration plan.
+5. `~/.carol/agents/housekeeper.md`. It is the role. Its frontmatter is the one source of the model (`:6`) and the tool list (`:4`).
 6. `~/.carol/skills/iterative-contract-sop/SKILL.md`. It is the Loop: Interpret, Scan, Classify, Fix, Repeat, Report.
 7. `~/.carol/skills/clean-up-writer/SKILL.md`. It is the `CLEAN-UP-<subject>.md` format.
-8. `~/.carol/pi/bin/janitor`, `~/.carol/pi/extensions/janitor-tools.ts`, `~/.carol/pi/extensions/carol-gate.ts`, `~/.carol/pi/HARNESS.md`. They are the pi binding.
-9. `~/.carol/local/janitor/` (`scan.lua`, `fix.lua`, `tracker.lua`, `syntax.lua`, `arguments.lua`, `repository.lua`, `rules/*.lua`). It is the deterministic core. It is gitignored.
+8. `~/.carol/pi/bin/housekeeper`, `~/.carol/pi/extensions/housekeeper-tools.ts`, `~/.carol/pi/extensions/carol-gate.ts`, `~/.carol/pi/HARNESS.md`. They are the pi binding.
+9. `~/.carol/local/housekeeper/` (`scan.lua`, `fix.lua`, `tracker.lua`, `syntax.lua`, `arguments.lua`, `repository.lua`, `rules/*.lua`). It is the deterministic core. It is gitignored.
 
 ### Context
-- The objective: JANITOR, a housekeeping primary on a local model, does CODING.md clean-up campaigns over a file, a module, or a whole library.
+- The objective: HOUSEKEEPER, a housekeeping primary on a local model, does CODING.md clean-up campaigns over a file, a module, or a whole library.
 - The design rule is ARCHITECT's: deterministic tools do every scan, edit, check, and commit. The model only interprets the request, classifies rows, and reports.
 - The model is expendable. The protocol, role, skill, rules, and contract are model-agnostic.
 - pi is a temporary harness. The final target is CAROLINE (`~/Documents/Poems/dev/caroline/`). It is model-agnostic and mixes online subscriptions with local models.
-- The machine has limited resources. END Vulkan rendering and the fan must stay usable.
+- The machine has limited resources.
   - One model at a time.
   - One warm server. Never reload per request.
   - Take it slow.
 
-**Answer to "does the smallest Qwen work as JANITOR?"**
+**Answer to "does the smallest Qwen work as HOUSEKEEPER?"**
 - Only Qwen3.5-4B Q4_K_M was tested. It is the first and smallest model in the Phase D order (PLAN `:238-243`).
 - On the Phase C corpus (28 files, 41 rows), both variants gave 38 of 38 correct fixes, 0 wrong edits, and 0 false flags. Each run took 47-110 s, with 3.7-3.9 GB peak llama memory (PLAN `:360`).
 - The model made these errors. The tools contained every one of them. No run made a wrong edit.
@@ -47,11 +47,11 @@
   - The pi llama.cpp credential is stored (`/login llama.cpp`, by ARCHITECT).
   - `~/.pi/agent/settings.json`: `reserveTokens` 8192 (`:6`), `keepRecentTokens` 4096 (`:7`).
 - **Role and harness (in commit `202fb6c`):**
-  - JANITOR is in CAROL.md: Primaries `:93`, Documentation `:227`, the Git "JANITOR checkpoint" `:300`.
-  - `bin/carol` removes and skips `machinist.md` and `janitor.md` in project agent links.
-  - `install.sh` links `~/.local/bin/janitor` to `~/.carol/pi/bin/janitor`.
+  - HOUSEKEEPER is in CAROL.md: Primaries `:93`, Documentation `:227`, the Git "HOUSEKEEPER checkpoint" `:300`.
+  - `bin/carol` removes and skips `machinist.md` and `housekeeper.md` in project agent links.
+  - `install.sh` links `~/.local/bin/housekeeper` to `~/.carol/pi/bin/housekeeper`.
   - `.gitignore` has `/local/` (`:35-36`).
-  - `opencode/plugins/carol/source.js` filters out `janitor` (`:5`, `:117`).
+  - `opencode/plugins/carol/source.js` filters out `housekeeper` (`:5`, `:117`).
 - **CODING.md rulings:**
   - Preprocessor directives keep `!`, `&&`, `||` (`:38`, `:1072`).
   - The **Namespace enclosure format:** block is verbatim, with 80-column banners (`:671`).
@@ -63,7 +63,7 @@
   - B2: the model saw only the 4 tools.
   - B3: pi's compaction summary is byte-identical to `tracker.lua --handoff`, and the model resumed at batch 2.
   - B4: `bash` was blocked with `terminate`, and no file was made.
-- **Defect corrected in Phase B (`local/janitor/fix.lua:142-218`):**
+- **Defect corrected in Phase B (`local/housekeeper/fix.lua:142-218`):**
   - The rescan wanted zero fix findings. A row that `set_status` flags keeps its finding on purpose, so one flag restored the whole file.
   - Now `setFileRows` counts `flaggedFixCount` (`:194`, `:207`). `applyFixes` requires exactly that count (`:174`).
   - Verified: the twin gives 14 DONE and 4 FLAGGED. The Phase A regression stays exact.
@@ -77,7 +77,7 @@
 1. **ARCHITECT:** the Phase C gate. Pick the loop formula (Open Question 1).
 2. **ARCHITECT:** decide the Interpret miss (Open Question 2).
 3. **MACHINIST, if ARCHITECT picks Variant 2 made real:**
-   1. Make `fix_batch` end the run after each batch. Return `terminate: true` from the tool in `pi/extensions/janitor-tools.ts` (pi `docs/extensions.md:2289`).
+   1. Make `fix_batch` end the run after each batch. Return `terminate: true` from the tool in `pi/extensions/housekeeper-tools.ts` (pi `docs/extensions.md:2289`).
    2. Run again. ARCHITECT's prompt must name git, because the harness runs `git init` and `git commit` in the scratch repos.
       ```
       cd ~/.carol/local && llama serve --models-dir models --models-preset models-preset.ini --models-max 1 --host 127.0.0.1 --port 9931   # background
@@ -98,12 +98,12 @@
    2. Run `llama-bench -p 512,4096 -n 128 -fa on -ctk q8_0 -ctv q8_0`.
    3. Run the formula on the Phase C corpus.
    4. Append the results to `~/Documents/Poems/dev/caroline/MACHINIST-REPORT-local-model-benchmark.md`. The family is `ling/MACHINIST-REPORT-nvim-ling-test.md`.
-   5. Stop and report. Then ARCHITECT reports END's state.
+   5. Stop and report.
 6. **MACHINIST, on ARCHITECT's signal:** Phase E, a real JAM library campaign in a scratch copy (PLAN `:254`).
-7. **ARCHITECT:** commit `PLAN-janitor-deterministic-loop.md`. It has the Phase B and C results and the 4-tool design. It is the only modified tracked file (`git status`).
+7. **ARCHITECT:** commit `PLAN-housekeeper-deterministic-loop.md`. It has the Phase B and C results and the 4-tool design. It is the only modified tracked file (`git status`).
 
 ### Key Decisions
-- "we probably also does not need `picarol`, simply `janitor` like machine always claude code with machinist. janitor always pi, and local anyway"
+- "we probably also does not need `picarol`, simply `housekeeper` like machine always claude code with machinist. housekeeper always pi, and local anyway"
 - "~/Documents/Poems/dev/caroline/ will be the ultimate goal actually. pi with whatever works now, is only serve temporary"
 - "lower the model temperature, why would we need high / creative reasoning? its task is very deterministic and specific."
 - "let's start from the smallest up to biggest params. but with proper infra. so [] delete ollama and all its models [] download model one by one, and get the number first."
@@ -120,37 +120,37 @@
 - "the benchmark should be written to caroline not as rfc but report, deterministic tools is the baseline. what's the point of open ended?"
 - "keywords ciso646 should not applied to macros. we need to explicitly wrote that to @CODING.md always new line"
 - "it should be 80 column. write verbatim then continue next phase"
-- AskUserQuestion selections, as labeled: "Per-session file"; "reserve 8192 / keep 4096"; "Edit bin/carol"; "Trim the system prompt"; "Skip janitor.md in source.js (Recommended)".
+- AskUserQuestion selections, as labeled: "Per-session file"; "reserve 8192 / keep 4096"; "Edit bin/carol"; "Trim the system prompt"; "Skip housekeeper.md in source.js (Recommended)".
 - "git permission granted", given for the scratch fixture repos of Phase A, B, and C.
 
 ### Files Modified
 - In commit `202fb6c`:
   - `.gitignore` — `/local/`.
-  - `CAROL.md` — the JANITOR primary, the clean-up tracker documentation, the JANITOR checkpoint.
+  - `CAROL.md` — the HOUSEKEEPER primary, the clean-up tracker documentation, the HOUSEKEEPER checkpoint.
   - `CODING.md` — the preprocessor exception, the namespace enclosure format.
-  - `bin/carol` — no project links for `machinist.md` and `janitor.md`.
-  - `install.sh` — the `janitor` link.
-  - `agents/janitor.md` — the role and its frontmatter.
+  - `bin/carol` — no project links for `machinist.md` and `housekeeper.md`.
+  - `install.sh` — the `housekeeper` link.
+  - `agents/housekeeper.md` — the role and its frontmatter.
   - `skills/iterative-contract-sop/SKILL.md` — the Loop.
   - `skills/clean-up-writer/SKILL.md` — the tracker format.
   - `pi/HARNESS.md` — the pi counterparts.
-  - `pi/bin/janitor` — the launcher (prompt composition, router spawn, frontmatter read).
+  - `pi/bin/housekeeper` — the launcher (prompt composition, router spawn, frontmatter read).
   - `pi/extensions/carol-gate.ts` — the allow-list and the compaction handoff.
-  - `pi/extensions/janitor-tools.ts` — the 4 tools.
+  - `pi/extensions/housekeeper-tools.ts` — the 4 tools.
   - The three PLAN files.
   - `agy/agents/auditor.md`.
 - Uncommitted, tracked:
-  - `PLAN-janitor-deterministic-loop.md` — the Phase B and C results, the 4-tool design (B1, B4, Names, Lean), the 80-column banner ruling, the determinism re-check.
-  - `HANDOFF-janitor-deterministic-loop.md` — this file.
+  - `PLAN-housekeeper-deterministic-loop.md` — the Phase B and C results, the 4-tool design (B1, B4, Names, Lean), the 80-column banner ruling, the determinism re-check.
+  - `HANDOFF-housekeeper-deterministic-loop.md` — this file.
 - Gitignored, so no history and no sync:
-  - `local/janitor/fix.lua` — the `flaggedFixCount` correction (this session).
-  - `local/janitor/*.lua`, `local/janitor/rules/*.lua` — the Phase A core.
+  - `local/housekeeper/fix.lua` — the `flaggedFixCount` correction (this session).
+  - `local/housekeeper/*.lua`, `local/housekeeper/rules/*.lua` — the Phase A core.
   - `local/models-preset.ini`, `local/models/`.
 - Machine-local, outside the repo:
   - `~/.pi/agent/settings.json`.
   - `~/.pi/agent/auth.json` — the llama.cpp credential.
   - `~/.pi/agent/models.json` — deleted.
-  - `~/.local/bin/janitor` — the link.
+  - `~/.local/bin/housekeeper` — the link.
 - Scratchpad: `/private/tmp/claude-501/-Users-jreng--carol/d5351316-4f57-4dd7-9c5e-45f9a6d12494/scratchpad/`. A reboot or a cleanup can delete it.
   - `a4/a4.sh` and `a4/fixtures/` — the Phase A harness and its corpus.
   - `b/driver.py` and `b/run*.jsonl` — the Phase B RPC driver and its evidence.

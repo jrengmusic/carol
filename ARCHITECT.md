@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # ARCHITECT Profile
 
 **Expert in C++17, JUCE, audio DSP, and KANJUT framework architecture.**

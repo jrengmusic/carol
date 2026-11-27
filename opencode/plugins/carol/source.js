@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
 const PROVIDER_ID = 'anthropic'
-const PI_ONLY_AGENT = 'janitor'
+const PI_ONLY_AGENT = 'housekeeper'
 const MARKDOWN_EXTENSION = '.md'
 const ARGUMENTS_PLACEHOLDER = '$ARGUMENTS'
 const FRONTMATTER_PATTERN = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/

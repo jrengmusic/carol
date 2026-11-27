@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# janitor - JANITOR on pi CLI with a local llama.cpp model
-# Usage: janitor [pi flags...]
+# housekeeper - HOUSEKEEPER on pi CLI with a local llama.cpp model
+# Usage: housekeeper [pi flags...]
 set -euo pipefail
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -12,12 +12,9 @@ done
 CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/../.." >/dev/null 2>&1 && pwd )"
 PI_ROOT="$CAROL_ROOT/pi"
 PI_AGENT_DIR="$HOME/.pi/agent"
-ROLE_FILE="$CAROL_ROOT/agents/janitor.md"
-SOP_SKILL="$CAROL_ROOT/skills/iterative-contract-sop/SKILL.md"
-# janitor.md frontmatter is the one source of the model and the tool list (bin/carol reads model: the same way).
+ROLE_FILE="$CAROL_ROOT/agents/housekeeper.md"
+# housekeeper.md frontmatter is the one source of the model (bin/carol reads model: the same way).
 PI_MODEL="${CAROL_PI_MODEL:-$(saw fields 2 --match '^model:' -r --first "$ROLE_FILE")}"
-PI_TOOLS="$(saw find -r --first --no-line-number '^tools:' "$ROLE_FILE" | tr -d ' ')"
-PI_TOOLS="${PI_TOOLS#tools:}"
 LOCAL_ROOT="$CAROL_ROOT/local"
 MODELS_DIR="$LOCAL_ROOT/models"
 MODELS_PRESET="$LOCAL_ROOT/models-preset.ini"
@@ -33,11 +30,9 @@ for extension in "$PI_ROOT/extensions"/*.ts; do
     ln -sf "$extension" "$PI_AGENT_DIR/extensions/$(basename "$extension")"
 done
 
-# janitor stops only the llama server it spawned; the session prompt file dies with the session.
+# housekeeper stops only the llama server it spawned.
 spawned_llama_pid=""
-system_prompt="$(mktemp -t janitor)"
 cleanup() {
-    rm -f "$system_prompt"
     if [ -n "$spawned_llama_pid" ]; then
         kill "$spawned_llama_pid" 2>/dev/null || true
         wait "$spawned_llama_pid" 2>/dev/null || true
@@ -45,13 +40,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-{
-    cat "$ROLE_FILE"
-    printf '\n---\n\n'
-    cat "$SOP_SKILL"
-} > "$system_prompt"
-
-export CAROL_ROLE="JANITOR"
+export CAROL_ROLE="HOUSEKEEPER"
 printf '%s' "$CAROL_ROLE" > "$CAROL_ROOT/.carol-role"
 
 if ! curl -fsS "$LLAMA_URL/health" >/dev/null 2>&1; then
@@ -69,6 +58,6 @@ pi --model "$PI_MODEL" \
    --thinking off \
    --no-context-files \
    --no-skills \
-   --system-prompt "$system_prompt" \
-   --tools "$PI_TOOLS" \
+   --system-prompt "$ROLE_FILE" \
+   --no-tools \
    "$@"

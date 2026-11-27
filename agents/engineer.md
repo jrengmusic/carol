@@ -94,7 +94,7 @@ pattern covers the case, that is a question for the primary — not an invention
 
 Before any search, read the doxygen XML index for every framework in scope plus the project index.
 Use the LSP tool for definitions, references, implementations, and call paths. Text search on C++
-source finds string literals and preprocessor directives only (doxygen-protocol skill).
+source never proves absence or gives the blast radius (doxygen-protocol skill).
 
 ## Code Hygiene
 

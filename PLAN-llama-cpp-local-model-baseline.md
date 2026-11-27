@@ -1,6 +1,6 @@
 # PLAN: llama.cpp Local Model Baseline
 
-**RFC:** none — objective from ARCHITECT prompt (2026-11-22). Context: `RFC-pi_cli_harness_and_janitor_primary_role_integration.md`, `PLAN-pi-cli-harness-and-janitor-primary-role-integration.md`, `~/Documents/Poems/dev/caroline/RFC-local-model-workers.md`.
+**RFC:** none — objective from ARCHITECT prompt (2026-11-22). Context: `RFC-pi_cli_harness_and_housekeeper_primary_role_integration.md`, `PLAN-pi-cli-harness-and-housekeeper-primary-role-integration.md`, `~/Documents/Poems/dev/caroline/RFC-local-model-workers.md`.
 **Date:** 2026-11-22
 **BLESSED Compliance:** verified
 **Language Constraints:** bash 3.2 (`/bin/bash`, macOS), pi 1.6.0 built-in `llama.cpp` provider, Homebrew `llama.cpp` 1.0.0
@@ -8,7 +8,7 @@
 
 ## Overview
 
-Replace Ollama with llama.cpp as the local model server for `janitor`. Then measure four model families, one model at a time, from the smallest total parameter count to the largest. The numbers answer one question for CAROLINE: can this machine run a local model under the CAROL protocol productively?
+Replace Ollama with llama.cpp as the local model server for `housekeeper`. Then measure four model families, one model at a time, from the smallest total parameter count to the largest. The numbers answer one question for CAROLINE: can this machine run a local model under the CAROL protocol productively?
 
 ## ARCHITECT Directives (this session)
 
@@ -53,7 +53,7 @@ Replace Ollama with llama.cpp as the local model server for `janitor`. Then meas
 
 | Pattern | Exemplar | Step |
 |---|---|---|
-| Spawn the server only when it is absent; stop only the spawned PID; one `trap cleanup EXIT` | `pi/bin/janitor` | 5 |
+| Spawn the server only when it is absent; stop only the spawned PID; one `trap cleanup EXIT` | `pi/bin/housekeeper` | 5 |
 | One warm server for a batch of runs; never reload per request | lesson from `t9`, `t10` (70 GB of reloads) | 6 |
 | Gitignored machine-local asset folder | `.gitignore:29-33` (`providers/`) | 2 |
 | Fixture repo copied per run; ground truth from a deterministic transform | `scratchpad/t11/template`, `t11/expected` | 6 |
@@ -63,7 +63,7 @@ Replace Ollama with llama.cpp as the local model server for `janitor`. Then meas
 | Name | Family | Step |
 |---|---|---|
 | `~/.carol/models/` | ARCHITECT directive 3 | 2, 6 |
-| `LLAMA_URL` (in `janitor`) | `LLAMA_BASE_URL` (`provider.js:9`) | 5 |
+| `LLAMA_URL` (in `housekeeper`) | `LLAMA_BASE_URL` (`provider.js:9`) | 5 |
 | Preset file in `pi/` | name and format follow the `--models-preset` docs read in Step 3 | 4 |
 
 ### 4. Synthesis
@@ -71,8 +71,8 @@ Replace Ollama with llama.cpp as the local model server for `janitor`. Then meas
 | Rule | Form | Step |
 |---|---|---|
 | SSOT | The server preset holds the context, sampling, and batch settings once. pi reads the context from the server (`provider.js:41-48`). `models.json` no longer holds a context value. | 4, 5 |
-| Bound | `janitor` owns only the `llama serve` process it spawned. | 5 |
-| No magic values | Named constants in `janitor`. Preset values in one file. | 4, 5 |
+| Bound | `housekeeper` owns only the `llama serve` process it spawned. | 5 |
+| No magic values | Named constants in `housekeeper`. Preset values in one file. | 4, 5 |
 | Deterministic | Temperature 0 and thinking off on the server. | 4 |
 
 ### 5. Absence
@@ -80,7 +80,6 @@ Replace Ollama with llama.cpp as the local model server for `janitor`. Then meas
 | Need | Proof | Step |
 |---|---|---|
 | Ollama after this plan | ARCHITECT directive 1 | 1 |
-| An automatic metric for END rendering | none exists. ARCHITECT reports END's state. Runs are unattended. | 6 |
 
 ## Validation Gate
 
@@ -129,8 +128,8 @@ MACHINIST validates each step before the next step, against MANIFESTO.md, NAMES.
 Each value is written once, in this file.
 **Validation:** `llama serve --models-dir ~/.carol/models --models-preset <file>` starts and `/health` answers. No model is loaded yet.
 
-### Step 5: Rework `janitor` for llama.cpp
-**Scope:** `pi/bin/janitor`, `agents/janitor.md`, `PLAN-pi-cli-harness-and-janitor-primary-role-integration.md`
+### Step 5: Rework `housekeeper` for llama.cpp
+**Scope:** `pi/bin/housekeeper`, `agents/housekeeper.md`, `PLAN-pi-cli-harness-and-housekeeper-primary-role-integration.md`
 **Action:**
 1. Replace the Ollama block:
    - When `$LLAMA_URL/health` fails, spawn `llama serve --models-dir "$CAROL_ROOT/models" --models-preset <file> --host 127.0.0.1 --port 9931` and record its PID.
@@ -140,17 +139,17 @@ Each value is written once, in this file.
 3. Remove the `jq` context read and the `OLLAMA_*` constants.
 4. `PI_MODEL` defaults to the first model in Step 6 until ARCHITECT picks one from the numbers. `CAROL_PI_MODEL` overrides it.
 5. Mark the Ollama-specific parts of the earlier plan as superseded by this plan: Step 5, Decision 2 (its override key), and Risk 1.
-6. `janitor.md` `model:` stays as it is until ARCHITECT picks a model.
-7. Compose the prompt from the JANITOR core of CAROL.md (Locked Decision 1), extracted by heading with `awk`, then `output-styles.md`, `pi/HARNESS.md`, and `agents/janitor.md`.
+6. `housekeeper.md` `model:` stays as it is until ARCHITECT picks a model.
+7. Compose the prompt from the HOUSEKEEPER core of CAROL.md (Locked Decision 1), extracted by heading with `awk`, then `output-styles.md`, `pi/HARNESS.md`, and `agents/housekeeper.md`.
 **Validation:**
 - `bash -n`.
-- A `janitor --print` probe against Qwen3.5-4B answers.
-- `pgrep -fl "llama serve"` is empty after exit, when `janitor` spawned the server.
+- A `housekeeper --print` probe against Qwen3.5-4B answers.
+- `pgrep -fl "llama serve"` is empty after exit, when `housekeeper` spawned the server.
 - The gate probes pass (git scope, dirty write, tracker write, commit flip).
 
 ### Step 6: Measure, one model at a time
 
-> **Halted by ARCHITECT, 2026-11-22** ("stop then. expecting it to figure out itself are wasting time. must be determistic from the get go"). It continues as Phases C and D of `PLAN-janitor-deterministic-loop.md`.
+> **Halted by ARCHITECT, 2026-11-22** ("stop then. expecting it to figure out itself are wasting time. must be determistic from the get go"). It continues as Phases C and D of `PLAN-housekeeper-deterministic-loop.md`.
 
 **Scope:** `~/.carol/models/`, scratchpad harness. Run unattended, on ARCHITECT's signal.
 **Order (total parameters, `ollama show`):**
@@ -168,7 +167,7 @@ All files come from `unsloth/<model>-GGUF`.
 3. Start one warm `llama serve` with the preset. Record from the load log:
    - the weights, KV, and compute buffer sizes
    - the free memory reported during the runs
-4. Run the 3 JANITOR tasks (report, alternative tokens, namespace banners), 3 repeats each. Use `janitor --mode json --no-session` on a fresh fixture copy, with a 420 s cap per run. Record:
+4. Run the 3 HOUSEKEEPER tasks (report, alternative tokens, namespace banners), 3 repeats each. Use `housekeeper --mode json --no-session` on a fresh fixture copy, with a 420 s cap per run. Record:
    - **report:** lines 8 and 10 found, no edit
    - **edit tasks:** exact match with `t11/expected`, tree-sitter exit code, baseline commit made before the edit, tool sequence
    - **all tasks:** wall time; prefill time cold (repeat 1) and cached (repeats 2-3); stability (the same `module.cpp` hash across repeats)
@@ -178,7 +177,7 @@ All files come from `unsloth/<model>-GGUF`.
 ## BLESSED Alignment
 
 - **Bound:**
-  - `janitor` owns only the server it spawned.
+  - `housekeeper` owns only the server it spawned.
   - The benchmark owns one warm server per model.
   - Nothing reloads per request.
 - **Lean:** Ollama and its 26 GB are gone. One server binary, one preset file.
@@ -194,9 +193,9 @@ All files come from `unsloth/<model>-GGUF`.
 
 ## Locked Decisions (ARCHITECT, 2026-11-22)
 
-1. **"core CAROL tailored specifically for janitor role."**
-   - `janitor` extracts the JANITOR core from CAROL.md by section heading when it composes the prompt. CAROL.md stays the only copy of the text (SSOT).
-   - The heading list is one named constant in `janitor`.
+1. **"core CAROL tailored specifically for housekeeper role."**
+   - `housekeeper` extracts the HOUSEKEEPER core from CAROL.md by section heading when it composes the prompt. CAROL.md stays the only copy of the text (SSOT).
+   - The heading list is one named constant in `housekeeper`.
    - Kept sections:
      - Writing Standard
      - Ground of Truth (PROTOCOL LEVEL)
@@ -206,11 +205,11 @@ All files come from `unsloth/<model>-GGUF`.
      - Destructive-Edit Discipline
      - Instruction Hierarchy, without its `/ode` subsection
    - Left out:
-     - Git: `janitor.md` holds JANITOR's git list, and `carol-gate.ts` enforces it.
-     - Roles, Gates, Documentation, Subagent Model, Subagent Return Format, Doxygen, Debugging, Profiling: COUNSELOR, subagent, and LSP workflows that JANITOR does not run.
+     - Git: `housekeeper.md` holds HOUSEKEEPER's git list, and `carol-gate.ts` enforces it.
+     - Roles, Gates, Documentation, Subagent Model, Subagent Return Format, Doxygen, Debugging, Profiling: COUNSELOR, subagent, and LSP workflows that HOUSEKEEPER does not run.
      - Voice, DCF, Constructive Challenge, Refactor-Rewrite, Build, Build Environment, Code Hygiene.
-   - The prompt is the core, then `output-styles.md`, `pi/HARNESS.md`, and `agents/janitor.md`.
+   - The prompt is the core, then `output-styles.md`, `pi/HARNESS.md`, and `agents/housekeeper.md`.
    - Step 5 implements it. Step 6 uses it for every model.
 2. **The numbers go to `~/Documents/Poems/dev/caroline/RFC-local-model-workers.md`, in a results section.** Step 6.5 appends each model's row there and in chat.
-   - **Superseded, 2026-11-22:** the results go to `caroline/MACHINIST-REPORT-local-model-benchmark.md`, and the open-ended run is dropped. See `PLAN-janitor-deterministic-loop.md`, Locked Decision 3.
+   - **Superseded, 2026-11-22:** the results go to `caroline/MACHINIST-REPORT-local-model-benchmark.md`, and the open-ended run is dropped. See `PLAN-housekeeper-deterministic-loop.md`, Locked Decision 3.
 3. **Open items from the earlier plan:** Step 9.6 (ARCHITECT's interactive exit test) and Step 9.7 (Auditor) move to the end of Step 5.

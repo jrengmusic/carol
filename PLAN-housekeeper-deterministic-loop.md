@@ -1,6 +1,6 @@
-# PLAN: JANITOR Deterministic Loop
+# PLAN: HOUSEKEEPER Deterministic Loop
 
-**RFC:** none — objective from ARCHITECT prompt (2026-11-22). Context: `PLAN-pi-cli-harness-and-janitor-primary-role-integration.md`, `PLAN-llama-cpp-local-model-baseline.md` (Steps 1-5 done; Step 6 halted by ARCHITECT), `~/Documents/Poems/dev/caroline/RFC-local-model-workers.md`.
+**RFC:** none — objective from ARCHITECT prompt (2026-11-22). Context: `PLAN-pi-cli-harness-and-housekeeper-primary-role-integration.md`, `PLAN-llama-cpp-local-model-baseline.md` (Steps 1-5 done; Step 6 halted by ARCHITECT), `~/Documents/Poems/dev/caroline/RFC-local-model-workers.md`.
 **Date:** 2026-11-22
 **BLESSED Compliance:** verified
 **Language Constraints:** Lua run by `nvim --headless -l` (skill tooling), TypeScript pi extension, bash 3.2 launcher, Markdown contract documents
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Build JANITOR as a deterministic harness. Deterministic tools do every exact operation. The model only interprets the request, classifies each finding, and reviews each result. The tracker document holds all campaign state, so a small context window can work a whole library chunk by chunk. The harness is model-agnostic and harness-agnostic: the tools are CLI scripts, and each harness binds them. Then measure which local model runs the loop on this machine with an error rate as close to 0% as possible.
+Build HOUSEKEEPER as a deterministic harness. Deterministic tools do every exact operation. The model only interprets the request, classifies each finding, and reviews each result. The tracker document holds all campaign state, so a small context window can work a whole library chunk by chunk. The harness is model-agnostic and harness-agnostic: the tools are CLI scripts, and each harness binds them. Then measure which local model runs the loop on this machine with an error rate as close to 0% as possible.
 
 ## ARCHITECT Directives (this session)
 
@@ -26,13 +26,13 @@ Build JANITOR as a deterministic harness. Deterministic tools do every exact ope
    - what this machine can run effectively and efficiently
    - the exact protocol-loop formula with an error margin near 0%
    - which model reaches the expected result, all things considered
-7. "take it slow. one by one." The fan and END must stay usable. One model at a time.
+7. "take it slow. one by one." One model at a time.
 
 ## Evidence Carried In
 
 | Fact | Source |
 |---|---|
-| Infra works. llama.cpp 1.0.0 router, preset, credential, `janitor` lifecycle, gate probes: all pass. | `PLAN-llama-cpp-local-model-baseline.md` Step 5; `scratchpad/t12/step5.out` |
+| Infra works. llama.cpp 1.0.0 router, preset, credential, `housekeeper` lifecycle, gate probes: all pass. | `PLAN-llama-cpp-local-model-baseline.md` Step 5; `scratchpad/t12/step5.out` |
 | Qwen3.5-4B Q4_K_M: prefill 356 tok/s (pp512), 347 tok/s (pp4096); decode 27.6 tok/s; model process 4.1 GB RSS. | `scratchpad/t13/m1.out` |
 | The prompt cache works: report task 29 s cold, 7 s with the same prompt. | `t13/m1.out` |
 | With generic tools only (`read, bash, edit, write, grep, find, ls`), the model completed 0 of 8 runs correctly. It wrote a wrong grep, searched the wrong folders (22-34 tool calls), and looped to the 420 s cap (60+ calls). The wrong answers were the same across repeats. | `t13/m1.out` |
@@ -65,7 +65,7 @@ Build JANITOR as a deterministic harness. Deterministic tools do every exact ope
 | Pattern | Exemplar | Phase |
 |---|---|---|
 | Lua tools run by `nvim --headless -l`; `SKILL.md` documents the invocation path | `skills/xls-to-md/SKILL.md:23`; `skills/trace/` | A |
-| Local model workspace, gitignored: weights, preset, JANITOR tools | `~/.carol/local/` (Locked Decision 1) | A, C, D |
+| Local model workspace, gitignored: weights, preset, HOUSEKEEPER tools | `~/.carol/local/` (Locked Decision 1) | A, C, D |
 | Ledger subcommands keyed by ID | `carol debt add`, `carol debt clear <id>` (`CAROL.md` Documentation) | A |
 | One deterministic edit path for all scripted edits | `carol apply` (`CAROL.md:329-332`) | A |
 | Tool extension with numbered read | `caroline/RFC-local-model-workers.md` S1 `local-tools.ts` (`getNumberedLines`, `MAX_RANGE_LINES`) | B |
@@ -77,8 +77,8 @@ Build JANITOR as a deterministic harness. Deterministic tools do every exact ope
 | Name | Family | Phase |
 |---|---|---|
 | `read_range` | S1 scaffold tool name (`caroline/RFC-local-model-workers.md:73`) | B |
-| `local/janitor/scan.lua`, `fix.lua`, `tracker.lua` | `skills/trace/` script names (`trace.lua`, `sample.lua`, `driver.lua`); `janitor` is the role and launcher name | A |
-| `local/janitor/rules/<rule-id>.lua` | data files, one per CONTRACT rule; a rule id is the CODING.md heading in kebab-case | A |
+| `local/housekeeper/scan.lua`, `fix.lua`, `tracker.lua` | `skills/trace/` script names (`trace.lua`, `sample.lua`, `driver.lua`); `housekeeper` is the role and launcher name | A |
+| `local/housekeeper/rules/<rule-id>.lua` | data files, one per CONTRACT rule; a rule id is the CODING.md heading in kebab-case | A |
 | pi tools `scan_rule`, `fix_batch`, `set_status` (`check_parse` and `commit_batch` are inside `fix_batch`, Phase B Result) | verb_noun, as `read_range` | B |
 | `CLEAN-UP-<subject>.md` | `clean-up-writer` skill | A |
 
@@ -90,7 +90,7 @@ Build JANITOR as a deterministic harness. Deterministic tools do every exact ope
 | Stateless | Each cycle reads the tracker, does one batch, and writes the tracker. Nothing persists in chat. | A, B |
 | Explicit | Every tool returns exact `file:line` data. A failed check returns an error result, never a silent pass. | A, B |
 | Deterministic | The same input files and rule give the same findings and the same edits, every run. | A |
-| Bound | A tool owns only its batch files. `janitor` owns only the server it spawned. | A, B |
+| Bound | A tool owns only its batch files. `housekeeper` owns only the server it spawned. | A, B |
 | Encapsulation | The core tools are harness-agnostic CLI. Each harness binds them (pi tools now; Claude, OpenCode, agy, and CAROLINE later). | A, B |
 
 ### 5. Absence
@@ -99,7 +99,6 @@ Build JANITOR as a deterministic harness. Deterministic tools do every exact ope
 |---|---|---|
 | A model-callable compaction | `/compact` is user input. Tools are only what `--tools` names (`compaction.md:41`; `cli.md:121`). The extension hook supplies the handoff. | B |
 | Ground truth for a real library | none exists. The audit criteria replace it: a rescan finds zero remaining, every file parses, and ARCHITECT reviews the diff. | E |
-| An automatic END-impact metric | none. ARCHITECT reports END's state after each model. | D |
 
 ## The Loop (target design)
 
@@ -120,7 +119,7 @@ MACHINIST validates each step against MANIFESTO.md, NAMES.md, CODING.md, the Inv
 ### Phase A — Deterministic core (no model)
 
 #### Step A1: Rule files for two CONTRACT sections
-**Scope:** `local/janitor/rules/`
+**Scope:** `local/housekeeper/rules/`
 **Action:**
 1. Write one Lua rule file per rule:
    - `CODING.md` `**Special operators:**` (`:36-37`): alternative tokens.
@@ -133,7 +132,7 @@ MACHINIST validates each step against MANIFESTO.md, NAMES.md, CODING.md, the Inv
 **Validation:** each query runs in nvim on the fixture and returns the expected nodes.
 
 #### Step A2: `scan.lua` and `tracker.lua`
-**Scope:** `local/janitor/`
+**Scope:** `local/housekeeper/`
 **Action:**
 1. `scan.lua <rule-set> <path>...` walks the `.h` and `.cpp` files, runs each rule, and writes the rows through `tracker.lua`.
 2. `tracker.lua` reads and writes the `clean-up-writer` format:
@@ -146,7 +145,7 @@ MACHINIST validates each step against MANIFESTO.md, NAMES.md, CODING.md, the Inv
 **Validation:** a scan over the fixture gives the exact expected rows. A second scan gives the same file byte for byte.
 
 #### Step A3: `fix.lua` through `carol apply`
-**Scope:** `local/janitor/`
+**Scope:** `local/housekeeper/`
 **Action:**
 1. `fix.lua <tracker> <batch>` builds the `sed` expressions from the batch's fix rows and runs `carol apply --expect N`.
 2. It runs the parse check and a rescan.
@@ -172,7 +171,7 @@ ARCHITECT reviews the copy's diff. **Phase A gate.**
 
 ### Phase B — Harness binding (pi)
 
-#### Step B1: JANITOR tools extension
+#### Step B1: HOUSEKEEPER tools extension
 **Scope:** `pi/extensions/` (a tools file next to `carol-gate.ts`)
 **Action:**
 1. Register `read_range` (S1 pattern), `scan_rule`, `fix_batch`, and `set_status`. Each wraps the Phase A CLI through `pi.exec`. `fix_batch` does the parse check and the commit, so `check_parse` and `commit_batch` are not separate tools.
@@ -180,11 +179,11 @@ ARCHITECT reviews the copy's diff. **Phase A gate.**
 **Validation:** each tool, called by hand through pi's RPC or print mode, returns the CLI result unchanged.
 
 #### Step B2: Tool set and prompt
-**Scope:** `pi/bin/janitor`, `agents/janitor.md`, `skills/iterative-contract-sop/SKILL.md`, `pi/HARNESS.md`
+**Scope:** `pi/bin/housekeeper`, `agents/housekeeper.md`, `skills/iterative-contract-sop/SKILL.md`, `pi/HARNESS.md`
 **Action:**
-1. `janitor` passes `--tools` with the JANITOR tools only. No `bash`, `write`, `edit`, `find`, or `grep`. The evidence: free shell access caused every wander in `t13`.
+1. `housekeeper` passes `--tools` with the HOUSEKEEPER tools only. No `bash`, `write`, `edit`, `find`, or `grep`. The evidence: free shell access caused every wander in `t13`.
 2. Rewrite the SOP as the Loop above, one tool per step.
-3. Update `janitor.md` and HARNESS.md to match.
+3. Update `housekeeper.md` and HARNESS.md to match.
 **Validation:** STE. Every step of the Loop names exactly one tool.
 
 #### Step B3: Compaction handoff
@@ -224,11 +223,9 @@ Per campaign, record:
 - tokens
 - model memory
 
-Then ARCHITECT's END report.
-
 #### Step C3: Loop variants
 1. **Variant 1, ARCHITECT's design:** one session; compaction with the B3 handoff.
-2. **Variant 2, control:** one fresh `janitor` run per batch. The tracker carries the state.
+2. **Variant 2, control:** one fresh `housekeeper` run per batch. The tracker carries the state.
 
 Same corpus, one warm server, a pause between runs, 1 repeat. Run 3 repeats only where a result differs.
 **Validation:** the variant with the lower critical error rate becomes the formula. **Phase C gate:** ARCHITECT picks the formula.
@@ -261,7 +258,7 @@ Same corpus, one warm server, a pause between runs, 1 repeat. Run 3 repeats only
 - the tracker and `git log` match row for row
 - ARCHITECT reviews the diff and builds the copy
 
-**Phase E gate:** ARCHITECT decides whether JANITOR runs on the real tree.
+**Phase E gate:** ARCHITECT decides whether HOUSEKEEPER runs on the real tree.
 
 ## BLESSED Alignment
 
@@ -291,7 +288,7 @@ Same corpus, one warm server, a pause between runs, 1 repeat. Run 3 repeats only
 1. **`.carol/local/` encapsulates all local-model work, and the whole folder is gitignored.** ARCHITECT: "encapsulate all here including models: local/models/ so the whole local is gitignored".
    - `local/models/`: GGUF weights. Moved from `~/.carol/models/`.
    - `local/models-preset.ini`: the llama.cpp preset. Moved from `pi/models-preset.ini`.
-   - `local/janitor/`: the Phase A Lua tools and `rules/`.
+   - `local/housekeeper/`: the Phase A Lua tools and `rules/`.
    - The tracked `SKILL.md` files document the invocation paths.
    - Consequence: the Phase A tools have no git history and do not sync to the other machines.
 2. **Phase A real-code tiers.** ARCHITECT: "pick any with easy, medium, difficult tier". The picks are `jam_document`, `jam_data_structures`, and `jam_core` (Step A4).
@@ -322,16 +319,16 @@ Same corpus, one warm server, a pause between runs, 1 repeat. Run 3 repeats only
 ## Phase B Result (harness binding, Qwen3.5-4B Q4_K_M)
 
 **Method:**
-1. One warm `llama serve` router, started once. `janitor` finds `/health` and spawns no server.
+1. One warm `llama serve` router, started once. `housekeeper` finds `/health` and spawns no server.
 2. Fixture repos in `scratchpad/b/`, made from `scratchpad/a4/fixtures/src` with a baseline commit.
-3. Runs 1-3: `janitor --print --mode json --no-session`, one tool per prompt.
-4. Runs 5-6: `scratchpad/b/driver.py` drives `janitor --mode rpc --no-session`. Steps: `scan_rule`, `set_status` row 004 (a probe), `fix_batch`, the RPC `compact` command, then "Continue.".
+3. Runs 1-3: `housekeeper --print --mode json --no-session`, one tool per prompt.
+4. Runs 5-6: `scratchpad/b/driver.py` drives `housekeeper --mode rpc --no-session`. Steps: `scan_rule`, `set_status` row 004 (a probe), `fix_batch`, the RPC `compact` command, then "Continue.".
 5. A CLI twin repo (`scratchpad/b/twin`) runs the same calls through the Lua CLI. The comparison masks commit hashes.
 
 **Design (as built):**
-- 4 tools: `read_range`, `scan_rule`, `set_status`, `fix_batch` (`pi/extensions/janitor-tools.ts`). Each wraps `nvim --headless -l ~/.carol/local/janitor/<script>`.
-- `agents/janitor.md` frontmatter is the one source of the model (`model:`) and the tool list (`tools:`). `pi/bin/janitor` reads both. `CAROL_PI_MODEL` overrides the model.
-- `janitor` composes the prompt: the JANITOR core of CAROL.md, `output-styles.md`, `pi/HARNESS.md`, `agents/janitor.md`, and the `iterative-contract-sop` skill. It passes `--no-skills` and `--no-context-files`.
+- 4 tools: `read_range`, `scan_rule`, `set_status`, `fix_batch` (`pi/extensions/housekeeper-tools.ts`). Each wraps `nvim --headless -l ~/.carol/local/housekeeper/<script>`.
+- `agents/housekeeper.md` frontmatter is the one source of the model (`model:`) and the tool list (`tools:`). `pi/bin/housekeeper` reads both. `CAROL_PI_MODEL` overrides the model.
+- `housekeeper` composes the prompt: the HOUSEKEEPER core of CAROL.md, `output-styles.md`, `pi/HARNESS.md`, `agents/housekeeper.md`, and the `iterative-contract-sop` skill. It passes `--no-skills` and `--no-context-files`.
 - `Tracker.batchFiles = 5` is the one batch size. `scan_rule` and `fix_batch` print the next batch.
 
 | Step | Check | Result | Evidence |
@@ -341,9 +338,9 @@ Same corpus, one warm server, a pause between runs, 1 repeat. Run 3 repeats only
 | B1 `set_status`, `fix_batch` | Tool results, final tree, commit messages equal the CLI twin | Pass: all three identical. | `b/run5.jsonl`, `run5.tools.txt`, `twin.out` |
 | B2 | `--tools` from the frontmatter, SOP in the prompt | Pass: the model saw and called only the 4 tools. | runs 1-6 |
 | B3 | pi's compaction summary equals `tracker.lua --handoff` | Pass: byte-identical. 6596 to 5896 tokens. After "Continue." the model called `read_range` on the batch-2 file, then `fix_batch`. | `b/run6.jsonl`, `run6.summary.txt`, `run6.handoff.txt` |
-| B4 | `janitor --tools bash,read_range`, then the model calls `bash` | Pass: blocked with "CAROL gate: JANITOR calls only read_range, scan_rule, set_status, and fix_batch.". The run ended. No file was made. The model reported the reason verbatim. | `b/run3.jsonl` |
+| B4 | `housekeeper --tools bash,read_range`, then the model calls `bash` | Pass: blocked with "CAROL gate: HOUSEKEEPER calls only read_range, scan_rule, set_status, and fix_batch.". The run ended. No file was made. The model reported the reason verbatim. | `b/run3.jsonl` |
 
-**Defect found and corrected (`local/janitor/fix.lua`):**
+**Defect found and corrected (`local/housekeeper/fix.lua`):**
 - Before: the rescan wanted zero fix findings in the file. A `set_status` flag keeps its finding in the file on purpose. So one flagged row restored the whole file and flagged its good rows. Run 5: rows 005-008 were flagged with "rescan still finds 1 fix findings; file restored".
 - After: `setFileRows` counts the fix findings on flagged rows (`flaggedFixCount`). `applyFixes` requires the rescan to find exactly that count.
 - Verified: the twin now gives 14 DONE and 4 FLAGGED. Row 004 stays unchanged, and rows 005-008 are fixed. `scan.lua --check` lists only the 4 FLAGGED rows. The Phase A regression stays exact, and the determinism re-check passes.
@@ -376,7 +373,7 @@ Same corpus, one warm server, a pause between runs, 1 repeat. Run 3 repeats only
 | Correct flags | 2 of 3 | 2 of 3 |
 | False flags | 0 | 0 |
 | Missed rows | 1 | 1 |
-| `janitor` runs | 1 | 1 |
+| `housekeeper` runs | 1 | 1 |
 | Tool calls | 23 (`scan_rule` 1, `read_range` 16, `set_status` 2, `fix_batch` 4) | 7 (`scan_rule` 1, `read_range` 2, `fix_batch` 4) |
 | Tool errors | 2 | 0 |
 | Gate blocks | 0 | 0 |
@@ -388,7 +385,7 @@ Same corpus, one warm server, a pause between runs, 1 repeat. Run 3 repeats only
 **Findings:**
 1. **The final trees are identical** between the variants, outside the tracker name. All 38 fixes equal the ground truth.
 2. **The only miss is at Interpret, the same in both variants.** The model chose 3 rules and left out `no-namespace-detail-allowed`. So the `namespace detail` row (`fixtures/types.cpp:14-16`) was never scanned. The rescan mismatch in the score comes from the same row.
-3. **Variant 2 did not run as designed.** The first `janitor` run did all 4 batches in one session, so no second run started. Nothing ends a run after one `fix_batch`.
+3. **Variant 2 did not run as designed.** The first `housekeeper` run did all 4 batches in one session, so no second run started. Nothing ends a run after one `fix_batch`.
 4. **No compaction happened.** The largest context was 12583 tokens (router log). The threshold is 32768 − 8192 = 24576. B3 validated the handoff path separately.
 5. **Classify was skipped in part.** Variant 1 read the rows of each batch (16 `read_range` calls). Variant 2 read 2 files in batch 1, then called `fix_batch` 3 times with no reads. This had no effect here, because the rules decide every flag in this corpus.
 6. **Protocol deviations in the report and in `set_status`:**
@@ -404,20 +401,20 @@ Same corpus, one warm server, a pause between runs, 1 repeat. Run 3 repeats only
 ARCHITECT: "both. git permision granted". Build Variant 2 as designed, then measure it against Variant 1.
 
 **The two formulas:**
-- Variant 1: one `janitor` run does the whole campaign. The model keeps all batches in one context. A compaction replaces the context with the tracker handoff only when the context reaches the threshold.
-- Variant 2: each `janitor` run does one batch, then ends. The harness starts the next run with the tracker handoff as the only prompt. So each batch starts from an empty context.
+- Variant 1: one `housekeeper` run does the whole campaign. The model keeps all batches in one context. A compaction replaces the context with the tracker handoff only when the context reaches the threshold.
+- Variant 2: each `housekeeper` run does one batch, then ends. The harness starts the next run with the tracker handoff as the only prompt. So each batch starts from an empty context.
 - The tools, the tracker, and the edits are the same in both. Only the context that the model carries between batches is different.
 
 **Changes:**
-1. `pi/extensions/janitor-tools.ts:14-15, 107`: `fix_batch` returns `terminate: true` (pi `docs/extensions.md:2289`) when all of these are true:
-   - `CAROL_JANITOR_LOOP` is `batch`.
+1. `pi/extensions/housekeeper-tools.ts:14-15, 107`: `fix_batch` returns `terminate: true` (pi `docs/extensions.md:2289`) when all of these are true:
+   - `CAROL_HOUSEKEEPER_LOOP` is `batch`.
    - The result is not an error.
    - The output has `pending:` above 0.
-   When `CAROL_JANITOR_LOOP` is not set, Variant 1 runs as before.
-2. `local/janitor/tracker.lua:184-185`: the handoff "Next action" was "call fix_batch". It skipped Classify (`skills/iterative-contract-sop/SKILL.md:36-39`). It is now "classify the batch rows with read_range and set_status, then call fix_batch". The text is also the Variant 1 compaction summary (B3).
-3. `scratchpad/c/campaign.py` `runVariant2`: sets `CAROL_JANITOR_LOOP=batch` for each `janitor` run.
+   When `CAROL_HOUSEKEEPER_LOOP` is not set, Variant 1 runs as before.
+2. `local/housekeeper/tracker.lua:184-185`: the handoff "Next action" was "call fix_batch". It skipped Classify (`skills/iterative-contract-sop/SKILL.md:36-39`). It is now "classify the batch rows with read_range and set_status, then call fix_batch". The text is also the Variant 1 compaction summary (B3).
+3. `scratchpad/c/campaign.py` `runVariant2`: sets `CAROL_HOUSEKEEPER_LOOP=batch` for each `housekeeper` run.
 
-**Defect found and corrected during the run:** the first `terminate` check ended the run on every output that did not start with `complete:`. The last batch prints `pending: 0` (`local/janitor/fix.lua:267`), not `complete:` (`fix.lua:310`, a call with no PENDING rows). So run 4 ended after its fix, and `campaign.py:84` saw a complete tracker and started no report run. The check now ends a run only while `pending` is above 0. The table shows the run after the correction.
+**Defect found and corrected during the run:** the first `terminate` check ended the run on every output that did not start with `complete:`. The last batch prints `pending: 0` (`local/housekeeper/fix.lua:267`), not `complete:` (`fix.lua:310`, a call with no PENDING rows). So run 4 ended after its fix, and `campaign.py:84` saw a complete tracker and started no report run. The check now ends a run only while `pending` is above 0. The table shows the run after the correction.
 
 **Method:** the Phase C corpus, truth, request, and scorer. One warm router, a 30 s pause between variants. Repos `scratchpad/c/v1r` and `scratchpad/c/v2r`. The Phase C runs stay in `v1` and `v2`.
 
@@ -428,7 +425,7 @@ ARCHITECT: "both. git permision granted". Build Variant 2 as designed, then meas
 | Correct flags | 2 of 3 | 2 of 3 | 2 of 3 | 2 of 3 |
 | False flags | 0 | 1 | 0 | 0 |
 | Missed rows | 1 | 1 | 1 | 1 |
-| `janitor` runs | 1 | 1 | 1 | 4 |
+| `housekeeper` runs | 1 | 1 | 1 | 4 |
 | Tool calls | 23 | 32 (`scan_rule` 1, `read_range` 24, `set_status` 3, `fix_batch` 4) | 7 | 28 (`scan_rule` 1, `read_range` 23, `fix_batch` 4) |
 | Tool errors | 2 | 2 | 0 | 0 |
 | Compactions | 0 | 0 | 0 | 0 |
@@ -448,9 +445,9 @@ ARCHITECT: "both. git permision granted". Build Variant 2 as designed, then meas
 9. **The Variant 1 run-to-run spread is wide on the same corpus at temperature 0.** Phase C: 16 reads, 0 false flags, 110 s. Rerun: 24 reads, 1 false flag, 162 s.
 
 **Locked Phase C formula (ARCHITECT, 2026-11-22):**
-1. **In-process per-batch compaction (V2):** `pi/extensions/carol-gate.ts` intercepts `turn_end` after each `fix_batch` whose output has `pending:` above 0 and appends a retain-none compaction entry (`firstKeptEntryId: null`) with `tracker.lua --handoff` as summary, plus `continue: true`. One `janitor` session runs the whole campaign; every batch starts from the tracker handoff alone. Works in TUI, `--print`, and `--mode rpc`. `terminate` and `CAROL_JANITOR_LOOP` were deleted from `pi/extensions/janitor-tools.ts`, and the external run loop was deleted from `scratchpad/c/campaign.py`.
-2. **Tool-owned final report:** `local/janitor/tracker.lua` adds `Tracker.getReportText` (counts + every `FLAGGED` row with `file:line` and reason). `local/janitor/fix.lua` appends it when `pending` is 0 and on `complete:`. `skills/iterative-contract-sop/SKILL.md` steps 4–6 match.
-3. **Section-to-rules map in Lua (Interpret fix):** `local/janitor/scan.lua` adds a `sections` table (`formatting` -> `special-operators`; `namespaces` -> `no-anonymous-namespaces-allowed`, `no-namespace-detail-allowed`, `namespace-enclosure-format`) and deduplicates expanded rule ids. `pi/extensions/janitor-tools.ts` and `skills/iterative-contract-sop/SKILL.md` document the sections.
+1. **In-process per-batch compaction (V2):** `pi/extensions/carol-gate.ts` intercepts `turn_end` after each `fix_batch` whose output has `pending:` above 0 and appends a retain-none compaction entry (`firstKeptEntryId: null`) with `tracker.lua --handoff` as summary, plus `continue: true`. One `housekeeper` session runs the whole campaign; every batch starts from the tracker handoff alone. Works in TUI, `--print`, and `--mode rpc`. `terminate` and `CAROL_HOUSEKEEPER_LOOP` were deleted from `pi/extensions/housekeeper-tools.ts`, and the external run loop was deleted from `scratchpad/c/campaign.py`.
+2. **Tool-owned final report:** `local/housekeeper/tracker.lua` adds `Tracker.getReportText` (counts + every `FLAGGED` row with `file:line` and reason). `local/housekeeper/fix.lua` appends it when `pending` is 0 and on `complete:`. `skills/iterative-contract-sop/SKILL.md` steps 4–6 match.
+3. **Section-to-rules map in Lua (Interpret fix):** `local/housekeeper/scan.lua` adds a `sections` table (`formatting` -> `special-operators`; `namespaces` -> `no-anonymous-namespaces-allowed`, `no-namespace-detail-allowed`, `namespace-enclosure-format`) and deduplicates expanded rule ids. `pi/extensions/housekeeper-tools.ts` and `skills/iterative-contract-sop/SKILL.md` document the sections.
 
 | Metric | In-process V2 (`v2i`, before sections) | Locked formula (`v2s`, with sections) |
 |---|---|---|
@@ -460,7 +457,7 @@ ARCHITECT: "both. git permision granted". Build Variant 2 as designed, then meas
 | False flags | 0 | 0 |
 | Missed rows | 1 | 0 |
 | Rescan mismatch | 1 | 0 |
-| `janitor` runs | 1 | 1 |
+| `housekeeper` runs | 1 | 1 |
 | Tool calls | 30 (`scan_rule` 1, `read_range` 24, `set_status` 1, `fix_batch` 4) | 26 (`scan_rule` 1, `read_range` 19, `set_status` 2, `fix_batch` 4) |
 | Tool errors | 1 | 2 |
 | Tokens (input / cache read / output) | 11545 / 132992 / 2763 | 10579 / 72627 / 1940 |
@@ -472,9 +469,9 @@ ARCHITECT: "both. git permision granted". Build Variant 2 as designed, then meas
 
 ## Phase E Result (real JAM library, Qwen3.5-4B Q4_K_M)
 
-**Target:** scratch copy of `~/Documents/Poems/dev/jam/jam_dsp` (`/tmp/janitor-phase-e/run`, 39 source files, 25 affected files, 5 batches, 108 rows: 96 fix, 12 flag — `special-operators` 75, `namespace-enclosure-format` 33). The real `jam_dsp` repo was untouched.
+**Target:** scratch copy of `~/Documents/Poems/dev/jam/jam_dsp` (`/tmp/housekeeper-phase-e/run`, 39 source files, 25 affected files, 5 batches, 108 rows: 96 fix, 12 flag — `special-operators` 75, `namespace-enclosure-format` 33). The real `jam_dsp` repo was untouched.
 
-**Method:** one warm `llama serve` router (`Qwen3.5-4B-Q4_K_M`), locked Phase C formula (in-process per-batch compaction + section mapping), scored against model-free ground truth (`/tmp/janitor-phase-e/truth`).
+**Method:** one warm `llama serve` router (`Qwen3.5-4B-Q4_K_M`), locked Phase C formula (in-process per-batch compaction + section mapping), scored against model-free ground truth (`/tmp/housekeeper-phase-e/truth`).
 
 | Metric | `jam_dsp` (Phase E) |
 |---|---|
@@ -486,7 +483,7 @@ ARCHITECT: "both. git permision granted". Build Variant 2 as designed, then meas
 | Source diff vs ground truth | 0 differences (identical) |
 | Post-campaign rescan | 12 findings (equals 12 FLAGGED rows) |
 | New parse errors | 0 (26/39 clean before and after; 13 pre-existing JUCE macro parse quirks) |
-| `janitor` runs | 1 (4 in-process per-batch compactions) |
+| `housekeeper` runs | 1 (4 in-process per-batch compactions) |
 | Tool calls | 53 (`scan_rule` 1, `read_range` 38, `set_status` 9, `fix_batch` 5) |
 | Tool errors | 9 (`set_status` on rows 052–060, already flagged by rule; rejected cleanly) |
 | Tokens (input / cache read / output) | 13856 / 143155 / 3723 |
