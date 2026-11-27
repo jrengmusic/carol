@@ -78,6 +78,6 @@ Write these sections in this order. Omit a section when its facts do not exist.
 
 ## Delivery
 
-- Write mode: write `CLAUDE.md` at the project root with the Write tool.
+- Write mode: write `CLAUDE.md` at the project root with `saw write`, the text in standard input.
 - Update mode: edit `CLAUDE.md` in place with saw.
 - Report "done" in chat. Add no summary.

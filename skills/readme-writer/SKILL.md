@@ -67,5 +67,5 @@ A `---` line separates the major sections.
 
 ## Delivery
 
-- Write `README.md` at the project root with the Write tool. ARCHITECT commits.
+- Write `README.md` at the project root with `saw write`, the text in standard input. ARCHITECT commits.
 - Report the path in chat. List each section that waits for ARCHITECT's words. Do not repeat the README in chat.

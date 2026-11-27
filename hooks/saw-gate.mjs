@@ -1,6 +1,6 @@
-const SESSION_TOOLS = ['sed', 'gsed', 'awk', 'gawk', 'mawk', 'nawk']
+const SESSION_TOOLS = ['sed', 'gsed', 'awk', 'gawk', 'mawk', 'nawk', 'grep', 'egrep', 'fgrep', 'rg', 'ag', 'ack', 'jq', 'cat', 'bat', 'head', 'tail', 'cut']
 const SCRIPT_TOOLS = ['python', 'python3', 'lua', 'luajit']
-const SUBAGENT_TOOLS = [...SESSION_TOOLS, ...SCRIPT_TOOLS, 'grep', 'egrep', 'fgrep', 'rg', 'ag', 'ack', 'perl', 'ruby', 'node']
+const SUBAGENT_TOOLS = [...SESSION_TOOLS, ...SCRIPT_TOOLS, 'perl', 'ruby', 'node']
 
 const COMMAND_START = '(?:^|[;&|\\n(`{]|-exec(?:dir)?\\s|(?:^|[\\s;])(?:if|then|elif|else|do|while|until|!)\\s)\\s*'
 const XARGS = 'xargs(?:\\s+-\\S+(?:\\s+(?:\\d+|\\{\\}))?)*'
@@ -8,6 +8,11 @@ const COMMAND_PREFIX = '(?:(?:\\w+=\\S*|sudo|exec|time|nohup|nice|command|builti
 const COMMAND_HEAD = COMMAND_START + COMMAND_PREFIX + '(?:\\S*/)?'
 const COMMAND_END = '(?=[\\s;&|)`}]|$)'
 const PERL_IN_PLACE_PATTERN = new RegExp(COMMAND_HEAD + 'perl\\s+(?:[^|;&]*\\s)?-[A-Za-z0-9]*i[A-Za-z.]*(?:[\\s=]|$)')
+const PERL_STREAM_PATTERN = new RegExp(COMMAND_HEAD + 'perl\\s+(?:[^|;&]*\\s)?-[A-Za-z0-9]*[np][A-Za-z0-9.]*(?:[\\s=]|$)')
+const PYTHON_COMMAND_PATTERN = new RegExp(COMMAND_HEAD + 'python3?\\s+(?:[^|;&]*\\s)?-c(?:\\s|$)')
+const NODE_EVAL_PATTERN = new RegExp(COMMAND_HEAD + 'node\\s+(?:[^|;&]*\\s)?(?:-e|--eval|-p|--print)(?:\\s|$)')
+const STREAM_PATTERNS = [['perl', PERL_IN_PLACE_PATTERN], ['perl', PERL_STREAM_PATTERN], ['python', PYTHON_COMMAND_PATTERN], ['node', NODE_EVAL_PATTERN]]
+const TAIL_FOLLOW_PATTERN = /\btail\s+(?:[^|;&\n]*\s)?(?:-[A-Za-z0-9]*[fF][A-Za-z0-9]*|--follow\S*)(?=\s|$)/g
 const NESTED_SHELL_PATTERN = new RegExp(COMMAND_HEAD + '(?:bash|sh|zsh|dash)(?:\\s+(?:-\\w*[cs]\\b|<<)|\\s*(?:$|[;&|\\n]))')
 const SAW_APPLY_PATTERN = new RegExp(COMMAND_HEAD + 'saw\\s[^;&|\\n]*--apply\\b')
 const SAW_FIND_PATTERN = new RegExp(COMMAND_HEAD + 'saw\\s+find(?:\\s|$)')
@@ -35,21 +40,25 @@ const EXCERPT_AGENT = 'pathfinder'
 const DOXYGEN_TASK_PATTERN = /doxygen/i
 const DENIAL_EXIT = 2
 
-const SAW_USE = 'Use the saw MCP tool (run) by default, not sed; use CLI saw only in shell pipes. Search: ["find", "<literal>", "<path>"] (-r for regex). Exact lines: ["excerpt", "<path>:<A>-<B>"]. Columns: ["fields", ...]. Write: ["write", ...]. Edit: replace, lines, or patch — dry-run first, then --apply --expect N. Undo: ["undo", "<tx-id>"]. Help: ["<verb>", "--help"].'
-
-export const SESSION_GATE = 'sed, awk and an in-place perl are denied in every session (CAROL.md Destructive-Edit Discipline). ' + SAW_USE
-export const SUBAGENT_GATE = 'A subagent does file work only with saw. sed, awk, grep, rg, python, perl, lua, ruby, node and a nested shell (bash -c) are denied (CAROL.md Destructive-Edit Discipline). ' + SAW_USE
-export const SCRIPT_GATE = "A python or lua script needs ARCHITECT's approval (CAROL.md Destructive-Edit Discipline). " + SAW_USE
-export const REDIRECT_GATE ='A subagent does not write a project file with > or tee (CAROL.md Destructive-Edit Discipline). Edit with saw. Create a new file with the Write tool. Put a log or other output in the scratchpad or in /tmp, with the full path in the command.'
-export const WRITE_GATE = 'A subagent uses the Write tool for a new file only, and this file exists (CAROL.md Destructive-Edit Discipline). ' + SAW_USE
-export const EDIT_GATE = 'A session edits a file only with saw, not with an edit tool (CAROL.md Destructive-Edit Discipline). ' + SAW_USE
+const SAW_ROWS = [
+  [['sed', 'gsed', 'Edit'], 'saw replace <find> <with> <path>, then --apply --expect <N> (also saw lines, saw patch)', '["replace", "<find>", "<with>", "<path>"], then "--apply", "--expect", "<N>"'],
+  [['awk', 'gawk', 'mawk', 'nawk', 'cut'], 'saw fields <spec> <path>', '["fields", "<spec>", "<path>"]'],
+  [['grep', 'egrep', 'fgrep', 'rg', 'ag', 'ack'], 'saw find <pattern> <path> (-r for regex)', '["find", "<pattern>", "<path>"]'],
+  [['jq'], 'saw json <filter> <file>', '["json", "<filter>", "<file>"]'],
+  [['cat', 'bat'], 'saw page <path>', '["page", "<path>"]'],
+  [['head'], 'saw page -r :<N> <path>', '["page", "-r", ":<N>", "<path>"]'],
+  [['tail'], 'saw page -r -<N>: <path>', '["page", "-r", "-<N>:", "<path>"]'],
+  [['write', 'Write'], 'saw write <path> --apply --expect 1 < text', '["write", "<path>", "--apply", "--expect", "1"], the text in stdin'],
+  [['python', 'lua', 'perl', 'ruby', 'node', 'bash'], 'saw find <pattern> <path>, saw json <filter> <file>, saw fields <spec> <path>, saw page <path>', '["find", "<pattern>", "<path>"], ["json", "<filter>", "<file>"], ["fields", "<spec>", "<path>"], ["page", "<path>"]'],
+]
+const SAW_CALLS = new Map(SAW_ROWS.flatMap(([tools, cli, mcp]) => tools.map((tool) => [tool, { cli, mcp }])))
 export const APPLY_GATE = 'This subagent does not edit files. Only Engineer, and Pathfinder in a doxygen task, run saw with --apply. Report what must change.'
 export const SEARCH_GATE = 'A text search on C++ source is not allowed (doxygen-protocol skill). Use the doxygen XML index to find what exists. Use the ling MCP tools to find definitions, references, implementations and call hierarchy. A text search on C++ source is allowed only for a string literal or a preprocessor directive: put the double quote or the # in the search pattern.'
 const EXCERPT_MISSING_GATE = 'The report cites file lines and holds no excerpt block. Run "saw excerpt <absolute path>:<A>-<B> ..." with every cited target, and put its output in the report exactly as saw printed it: each ## header and every numbered line. Use no paraphrase.'
 const EXCERPT_CHANGED_GATE = 'These excerpt blocks differ from the output of saw. Copy each one again exactly as saw printed it, the ## header and every numbered line, or remove it:'
 
 function getPattern(tools) {
-  return new RegExp(COMMAND_HEAD + '(?:' + tools.join('|') + ')' + COMMAND_END)
+  return new RegExp(COMMAND_HEAD + '(' + tools.join('|') + ')' + COMMAND_END)
 }
 
 const SESSION_PATTERN = getPattern(SESSION_TOOLS)
@@ -94,13 +103,31 @@ export function isExcerptAgent(agentType) {
   return agentType.toLowerCase() === EXCERPT_AGENT
 }
 
+function getDeniedTool(unquoted, isSubagent) {
+  const masked = unquoted.replace(TAIL_FOLLOW_PATTERN, ' ')
+  const stream = STREAM_PATTERNS.find(([, pattern]) => pattern.test(masked))
+  if (stream !== undefined) return stream[0]
+  return (isSubagent ? SUBAGENT_PATTERN : SESSION_PATTERN).exec(masked)?.[1]
+}
+
+// The denial text of one denied tool: its saw call on the command line and on the MCP tool.
+export function getToolDenial(tool, mcpToolName) {
+  const { cli, mcp } = SAW_CALLS.get(tool)
+  return tool + ' is denied (CAROL.md Destructive-Edit Discipline). Use saw. CLI: ' + cli + '. MCP ' + mcpToolName + ': ' + mcp + '. Help: saw <verb> --help.'
+}
+
+export function getScriptDenial(mcpToolName) {
+  return "A python or lua script needs ARCHITECT's approval (CAROL.md Destructive-Edit Discipline). " + getToolDenial('python', mcpToolName)
+}
+
 // The denial text of a shell command, or undefined.
-export function getShellDenial(command, isSubagent, canApply) {
+export function getShellDenial(command, isSubagent, canApply, mcpToolName) {
   const unquoted = getUnquoted(command)
-  if (!isSubagent) return SESSION_PATTERN.test(unquoted) || PERL_IN_PLACE_PATTERN.test(unquoted) ? SESSION_GATE : undefined
-  if (SUBAGENT_PATTERN.test(unquoted) || NESTED_SHELL_PATTERN.test(unquoted)) return SUBAGENT_GATE
-  if (hasProjectRedirect(unquoted)) return REDIRECT_GATE
-  return SAW_APPLY_PATTERN.test(unquoted) && !canApply ? APPLY_GATE : undefined
+  const tool = getDeniedTool(unquoted, isSubagent)
+  if (tool !== undefined) return getToolDenial(tool, mcpToolName)
+  if (isSubagent && NESTED_SHELL_PATTERN.test(unquoted)) return getToolDenial('bash', mcpToolName)
+  if (hasProjectRedirect(unquoted)) return getToolDenial('write', mcpToolName)
+  return isSubagent && SAW_APPLY_PATTERN.test(unquoted) && !canApply ? APPLY_GATE : undefined
 }
 
 export function isScriptRun(command) {
@@ -109,7 +136,7 @@ export function isScriptRun(command) {
 
 // A shell function covers the positions that a pattern cannot read.
 export function getGuardedCommand(command, isSubagent) {
-  const unquoted = getUnquoted(command)
+  const unquoted = getUnquoted(command).replace(TAIL_FOLLOW_PATTERN, ' ')
   const named = (isSubagent ? SUBAGENT_TOOLS : SESSION_TOOLS).filter((tool) => new RegExp('\\b' + tool + '\\b').test(unquoted))
   const functions = named.map((tool) => 'function ' + tool + " { echo 'CAROL: " + tool + " is denied, use saw (an installed command)' >&2; return " + DENIAL_EXIT + '; }; ')
   return functions.join('') + command

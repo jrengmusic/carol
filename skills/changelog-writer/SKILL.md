@@ -70,4 +70,4 @@ The changelog covers committed work only. The sprint log is a continuation journ
 
 ## Delivery
 
-- Write the file with the Write tool. ARCHITECT commits.
+- Write the file with `saw write <path> --apply --expect 1`, the text in standard input. ARCHITECT commits.

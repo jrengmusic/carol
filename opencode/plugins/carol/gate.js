@@ -1,10 +1,9 @@
 import {
-  EDIT_GATE,
   SEARCH_GATE,
-  SUBAGENT_GATE,
   getRunDenial as getSawRunDenial,
   getSawFinds,
   getShellDenial as getSawShellDenial,
+  getToolDenial,
 } from '../../../hooks/saw-gate.mjs'
 export const NUDGE_INTERVAL = 5
 export const DEFAULT_ROLE = 'COUNSELOR'
@@ -42,14 +41,12 @@ const OPEN_END_PATTERN = /\b(?:not read yet|(?:still )?needs? to (?:be )?verif(?
 export const NUDGE_MACHINIST = 'CAROL NUDGE — MACHINIST executes directly with its own hands; @Pathfinder grounds unfamiliar surface; cross-platform consistency holds for ~/.config/ edits. Discuss before executing changes; cite file:line.'
 export const NUDGE_DEFAULT = "CAROL NUDGE — Stay in role: plan and delegate (@Engineer code, @Pathfinder discovery, @Auditor once at sprint completion). Answer by reading; every claim cites file:line. Before the plan locks, hold answers until ARCHITECT's go. After the lock, execute to the endpoint per CAROL.md Step Gate."
 
-// Tools that saw replaces.
-const SESSION_TOOLS = { edit: EDIT_GATE, patch: EDIT_GATE }
-const SUBAGENT_TOOLS = { ...SESSION_TOOLS, grep: SUBAGENT_GATE }
-export const SAW_TOOLS = Object.keys(SUBAGENT_TOOLS)
+export const SAW_TOOL = 'saw_run'
+const DENIED_TOOL_ROWS = { edit: 'Edit', patch: 'Edit', grep: 'grep', write: 'Write' }
 
-export function getDeniedTools(isSubagent) {
-  return isSubagent ? SUBAGENT_TOOLS : SESSION_TOOLS
-}
+// Tools that saw replaces. Every session has them denied and removed from its tool list.
+export const DENIED_TOOLS = Object.fromEntries(Object.entries(DENIED_TOOL_ROWS).map(([tool, row]) => [tool, getToolDenial(row, SAW_TOOL)]))
+export const SAW_TOOLS = Object.keys(DENIED_TOOLS)
 
 function countMatches(pattern, text) {
   return (text.match(pattern) ?? []).length
@@ -72,7 +69,7 @@ function isCppSearch(command) {
 
 export function getShellDenial({ command, isSubagent, isBackground, canApply, canReadGit, isGitInstructed, isMachinistSession }) {
   if (isSubagent && isBackground) return BACKGROUND_GATE
-  const denial = getSawShellDenial(command, isSubagent, canApply)
+  const denial = getSawShellDenial(command, isSubagent, canApply, SAW_TOOL)
   if (denial !== undefined) return denial
   if (isCppSearch(command)) return TEXT_SEARCH_GATE
   const invocations = countMatches(GIT_COMMAND_PATTERN, command)

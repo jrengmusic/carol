@@ -1,21 +1,22 @@
 import { existsSync, statSync, watch } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { WRITE_GATE, getGuardedCommand, isApplyAgent, isExcerptAgent, isTemporaryPath } from '../../../hooks/saw-gate.mjs'
+import { getGuardedCommand, isApplyAgent, isExcerptAgent } from '../../../hooks/saw-gate.mjs'
 import {
   CONTRACT_GATE,
   DEFAULT_ROLE,
+  DENIED_TOOLS,
   FOREGROUND_GATE,
   GIT_INSTRUCTION_PATTERN,
   MACHINIST_ROLE,
   NO_GATE_PATTERN,
   NUDGE_INTERVAL,
   READ_DIRECTIVE,
+  SAW_TOOL,
   SAW_TOOLS,
   SPRINT_LOG,
   STEP_GATE,
   getContractDocument,
-  getDeniedTools,
   getModelDenial,
   getNudge,
   getRunDenial,
@@ -37,8 +38,6 @@ const QUESTION_TOOL = 'question'
 const READ_TOOL = 'read'
 const SUBAGENT_TOOL = 'subagent'
 const SHELL_TOOL = 'shell'
-const SAW_TOOL = 'saw_run'
-const WRITE_TOOL = 'write'
 const WINDOWS_PLATFORM = 'win32'
 const OUTPUT_STYLE_KEY = 'carol.output-style'
 const SESSION_START_KEY = 'carol.session-start'
@@ -138,25 +137,12 @@ export default {
       return getRunDenial(event.input?.arguments ?? [], session.parentID !== undefined, canApply(event, session))
     }
 
-    async function getWriteDenial(event) {
-      const session = await ctx.session.get({ sessionID: event.sessionID })
-      const target = path.resolve(session.location?.directory ?? ctx.location.directory, String(event.input?.path ?? ''))
-      const isOverwrite = session.parentID !== undefined && !isTemporaryPath(target) && existsSync(target)
-      return isOverwrite ? WRITE_GATE : undefined
-    }
-
-    async function getSawOnlyDenial(event) {
-      const session = await ctx.session.get({ sessionID: event.sessionID })
-      return getDeniedTools(session.parentID !== undefined)[event.tool]
-    }
-
     const denials = {
       [QUESTION_TOOL]: getQuestionDenial,
       [SUBAGENT_TOOL]: getSubagentDenial,
       [SHELL_TOOL]: getShellDenialFor,
       [SAW_TOOL]: getRunDenialFor,
-      [WRITE_TOOL]: getWriteDenial,
-      ...Object.fromEntries(SAW_TOOLS.map((tool) => [tool, getSawOnlyDenial])),
+      ...Object.fromEntries(SAW_TOOLS.map((tool) => [tool, () => DENIED_TOOLS[tool]])),
     }
 
     async function onQuestionFinished(event) {
@@ -243,7 +229,7 @@ export default {
     await ctx.session.hook('context', async (event) => {
       const session = await ctx.session.get({ sessionID: event.sessionID })
       const isSubagent = session.parentID !== undefined
-      const removed = [...Object.keys(getDeniedTools(isSubagent)), ...(isSubagent ? [QUESTION_TOOL] : [])]
+      const removed = [...Object.keys(DENIED_TOOLS), ...(isSubagent ? [QUESTION_TOOL] : [])]
       removed.forEach((tool) => delete event.tools[tool])
     })
 

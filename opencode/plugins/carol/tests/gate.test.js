@@ -85,18 +85,18 @@ for (const testCase of cases.filter((candidate) => !NO_COUNTERPART_TOOLS.include
   })
 }
 
-test('no session has an edit and patch tool, a subagent has no question and grep tool', async () => {
+test('no session has an edit, patch, grep and write tool, a subagent has no question tool', async () => {
   const carol = await makeCarol()
   expect(await carol.getTools({ isSubagent: true })).toEqual(['read'])
-  expect(await carol.getTools()).toEqual(['question', 'grep', 'read'])
+  expect(await carol.getTools()).toEqual(['question', 'read'])
   await carol.close()
 })
 
-for (const [tool, mainSession] of [['edit', 'deny'], ['patch', 'deny'], ['grep', 'allow']]) {
-  test('subagent ' + tool + ' denied, main session ' + tool + ': ' + mainSession, async () => {
+for (const tool of ['edit', 'patch', 'grep', 'write']) {
+  test('subagent and main session ' + tool + ' denied', async () => {
     const carol = await makeCarol()
     expect(await carol.callTool(tool, {}, { isSubagent: true })).toBe('deny')
-    expect(await carol.callTool(tool, {})).toBe(mainSession)
+    expect(await carol.callTool(tool, {})).toBe('deny')
     await carol.close()
   })
 }

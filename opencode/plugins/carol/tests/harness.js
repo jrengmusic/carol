@@ -140,7 +140,7 @@ export async function makeCarol({ rootAgent, childAgent = 'engineer', childTitle
       return event.result
     },
     async getTools({ isSubagent = false } = {}) {
-      const event = { sessionID: isSubagent ? CHILD_SESSION : ROOT_SESSION, tools: { question: {}, edit: {}, patch: {}, grep: {}, read: {} } }
+      const event = { sessionID: isSubagent ? CHILD_SESSION : ROOT_SESSION, tools: { question: {}, edit: {}, patch: {}, grep: {}, write: {}, read: {} } }
       await hooks['session.context'](event)
       return Object.keys(event.tools)
     },

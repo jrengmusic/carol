@@ -17,7 +17,7 @@ if [ -z "$fill_percent" ] || [ "$fill_percent" -eq 0 ]; then
 fi
 
 # Parse context %, model name, agent role, rate limits, and transcript path
-parsed=$(jq -r --argjson divisor "$divisor" --argjson fill_percent "$fill_percent" '
+parsed=$(saw json -r --argjson divisor "$divisor" --argjson fill_percent "$fill_percent" '
     def clean: tostring | gsub("[\r\n]"; "");
     def fmt_window($rls; $name):
         ($rls[$name] // {}) as $w |
@@ -85,7 +85,7 @@ agent=$(printf '%s' "$agent" | tr '[:lower:]' '[:upper:]')
 cache_pct=0
 cache_remaining=""
 if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
-    cache_parsed=$(jq -R -s -r '
+    cache_parsed=$(saw json -R -s -r '
         def CACHE_TTL_1H: 3600;
         def CACHE_TTL_5M: 300;
         split("\n") | reverse |

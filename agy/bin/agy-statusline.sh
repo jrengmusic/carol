@@ -120,7 +120,7 @@ if [ -z "$fill_percent" ] || [ "$fill_percent" -eq 0 ]; then
     fill_percent=$DEFAULT_FILL_PERCENT
 fi
 
-parsed=$(jq -r --argjson divisor "$divisor" --argjson fill_percent "$fill_percent" '
+parsed=$(saw json -r --argjson divisor "$divisor" --argjson fill_percent "$fill_percent" '
     def clean: tostring | gsub("[\r\n]"; "");
     def qinfo($q; $k):
         ($q[$k]) as $e |

@@ -32,6 +32,7 @@ const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT'
 const SCOUT_SERVER_PATTERN = /^(?:carol_)?scout$/
 const WHATDBG_SERVER_PATTERN = /^(?:carol_)?whatdbg$/
 const SAW_SERVER_PATTERN = /^(?:carol_)?saw$/
+const SAW_MCP_TOOL = 'carol_saw'
 const EXCERPT_TARGET_PATTERN = /^(.+:\d+-\d+) of \d+ sha256:/
 const DOXYGEN_TASK_PATTERN = /doxygen/i
 const DOXYGEN_DESCRIPTION = 'doxygen'
@@ -204,7 +205,7 @@ async function handlePreToolUse(gate, payload, state) {
 
   if (toolName === 'run_command') {
     const command = String(args.CommandLine || '')
-    const denial = gate.getShellDenial(command, meta.isSubagent, canApply(gate, meta))
+    const denial = gate.getShellDenial(command, meta.isSubagent, canApply(gate, meta), SAW_MCP_TOOL)
     if (denial !== undefined) return { decision: 'deny', reason: denial }
     const searches = TEXT_SEARCH_PATTERN.test(command) ? [command] : gate.getSawFinds(command)
     if (searches.some((search) => CPP_TARGET_PATTERN.test(search) && !LITERAL_SEARCH_PATTERN.test(search))) {
@@ -218,16 +219,13 @@ async function handlePreToolUse(gate, payload, state) {
         return { decision: 'deny', reason: GIT_GATE }
       }
     }
-    if (gate.isScriptRun(command)) return { decision: 'force_ask', reason: gate.SCRIPT_GATE }
+    if (gate.isScriptRun(command)) return { decision: 'force_ask', reason: gate.getScriptDenial(SAW_MCP_TOOL) }
     return getCommandOutput(gate, command, meta)
   }
 
-  if (toolName === 'edit_file') return { decision: 'deny', reason: gate.EDIT_GATE }
-  if (toolName === 'write_file') {
-    const target = String(args.Path || '')
-    const isOverwrite = meta.isSubagent && !gate.isTemporaryPath(target) && fs.existsSync(target)
-    return isOverwrite ? { decision: 'deny', reason: gate.WRITE_GATE } : { decision: 'allow' }
-  }
+  if (toolName === 'edit_file') return { decision: 'deny', reason: gate.getToolDenial('Edit', SAW_MCP_TOOL) }
+  if (toolName === 'write_file') return { decision: 'deny', reason: gate.getToolDenial('Write', SAW_MCP_TOOL) }
+  if (toolName === 'grep_search') return { decision: 'deny', reason: gate.getToolDenial('grep', SAW_MCP_TOOL) }
 
   if (toolName === 'send_message') {
     const denial = getReportDenial(gate, payload, state, meta, String(args.Message || ''))

@@ -1,18 +1,16 @@
 import { atom, read, update } from 'claude-code'
 import {
-  EDIT_GATE,
   SEARCH_GATE,
-  WRITE_GATE,
   getExcerptBlocks,
   getGuardedCommand,
   getReportDenial,
   getRunDenial,
   getSawFinds,
   getShellDenial,
+  getToolDenial,
   isApplyAgent,
   isExcerptAgent,
   isSawExcerpt,
-  isTemporaryPath,
 } from './saw-gate.mjs'
 
 const NUDGE_INTERVAL = 5
@@ -44,7 +42,8 @@ const LITERAL_SEARCH_PATTERN = /\\"|'[^']*"[^']*'|['"]#/
 const CONTRACT_DOCUMENT_PATTERN = new RegExp('[\\\\/]\\.carol[\\\\/](' + CONTRACT_DOCUMENTS.join('|') + ')\\.md$')
 
 const GIT_GATE = "This git command needs ARCHITECT's instruction, and ARCHITECT's last prompt names no git command (CAROL.md Git). Read-only git is allowed in the main session and in Pathfinder, never in another subagent and never in a Pathfinder whose task description names doxygen, and the MACHINIST main session also runs push and pull. Do not retry. Read the working tree with the Read tool, or report what you need."
-const SAW_MCP_TOOLS = ['mcp__saw__run']
+const SAW_MCP_TOOL = 'mcp__saw__run'
+const SAW_MCP_TOOLS = [SAW_MCP_TOOL]
 const EXCERPT_VERB = 'excerpt'
 const SCOUT_MCP_TOOLS = ['mcp__scout__run']
 const WHATDBG_MCP_TOOLS = [
@@ -167,7 +166,7 @@ async function getPermittedInvocations($, command, agentId) {
 
 async function getBashVerdict($, command, agentId, isBackground) {
   if (agentId !== undefined && isBackground) return { deny: BACKGROUND_GATE }
-  const denial = getShellDenial(command, agentId !== undefined, await canApply($, agentId))
+  const denial = getShellDenial(command, agentId !== undefined, await canApply($, agentId), SAW_MCP_TOOL)
   if (denial !== undefined) return { deny: denial }
   const searches = TEXT_SEARCH_PATTERN.test(command) ? [command] : getSawFinds(command)
   if (searches.some((search) => CPP_TARGET_PATTERN.test(search) && !LITERAL_SEARCH_PATTERN.test(search))) return { deny: SEARCH_GATE }
@@ -252,11 +251,9 @@ export function register(on) {
     return (await getBashVerdict($, e.command ?? '', undefined, false)) ?? next(e)
   }).catch(failClosed)
 
-  on('tool.call', { tool: 'Edit' }, async () => ({ deny: EDIT_GATE })).catch(failClosed)
-  on('tool.call', { tool: 'Write' }, async ($, e, next) => {
-    const isOverwrite = e.agentId !== undefined && !isTemporaryPath(e.file_path) && (await $.fs.exists(e.file_path))
-    return isOverwrite ? { deny: WRITE_GATE } : next(e)
-  }).catch(failClosed)
+  on('tool.call', { tool: 'Edit' }, async () => ({ deny: getToolDenial('Edit', SAW_MCP_TOOL) })).catch(failClosed)
+  on('tool.call', { tool: 'Write' }, async () => ({ deny: getToolDenial('Write', SAW_MCP_TOOL) })).catch(failClosed)
+  on('tool.call', { tool: 'Grep' }, async () => ({ deny: getToolDenial('grep', SAW_MCP_TOOL) })).catch(failClosed)
 
   on('tool.call', { tool: SAW_MCP_TOOLS }, async ($, e, next) => {
     const denial = getRunDenial(e.arguments ?? [], e.agentId !== undefined, await canApply($, e.agentId))

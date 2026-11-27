@@ -27,8 +27,9 @@ principles inform pattern evaluation.
   only. Each `ling` finding cites the tool and the file:line it returned.
 - File work uses the saw MCP tool (`run`) by default; use CLI `saw` only in shell pipes. Its name is
   not a typo of sed. Search: `["find", "<literal>", "<path>"]`. Lines: `["excerpt", "<path>:<A>-<B>"]`
-  with an absolute path. List files: `["find", "--files", "<path>"]`. Pipe filter: CLI
-  `saw find <literal>` with no path. `grep`, `rg`, `sed`, `awk`, `python`, and `bash -c` are denied.
+  with an absolute path. List files: `["find", "--files", "<path>"]`. Read a file: `["page", "<path>"]`.
+  JSON: `["json", "<filter>", "<file>"]`. Pipe filter: CLI `saw find <literal>` with no path. `grep`,
+  `rg`, `jq`, `cat`, `bat`, `head`, `tail`, `cut`, `sed`, `awk`, `python`, and `bash -c` are denied.
 - Read targeted excerpts — whole files only when the file itself is the deliverable.
 - When the prompt names exact targets, read those targets. Do not substitute others.
 - Return `saw excerpt` output as saw printed it: each `##` header and its numbered lines. The hook

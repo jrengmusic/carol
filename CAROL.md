@@ -318,15 +318,17 @@ Pathfinder runs no git unless ARCHITECT instructs git.
 ## Destructive-Edit Discipline
 
 saw is the file tool. Use the saw MCP server (`saw --mcp`, tool `run` — `carol_saw` in agy,
-`mcp__saw__run` in Claude Code) by default. Use CLI `saw` only in shell pipes. saw searches,
-reads, writes, and edits text files. Its name is not a typo of sed.
+`mcp__saw__run` in Claude Code, `saw_run` in OpenCode) by default. Use CLI `saw` only in shell
+pipes. saw searches, reads, parses JSON, writes, and edits text files. Its name is not a typo of sed.
 
 | Need | Verb (pass as `arguments` to `run`) |
 |---|---|
 | Search text | `find <literal> <path>` (`-r` for regex). CLI pipe filter omits `<path>`. |
 | Exact lines | `excerpt <path>:<A>-<B>`, or `excerpt "<path> ~ <literal>"` |
+| Read a file | `page <path>` (`-r` for a range) |
+| JSON | `json <filter> <file>` |
 | Columns | `fields <spec> <path>` |
-| Create or replace file | `write <path>` |
+| Create or replace file | `write <path>`, text in `stdin` |
 | Edit one text | `replace <find> <with> <path>` |
 | Edit lines or blocks | `lines`, `patch` |
 | Reverse an edit | `undo <tx-id>` |
@@ -342,22 +344,22 @@ Any scripted or mechanical in-place modification over project files uses saw, an
 4. **Never chain destructive steps** — one transformation, one verification, before
    the next.
 
-`saw write` creates or replaces a file, and `saw undo` reverses it. A `replace` pattern is
-one line: use `patch` for a block. saw refuses a hard-linked file. No session has the Edit tool.
+`saw write` creates or replaces a file from `stdin`, and `saw undo` reverses it. A `replace` pattern is
+one line: use `patch` for a block. saw refuses a hard-linked file. No session has the Edit or Write tool.
 
 Overconfidence is the named threat: a script that "cannot fail" still gets the full
 protocol.
 
 **Subagents.** A subagent does file work only with saw MCP (`run`). Only Engineer, and
-Pathfinder in a doxygen task, run saw with `--apply`. Write is allowed for a new file only.
-Logs and other output go to the scratchpad or `/tmp`.
+Pathfinder in a doxygen task, run saw with `--apply`. Logs and other output go to the
+scratchpad or `/tmp`.
 
-**Hook enforcement.** The hooks in `~/.carol/hooks/register.js`, `~/.carol/agy/hooks/agy-gate.mjs` and
-`~/.carol/opencode/plugins/carol/` use one gate, `~/.carol/hooks/saw-gate.mjs`. In every session it denies the Edit tool, `sed`,
-`awk`, and an in-place `perl`, also in a Monitor command. In a subagent it also denies `grep`, `rg`,
-`python`, `perl`, `lua`, `ruby`, `node`, `bash -c`, and a `>` or `tee` into a project file. In a
-main session, `python` and `lua` ask ARCHITECT. The hook cannot read a script file: the rule
-governs it.
+**Hook enforcement.** `hooks/saw-gate.mjs` is the one gate of the hooks in `hooks/register.js`,
+`agy/hooks/agy-gate.mjs` and `opencode/plugins/carol/`. In every session it denies the Edit and Write
+tools, `sed`, `awk`, `grep`, `rg`, `jq`, `cat`, `bat`, `head`, `tail`, `cut`, `perl -i`, `perl -n`, `python -c`,
+`node -e`, and a `>` or `tee` into a project file, also in a Monitor command. `tail -f` stays: saw has no
+follow mode. A subagent also loses `python`, `perl`, `lua`, `ruby`, `node`, and `bash -c`. In a main session,
+`python` and `lua` ask ARCHITECT. The hook cannot read a script file: the rule governs it.
 
 ## Build Environment
 

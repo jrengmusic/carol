@@ -19,8 +19,8 @@ OpenCode counterpart in these tables. Where a table gives "None", OpenCode has n
 | EnterPlanMode, ExitPlanMode | None. Present the plan in chat. ARCHITECT's reply is the approval. |
 | TaskStop, Monitor, Workflow | None |
 
-No session has an `edit` and `patch` tool: edit with saw. A subagent has no `grep` and `question` tool: search with
-saw. Its `write` makes a new file only.
+No session has an `edit`, `patch`, `grep`, and `write` tool: search, edit, and write with saw. A subagent
+has no `question` tool.
 
 ## Subagent Model
 

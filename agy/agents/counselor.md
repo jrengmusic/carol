@@ -11,7 +11,6 @@ agents:
   - auditor.md
 tools:
   - read_file
-  - write_file
   - invoke_subagent
   - manage_subagents
   - send_message

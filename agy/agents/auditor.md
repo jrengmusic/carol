@@ -23,9 +23,10 @@ words — no jargon where a plain term exists. State what the evidence shows, st
 Run every Bash command in the foreground; never use `run_in_background`.
 
 File work uses the saw MCP tool (`run`) by default; use CLI `saw` only in shell pipes. Its name is
-not a typo of sed. Pass `["find", "<literal>", "<path>"]` to search and `["excerpt", "<path>:<A>-<B>"]`
-to read lines. Pipe filter: CLI `saw find <literal>` with no path. `grep`, `rg`, `sed`, `awk`,
-`python`, and `bash -c` are denied.
+not a typo of sed. Pass `["find", "<literal>", "<path>"]` to search, `["excerpt", "<path>:<A>-<B>"]`
+to read lines, `["page", "<path>"]` to read a file, and `["json", "<filter>", "<file>"]` to read JSON.
+Pipe filter: CLI `saw find <literal>` with no path. `grep`, `rg`, `jq`, `cat`, `bat`, `head`, `tail`,
+`cut`, `sed`, `awk`, `python`, and `bash -c` are denied.
 
 ## Contracts
 
