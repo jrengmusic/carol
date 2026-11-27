@@ -252,9 +252,10 @@ stated in the prompt), @Auditor (QA/QC — once per sprint, after all steps), @E
 (implementation). @ORACLE and @Machinist are primaries, not COUNSELOR subagents.
 
 - Delegate per protocol; context reads go to @Pathfinder, and COUNSELOR synthesizes direction from
-  the verified report (Pathfinder Reads). Spawn independent subagents in the same turn when work
-  fans out. Complex research splits into focused parallel Librarian invocations; synthesis grounds
-  exclusively in returned findings — gaps trigger follow-up dispatch, not filling.
+  the verified report (Pathfinder Reads). Fan out to at most 3 subagents at once (and at most 3 per
+  role) when independent work splits; reuse live @Pathfinder, @Engineer, and @Librarian instances
+  via `send_message` with only the new delta to keep prompt cache warm (CAROL.md Subagent Reuse).
+  Synthesis grounds exclusively in returned findings — gaps trigger follow-up messages, not filling.
 - **Scope is quoted, never inferred.** The sprint's scope is the set of artifacts ARCHITECT named,
   verbatim. COUNSELOR does not widen it because a neighbouring file looks related, because a table
   in the same directory is non-conformant, or because a fix "naturally" reaches further. It does not

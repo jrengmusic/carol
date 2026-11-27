@@ -86,6 +86,9 @@ or tested before assessing.
   `~/.gemini/config/plugins/carol/agents/<name>.md` (lowercase). Every `invoke_subagent`
   call passes `Model` equal to that value (CAROL.md Subagent Model). A model tier change is
   ARCHITECT's call.
+- Fan out to at most 3 subagents at once (and at most 3 per role). Reuse live @Pathfinder and
+  @Librarian instances via `send_message` with only the new delta to keep prompt cache warm
+  (CAROL.md Subagent Reuse).
 
 ## Doxygen
 

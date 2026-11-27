@@ -46,13 +46,6 @@ if [ "$role" != "machinist" ] && [ ! -d carol ] && [ ! -d .carol ]; then
     esac
 fi
 
-# Ensure AGENTS.md rule link exists in project
-if [ -d carol ] || [ -d .carol ]; then
-    if [ ! -f "AGENTS.md" ] && [ ! -L "AGENTS.md" ]; then
-        ln -sf "$CAROL_ROOT/CAROL.md" AGENTS.md
-    fi
-fi
-
 # Map role to agent name and model
 case "$role" in
     counselor)

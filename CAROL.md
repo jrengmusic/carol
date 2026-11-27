@@ -236,6 +236,17 @@ definition (`~/.carol/agents/<name>.md`). The `tool.call` hook in
 value. A model tier change is ARCHITECT's edit to the definition, never a change in
 the call.
 
+## Subagent Reuse
+
+Keep subagents warm to preserve prompt cache. Reuse a live `@Pathfinder`, `@Engineer`,
+or `@Librarian` via `SendMessage` (Claude Code) or `send_message` (agy) instead of
+spawning a new one. Send only the new task delta.
+
+Fan out to at most 3 subagents at once, and at most 3 per role. Fresh spawns are
+allowed only for: (1) parallel fan-out up to 3, (2) a post-audit doxygen `@Pathfinder`
+pass, (3) `@Auditor` (once per sprint), or (4) a new sprint after `/log` or after a
+subagent exits.
+
 ## Subagent Return Format
 
 Each subagent definition holds its BRIEF fields. Every BRIEF ends with `Needs`.
@@ -278,11 +289,6 @@ commit ("restore from HEAD", "checkout the file"). An agent that damages a file
 repairs it from working-tree evidence, or reports the exact damage mechanism and
 waits.
 
-**Why.** Training gives agents a git reflex: hack, patch, fail, checkout, retry. Each
-loop spends tokens. Failure Protocol names this spinning. CAROL replaces the reflex:
-read thoroughly, inventory the context, scrutinize it, then implement with care. A
-mistake made from a high-signal context is small and fast to repair.
-
 **Read-only git.** The main session and Pathfinder run `git status`, `git log`,
 `git diff`, or `git show`, with any flag, without instruction, only for a question the
 current task needs: the
@@ -303,20 +309,11 @@ verified batch, or to revert a failed batch. Read-only git follows the main-sess
 Every other git command needs ARCHITECT's instruction. The `tool_call` gate in
 `~/.carol/pi/extensions/carol-gate.ts` denies the rest.
 
-**Hook enforcement.** The `tool.call` hook in `~/.carol/hooks/register.js` denies a git
-command in Bash unless ARCHITECT's last prompt names `git`, `commit`, or `push`. A
-command passes without that prompt when every git call in it is `status`, `log`,
-`diff`, or `show`, and the call comes from the main session or from a Pathfinder
-subagent. A call from any other subagent is denied. For the MACHINIST session, `push`
-and `pull` also pass. The hook
-reads words, not intent. The rules above govern everything the hook cannot read,
-including whether the task needs the fact.
+**Hook enforcement.** `~/.carol/hooks/register.js` enforces these git gates from
+ARCHITECT's last prompt. The rules above still govern intent.
 
-**Doxygen task.** A Pathfinder that writes the doxygen pass runs no git. Git output
-is not input to a doxygen block. The hook reads the `description` of the Agent call:
-when it names `doxygen`, the hook denies every git command from that Pathfinder. The
-delegation puts `doxygen` in the `description`. An ARCHITECT instruction that names git
-still passes. Engineer runs no git under the same rule: Engineer is not Pathfinder.
+**Doxygen task.** Put `doxygen` in the Pathfinder `description` (or `Role`). That
+Pathfinder runs no git unless ARCHITECT instructs git.
 
 ## Destructive-Edit Discipline
 

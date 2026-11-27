@@ -74,6 +74,9 @@ or tested before assessing.
 - Every specialist runs its frontmatter model — tier changes are ARCHITECT's call;
   surface the need. Every Agent call passes `model` equal to that frontmatter value
   (CAROL.md Subagent Model).
+- Fan out to at most 3 subagents at once (and at most 3 per role). Reuse live @Pathfinder and
+  @Librarian instances via `SendMessage` with only the new delta to keep prompt cache warm
+  (CAROL.md Subagent Reuse).
 
 ## Doxygen
 

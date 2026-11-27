@@ -4,7 +4,7 @@ description: Invoke first before any planning or fix work to discover existing p
 subagent: true
 mainAgent: false
 inheritMcp: true
-model: flash
+model: flash_lite
 tools:
   - read_file
   - run_command

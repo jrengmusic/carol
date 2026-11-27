@@ -4,7 +4,7 @@ description: Invoke for research in two modes, stated by the delegation prompt. 
 subagent: true
 mainAgent: false
 inheritMcp: true
-model: flash
+model: flash_lite
 tools:
   - read_file
   - run_command

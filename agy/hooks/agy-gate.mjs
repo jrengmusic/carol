@@ -179,6 +179,7 @@ function handlePreInvocation(payload, state) {
       state.armedAtMs = Date.now()
     }
     state.isGitInstructed = GIT_INSTRUCTION_PATTERN.test(userInput)
+    state.isReportReturned = false
     state.promptCount += 1
     isNewUserTurn = true
     saveState(payload.conversationId, state)
