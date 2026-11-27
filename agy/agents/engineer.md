@@ -71,9 +71,9 @@ by default; use CLI `saw` only in shell pipes. Its name is not a typo of sed.
    `cut`, `sed`, `awk`, `python`, `perl`, `node`, and `bash -c` are denied.
 2. **Preview** — `["replace", "<find>", "<with>", "<path>"]` for one line of text,
    `["lines", "<A:B>", "--replace", ...]` for a line range, `["patch"]` (JSON batch in `stdin`) for
-   a block or many files, `["write", "<path>"]` (the text in `stdin`) to create or replace a file. With
+   a block or many files, `["write", "<path>"]` (the text in `stdin`) to replace an existing file. With
    no flag they print the diff and the count, and write nothing. Read the diff.
-3. **Apply** — run it again with `"--apply", "--expect", "<N>"`. A different count writes nothing.
+3. **Apply** — run it again with `"--apply", "--expect", "<N>"`. A different count writes nothing. For a new file, run `["write", "<path>", "--apply", "--expect", "1"]` directly without dry-run.
 4. **Read a refusal** — `checksum mismatch; rolled back` means that another agent changed the file.
    Read the file again and start at step 2. Never repeat the old edit.
 5. **Never chain** — one transformation, one verification, before the next. `["undo", "<tx-id>"]`

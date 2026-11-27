@@ -344,8 +344,7 @@ Any scripted or mechanical in-place modification over project files uses saw, an
 4. **Never chain destructive steps** — one transformation, one verification, before
    the next.
 
-`saw write` creates or replaces a file from `stdin`, and `saw undo` reverses it. A `replace` pattern is
-one line: use `patch` for a block. saw refuses a hard-linked file. No session has the Edit or Write tool.
+`saw write` takes `stdin` (`--apply --expect 1` directly for a new file; dry-run first to replace an existing file); `saw undo` reverses it. `replace` is one line: use `patch` for a block. saw refuses hard links. No session has Edit or Write.
 
 Overconfidence is the named threat: a script that "cannot fail" still gets the full
 protocol.
