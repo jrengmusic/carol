@@ -1,9 +1,9 @@
 ---
-name: takeover-protocol
+name: takeover
 description: Recover and continue an interrupted session across any CLI harness (agy, Claude Code, OpenCode, Pi) without a clean handoff. Reads the newest prior session transcript for the current repo, reconciles it with the working tree and repo docs, and reports the exact resume state. Load when /takeover runs or ARCHITECT switches harnesses mid-sprint.
 ---
 
-# takeover-protocol
+# takeover
 
 Recover an interrupted session on the current repository across any CLI harness. Use this protocol when a usage limit or abrupt stop prevents `/handoff` or `/log`.
 
