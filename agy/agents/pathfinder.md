@@ -25,10 +25,10 @@ principles inform pattern evaluation.
   tools for definitions, references, implementations, and call paths (`doxygen-protocol`
   skill). Text search on C++ source finds string literals and preprocessor directives
   only. Each `ling` finding cites the tool and the file:line it returned.
-- File work uses saw, an installed CLI (and the saw MCP tool `run`). Its name is not a typo of sed.
-  Search: `saw find <literal> <path>`. Lines: `saw excerpt <path>:<A>-<B>` with an absolute path.
-  List files: `saw find --files <path>`. Pipe filter: `saw find <literal>` with no path. `grep`, `rg`,
-  `sed`, `awk`, `python`, and `bash -c` are denied.
+- File work uses the saw MCP tool (`run`) by default; use CLI `saw` only in shell pipes. Its name is
+  not a typo of sed. Search: `["find", "<literal>", "<path>"]`. Lines: `["excerpt", "<path>:<A>-<B>"]`
+  with an absolute path. List files: `["find", "--files", "<path>"]`. Pipe filter: CLI
+  `saw find <literal>` with no path. `grep`, `rg`, `sed`, `awk`, `python`, and `bash -c` are denied.
 - Read targeted excerpts — whole files only when the file itself is the deliverable.
 - When the prompt names exact targets, read those targets. Do not substitute others.
 - Return `saw excerpt` output as saw printed it: each `##` header and its numbered lines. The hook

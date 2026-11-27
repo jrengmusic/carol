@@ -234,7 +234,6 @@ export default {
       if (NO_GATE_PATTERN.test(text)) armNoGate(state)
       state.isGitInstructed = GIT_INSTRUCTION_PATTERN.test(text)
       state.isStopHookActive = false
-      state.contractReads.clear()
       state.promptCount += 1
       if (state.promptCount % NUDGE_INTERVAL === 0) {
         event.prompt.text = [event.prompt.text, READ_DIRECTIVE, getNudge(getRole(session))].join(CONTEXT_SEPARATOR)

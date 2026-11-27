@@ -35,7 +35,7 @@ const EXCERPT_AGENT = 'pathfinder'
 const DOXYGEN_TASK_PATTERN = /doxygen/i
 const DENIAL_EXIT = 2
 
-const SAW_USE = 'saw is an installed command, not a typo of sed. Search: saw find <literal> <path> (-r for a regex). Exact lines: saw excerpt <path>:<A>-<B>. Columns: saw fields. Pipe filter: saw find <literal> with no path. Edit: saw replace, saw lines or saw patch, first with no flag to preview, then with --apply --expect N. Undo: saw undo. "saw <verb> --help" gives the flags.'
+const SAW_USE = 'Use the saw MCP tool (run) by default, not sed; use CLI saw only in shell pipes. Search: ["find", "<literal>", "<path>"] (-r for regex). Exact lines: ["excerpt", "<path>:<A>-<B>"]. Columns: ["fields", ...]. Write: ["write", ...]. Edit: replace, lines, or patch — dry-run first, then --apply --expect N. Undo: ["undo", "<tx-id>"]. Help: ["<verb>", "--help"].'
 
 export const SESSION_GATE = 'sed, awk and an in-place perl are denied in every session (CAROL.md Destructive-Edit Discipline). ' + SAW_USE
 export const SUBAGENT_GATE = 'A subagent does file work only with saw. sed, awk, grep, rg, python, perl, lua, ruby, node and a nested shell (bash -c) are denied (CAROL.md Destructive-Edit Discipline). ' + SAW_USE

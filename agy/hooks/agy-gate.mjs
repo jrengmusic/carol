@@ -171,6 +171,7 @@ function isSprintLogNewer(cwd, armedAtMs) {
 
 function handlePreInvocation(payload, state) {
   const userInput = String(payload.lastUserInput || '')
+  let isNewUserTurn = false
   if (userInput && userInput !== state.lastUserInput) {
     state.lastUserInput = userInput
     if (NO_GATE_PATTERN.test(userInput)) {
@@ -178,12 +179,12 @@ function handlePreInvocation(payload, state) {
       state.armedAtMs = Date.now()
     }
     state.isGitInstructed = GIT_INSTRUCTION_PATTERN.test(userInput)
-    state.contractReads = []
+    state.promptCount += 1
+    isNewUserTurn = true
+    saveState(payload.conversationId, state)
   }
-  state.promptCount += 1
-  saveState(payload.conversationId, state)
 
-  if (state.promptCount % NUDGE_INTERVAL === 0) {
+  if (isNewUserTurn && state.promptCount % NUDGE_INTERVAL === 0) {
     const nudge = getRole() === MACHINIST_ROLE ? NUDGE_MACHINIST : NUDGE_DEFAULT
     return {
       injectSteps: [

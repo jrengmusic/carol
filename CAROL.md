@@ -320,17 +320,19 @@ still passes. Engineer runs no git under the same rule: Engineer is not Pathfind
 
 ## Destructive-Edit Discipline
 
-saw is the file tool. It is an installed CLI and an MCP server (`saw --mcp`, tool `run`). It
-searches, reads, and edits text files. Its name is not a typo of sed.
+saw is the file tool. Use the saw MCP server (`saw --mcp`, tool `run` — `carol_saw` in agy,
+`mcp__saw__run` in Claude Code) by default. Use CLI `saw` only in shell pipes. saw searches,
+reads, writes, and edits text files. Its name is not a typo of sed.
 
-| Need | Command |
+| Need | Verb (pass as `arguments` to `run`) |
 |---|---|
-| Search text | `saw find <literal> <path>` (`-r` for a regex). A pipe filter has no path. |
-| Exact lines | `saw excerpt <path>:<A>-<B>`, or `saw excerpt "<path> ~ <literal>"` |
-| Columns | `saw fields <spec> <path>` |
-| Edit one text | `saw replace <find> <with> <path>` |
-| Edit lines, or many edits in many files | `saw lines`, `saw patch` |
-| Reverse an edit | `saw undo <tx-id>` |
+| Search text | `find <literal> <path>` (`-r` for regex). CLI pipe filter omits `<path>`. |
+| Exact lines | `excerpt <path>:<A>-<B>`, or `excerpt "<path> ~ <literal>"` |
+| Columns | `fields <spec> <path>` |
+| Create or replace file | `write <path>` |
+| Edit one text | `replace <find> <with> <path>` |
+| Edit lines or blocks | `lines`, `patch` |
+| Reverse an edit | `undo <tx-id>` |
 
 Any scripted or mechanical in-place modification over project files uses saw, and MUST:
 
@@ -343,15 +345,15 @@ Any scripted or mechanical in-place modification over project files uses saw, an
 4. **Never chain destructive steps** — one transformation, one verification, before
    the next.
 
-saw does not create a file: use the Write tool. A `saw replace` pattern is one line: use
-`saw patch` for a block. saw refuses a hard-linked file. No session has the Edit tool.
+`saw write` creates or replaces a file, and `saw undo` reverses it. A `replace` pattern is
+one line: use `patch` for a block. saw refuses a hard-linked file. No session has the Edit tool.
 
 Overconfidence is the named threat: a script that "cannot fail" still gets the full
 protocol.
 
-**Subagents.** A subagent does file work only with saw. Only Engineer, and Pathfinder in a
-doxygen task, run saw with `--apply`. Engineer uses the Write tool for a new file only. Logs
-and other output go to the scratchpad or `/tmp`.
+**Subagents.** A subagent does file work only with saw MCP (`run`). Only Engineer, and
+Pathfinder in a doxygen task, run saw with `--apply`. Write is allowed for a new file only.
+Logs and other output go to the scratchpad or `/tmp`.
 
 **Hook enforcement.** The hooks in `~/.carol/hooks/register.js`, `~/.carol/agy/hooks/agy-gate.mjs` and
 `~/.carol/opencode/plugins/carol/` use one gate, `~/.carol/hooks/saw-gate.mjs`. In every session it denies the Edit tool, `sed`,

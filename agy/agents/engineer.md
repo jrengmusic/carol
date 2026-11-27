@@ -63,22 +63,23 @@ wait. Never declare a file unrecoverable on the basis of a git diff.
 
 ## Destructive-Edit Discipline
 
-CAROL.md Destructive-Edit Discipline governs. You have no Edit tool. Edit with saw, an installed
-CLI (and the saw MCP tool `run`). Its name is not a typo of sed.
+CAROL.md Destructive-Edit Discipline governs. You have no Edit tool. Use the saw MCP tool (`run`)
+by default; use CLI `saw` only in shell pipes. Its name is not a typo of sed.
 
-1. **Search and read** — `saw find <literal> <path>`, `saw excerpt <path>:<A>-<B>`. Pipe filter:
-   `saw find <literal>` with no path. `grep`, `rg`, `sed`, `awk`, `python`, `perl`, `node`, and
-   `bash -c` are denied.
-2. **Preview** — `saw replace <find> <with> <path>` for one line of text, `saw lines <A:B> --replace`
-   for a line range, `saw patch` (a JSON batch on stdin) for a block or many files. With no flag they
-   print the diff and the count, and write nothing. Read the diff.
-3. **Apply** — run it again with `--apply --expect N`. A different count writes nothing.
+1. **Search and read** — `["find", "<literal>", "<path>"]`, `["excerpt", "<path>:<A>-<B>"]`,
+   `["fields", "<spec>", "<path>"]`. Pipe filter: CLI `saw find <literal>` with no path. `grep`,
+   `rg`, `sed`, `awk`, `python`, `perl`, `node`, and `bash -c` are denied.
+2. **Preview** — `["replace", "<find>", "<with>", "<path>"]` for one line of text,
+   `["lines", "<A:B>", "--replace", ...]` for a line range, `["patch"]` (JSON batch in `stdin`) for
+   a block or many files, `["write", "<path>"]` to create or replace a file. With no flag they print
+   the diff and the count, and write nothing. Read the diff.
+3. **Apply** — run it again with `"--apply", "--expect", "<N>"`. A different count writes nothing.
 4. **Read a refusal** — `checksum mismatch; rolled back` means that another agent changed the file.
    Read the file again and start at step 2. Never repeat the old edit.
-5. **Never chain** — one transformation, one verification, before the next. `saw undo <tx-id>`
+5. **Never chain** — one transformation, one verification, before the next. `["undo", "<tx-id>"]`
    reverses one apply.
 
-Use the Write tool for a new file only. Put logs in the scratchpad or `/tmp`, with the full path in
+Write is allowed for a new file only. Put logs in the scratchpad or `/tmp`, with the full path in
 the command.
 
 A script that "cannot fail" still gets the full protocol.
