@@ -4,7 +4,7 @@ import net from 'node:net';
 import { AuthStore, isPublicPath } from './auth.mjs';
 
 const DEFAULT_PROTOCOL_VERSION = '2025-03-26';
-const SERVER_INFO = { name: 'Telecaster', version: '0.1.0' };
+const SERVER_INFO = { name: 'Amplifier', version: '0.1.0' };
 const MAX_BODY_BYTES = 10_000_000;
 const PORT_PROBE_COUNT = 20;
 

@@ -13,6 +13,41 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const CAROL_DIR = path.resolve(SCRIPT_DIR, '..');
 const STATE_DIR = path.join(CAROL_DIR, '.telecaster');
 
+const USE_COLOR = Boolean(process.stdout.isTTY) && !process.env.NO_COLOR;
+const ansi = (code) => (USE_COLOR ? `\x1b[${code}m` : '');
+const C = {
+  red: ansi('0;31'),
+  green: ansi('0;32'),
+  yellow: ansi('1;33'),
+  blue: ansi('0;34'),
+  magenta: ansi('0;35'),
+  cyan: ansi('0;36'),
+  grey: ansi('0;37'),
+  dim: ansi('2'),
+  bold: ansi('1'),
+  nc: ansi('0')
+};
+
+const BANNER_LINES = [
+  ['38;2;0;212;255',   '    ████████     ████     ██████████     ████████   ████        '],
+  ['38;2;51;170;255',  '  ████░░░░░░   ████████   ████░░░░████ ████░░░░████ ████        '],
+  ['38;2;102;128;255', '████░░       ████░░░░████ ████    ████ ████    ████ ████        '],
+  ['38;2;153;102;255', '████         ████    ████ ██████████░░ ████    ████ ████        '],
+  ['38;2;178;76;230',  '████         ████████████ ████░░████   ████    ████ ████        '],
+  ['38;2;204;51;204',  '░░████       ████░░░░████ ████  ░░████ ████    ████ ████        '],
+  ['38;2;230;25;179',  '  ░░████████ ████    ████ ████    ████ ░░████████░░ ████████████'],
+  ['38;2;255;0;153',   '    ░░░░░░░░ ░░░░    ░░░░ ░░░░    ░░░░   ░░░░░░░░   ░░░░░░░░░░░░']
+];
+
+function printBanner() {
+  console.log('');
+  for (const [rgb, line] of BANNER_LINES) {
+    console.log(`${ansi(rgb)}${line}${C.nc}`);
+  }
+  console.log('');
+  console.log(`${C.cyan}Cognitive Amplifier Role Orchestration for Large Language Model${C.nc}`);
+}
+
 const CLIENTS = [
   {
     key: '1',
@@ -101,29 +136,30 @@ function copyClipboard(text) {
 }
 
 function printHelp() {
-  console.log(`CAROL TELECASTER — remote MCP gateway for web AI clients
-
-Usage:
-  telecaster [project-dir] [options]
-
-Options:
-  --port <n>       Loopback port (default: 9494)
-  --rw <dir>       Add extra read-write root (repeatable)
-  --ro <dir>       Add extra read-only root (repeatable)
-  --local          Loopback only (skip Tailscale Funnel)
-  --no-wizard      Skip interactive prompts
-  --rotate-token   Mint a new access token
-  --skill          Build uploadable TELECASTER skill bundle and exit
-  -h, --help       Show this help`);
+  printBanner();
+  console.log('');
+  console.log(`${C.cyan}Usage:${C.nc}`);
+  console.log('  telecaster [project-dir] [options]');
+  console.log('');
+  console.log(`${C.magenta}Options:${C.nc}`);
+  console.log(`  ${C.yellow}--port <n>${C.nc}       Loopback port (default: 9494)`);
+  console.log(`  ${C.yellow}--rw <dir>${C.nc}       Add extra read-write root (repeatable)`);
+  console.log(`  ${C.yellow}--ro <dir>${C.nc}       Add extra read-only root (repeatable)`);
+  console.log(`  ${C.yellow}--local${C.nc}          Loopback only (skip Tailscale Funnel)`);
+  console.log(`  ${C.yellow}--no-wizard${C.nc}      Skip interactive prompts`);
+  console.log(`  ${C.yellow}--rotate-token${C.nc}   Mint a new access token`);
+  console.log(`  ${C.yellow}--skill${C.nc}          Build uploadable TELECASTER skill bundle and exit`);
+  console.log(`  ${C.yellow}-h, --help${C.nc}       Show this help`);
 }
 
 function printUpstreams(status) {
-  console.log('\nMCP Upstreams:');
+  console.log(`\n${C.magenta}MCP Upstreams:${C.nc}`);
   for (const [name, info] of Object.entries(status)) {
     if (info.active) {
-      console.log(`  [ok]   ${name} (${info.tools} tools)`);
+      const unit = info.tools === 1 ? 'tool' : 'tools';
+      console.log(`  ${C.green}✓${C.nc} ${C.cyan}${name.padEnd(8)}${C.nc} ${C.dim}(${info.tools} ${unit})${C.nc}`);
     } else {
-      console.log(`  [skip] ${name} (${info.reason})`);
+      console.log(`  ${C.dim}– ${name.padEnd(8)} (${info.reason})${C.nc}`);
     }
   }
 }
@@ -156,15 +192,16 @@ async function runWizard(opts) {
   const projectDir = path.resolve(expandHome(opts.projectArg || process.cwd()));
   let client = CLIENTS[0];
 
+  printBanner();
   if (!opts.noWizard && process.stdin.isTTY) {
-    console.log(`\nCAROL TELECASTER — ${projectDir}`);
+    console.log(`\n${C.magenta}TELECASTER${C.nc} ${C.dim}—${C.nc} ${C.cyan}${projectDir}${C.nc}`);
     for (const c of CLIENTS) {
-      console.log(`  ${c.key}) ${c.name}`);
+      console.log(`  ${C.yellow}${c.key})${C.nc} ${c.name}`);
     }
-    process.stdout.write('Press 1-4 [1]: ');
+    process.stdout.write(`Press ${C.yellow}1-4${C.nc} [${C.yellow}1${C.nc}]: `);
     const key = await readSingleKey();
     client = CLIENTS.find((c) => c.key === key) || CLIENTS[0];
-    console.log(client.name);
+    console.log(`${C.green}${client.name}${C.nc}`);
   }
 
   return { projectDir, client };
@@ -179,19 +216,19 @@ async function main() {
 
   if (opts.skill) {
     const bundle = exportSkillBundle(CAROL_DIR, STATE_DIR);
-    console.log('TELECASTER skill bundle built from ~/.carol/ SSOT:');
-    console.log(`  Folder: ${bundle.bundleDir}`);
-    console.log(`  SKILL:  ${bundle.skillFile}`);
-    console.log(`  Refs:   ${bundle.refsDir} (${bundle.files.length} files)`);
+    console.log(`${C.green}✓ TELECASTER skill bundle built from ~/.carol/ SSOT:${C.nc}`);
+    console.log(`  ${C.yellow}Folder:${C.nc} ${bundle.bundleDir}`);
+    console.log(`  ${C.yellow}SKILL:${C.nc}  ${bundle.skillFile}`);
+    console.log(`  ${C.yellow}Refs:${C.nc}   ${bundle.refsDir} (${bundle.files.length} files)`);
     if (bundle.zipPath) {
-      console.log(`  Zip:    ${bundle.zipPath}`);
+      console.log(`  ${C.yellow}Zip:${C.nc}    ${C.cyan}${bundle.zipPath}${C.nc}`);
     }
     return;
   }
 
   const { projectDir, client } = await runWizard(opts);
   if (!fs.existsSync(projectDir)) {
-    console.error(`Project folder does not exist: ${projectDir}`);
+    console.error(`${C.red}Error: Project folder does not exist: ${projectDir}${C.nc}`);
     process.exit(1);
   }
 
@@ -219,11 +256,11 @@ async function main() {
   if (!opts.local) {
     const funnel = startFunnel(port);
     if (!funnel.ok) {
-      console.error(`\nTailscale Funnel error: ${funnel.reason}\n`);
+      console.error(`\n${C.red}Error: Tailscale Funnel: ${funnel.reason}${C.nc}\n`);
       for (const step of funnel.steps) {
         console.error(`  ${step}`);
       }
-      console.error('\nTip: run `telecaster --local` to test locally without Tailscale.');
+      console.error(`\n${C.yellow}→${C.nc} Tip: run ${C.cyan}telecaster --local${C.nc} to test locally without Tailscale.`);
       await httpServer.close();
       registry.closeAll();
       process.exit(1);
@@ -236,20 +273,20 @@ async function main() {
   const copied = copyClipboard(mcpUrl);
   const hasManifest = fs.existsSync(path.join(projectDir, 'project-info.md'));
 
-  console.log('\nTELECASTER Gateway Online');
-  console.log(`  Project:  ${projectDir}`);
-  console.log(`  RW Roots: ${registry.rwRoots.join(', ')}`);
-  console.log(`  RO Roots: ${registry.roRoots.join(', ') || 'none'}`);
-  console.log(`  Manifest: ${hasManifest ? 'project-info.md detected (ling active)' : 'none (ling skipped)'}`);
-  console.log(`  Health:   http://127.0.0.1:${port}/health`);
-  console.log(`  MCP Link: ${mcpUrl}${copied ? '  (copied to clipboard)' : ''}`);
+  console.log(`\n${C.green}${C.bold}✓ Amplifier MCP Online${C.nc} ${C.dim}(TELECASTER)${C.nc}`);
+  console.log(`  ${C.yellow}Project:${C.nc}  ${C.cyan}${projectDir}${C.nc}`);
+  console.log(`  ${C.yellow}RW Roots:${C.nc} ${registry.rwRoots.join(', ')}`);
+  console.log(`  ${C.yellow}RO Roots:${C.nc} ${registry.roRoots.join(', ') || `${C.dim}none${C.nc}`}`);
+  console.log(`  ${C.yellow}Manifest:${C.nc} ${hasManifest ? `${C.green}project-info.md detected (ling active)${C.nc}` : `${C.dim}none (ling skipped)${C.nc}`}`);
+  console.log(`  ${C.yellow}Health:${C.nc}   http://127.0.0.1:${port}/health`);
+  console.log(`  ${C.yellow}MCP Link:${C.nc} ${C.cyan}${mcpUrl}${C.nc}${copied ? `  ${C.green}(copied to clipboard)${C.nc}` : ''}`);
   printUpstreams(registry.status);
 
-  console.log(`\nSetup on ${client.name}:`);
+  console.log(`\n${C.magenta}Setup on ${client.name}:${C.nc}`);
   for (const line of client.steps(mcpUrl)) {
     console.log(`  ${line}`);
   }
-  console.log('\nPress Ctrl+C to stop gateway and close Tailscale Funnel.');
+  console.log(`\n${C.dim}Press Ctrl+C to stop gateway and close Tailscale Funnel.${C.nc}`);
 
   let stopping = false;
   const shutdown = async () => {
@@ -257,7 +294,7 @@ async function main() {
       process.exit(130);
     }
     stopping = true;
-    console.log('\nStopping TELECASTER...');
+    console.log(`\n${C.yellow}→ Stopping TELECASTER...${C.nc}`);
     const forceExit = setTimeout(() => process.exit(0), 1500);
     registry.closeAll();
     await httpServer.close();
@@ -273,6 +310,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`TELECASTER failed: ${err.message}`);
+  console.error(`${C.red}Error: TELECASTER failed: ${err.message}${C.nc}`);
   process.exit(1);
 });

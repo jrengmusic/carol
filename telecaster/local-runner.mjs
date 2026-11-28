@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { getGuardedCommand, getShellDenial } from '../hooks/saw-gate.mjs';
 
 const LLAMA_HOST = '127.0.0.1';
 const LLAMA_PORT = 9931;
@@ -13,6 +14,8 @@ const HEALTH_TIMEOUT_MS = 2000;
 const DEFAULT_JOB_TIMEOUT_MS = 300000;
 const MAX_OUTPUT_BYTES = 262144;
 const DEFAULT_TAIL_CHARS = 16000;
+const DEFAULT_BASH_TIMEOUT_MS = 120000;
+const MAX_BASH_TIMEOUT_MS = 600000;
 
 function appendCapped(current, chunk) {
   const combined = current + chunk;
@@ -94,6 +97,21 @@ export const LOCAL_RUNNER_TOOLS = [
       },
       additionalProperties: false
     }
+  },
+  {
+    name: 'bash_run',
+    description: 'Run a shell command in an allowed read-write root. Enforces CAROL saw-gate rules (no sed/grep/cat/etc. or project redirects).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        command: { type: 'string', description: 'Shell command to execute.' },
+        directory: { type: 'string', description: 'Working directory (defaults to active project; must be an allowed RW root).' },
+        timeoutMs: { type: 'number', description: 'Optional timeout in milliseconds (default 120000, max 600000).' },
+        tailChars: { type: 'number', description: 'Max trailing characters per stream (default 16000).' }
+      },
+      required: ['command'],
+      additionalProperties: false
+    }
   }
 ];
 
@@ -122,6 +140,8 @@ export class LocalRunner {
         return this.wrapJson(this.housekeeperStatus(args));
       case 'housekeeper_stop':
         return this.wrapJson(this.housekeeperStop(args));
+      case 'bash_run':
+        return this.wrapJson(await this.bashRun(args));
       default:
         throw new Error(`Unknown local runner tool: ${name}`);
     }
@@ -330,6 +350,66 @@ export class LocalRunner {
     } catch {}
     if (this.activeJobId === id) this.activeJobId = null;
     return { stopped: true, jobId: id };
+  }
+
+  bashRun(args) {
+    const command = String(args?.command || '').trim();
+    if (!command) {
+      throw new Error('bash_run: command is required');
+    }
+    const denial = getShellDenial(command, false, true, 'saw_run');
+    if (denial) {
+      throw new Error(denial);
+    }
+    const cwd = this.resolveRwDir(args?.directory);
+    const rawTimeout = Number(args?.timeoutMs);
+    const timeoutMs = rawTimeout > 0 ? Math.min(rawTimeout, MAX_BASH_TIMEOUT_MS) : DEFAULT_BASH_TIMEOUT_MS;
+    const tail = Number(args?.tailChars) > 0 ? Number(args.tailChars) : DEFAULT_TAIL_CHARS;
+    const shellBin = process.platform === 'darwin' ? '/bin/zsh' : '/bin/bash';
+    const guarded = getGuardedCommand(command, false);
+    const startedAt = Date.now();
+
+    return new Promise((resolve, reject) => {
+      const child = spawn(shellBin, ['-c', guarded], {
+        cwd,
+        env: { ...process.env },
+        stdio: ['ignore', 'pipe', 'pipe'],
+        windowsHide: true
+      });
+      let stdout = '';
+      let stderr = '';
+      let timedOut = false;
+      const timer = setTimeout(() => {
+        timedOut = true;
+        try {
+          child.kill('SIGTERM');
+        } catch {}
+      }, timeoutMs);
+
+      child.stdout.on('data', (d) => {
+        stdout = appendCapped(stdout, d.toString('utf8'));
+      });
+      child.stderr.on('data', (d) => {
+        stderr = appendCapped(stderr, d.toString('utf8'));
+      });
+      child.on('error', (err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+      child.on('close', (code, signal) => {
+        clearTimeout(timer);
+        resolve({
+          command,
+          cwd,
+          exitCode: code,
+          signal,
+          timedOut,
+          elapsedMs: Date.now() - startedAt,
+          stdout: stdout.slice(-tail),
+          stderr: stderr.slice(-tail)
+        });
+      });
+    });
   }
 
   closeAll() {

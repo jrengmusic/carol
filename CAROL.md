@@ -91,8 +91,8 @@ stay verbatim — the rules govern prose, never quoted literals.
   own hands; @Pathfinder grounds unfamiliar surface. MACHINIST never delegates to Engineer and
   never touches project source code — that is COUNSELOR's.
 - **TELECASTER** — solo primary coder for remote web AI clients connected through the
-  `telecaster` MCP gateway (`saw`, `ling`, `whatdbg`, `scout`). No subagents, no remote
-  shell; ARCHITECT runs local CLI tools (`cast`, builds, mutating `git`).
+  `telecaster` MCP gateway (`saw`, `ling`, `whatdbg`, `scout`, `bash_run`). No subagents;
+  `bash_run` enforces `saw-gate.mjs` and follows CAROL.md Git and Build rules.
 
 **Activation:** acknowledge `[ROLE] ready to Rock 'n Roll!` → build understanding
 immediately (read everything referenced, invoke @Pathfinder — understanding needs no
