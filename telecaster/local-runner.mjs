@@ -62,11 +62,11 @@ export const LOCAL_RUNNER_TOOLS = [
   },
   {
     name: 'housekeeper_start',
-    description: 'Start one async housekeeper run in an allowed read-write root. Returns jobId immediately.',
+    description: 'Start one async housekeeper run in any directory (defaults to active project). Returns jobId immediately.',
     inputSchema: {
       type: 'object',
       properties: {
-        directory: { type: 'string', description: 'Working directory (defaults to active project; must be an allowed RW root).' },
+        directory: { type: 'string', description: 'Working directory (defaults to active project).' },
         args: { type: 'array', items: { type: 'string' }, description: 'CLI arguments passed to housekeeper (e.g. ["-p", "prompt"]).' },
         model: { type: 'string', description: 'Optional CAROL_PI_MODEL override (e.g. "llama.cpp/Qwen3.5-4B-Q4_K_M").' },
         timeoutMs: { type: 'number', description: 'Optional timeout in milliseconds (default 300000).' }
@@ -100,12 +100,12 @@ export const LOCAL_RUNNER_TOOLS = [
   },
   {
     name: 'bash_run',
-    description: 'Run a shell command in an allowed read-write root. Enforces CAROL saw-gate rules (no sed/grep/cat/etc. or project redirects).',
+    description: 'Run a shell command in any directory (defaults to active project). Enforces CAROL saw-gate rules (no sed/grep/cat/etc. or project redirects).',
     inputSchema: {
       type: 'object',
       properties: {
         command: { type: 'string', description: 'Shell command to execute.' },
-        directory: { type: 'string', description: 'Working directory (defaults to active project; must be an allowed RW root).' },
+        directory: { type: 'string', description: 'Working directory (defaults to active project).' },
         timeoutMs: { type: 'number', description: 'Optional timeout in milliseconds (default 120000, max 600000).' },
         tailChars: { type: 'number', description: 'Max trailing characters per stream (default 16000).' }
       },

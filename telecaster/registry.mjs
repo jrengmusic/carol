@@ -5,7 +5,6 @@ import { StdioMcpClient } from './stdio-client.mjs';
 import { LOCAL_RUNNER_TOOLS, LocalRunner } from './local-runner.mjs';
 
 const LING_MANIFEST = 'project-info.md';
-const MUTATING_VERBS = new Set(['write', 'replace', 'lines', 'patch', 'undo']);
 const AUTO_APPROVE_ANNOTATIONS = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
 
 function realpathOrAncestor(targetPath) {
@@ -26,11 +25,6 @@ function realpathOrAncestor(targetPath) {
   }
 }
 
-function isInsideRoot(target, root) {
-  const rel = path.relative(root, target);
-  return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
-}
-
 function expandHome(value) {
   if (value === '~') {
     return os.homedir();
@@ -41,72 +35,15 @@ function expandHome(value) {
   return value;
 }
 
-function extractCandidatePaths(args, baseDir) {
-  const candidates = [];
-  if (!Array.isArray(args)) {
-    return candidates;
-  }
-  const verb = args[0] || '';
-  for (let i = 1; i < args.length; i++) {
-    const token = String(args[i] ?? '');
-    if (token.startsWith('-')) {
-      continue;
-    }
-    if (verb === 'excerpt') {
-      const tildeSplit = token.split(' ~ ')[0].trim();
-      const rangeStripped = tildeSplit.replace(/:\d+(?:-\d+)?$/, '');
-      if (rangeStripped.length > 0) {
-        candidates.push(path.resolve(baseDir, expandHome(rangeStripped)));
-      }
-      continue;
-    }
-    if (token.includes('/') || token.startsWith('.') || token.startsWith('~')) {
-      candidates.push(path.resolve(baseDir, expandHome(token)));
-    }
-  }
-  return candidates;
-}
-
-function inAnyRoot(target, roots) {
-  return roots.some((root) => isInsideRoot(target, root));
-}
-
-function defaultDevDir() {
-  return path.join(os.homedir(), 'Documents', 'Poems', 'dev');
-}
-
-function defaultJamDir() {
-  return path.join(defaultDevDir(), 'jam');
-}
-
 export class ToolRegistry {
-  constructor(projectDir, carolDir, { readWriteRoots = [], readOnlyRoots = [] } = {}) {
+  constructor(projectDir, carolDir) {
     this.projectDir = realpathOrAncestor(projectDir);
     this.carolDir = realpathOrAncestor(carolDir);
-    const rwSet = new Set([this.projectDir]);
-    const jamDir = defaultJamDir();
-    if (fs.existsSync(jamDir)) {
-      rwSet.add(realpathOrAncestor(jamDir));
-    }
-    for (const dir of readWriteRoots) {
-      if (fs.existsSync(dir)) {
-        rwSet.add(realpathOrAncestor(dir));
-      }
-    }
-    this.rwRoots = [...rwSet];
-    const roSet = new Set();
-    for (const dir of [this.carolDir, defaultDevDir(), ...readOnlyRoots]) {
-      const real = realpathOrAncestor(dir);
-      if (!rwSet.has(real) && fs.existsSync(real)) {
-        roSet.add(real);
-      }
-    }
-    this.roRoots = [...roSet];
     this.clients = new Map();
     this.toolMap = new Map();
     this.tools = [];
     this.status = {};
-    this.localRunner = new LocalRunner(this.carolDir, (dir) => this.resolveRwDir(dir));
+    this.localRunner = new LocalRunner(this.carolDir, (dir) => this.resolveDir(dir));
   }
 
   async start() {
@@ -180,62 +117,19 @@ export class ToolRegistry {
     return this.tools;
   }
 
-  resolveRwDir(rawDir) {
+  resolveDir(rawDir) {
     const target = rawDir ? expandHome(String(rawDir)) : this.projectDir;
-    const resolved = realpathOrAncestor(target);
-    if (!inAnyRoot(resolved, this.rwRoots)) {
-      throw new Error(`directory outside allowed read-write roots: ${target}`);
-    }
-    return resolved;
+    return realpathOrAncestor(target);
   }
 
   validateSawCall(args, readOnly = false) {
-    const label = readOnly ? 'saw_read' : 'saw_run';
-    const rawDir = args?.directory ? expandHome(String(args.directory)) : this.projectDir;
-    const resolvedDir = realpathOrAncestor(rawDir);
-    const inRw = inAnyRoot(resolvedDir, this.rwRoots);
-    const inRo = inAnyRoot(resolvedDir, this.roRoots);
-    if (!inRw && !inRo) {
-      throw new Error(`${label}: directory outside allowed roots: ${rawDir}`);
-    }
-
+    const resolvedDir = this.resolveDir(args?.directory);
     const sawArgs = Array.isArray(args?.arguments) ? args.arguments.map(String) : [];
     const verb = sawArgs[0] || '';
     const isUndoMutate = verb === 'undo' && !sawArgs.includes('--list') && !sawArgs.includes('--dry-run');
-    const isApply = (sawArgs.includes('--apply') && MUTATING_VERBS.has(verb)) || isUndoMutate;
 
     if (readOnly && (sawArgs.includes('--apply') || isUndoMutate)) {
       throw new Error('saw_read: mutating arguments are not allowed (use saw_run)');
-    }
-
-    if (isApply && !inRw) {
-      throw new Error(`${label}: write blocked in read-only root: ${rawDir}`);
-    }
-
-    const candidates = extractCandidatePaths(sawArgs, resolvedDir);
-    if (verb === 'patch' && typeof args?.stdin === 'string') {
-      try {
-        const entries = JSON.parse(args.stdin);
-        if (Array.isArray(entries)) {
-          for (const entry of entries) {
-            if (entry && typeof entry.file === 'string') {
-              candidates.push(path.resolve(resolvedDir, expandHome(entry.file)));
-            }
-          }
-        }
-      } catch {}
-    }
-
-    for (const candidate of candidates) {
-      const realTarget = realpathOrAncestor(candidate);
-      const targetInRw = inAnyRoot(realTarget, this.rwRoots);
-      const targetInRo = inAnyRoot(realTarget, this.roRoots);
-      if (!targetInRw && !targetInRo) {
-        throw new Error(`${label}: path outside allowed roots: ${candidate}`);
-      }
-      if (isApply && !targetInRw) {
-        throw new Error(`${label}: write blocked in read-only root: ${candidate}`);
-      }
     }
 
     return { ...args, directory: resolvedDir };

@@ -29,12 +29,12 @@ Web AI clients spawn no subagents and run no harness hooks. TELECASTER executes 
 ## Tool Discipline
 
 - **File edits (`saw_run`):** Always dry-run first (no `--apply`). Read the diff and exact edit count `N`. Then apply with `--apply --expect N`. Never chain unverified edits.
-- **Root boundary:** Active project and JAM (`~/Documents/Poems/dev/jam`) are read-write. `~/Documents/Poems/dev/` and `~/.carol/` are read-only by default (unless set as the active project or passed via `--rw`).
+- **Access:** Unrestricted read-write across any path on the machine (defaults to the active project directory).
 - **AST navigation (`ling_*`):** Use `ling_goToDefinition`, `ling_findReferences`, `ling_hover`, `ling_documentSymbol`, and `ling_workspaceSymbol` before text search on C++ projects.
 - **Native debug (`whatdbg_*`):** Use MCP DAP tools directly.
 - **Profiling (`scout_run`):** Pass the absolute manifest path to `scout_run`.
 - **Local model runner (`llama_*`, `housekeeper_*`):** Use `llama_status`/`llama_start`/`llama_stop` for the single warm `llama.cpp` server (`127.0.0.1:9931`) and `housekeeper_start`/`housekeeper_status`/`housekeeper_stop` for async `housekeeper` runs (one job at a time).
-- **Shell (`bash_run`):** Runs local CLI commands (deps, `cast`, `cmake`, builds, tests, read-only `git`) in allowed RW roots. `saw-gate.mjs` enforces `saw_run` for file reads, search, and edits.
+- **Shell (`bash_run`):** Runs local CLI commands (deps, `cast`, `cmake`, builds, tests, read-only `git`) in any directory (defaults to active project). `saw-gate.mjs` enforces `saw_run` for file reads, search, and edits.
 
 ## Shell Discipline
 

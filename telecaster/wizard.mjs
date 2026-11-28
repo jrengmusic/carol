@@ -97,9 +97,7 @@ function parseArgs(argv) {
     noWizard: false,
     rotateToken: false,
     skill: false,
-    help: false,
-    rwRoots: [],
-    roRoots: []
+    help: false
   };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -110,10 +108,6 @@ function parseArgs(argv) {
     else if (arg === '--help' || arg === '-h') opts.help = true;
     else if (arg === '--port' && argv[i + 1]) {
       opts.port = Number(argv[++i]) || DEFAULT_PORT;
-    } else if (arg === '--rw' && argv[i + 1]) {
-      opts.rwRoots.push(path.resolve(expandHome(argv[++i])));
-    } else if (arg === '--ro' && argv[i + 1]) {
-      opts.roRoots.push(path.resolve(expandHome(argv[++i])));
     } else if (!arg.startsWith('-') && !opts.projectArg) {
       opts.projectArg = arg;
     }
@@ -143,8 +137,6 @@ function printHelp() {
   console.log('');
   console.log(`${C.magenta}Options:${C.nc}`);
   console.log(`  ${C.yellow}--port <n>${C.nc}       Loopback port (default: 9494)`);
-  console.log(`  ${C.yellow}--rw <dir>${C.nc}       Add extra read-write root (repeatable)`);
-  console.log(`  ${C.yellow}--ro <dir>${C.nc}       Add extra read-only root (repeatable)`);
   console.log(`  ${C.yellow}--local${C.nc}          Loopback only (skip Tailscale Funnel)`);
   console.log(`  ${C.yellow}--no-wizard${C.nc}      Skip interactive prompts`);
   console.log(`  ${C.yellow}--rotate-token${C.nc}   Mint a new access token`);
@@ -235,10 +227,7 @@ async function main() {
   const token = loadOrCreateToken(STATE_DIR, opts.rotateToken);
   const port = await findFreePort(opts.port);
 
-  const registry = new ToolRegistry(projectDir, CAROL_DIR, {
-    readWriteRoots: opts.rwRoots,
-    readOnlyRoots: opts.roRoots
-  });
+  const registry = new ToolRegistry(projectDir, CAROL_DIR);
   await registry.start();
 
   const httpServer = createTelecasterServer({
@@ -275,8 +264,7 @@ async function main() {
 
   console.log(`\n${C.green}${C.bold}✓ Amplifier MCP Online${C.nc} ${C.dim}(TELECASTER)${C.nc}`);
   console.log(`  ${C.yellow}Project:${C.nc}  ${C.cyan}${projectDir}${C.nc}`);
-  console.log(`  ${C.yellow}RW Roots:${C.nc} ${registry.rwRoots.join(', ')}`);
-  console.log(`  ${C.yellow}RO Roots:${C.nc} ${registry.roRoots.join(', ') || `${C.dim}none${C.nc}`}`);
+  console.log(`  ${C.yellow}Access:${C.nc}   unrestricted (read-write)`);
   console.log(`  ${C.yellow}Manifest:${C.nc} ${hasManifest ? `${C.green}project-info.md detected (ling active)${C.nc}` : `${C.dim}none (ling skipped)${C.nc}`}`);
   console.log(`  ${C.yellow}Health:${C.nc}   http://127.0.0.1:${port}/health`);
   console.log(`  ${C.yellow}MCP Link:${C.nc} ${C.cyan}${mcpUrl}${C.nc}${copied ? `  ${C.green}(copied to clipboard)${C.nc}` : ''}`);
