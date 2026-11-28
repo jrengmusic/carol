@@ -484,6 +484,7 @@ cmd_help() {
     echo -e "  ${YELLOW}oracle${NC} [name]       Launch ORACLE session (research, SPEC, RFC, analysis)"
     echo -e "  ${YELLOW}counselor${NC} [opus5|opus55] [name]        Launch COUNSELOR (model ladder, default opus55)"
     echo -e "  ${YELLOW}machinist${NC} [name]  Launch MACHINIST session (machine custodian, no project scaffold)"
+    echo -e "  ${YELLOW}teleoperator${NC} [dir] Launch TELEOPERATOR remote MCP gateway for web AI clients"
     echo -e "  ${YELLOW}debt${NC} <subcmd>  Manage DEBT.md ledger (add/clear)"
     echo -e "  ${YELLOW}ledger${NC}         Show DEBT.md ledger"
     echo -e "  ${YELLOW}loc${NC} [days]      Show git line-change stats for last N days (default 7)"
@@ -1143,6 +1144,10 @@ case "${1:-run}" in
     machinist|machine)
         shift
         cmd_run --agent MACHINIST "$@"
+        ;;
+    teleoperator)
+        shift
+        exec node "$CAROL_ROOT/teleoperator/wizard.mjs" "$@"
         ;;
     debt)
         shift

@@ -45,3 +45,4 @@ providers/generated/
 
 # Secrets
 ant.k
+.teleoperator/

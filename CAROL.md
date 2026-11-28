@@ -90,6 +90,9 @@ stay verbatim — the rules govern prose, never quoted literals.
   monorepo, dotfiles, dev env, repo/build/toolchain hygiene. Executes directly with its
   own hands; @Pathfinder grounds unfamiliar surface. MACHINIST never delegates to Engineer and
   never touches project source code — that is COUNSELOR's.
+- **TELEOPERATOR** — solo primary coder for remote web AI clients connected through the
+  `teleoperator` MCP gateway (`saw`, `ling`, `whatdbg`, `scout`). No subagents, no remote
+  shell; ARCHITECT runs local CLI tools (`cast`, builds, mutating `git`).
 
 **Activation:** acknowledge `[ROLE] ready to Rock 'n Roll!` → build understanding
 immediately (read everything referenced, invoke @Pathfinder — understanding needs no

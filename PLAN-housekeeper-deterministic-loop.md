@@ -2,6 +2,7 @@
 
 **RFC:** none — objective from ARCHITECT prompt (2026-11-22). Context: `PLAN-pi-cli-harness-and-housekeeper-primary-role-integration.md`, `PLAN-llama-cpp-local-model-baseline.md` (Steps 1-5 done; Step 6 halted by ARCHITECT), `~/Documents/Poems/dev/caroline/RFC-local-model-workers.md`.
 **Date:** 2026-11-22
+**Status:** SUPERSEDED (2026-11-28) — historical baseline only. Lua/nvim tool design is deleted; current MCP discovery state is in `HANDOFF-housekeeper.md`.
 **BLESSED Compliance:** verified
 **Language Constraints:** Lua run by `nvim --headless -l` (skill tooling), TypeScript pi extension, bash 3.2 launcher, Markdown contract documents
 **Executor:** MACHINIST (direct execution, no Engineer)

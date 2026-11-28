@@ -2,6 +2,7 @@
 
 **RFC:** RFC-pi_cli_harness_and_housekeeper_primary_role_integration.md
 **Date:** 2026-11-21
+**Status:** SUPERSEDED (2026-11-28) — Ollama and deleted Lua skills are replaced. Read `HANDOFF-housekeeper.md` for current state.
 **BLESSED Compliance:** verified
 **Language Constraints:** bash 3.2 (`/bin/bash`, macOS), TypeScript pi extension (`@earendil-works/pi-coding-agent` 1.6.0), Markdown contract documents
 **Executor:** MACHINIST (direct execution, no Engineer)

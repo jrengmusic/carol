@@ -2,7 +2,7 @@
 
 **From:** MACHINIST
 **Date:** 2026-11-22
-**Status:** Blocked (Phase C gate: ARCHITECT picks the loop formula)
+**Status:** SUPERSEDED (2026-11-28) — stale history only. Lua core and Gemma models are deleted. Read `HANDOFF-housekeeper.md` for current state.
 
 ### Read First
 1. `~/.carol/PLAN-housekeeper-deterministic-loop.md`. It is the plan. Phases A-E, Locked Decisions (`:289`), Phase A Result (`:310`), Phase B Result (`:322`), Phase C Result (`:360`).

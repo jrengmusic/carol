@@ -2,6 +2,7 @@
 
 **RFC:** none — objective from ARCHITECT prompt (2026-11-22). Context: `RFC-pi_cli_harness_and_housekeeper_primary_role_integration.md`, `PLAN-pi-cli-harness-and-housekeeper-primary-role-integration.md`, `~/Documents/Poems/dev/caroline/RFC-local-model-workers.md`.
 **Date:** 2026-11-22
+**Status:** SUPERSEDED (2026-11-28) — Steps 1-5 done, Step 6 halted; llama.cpp upgraded to 1.1.0 and Gemma removed. Read `HANDOFF-housekeeper.md` for current state.
 **BLESSED Compliance:** verified
 **Language Constraints:** bash 3.2 (`/bin/bash`, macOS), pi 1.6.0 built-in `llama.cpp` provider, Homebrew `llama.cpp` 1.0.0
 **Executor:** MACHINIST (direct execution, no Engineer)
