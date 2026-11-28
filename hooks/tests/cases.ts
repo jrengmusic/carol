@@ -133,7 +133,7 @@ export default [
   { name: 'git instruction survives a task notification', prompts: ['commit this', { text: 'agent done', origin: 'task-notification' }], tool: 'Bash', command: 'git commit -m x', expect: 'allow' },
   { name: 'no-gate in a task notification does not arm', reads: CONTRACT, prompts: [{ text: 'no gate', origin: 'task-notification' }], role: 'COUNSELOR', tool: 'AskUserQuestion', expect: 'allow' },
   { name: 'nudge and read directive absent on 4th prompt', prompts: ['a', 'b', 'c', 'd'], role: 'MACHINIST', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 0 },
-  { name: 'nudge present on 5th prompt, with read directive', prompts: ['a', 'b', 'c', 'd', 'e'], role: 'MACHINIST', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 2 },
+  { name: 'nudge and read directive absent on 5th prompt', prompts: ['a', 'b', 'c', 'd', 'e'], role: 'MACHINIST', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 0 },
   { name: 'nudge and read directive absent on 1st prompt for ORACLE', prompts: ['a'], role: 'ORACLE', tool: 'Bash', command: 'echo hi', expect: 'allow', contextLinesOnLastPrompt: 0 },
   { name: 'subagent background bash denied', prompts: ['hello'], subagent: true, background: true, tool: 'Bash', command: 'sleep 1', expect: 'deny' },
   { name: 'subagent foreground bash allowed', prompts: ['hello'], subagent: true, tool: 'Bash', command: 'echo hi', expect: 'allow' },

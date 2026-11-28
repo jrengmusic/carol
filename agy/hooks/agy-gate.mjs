@@ -4,7 +4,6 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-const NUDGE_INTERVAL = 5
 const DEFAULT_ROLE = 'COUNSELOR'
 const MACHINIST_ROLE = 'MACHINIST'
 const ROLE_FILE = '.carol-role'
@@ -39,8 +38,6 @@ const CONTRACT_GATE = 'Before a question to ARCHITECT, read ~/.carol/MANIFESTO.m
 const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with read_file, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
 const READ_DIRECTIVE = "If your reasoning still leaves an open end to fill in, read again thoroughly with read_file. Find the answer as a citable fact from the codebase, checked against ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md, and from the agreed rulings in the RFC and the PLAN. Above all, use ARCHITECT's explicit discussion recorded in the chat history. Never fill in a gap. Never leave an open end that reading can answer. Respond only with a citable fact."
 const OPEN_END_PATTERN = /\b(?:not read yet|(?:still )?needs? to (?:be )?verif(?:y|ied)|not yet verified|(?:have|has|had)(?: not|n't) (?:read|seen|checked|verified)|unread|do not know)\b/i
-const NUDGE_MACHINIST = 'CAROL NUDGE — MACHINIST executes directly with its own hands; @Pathfinder grounds unfamiliar surface; cross-platform consistency holds for ~/.config/ edits. Discuss before executing changes; cite file:line.'
-const NUDGE_DEFAULT = "CAROL NUDGE — Stay in role: plan and delegate (@Engineer code, @Pathfinder discovery, @Auditor once at sprint completion). Answer by reading; every claim cites file:line. Before the plan locks, hold answers until ARCHITECT's go. After the lock, execute to the endpoint per CAROL.md Step Gate."
 
 const CAROL_ROOT = process.env.CAROL_ROOT || path.join(os.homedir(), '.carol')
 const PLUGIN_ROOT = process.env.PLUGIN_ROOT || path.join(os.homedir(), '.gemini', 'config', 'plugins', 'carol')
@@ -76,7 +73,6 @@ function loadState(conversationId) {
     } catch {}
   }
   return {
-    promptCount: 0,
     armedAtMs: 0,
     isNoGateArmed: false,
     isGitInstructed: false,
@@ -168,7 +164,6 @@ function isSprintLogNewer(cwd, armedAtMs) {
 
 function handlePreInvocation(payload, state) {
   const userInput = String(payload.lastUserInput || '')
-  let isNewUserTurn = false
   if (userInput && userInput !== state.lastUserInput) {
     state.lastUserInput = userInput
     if (NO_GATE_PATTERN.test(userInput)) {
@@ -177,18 +172,7 @@ function handlePreInvocation(payload, state) {
     }
     state.isGitInstructed = GIT_INSTRUCTION_PATTERN.test(userInput)
     state.isReportReturned = false
-    state.promptCount += 1
-    isNewUserTurn = true
     saveState(payload.conversationId, state)
-  }
-
-  if (isNewUserTurn && state.promptCount % NUDGE_INTERVAL === 0) {
-    const nudge = getRole() === MACHINIST_ROLE ? NUDGE_MACHINIST : NUDGE_DEFAULT
-    return {
-      injectSteps: [
-        { systemMessage: { systemMessage: READ_DIRECTIVE + '\n\n' + nudge } }
-      ]
-    }
   }
   return {}
 }

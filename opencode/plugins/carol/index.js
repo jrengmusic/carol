@@ -10,15 +10,12 @@ import {
   GIT_INSTRUCTION_PATTERN,
   MACHINIST_ROLE,
   NO_GATE_PATTERN,
-  NUDGE_INTERVAL,
-  READ_DIRECTIVE,
   SAW_TOOL,
   SAW_TOOLS,
   SPRINT_LOG,
   STEP_GATE,
   getContractDocument,
   getModelDenial,
-  getNudge,
   getRunDenial,
   getShellDenial,
   getStopBlock,
@@ -41,10 +38,9 @@ const SHELL_TOOL = 'shell'
 const WINDOWS_PLATFORM = 'win32'
 const OUTPUT_STYLE_KEY = 'carol.output-style'
 const SESSION_START_KEY = 'carol.session-start'
-const CONTEXT_SEPARATOR = '\n\n'
 
 function makeState() {
-  return { promptCount: 0, armedAtMs: 0, isNoGateArmed: false, isGitInstructed: false, isStopHookActive: false, isStarted: false, contractReads: new Set() }
+  return { armedAtMs: 0, isNoGateArmed: false, isGitInstructed: false, isStopHookActive: false, isStarted: false, contractReads: new Set() }
 }
 
 function getRole(session) {
@@ -220,10 +216,6 @@ export default {
       if (NO_GATE_PATTERN.test(text)) armNoGate(state)
       state.isGitInstructed = GIT_INSTRUCTION_PATTERN.test(text)
       state.isStopHookActive = false
-      state.promptCount += 1
-      if (state.promptCount % NUDGE_INTERVAL === 0) {
-        event.prompt.text = [event.prompt.text, READ_DIRECTIVE, getNudge(getRole(session))].join(CONTEXT_SEPARATOR)
-      }
     })
 
     await ctx.session.hook('context', async (event) => {

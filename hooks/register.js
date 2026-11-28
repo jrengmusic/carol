@@ -11,7 +11,6 @@ import {
   isSawExcerpt,
 } from './saw-gate.mjs'
 
-const NUDGE_INTERVAL = 5
 const DEFAULT_ROLE = 'COUNSELOR'
 const MACHINIST_ROLE = 'MACHINIST'
 const READ_ONLY_GIT_AGENT = 'pathfinder'
@@ -56,10 +55,7 @@ const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-o
 const READ_DIRECTIVE = "If your reasoning still leaves an open end to fill in, read again thoroughly with the Read tool. Find the answer as a citable fact from the codebase, checked against ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md, and from the agreed rulings in the RFC and the PLAN. Above all, use ARCHITECT's explicit discussion recorded in the chat history. Never fill in a gap. Never leave an open end that reading can answer. Respond only with a citable fact."
 const OPEN_END_PATTERN = /\b(?:not read yet|(?:still )?needs? to (?:be )?verif(?:y|ied)|not yet verified|(?:have|has|had)(?: not|n't) (?:read|seen|checked|verified)|unread|do not know)\b/i
 const USER_ORIGIN_KINDS = ['composer', 'bridge']
-const NUDGE_MACHINIST ='CAROL NUDGE — MACHINIST executes directly with its own hands; @Pathfinder grounds unfamiliar surface; cross-platform consistency holds for ~/.config/ edits. Discuss before executing changes; cite file:line.'
-const NUDGE_DEFAULT = "CAROL NUDGE — Stay in role: plan and delegate (@Engineer code, @Pathfinder discovery, @Auditor once at sprint completion). Answer by reading; every claim cites file:line. Before the plan locks, hold answers until ARCHITECT's go. After the lock, execute to the endpoint per CAROL.md Step Gate."
 
-const promptCount = atom({ plugin: 'carol', key: 'promptCount' }, 0)
 const armedAtMs = atom({ plugin: 'carol', key: 'armedAtMs' }, 0)
 const isNoGateArmed = atom({ plugin: 'carol', key: 'isNoGateArmed' }, false)
 const isGitInstructed = atom({ plugin: 'carol', key: 'isGitInstructed' }, false)
@@ -179,16 +175,11 @@ export function register(on) {
   })
 
   on('prompt.submit', async ($, e, next) => {
-    const context = [...(e.context ?? [])]
     if (USER_ORIGIN_KINDS.includes(e.origin.kind)) {
       if (NO_GATE_PATTERN.test(e.text)) await armNoGate($)
       await update($, isGitInstructed, () => GIT_INSTRUCTION_PATTERN.test(e.text))
-      await update($, promptCount, (count) => count + 1)
-      if ((await read($, promptCount)) % NUDGE_INTERVAL === 0) {
-        context.push(READ_DIRECTIVE, (await getRole($)) === MACHINIST_ROLE ? NUDGE_MACHINIST : NUDGE_DEFAULT)
-      }
     }
-    return next({ ...e, context })
+    return next(e)
   })
 
   on('classic.Stop', async ($, e, next) => {

@@ -3,7 +3,6 @@ import {
   getShellDenial as getSawShellDenial,
   getToolDenial,
 } from '../../../hooks/saw-gate.mjs'
-export const NUDGE_INTERVAL = 5
 export const DEFAULT_ROLE = 'COUNSELOR'
 export const MACHINIST_ROLE = 'MACHINIST'
 export const SPRINT_LOG = 'carol/SPRINT-LOG.md'
@@ -29,10 +28,8 @@ export const CONTRACT_GATE = 'Before a question to ARCHITECT, read ~/.carol/MANI
 const BACKGROUND_GATE = 'A subagent runs no background command (CAROL.md Subagent Return Format: the report is the final output). Run this command in the foreground, wait for it to finish, and put its result in your report.'
 export const FOREGROUND_GATE = 'Run Pathfinder in the foreground: the plugin checks its report before you read it, and a background report has no such check. Remove background from this call.'
 export const STEP_GATE = 'No gate until /log: this run ends at the sprint log. A text-only end of turn is a report, not the endpoint. Per CAROL.md Step Gate, a stop before the log is evidence that CONTRACT was not read at that point. Read ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md again with the Read tool, then read the implicated code at file:line. Correct course with the CONTRACT clause that covers it, and do the next step. Stop only for the closed stop set in CAROL.md Step Gate. If a subagent is still running, end the turn and wait for it.'
-export const READ_DIRECTIVE = "If your reasoning still leaves an open end to fill in, read again thoroughly with the Read tool. Find the answer as a citable fact from the codebase, checked against ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md, and from the agreed rulings in the RFC and the PLAN. Above all, use ARCHITECT's explicit discussion recorded in the chat history. Never fill in a gap. Never leave an open end that reading can answer. Respond only with a citable fact."
+const READ_DIRECTIVE = "If your reasoning still leaves an open end to fill in, read again thoroughly with the Read tool. Find the answer as a citable fact from the codebase, checked against ~/.carol/MANIFESTO.md, ~/.carol/CODING.md and ~/.carol/NAMES.md, and from the agreed rulings in the RFC and the PLAN. Above all, use ARCHITECT's explicit discussion recorded in the chat history. Never fill in a gap. Never leave an open end that reading can answer. Respond only with a citable fact."
 const OPEN_END_PATTERN = /\b(?:not read yet|(?:still )?needs? to (?:be )?verif(?:y|ied)|not yet verified|(?:have|has|had)(?: not|n't) (?:read|seen|checked|verified)|unread|do not know)\b/i
-export const NUDGE_MACHINIST = 'CAROL NUDGE — MACHINIST executes directly with its own hands; @Pathfinder grounds unfamiliar surface; cross-platform consistency holds for ~/.config/ edits. Discuss before executing changes; cite file:line.'
-export const NUDGE_DEFAULT = "CAROL NUDGE — Stay in role: plan and delegate (@Engineer code, @Pathfinder discovery, @Auditor once at sprint completion). Answer by reading; every claim cites file:line. Before the plan locks, hold answers until ARCHITECT's go. After the lock, execute to the endpoint per CAROL.md Step Gate."
 
 export const SAW_TOOL = 'saw_run'
 const DENIED_TOOL_ROWS = { edit: 'Edit', patch: 'Edit', grep: 'grep', write: 'Write' }
@@ -84,8 +81,4 @@ export function getStopBlock({ isNoGateRun, isSprintLogNewer, isStopHookActive, 
   if (isNoGateRun && !isSprintLogNewer && !isStopHookActive) return STEP_GATE
   if (OPEN_END_PATTERN.test(lastAssistantMessage) && !isStopHookActive) return READ_DIRECTIVE
   return undefined
-}
-
-export function getNudge(role) {
-  return role === MACHINIST_ROLE ? NUDGE_MACHINIST : NUDGE_DEFAULT
 }
