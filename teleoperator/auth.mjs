@@ -198,8 +198,9 @@ export class AuthStore {
   async handleOAuthRoute(req, res, url, baseUrl, readBody, sendJson) {
     if (url.pathname === '/.well-known/oauth-protected-resource' ||
         url.pathname.startsWith('/.well-known/oauth-protected-resource/')) {
+      const suffix = url.pathname.slice('/.well-known/oauth-protected-resource'.length) || '/mcp';
       sendJson(res, 200, {
-        resource: baseUrl,
+        resource: `${baseUrl}${suffix}`,
         authorization_servers: [baseUrl],
         bearer_methods_supported: ['header'],
         scopes_supported: ['mcp']

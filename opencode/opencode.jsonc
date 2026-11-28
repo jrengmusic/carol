@@ -14,7 +14,9 @@
   // saw speaks MCP revision 2026-07-28 only. OpenCode's default is the older handshake.
   "mcp": {
     "servers": {
-      "saw": { "type": "local", "command": ["saw", "--mcp"], "protocol": "2026-07-28" }
+      "saw": { "type": "local", "command": ["saw", "--mcp"], "protocol": "2026-07-28" },
+      "whatdbg": { "type": "local", "command": ["whatdbg", "--mcp"], "protocol": "2026-07-28" },
+      "scout": { "type": "local", "command": ["scout", "--mcp"], "protocol": "2026-07-28" }
     }
   },
   // The carol plugin fills each agent from ~/.carol/agents/<id>.md. A model here overrides that file for OpenCode only.

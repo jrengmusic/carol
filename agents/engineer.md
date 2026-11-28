@@ -4,7 +4,7 @@ description: Invoke for code implementation. Executes exactly what the primary a
 model: haiku
 effort: medium
 color: blue
-tools: Read, Bash, Glob, LSP, ToolSearch, mcp__ling__*, mcp__saw__*
+tools: Read, Bash, Glob, LSP, ToolSearch, mcp__ling__*, mcp__saw__*, mcp__whatdbg__*, mcp__scout__*
 ---
 
 ## Role: ENGINEER

@@ -54,11 +54,23 @@ export function checkTailscale() {
     };
   }
 
-  let dnsName = '';
+  let parsed = {};
   try {
-    const parsed = JSON.parse(status.stdout || '{}');
-    dnsName = String(parsed?.Self?.DNSName || '').replace(/\.$/, '');
+    parsed = JSON.parse(status.stdout || '{}');
   } catch {}
+
+  if (parsed?.BackendState && parsed.BackendState !== 'Running') {
+    return {
+      ok: false,
+      reason: `Tailscale is not connected (state: ${parsed.BackendState}).`,
+      steps: [
+        '1. Connect Tailscale from the menu bar app or run `tailscale up`.',
+        '2. Re-run `teleoperator`.'
+      ]
+    };
+  }
+
+  const dnsName = String(parsed?.Self?.DNSName || '').replace(/\.$/, '');
 
   if (!dnsName) {
     return {

@@ -70,6 +70,7 @@ export function createTeleoperatorServer({ registry, token, port, publicUrl, sta
   const auth = new AuthStore(token, stateDir);
   const mcpSessions = new Map();
   const sseSessions = new Map();
+  const activeStreams = new Set();
   let activePublicUrl = publicUrl || '';
 
   async function handleRpc(msg) {
@@ -118,12 +119,14 @@ export function createTeleoperatorServer({ registry, token, port, publicUrl, sta
     }
 
     if (isPublicPath(pathname)) {
+      if (pathname.startsWith('/.well-known/')) {
+        setMcpCors(res);
+      }
       const handled = await auth.handleOAuthRoute(req, res, rawUrl, baseUrl, readBody, sendJson);
       if (handled) {
         return;
       }
     }
-
     if (pathname === '/health' && req.method === 'GET') {
       sendJson(res, 200, {
         status: 'online',
@@ -155,37 +158,58 @@ export function createTeleoperatorServer({ registry, token, port, publicUrl, sta
         return;
       }
       if (req.method === 'GET') {
+        const accept = String(req.headers.accept || '');
+        if (!accept.includes('text/event-stream')) {
+          sendJson(res, 200, {
+            status: 'online',
+            service: SERVER_INFO.name,
+            protocolVersion: DEFAULT_PROTOCOL_VERSION,
+            toolCount: registry.listTools().length
+          });
+          return;
+        }
         res.writeHead(200, {
           'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive'
+          'Cache-Control': 'no-cache, no-transform',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no'
         });
         res.write(': connected\n\n');
         const heartbeat = setInterval(() => res.write(': ping\n\n'), 25000);
-        req.on('close', () => clearInterval(heartbeat));
+        const stream = { res, heartbeat };
+        activeStreams.add(stream);
+        req.on('close', () => {
+          clearInterval(heartbeat);
+          activeStreams.delete(stream);
+        });
         return;
       }
       if (req.method === 'POST') {
-        let payload;
+        let parsed;
         try {
-          payload = JSON.parse(await readBody(req) || '{}');
+          parsed = JSON.parse(await readBody(req) || '{}');
         } catch {
           sendJson(res, 400, { jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } });
           return;
         }
+        const messages = Array.isArray(parsed) ? parsed : [parsed];
         let sessionId = String(req.headers['mcp-session-id'] || '');
-        if (payload?.method === 'initialize' && !sessionId) {
+        if (messages.some((m) => m?.method === 'initialize') && !sessionId) {
           sessionId = crypto.randomBytes(16).toString('hex');
           mcpSessions.set(sessionId, { createdAt: Date.now() });
         }
         const headers = sessionId ? { 'mcp-session-id': sessionId } : {};
-        const response = await handleRpc(payload);
-        if (response === null) {
+        const outs = [];
+        for (const msg of messages) {
+          const out = await handleRpc(msg);
+          if (out !== null) outs.push(out);
+        }
+        if (outs.length === 0) {
           res.writeHead(202, headers);
           res.end();
           return;
         }
-        sendJson(res, 200, response, headers);
+        sendJson(res, 200, Array.isArray(parsed) ? outs : outs[0], headers);
         return;
       }
     }
@@ -202,8 +226,11 @@ export function createTeleoperatorServer({ registry, token, port, publicUrl, sta
       });
       res.write(`event: endpoint\ndata: /messages?sessionId=${sessionId}&token=${sseToken}\n\n`);
       const heartbeat = setInterval(() => res.write(': ping\n\n'), 25000);
+      const stream = { res, heartbeat };
+      activeStreams.add(stream);
       req.on('close', () => {
         clearInterval(heartbeat);
+        activeStreams.delete(stream);
         sseSessions.delete(sessionId);
         auth.dropSseToken(sessionId);
       });
@@ -249,13 +276,24 @@ export function createTeleoperatorServer({ registry, token, port, publicUrl, sta
       });
     },
     close() {
-      for (const sseRes of sseSessions.values()) {
+      for (const stream of activeStreams) {
+        clearInterval(stream.heartbeat);
         try {
-          sseRes.end();
+          stream.res.end();
         } catch {}
       }
+      activeStreams.clear();
       sseSessions.clear();
-      return new Promise((resolve) => server.close(() => resolve()));
+      if (typeof server.closeAllConnections === 'function') {
+        server.closeAllConnections();
+      }
+      return new Promise((resolve) => {
+        const timer = setTimeout(resolve, 500);
+        server.close(() => {
+          clearTimeout(timer);
+          resolve();
+        });
+      });
     }
   };
 }

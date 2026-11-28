@@ -4,7 +4,7 @@ description: Invoke for research in two modes, stated by the delegation prompt. 
 model: haiku
 effort: medium
 color: green
-tools: Read, Glob, Bash, ToolSearch, WebFetch, WebSearch, mcp__saw__*
+tools: Read, Glob, Bash, ToolSearch, WebFetch, WebSearch, mcp__saw__*, mcp__whatdbg__*, mcp__scout__*
 disallowedTools: Write, Edit
 ---
 

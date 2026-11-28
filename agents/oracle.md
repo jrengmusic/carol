@@ -4,7 +4,7 @@ description: Primary research and analysis agent — deep reasoning, pre-flight 
 model: fable
 effort: high
 color: orange
-tools: Agent(Pathfinder, Librarian), Read, Glob, Bash, LSP, ToolSearch, mcp__ling__*, mcp__saw__*, AskUserQuestion, SendMessage, TaskStop
+tools: Agent(Pathfinder, Librarian), Read, Glob, Bash, LSP, ToolSearch, mcp__ling__*, mcp__saw__*, mcp__whatdbg__*, mcp__scout__*, AskUserQuestion, SendMessage, TaskStop
 ---
 
 # ORACLE — Research, Analysis, SPEC, RFC

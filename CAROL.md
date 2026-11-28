@@ -361,19 +361,17 @@ Ignore all LSP errors — false positives from the JUCE module system.
 Headless debugging of native binaries uses the `whatdbg` MCP server (`whatdbg --mcp`) —
 never raw lldb and never Lua wrapper scripts. Raw lldb opens the macOS Developer-Tools
 permission dialog, and a missed click stops the process for ever. `whatdbg` debugs without
-that dialog and exposes all DAP operations as MCP tools. COUNSELOR and `@Pathfinder` can
-call `whatdbg` MCP tools; hooks enforce this boundary. The `trace` skill
-(`~/.carol/skills/trace/`) holds the protocol.
+that dialog and exposes all DAP operations as MCP tools. All agents can call `whatdbg` MCP
+tools. The `trace` skill (`~/.carol/skills/trace/`) holds the protocol.
 
 ## Profiling
 
 Measurement and stack sampling of code use the `scout` MCP server (`scout --mcp`) — never
 a hand-written harness and never a `whatdbg` script. One manifest names the benchmarks,
 the epochs, the baseline, and optional `## sample` stack sampling. `scout --mcp` handles
-`sudo -n` automatically when a `## sample` table is present. Only `@Pathfinder` calls
-`scout` MCP tools; hooks enforce this boundary. The `profile` skill
-(`~/.carol/skills/profile/`) holds the protocol, the manifest grammar, and the report
-grammar.
+`sudo -n` automatically when a `## sample` table is present. All agents can call `scout`
+MCP tools. The `profile` skill (`~/.carol/skills/profile/`) holds the protocol, the
+manifest grammar, and the report grammar.
 
 ## Code Hygiene
 

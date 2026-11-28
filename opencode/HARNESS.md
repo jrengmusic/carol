@@ -13,6 +13,8 @@ OpenCode counterpart in these tables. Where a table gives "None", OpenCode has n
 | Bash | `shell`. `run_in_background` is `background`. |
 | Read, Write, Glob, Grep | `read`, `write`, `glob`, `grep` |
 | `mcp__saw__run` | `saw_run`, with the same arguments |
+| `mcp__whatdbg__*` | `whatdbg_*`, with the same arguments |
+| `mcp__scout__run` | `scout_run`, with the same arguments |
 | WebFetch, WebSearch | `webfetch`, `websearch` |
 | Skill | `skill` |
 | LSP | `lsp`, with the same operations, on clangd |

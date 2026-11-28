@@ -142,6 +142,7 @@ function readSingleKey() {
         process.stdin.off('data', onData);
         process.stdin.setRawMode(false);
         process.stdin.pause();
+        process.stdin.unref();
         resolve(ch === '\r' || ch === '\n' ? '1' : ch);
       }
     };
@@ -252,14 +253,18 @@ async function main() {
 
   let stopping = false;
   const shutdown = async () => {
-    if (stopping) return;
+    if (stopping) {
+      process.exit(130);
+    }
     stopping = true;
     console.log('\nStopping TELEOPERATOR...');
-    await httpServer.close();
+    const forceExit = setTimeout(() => process.exit(0), 1500);
     registry.closeAll();
+    await httpServer.close();
     if (funnelStarted) {
       stopFunnel();
     }
+    clearTimeout(forceExit);
     process.exit(0);
   };
 
