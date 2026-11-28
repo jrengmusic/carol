@@ -54,7 +54,7 @@ export const LOCAL_RUNNER_TOOLS = [
   },
   {
     name: 'llama_stop',
-    description: 'Stop the llama.cpp server if started by teleoperator.',
+    description: 'Stop the llama.cpp server if started by telecaster.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false }
   },
   {
@@ -141,7 +141,7 @@ export class LocalRunner {
     return {
       running: health.ok,
       url: LLAMA_URL,
-      ownedByTeleoperator: Boolean(this.llamaProc && !this.llamaProc.killed),
+      ownedByTelecaster: Boolean(this.llamaProc && !this.llamaProc.killed),
       pid: this.llamaProc?.pid || null,
       health: health.json || health.text || null,
       models: models?.json?.data?.map((m) => m.id) || []
@@ -199,7 +199,7 @@ export class LocalRunner {
 
   llamaStop() {
     if (!this.llamaProc) {
-      return { stopped: false, reason: 'No llama server owned by teleoperator' };
+      return { stopped: false, reason: 'No llama server owned by telecaster' };
     }
     const pid = this.llamaProc.pid;
     try {

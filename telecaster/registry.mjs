@@ -70,8 +70,12 @@ function inAnyRoot(target, roots) {
   return roots.some((root) => isInsideRoot(target, root));
 }
 
+function defaultDevDir() {
+  return path.join(os.homedir(), 'Documents', 'Poems', 'dev');
+}
+
 function defaultJamDir() {
-  return path.join(os.homedir(), 'Documents', 'Poems', 'dev', 'jam');
+  return path.join(defaultDevDir(), 'jam');
 }
 
 export class ToolRegistry {
@@ -90,7 +94,7 @@ export class ToolRegistry {
     }
     this.rwRoots = [...rwSet];
     const roSet = new Set();
-    for (const dir of [this.carolDir, ...readOnlyRoots]) {
+    for (const dir of [this.carolDir, defaultDevDir(), ...readOnlyRoots]) {
       const real = realpathOrAncestor(dir);
       if (!rwSet.has(real) && fs.existsSync(real)) {
         roSet.add(real);

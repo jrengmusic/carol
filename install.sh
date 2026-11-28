@@ -117,15 +117,15 @@ setup_path() {
 
     local PI_BIN="$CAROL_ROOT/pi/bin"
 
-    chmod +x "$CAROL_BIN/carol" "$CAROL_BIN/oracle" "$CAROL_BIN/machine" "$CAROL_BIN/teleoperator" "$PI_BIN/housekeeper"
+    chmod +x "$CAROL_BIN/carol" "$CAROL_BIN/oracle" "$CAROL_BIN/machine" "$CAROL_BIN/telecaster" "$PI_BIN/housekeeper"
 
     mkdir -p "$LOCAL_BIN"
     ln -sf "$CAROL_BIN/carol"        "$LOCAL_BIN/carol"
     ln -sf "$CAROL_BIN/oracle"       "$LOCAL_BIN/oracle"
     ln -sf "$CAROL_BIN/machine"      "$LOCAL_BIN/machine"
-    ln -sf "$CAROL_BIN/teleoperator" "$LOCAL_BIN/teleoperator"
+    ln -sf "$CAROL_BIN/telecaster" "$LOCAL_BIN/telecaster"
     ln -sf "$PI_BIN/housekeeper"     "$LOCAL_BIN/housekeeper"
-    success "Symlinked carol, oracle, machine, teleoperator, housekeeper → $LOCAL_BIN"
+    success "Symlinked carol, oracle, machine, telecaster, housekeeper → $LOCAL_BIN"
 
     if ! echo "$PATH" | tr ':' '\n' | grep -q "$LOCAL_BIN"; then
         notice "$LOCAL_BIN is not in your PATH"

@@ -4,7 +4,7 @@ import net from 'node:net';
 import { AuthStore, isPublicPath } from './auth.mjs';
 
 const DEFAULT_PROTOCOL_VERSION = '2025-03-26';
-const SERVER_INFO = { name: 'CAROL TELEOPERATOR', version: '0.1.0' };
+const SERVER_INFO = { name: 'Telecaster', version: '0.1.0' };
 const MAX_BODY_BYTES = 10_000_000;
 const PORT_PROBE_COUNT = 20;
 
@@ -66,7 +66,7 @@ function extractPathToken(pathname) {
   return { pathname: `/${match[1]}`, pathToken: match[2] };
 }
 
-export function createTeleoperatorServer({ registry, token, port, publicUrl, stateDir = '' }) {
+export function createTelecasterServer({ registry, token, port, publicUrl, stateDir = '' }) {
   const auth = new AuthStore(token, stateDir);
   const mcpSessions = new Map();
   const sseSessions = new Map();

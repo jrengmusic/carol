@@ -34,7 +34,7 @@ export function checkTailscale() {
         '1. Install Tailscale: https://tailscale.com/download (or `brew install --cask tailscale`).',
         '2. Open Tailscale and sign in (free plan works).',
         '3. Enable Funnel once in Tailscale Admin Console -> DNS -> Enable HTTPS & Funnel.',
-        '4. Re-run `teleoperator`.'
+        '4. Re-run `telecaster`.'
       ]
     };
   }
@@ -49,7 +49,7 @@ export function checkTailscale() {
       reason: 'Tailscale is installed but not signed in or daemon is stopped.',
       steps: [
         '1. Start Tailscale and sign in (`tailscale up` or via the Tailscale menu bar app).',
-        '2. Re-run `teleoperator`.'
+        '2. Re-run `telecaster`.'
       ]
     };
   }
@@ -65,7 +65,7 @@ export function checkTailscale() {
       reason: `Tailscale is not connected (state: ${parsed.BackendState}).`,
       steps: [
         '1. Connect Tailscale from the menu bar app or run `tailscale up`.',
-        '2. Re-run `teleoperator`.'
+        '2. Re-run `telecaster`.'
       ]
     };
   }
@@ -78,7 +78,7 @@ export function checkTailscale() {
       reason: 'Tailscale MagicDNS hostname is missing.',
       steps: [
         '1. Open Tailscale Admin Console -> DNS -> Enable MagicDNS and HTTPS Certificates.',
-        '2. Re-run `teleoperator`.'
+        '2. Re-run `telecaster`.'
       ]
     };
   }
@@ -104,7 +104,7 @@ export function startFunnel(port) {
       steps: [
         '1. Enable Funnel once in Tailscale Admin Console (or follow the URL printed by Tailscale).',
         `2. Verify manually: tailscale funnel --bg ${port}`,
-        '3. Re-run `teleoperator`.'
+        '3. Re-run `telecaster`.'
       ],
       publicUrl: ''
     };

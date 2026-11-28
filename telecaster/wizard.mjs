@@ -5,13 +5,13 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { ToolRegistry } from './registry.mjs';
 import { loadOrCreateToken, startFunnel, stopFunnel } from './tunnel.mjs';
-import { createTeleoperatorServer, findFreePort } from './server.mjs';
+import { createTelecasterServer, findFreePort } from './server.mjs';
 import { exportSkillBundle } from './skill.mjs';
 
 const DEFAULT_PORT = 9494;
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const CAROL_DIR = path.resolve(SCRIPT_DIR, '..');
-const STATE_DIR = path.join(CAROL_DIR, '.teleoperator');
+const STATE_DIR = path.join(CAROL_DIR, '.telecaster');
 
 const CLIENTS = [
   {
@@ -21,7 +21,7 @@ const CLIENTS = [
       '1. Open https://gemini.google.com/customize/connectors',
       `2. Add a custom MCP connector and paste: ${mcpUrl}`,
       '3. Enable the connector in your Gemini Web chat.',
-      '4. Upload the TELEOPERATOR skill once (`teleoperator --skill`), then send: teleoperator rock n roll'
+      '4. Upload the TELECASTER skill once (`telecaster --skill`), then send: telecaster rock n roll'
     ]
   },
   {
@@ -31,7 +31,7 @@ const CLIENTS = [
       '1. Open https://claude.ai/settings/connectors',
       `2. Click "Add custom connector" and paste: ${mcpUrl}`,
       '3. Enable the connector in your Claude chat.',
-      '4. Upload the TELEOPERATOR skill once (`teleoperator --skill`), then send: teleoperator rock n roll'
+      '4. Upload the TELECASTER skill once (`telecaster --skill`), then send: telecaster rock n roll'
     ]
   },
   {
@@ -41,7 +41,7 @@ const CLIENTS = [
       '1. Open ChatGPT Settings -> Connectors -> Developer Mode.',
       `2. Add a custom MCP server and paste: ${mcpUrl}`,
       '3. Enable the connector in your chat.',
-      '4. Load the TELEOPERATOR skill (`teleoperator --skill`), then send: teleoperator rock n roll'
+      '4. Load the TELECASTER skill (`telecaster --skill`), then send: telecaster rock n roll'
     ]
   },
   {
@@ -49,7 +49,7 @@ const CLIENTS = [
     name: 'Other MCP Web Client',
     steps: (mcpUrl) => [
       `1. Paste this Streamable HTTP / SSE MCP endpoint into your client: ${mcpUrl}`,
-      '2. Load the TELEOPERATOR skill (`teleoperator --skill`), then send: teleoperator rock n roll'
+      '2. Load the TELECASTER skill (`telecaster --skill`), then send: telecaster rock n roll'
     ]
   }
 ];
@@ -101,10 +101,10 @@ function copyClipboard(text) {
 }
 
 function printHelp() {
-  console.log(`CAROL TELEOPERATOR — remote MCP gateway for web AI clients
+  console.log(`CAROL TELECASTER — remote MCP gateway for web AI clients
 
 Usage:
-  teleoperator [project-dir] [options]
+  telecaster [project-dir] [options]
 
 Options:
   --port <n>       Loopback port (default: 9494)
@@ -113,7 +113,7 @@ Options:
   --local          Loopback only (skip Tailscale Funnel)
   --no-wizard      Skip interactive prompts
   --rotate-token   Mint a new access token
-  --skill          Build uploadable TELEOPERATOR skill bundle and exit
+  --skill          Build uploadable TELECASTER skill bundle and exit
   -h, --help       Show this help`);
 }
 
@@ -157,7 +157,7 @@ async function runWizard(opts) {
   let client = CLIENTS[0];
 
   if (!opts.noWizard && process.stdin.isTTY) {
-    console.log(`\nCAROL TELEOPERATOR — ${projectDir}`);
+    console.log(`\nCAROL TELECASTER — ${projectDir}`);
     for (const c of CLIENTS) {
       console.log(`  ${c.key}) ${c.name}`);
     }
@@ -179,7 +179,7 @@ async function main() {
 
   if (opts.skill) {
     const bundle = exportSkillBundle(CAROL_DIR, STATE_DIR);
-    console.log('TELEOPERATOR skill bundle built from ~/.carol/ SSOT:');
+    console.log('TELECASTER skill bundle built from ~/.carol/ SSOT:');
     console.log(`  Folder: ${bundle.bundleDir}`);
     console.log(`  SKILL:  ${bundle.skillFile}`);
     console.log(`  Refs:   ${bundle.refsDir} (${bundle.files.length} files)`);
@@ -204,7 +204,7 @@ async function main() {
   });
   await registry.start();
 
-  const httpServer = createTeleoperatorServer({
+  const httpServer = createTelecasterServer({
     registry,
     token,
     port,
@@ -223,7 +223,7 @@ async function main() {
       for (const step of funnel.steps) {
         console.error(`  ${step}`);
       }
-      console.error('\nTip: run `teleoperator --local` to test locally without Tailscale.');
+      console.error('\nTip: run `telecaster --local` to test locally without Tailscale.');
       await httpServer.close();
       registry.closeAll();
       process.exit(1);
@@ -236,7 +236,7 @@ async function main() {
   const copied = copyClipboard(mcpUrl);
   const hasManifest = fs.existsSync(path.join(projectDir, 'project-info.md'));
 
-  console.log('\nTELEOPERATOR Gateway Online');
+  console.log('\nTELECASTER Gateway Online');
   console.log(`  Project:  ${projectDir}`);
   console.log(`  RW Roots: ${registry.rwRoots.join(', ')}`);
   console.log(`  RO Roots: ${registry.roRoots.join(', ') || 'none'}`);
@@ -257,7 +257,7 @@ async function main() {
       process.exit(130);
     }
     stopping = true;
-    console.log('\nStopping TELEOPERATOR...');
+    console.log('\nStopping TELECASTER...');
     const forceExit = setTimeout(() => process.exit(0), 1500);
     registry.closeAll();
     await httpServer.close();
@@ -273,6 +273,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`TELEOPERATOR failed: ${err.message}`);
+  console.error(`TELECASTER failed: ${err.message}`);
   process.exit(1);
 });
