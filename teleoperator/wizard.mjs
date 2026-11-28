@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import readline from 'node:readline/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { ToolRegistry } from './registry.mjs';
@@ -129,27 +128,42 @@ function printUpstreams(status) {
   }
 }
 
+function readSingleKey() {
+  return new Promise((resolve) => {
+    const onData = (buf) => {
+      const ch = buf.toString('utf8');
+      if (ch === '\u0003') {
+        process.stdin.setRawMode(false);
+        process.stdin.pause();
+        process.stdout.write('\n');
+        process.exit(130);
+      }
+      if (ch === '\r' || ch === '\n' || CLIENTS.some((c) => c.key === ch)) {
+        process.stdin.off('data', onData);
+        process.stdin.setRawMode(false);
+        process.stdin.pause();
+        resolve(ch === '\r' || ch === '\n' ? '1' : ch);
+      }
+    };
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.on('data', onData);
+  });
+}
+
 async function runWizard(opts) {
-  let projectDir = path.resolve(expandHome(opts.projectArg || process.cwd()));
+  const projectDir = path.resolve(expandHome(opts.projectArg || process.cwd()));
   let client = CLIENTS[0];
 
   if (!opts.noWizard && process.stdin.isTTY) {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    try {
-      console.log('\nCAROL TELEOPERATOR Setup\n');
-      const projectAnswer = (await rl.question(`Project folder [${projectDir}]: `)).trim();
-      if (projectAnswer) {
-        projectDir = path.resolve(expandHome(projectAnswer));
-      }
-      console.log('\nTarget web client:');
-      for (const c of CLIENTS) {
-        console.log(`  ${c.key}) ${c.name}`);
-      }
-      const clientAnswer = (await rl.question('Choose [1]: ')).trim() || '1';
-      client = CLIENTS.find((c) => c.key === clientAnswer) || CLIENTS[0];
-    } finally {
-      rl.close();
+    console.log(`\nCAROL TELEOPERATOR — ${projectDir}`);
+    for (const c of CLIENTS) {
+      console.log(`  ${c.key}) ${c.name}`);
     }
+    process.stdout.write('Press 1-4 [1]: ');
+    const key = await readSingleKey();
+    client = CLIENTS.find((c) => c.key === key) || CLIENTS[0];
+    console.log(client.name);
   }
 
   return { projectDir, client };
@@ -193,7 +207,8 @@ async function main() {
     registry,
     token,
     port,
-    publicUrl: ''
+    publicUrl: '',
+    stateDir: STATE_DIR
   });
   await httpServer.listen();
 

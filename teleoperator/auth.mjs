@@ -1,4 +1,6 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const ACCESS_TTL_MS = 86400000;
 const CODE_TTL_MS = 600000;
@@ -70,42 +72,91 @@ export function isLocalAdminRequest(req, port) {
 }
 
 export class AuthStore {
-  constructor(masterToken) {
+  constructor(masterToken, stateDir = '') {
     this.masterToken = masterToken;
+    this.oauthFile = stateDir ? path.join(stateDir, 'oauth.json') : '';
     this.clients = new Map();
     this.codes = new Map();
     this.tokens = new Map();
     this.sseSessionTokens = new Map();
+    this.loadOAuth();
   }
 
-  extractToken(req, url, pathToken) {
+  loadOAuth() {
+    if (!this.oauthFile) return;
+    try {
+      const raw = JSON.parse(fs.readFileSync(this.oauthFile, 'utf8'));
+      if (raw && typeof raw.clients === 'object') {
+        for (const [k, v] of Object.entries(raw.clients)) {
+          this.clients.set(k, v);
+        }
+      }
+      const now = Date.now();
+      if (raw && typeof raw.tokens === 'object') {
+        for (const [k, v] of Object.entries(raw.tokens)) {
+          if (v && (!v.exp || v.exp > now)) {
+            this.tokens.set(k, v);
+          }
+        }
+      }
+    } catch {}
+  }
+
+  saveOAuth() {
+    if (!this.oauthFile) return;
+    const now = Date.now();
+    const tokens = {};
+    for (const [k, v] of this.tokens) {
+      if (v && (!v.exp || v.exp > now)) {
+        tokens[k] = v;
+      }
+    }
+    const payload = JSON.stringify({
+      clients: Object.fromEntries(this.clients),
+      tokens
+    }, null, 2);
+    try {
+      fs.mkdirSync(path.dirname(this.oauthFile), { recursive: true, mode: 0o700 });
+      fs.writeFileSync(this.oauthFile, payload, { mode: 0o600 });
+    } catch {}
+  }
+
+  extractTokens(req, url, pathToken) {
+    const candidates = [];
     const authHeader = req.headers.authorization || '';
     if (authHeader.startsWith('Bearer ')) {
-      return authHeader.slice(7).trim();
+      const bearer = authHeader.slice(7).trim();
+      if (bearer) candidates.push(bearer);
     }
-    return req.headers['x-carol-token'] ||
-      url.searchParams.get('token') ||
-      pathToken ||
-      '';
+    const headerToken = req.headers['x-carol-token'];
+    if (headerToken) candidates.push(String(headerToken));
+    const queryToken = url.searchParams.get('token');
+    if (queryToken) candidates.push(queryToken);
+    if (pathToken) candidates.push(pathToken);
+    return candidates;
   }
 
   isAuthorized(req, url, pathToken) {
     if (!this.masterToken) {
       return false;
     }
-    const given = this.extractToken(req, url, pathToken);
-    if (!given) {
-      return false;
-    }
-    if (safeEqual(given, this.masterToken)) {
-      return true;
-    }
+    const candidates = this.extractTokens(req, url, pathToken);
     const sid = url.searchParams.get('sessionId');
-    if (sid && this.sseSessionTokens.has(sid) && safeEqual(given, this.sseSessionTokens.get(sid))) {
-      return true;
+    const sseToken = sid ? this.sseSessionTokens.get(sid) : '';
+    const now = Date.now();
+    for (const given of candidates) {
+      if (safeEqual(given, this.masterToken)) {
+        return true;
+      }
+      if (sseToken && safeEqual(given, sseToken)) {
+        return true;
+      }
+      const rec = this.tokens.get(sha256hex(given));
+      if (rec && rec.type === 'access' && (!rec.exp || rec.exp > now)) {
+        return true;
+      }
     }
-    const rec = this.tokens.get(sha256hex(given));
-    return Boolean(rec && rec.type === 'access' && (!rec.exp || rec.exp > Date.now()));
+    return false;
   }
 
   mintSseToken(sessionId) {
@@ -134,6 +185,7 @@ export class AuthStore {
         exp: 0
       });
     }
+    this.saveOAuth();
     return {
       access_token: access,
       token_type: 'Bearer',
@@ -193,6 +245,7 @@ export class AuthStore {
         redirectUris,
         authMethod
       });
+      this.saveOAuth();
       const out = {
         client_id: clientId,
         client_id_issued_at: Math.floor(Date.now() / 1000),

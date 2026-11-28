@@ -66,8 +66,8 @@ function extractPathToken(pathname) {
   return { pathname: `/${match[1]}`, pathToken: match[2] };
 }
 
-export function createTeleoperatorServer({ registry, token, port, publicUrl }) {
-  const auth = new AuthStore(token);
+export function createTeleoperatorServer({ registry, token, port, publicUrl, stateDir = '' }) {
+  const auth = new AuthStore(token, stateDir);
   const mcpSessions = new Map();
   const sseSessions = new Map();
   let activePublicUrl = publicUrl || '';
