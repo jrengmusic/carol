@@ -140,6 +140,7 @@ export class ToolRegistry {
       await client.start();
       const upstreamTools = await client.listTools();
       this.clients.set(spec.name, client);
+      let registeredCount = 0;
       for (const tool of upstreamTools) {
         const publicName = `${spec.name}_${tool.name}`;
         this.toolMap.set(publicName, { server: spec.name, toolName: tool.name, client });
@@ -147,8 +148,19 @@ export class ToolRegistry {
           ...tool,
           name: publicName
         });
+        registeredCount++;
+        if (spec.name === 'saw' && tool.name === 'run') {
+          this.toolMap.set('saw_read', { server: spec.name, toolName: tool.name, client, readOnly: true });
+          this.tools.push({
+            ...tool,
+            name: 'saw_read',
+            description: 'Read-only saw command (find, page, excerpt, lines read, fields, json, or dry-run previews). Rejects --apply and mutating undo.',
+            annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
+          });
+          registeredCount++;
+        }
       }
-      this.status[spec.name] = { active: true, tools: upstreamTools.length };
+      this.status[spec.name] = { active: true, tools: registeredCount };
     } catch (err) {
       client.close();
       this.status[spec.name] = { active: false, tools: 0, reason: err.message };
@@ -171,21 +183,27 @@ export class ToolRegistry {
     return resolved;
   }
 
-  validateSawCall(args) {
+  validateSawCall(args, readOnly = false) {
+    const label = readOnly ? 'saw_read' : 'saw_run';
     const rawDir = args?.directory ? expandHome(String(args.directory)) : this.projectDir;
     const resolvedDir = realpathOrAncestor(rawDir);
     const inRw = inAnyRoot(resolvedDir, this.rwRoots);
     const inRo = inAnyRoot(resolvedDir, this.roRoots);
     if (!inRw && !inRo) {
-      throw new Error(`saw_run: directory outside allowed roots: ${rawDir}`);
+      throw new Error(`${label}: directory outside allowed roots: ${rawDir}`);
     }
 
     const sawArgs = Array.isArray(args?.arguments) ? args.arguments.map(String) : [];
     const verb = sawArgs[0] || '';
-    const isApply = sawArgs.includes('--apply') && MUTATING_VERBS.has(verb);
+    const isUndoMutate = verb === 'undo' && !sawArgs.includes('--list') && !sawArgs.includes('--dry-run');
+    const isApply = (sawArgs.includes('--apply') && MUTATING_VERBS.has(verb)) || isUndoMutate;
+
+    if (readOnly && (sawArgs.includes('--apply') || isUndoMutate)) {
+      throw new Error('saw_read: mutating arguments are not allowed (use saw_run)');
+    }
 
     if (isApply && !inRw) {
-      throw new Error(`saw_run: write blocked in read-only root: ${rawDir}`);
+      throw new Error(`${label}: write blocked in read-only root: ${rawDir}`);
     }
 
     const candidates = extractCandidatePaths(sawArgs, resolvedDir);
@@ -207,10 +225,10 @@ export class ToolRegistry {
       const targetInRw = inAnyRoot(realTarget, this.rwRoots);
       const targetInRo = inAnyRoot(realTarget, this.roRoots);
       if (!targetInRw && !targetInRo) {
-        throw new Error(`saw_run: path outside allowed roots: ${candidate}`);
+        throw new Error(`${label}: path outside allowed roots: ${candidate}`);
       }
       if (isApply && !targetInRw) {
-        throw new Error(`saw_run: write blocked in read-only root: ${candidate}`);
+        throw new Error(`${label}: write blocked in read-only root: ${candidate}`);
       }
     }
 
@@ -225,7 +243,9 @@ export class ToolRegistry {
     if (entry.local) {
       return this.localRunner.callTool(entry.toolName, rawArgs);
     }
-    const callArgs = publicName === 'saw_run' ? this.validateSawCall(rawArgs) : rawArgs;
+    const callArgs = (publicName === 'saw_run' || publicName === 'saw_read')
+      ? this.validateSawCall(rawArgs, Boolean(entry.readOnly))
+      : rawArgs;
     return entry.client.callTool(entry.toolName, callArgs);
   }
 
